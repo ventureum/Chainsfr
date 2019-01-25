@@ -24,7 +24,7 @@ async function init () {
   window._web3 = new Web3("https://ropsten.infura.io/v3/e2011dafd4c240bd8720f84ca826a7b2")
 
   console.log('init ... ')
-  if (!window.gapi.client) {
+  if (window.gapi.client) {
     console.log('loading client ... ')
     let config =  {
       scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata',
