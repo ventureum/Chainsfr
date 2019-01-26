@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
-import StepContent from '@material-ui/core/StepContent'
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
@@ -17,15 +16,23 @@ import BitcoinLogo from './images/btc.svg'
 import DaiLogo from './images/dai.svg'
 import TextField from '@material-ui/core/TextField'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import Divider from '@material-ui/core/Divider'
+import SquareButton from './SquareButtonComponent'
 
 function getSteps() {
-  return ['Choose Cryptocurrency', 'Access My Wallet', 'Set Recipient and PIN', 'Review']
+  return ['Access My Wallet', 'Set Recipient and PIN', 'Review']
 }
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
   'bitcoin': 'BTC',
   'dai': 'DAI'
+}
+
+const walletCryptoSupports = {
+  'chainsfer': ['ethereum', 'bitcoin', 'dai'],
+  'metamask': ['ethereum'],
+  'ledger': ['ethereum', 'bitcoin', 'dai']
 }
 
 const walletSelections = [
@@ -41,19 +48,21 @@ const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskLogo,
-    disabled: false
+    disabled: false,
+    supportedCrypto: ['ethereum']
   },
   {
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: HardwareWalletLogo,
-    disabled: true
+    disabled: true,
+    supportedCrypto: ['ethereum', 'bitcoin', 'dai']
   }
 ]
 
-const cryptoSelections = [
-  {
+    const cryptoSelections = [
+      {
     cryptoType: 'ethereum',
     title: 'Ethereum',
     logo: EthereumLogo,
@@ -76,11 +85,27 @@ const cryptoSelections = [
 class TransferComponent extends Component {
 
   state = {
+    requestedNextStep: null,
     activeStep: 0,
+    cryptoType: '',
+    walletType: '',
+    transferAmount: '0',
+    password: 'wallet state title logo',
+    destination: ''
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.metamask && prevProps.metamask.connected && prevState.walletType === 'metamask') {
+      // metamask selected and connected
+      // move to next step
+      if (prevState.activeStep === 0 && prevState.requestedNextStep === 1) {
+        this.setState({activeStep: 1})
+      }
+    }
   }
 
   handleNext = () => {
-    this.setState(state => ({
+      this.setState(state => ({
       activeStep: state.activeStep + 1,
     }));
   };
@@ -88,6 +113,7 @@ class TransferComponent extends Component {
   handleBack = () => {
     this.setState(state => ({
       activeStep: state.activeStep - 1,
+      requestedNextStep: null
     }));
   };
 
@@ -97,17 +123,27 @@ class TransferComponent extends Component {
     });
   };
 
+  handleWalletAndCryptoSelectionNext = () => {
+    this.setState({requestedNextStep: 1})
+    this.props.checkMetamaskConnection()
+  }
+
   handleCryptoTypeOnClick = (cryptoType) => {
-    this.setState({
-      activeStep: 1,
-      cryptoType: cryptoType
+    this.setState((state) => {
+      return {
+        cryptoType: state.cryptoType !== cryptoType ? cryptoType : '',
+        requestedNextStep: null
+      }
     })
   }
 
-  handleWalletOnClick = (walletType) => {
-    this.setState({
-      activeStep: 2,
-      walletType: walletType
+  handleWalletTypeOnClick = (walletType) => {
+    this.setState((state) => {
+      return {
+        walletType: state.walletType !== walletType ? walletType : '',
+        cryptoType: null, //reset crypto selection
+        requestedNextStep: null
+      }
     })
   }
 
@@ -118,53 +154,80 @@ class TransferComponent extends Component {
     })
   }
 
-  renderCryptoSelection = () => {
-    const { classes } = this.props
+  renderWalletSelection = () => {
+    const { walletType } = this.state
+
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
-        { cryptoSelections.map(c =>
-          (<Grid item key={c.cryptoType}>
-            <Button className={classes.walletBtn} disabled={c.disabled} variant='outlined' onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}>
-              <Grid container direction='column' jutify='center' alignItems='center'>
-                <Grid item>
-                  <img className={classes.walletBtnLogo} src={c.logo} alt="wallet-logo" />
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.walletBtnTittle} align='center'>
-                    {c.title}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Button>
+        {walletSelections.map(w =>
+          (<Grid item key={w.walletType}>
+            <SquareButton
+              disabled={w.disabled}
+              onClick={() => this.handleWalletTypeOnClick(w.walletType)}
+              logo={w.logo}
+              title={w.title}
+              desc={w.desc}
+              selected={w.walletType === walletType}
+            />
           </Grid>))}
       </Grid>
     )
   }
 
-  renderWalletSelection = () => {
+  renderCryptoSelection = () => {
     const { classes } = this.props
+    const { walletType, cryptoType } = this.state
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
-        { walletSelections.map(w =>
-          (<Grid item key={w.walletType}>
-            <Button className={classes.walletBtn} disabled={w.disabled} variant='outlined' onClick={() => this.handleWalletOnClick(w.walletType)}>
-              <Grid container direction='column' jutify='center' alignItems='center'>
-                <Grid item>
-                  <img className={classes.walletBtnLogo} src={w.logo} alt="wallet-logo" />
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.walletBtnTittle} align='center'>
-                    {w.title}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.walletBtnDesc} align='center'>
-                    {w.desc}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Button>
-          </Grid>))}
+      { cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
+        (<Grid item key={c.cryptoType}>
+          <SquareButton
+            disabled={c.disabled}
+            onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}
+            logo={c.logo}
+          title={c.title}
+          selected={c.cryptoType === cryptoType}
+          />
+      </Grid>))}
+      </Grid>
+    )
+  }
+
+  renderWalletAndCryptoSelection = () => {
+    const { classes } = this.props
+    const { walletType, cryptoType } = this.state
+    return (
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+        <Grid item>
+          <Typography variant='h6' align='left'>
+            Choose your wallet
+          </Typography>
+        </Grid>
+        <Grid item>
+          {this.renderWalletSelection()}
+        </Grid>
+        { walletType && <div>
+        <Grid item>
+          <Typography variant='h6' align='left'>
+            Choose cryptocurrency
+          </Typography>
+        </Grid>
+        <Grid item>
+          {this.renderCryptoSelection()}
+        </Grid>
+        </div> }
+        <Grid item>
+          <Button
+            fullWidth
+            variant='contained'
+            color='primary'
+            size='large'
+            onClick={this.handleWalletAndCryptoSelectionNext}
+            disabled={!walletType || !cryptoType}
+          >
+            Continue
+          </Button>
+        </Grid>
       </Grid>
     )
   }
@@ -172,7 +235,7 @@ class TransferComponent extends Component {
 
   renderRecipientSetting  = () => {
     const { classes } = this.props
-    const { cryptoType } = this.state
+    const { cryptoType, password } = this.state
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         <form className={classes.container} noValidate autoComplete="off">
@@ -207,7 +270,7 @@ class TransferComponent extends Component {
               required
               id="password"
               label="Password"
-              defaultValue="wallet title item next"
+              defaultValue={password}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -220,19 +283,95 @@ class TransferComponent extends Component {
     )
   }
 
+  renderReview = () => {
+    const { classes } = this.props
+    const { walletType, cryptoType, transferAmount, destination, password } = this.state
+    return (
+      <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid item>
+          <Typography variant='h6' align='center'>
+            Review details of your transfer
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Paper className={classes.reviewPaper} elevation={1}>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography align='left'>
+                  Transfer details
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography align='left'>
+                  You send
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography align='right'>
+                  {transferAmount} {cryptoAbbreviationMap[cryptoType]}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Divider variant="middle" />
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography align='left'>
+                  Recipient details
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography align='left'>
+                  Email
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography align='right'>
+                  {destination}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography align='left'>
+                  Password
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography align='right'>
+                  {password}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid item>
+          <Button
+            fullWidth
+            variant='contained'
+            size='large'
+            className={classes.button}
+            onClick={this.handleNext}
+          >
+            Confirm and contniue
+          </Button>
+        </Grid>
+      </Grid>
+    )
+
+  }
+
   getStepContent  = (step) => {
     switch (step) {
       case 0:
-        return this.renderCryptoSelection()
+        return this.renderWalletAndCryptoSelection()
       case 1:
-        return this.renderWalletSelection()
-      case 2:
         return this.renderRecipientSetting()
-      case 3:
-        return `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`;
+      case 2:
+        return this.renderReview();
       default:
         return 'Unknown step';
     }
@@ -245,44 +384,33 @@ class TransferComponent extends Component {
 
     return (
       <div className={classes.root}>
-        <Stepper activeStep={activeStep} orientation="vertical">
+        <Stepper activeStep={activeStep}>
           {steps.map((label, index) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
-              <StepContent>
-                {this.getStepContent(index)}
-                <div className={classes.actionsContainer}>
-                  <div>
-                    <Button
-                      disabled={activeStep === 0}
-                      onClick={this.handleBack}
-                      className={classes.button}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={this.handleNext}
-                      className={classes.button}
-                    >
-                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                    </Button>
-                  </div>
-                </div>
-              </StepContent>
             </Step>
           ))}
         </Stepper>
-        {activeStep === steps.length && (
-           <Paper square elevation={0} className={classes.resetContainer}>
-             <Typography>All steps completed - you&apos;re finished</Typography>
-             <Button onClick={this.handleReset} className={classes.button}>
-               Reset
-             </Button>
-           </Paper>
-        )}
+        <div>
+          <Grid container className={classes.root} direction='column' justify='center' alignItems='center'>
+            <Grid item>
+              <Grid container direction='column' justify='center' alignItems='center'>
+                <Grid item>
+                  {this.getStepContent(activeStep)}
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
       </div>
+      {activeStep === steps.length && (
+         <Paper square elevation={0} className={classes.resetContainer}>
+           <Typography>All steps completed - you&apos;re finished</Typography>
+           <Button onClick={this.handleReset} className={classes.button}>
+             Reset
+           </Button>
+         </Paper>
+      )}
+            </div>
     );
   }
 }
@@ -330,6 +458,12 @@ const styles = theme => ({
     height: '100px',
     margin: theme.spacing.unit * 2,
   },
+  reviewPaper: {
+    width: '500px'
+  },
+  stepContentContainer: {
+    maxWidth: '600px'
+  }
 });
 
 export default withStyles(styles)(TransferComponent)

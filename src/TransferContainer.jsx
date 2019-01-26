@@ -1,30 +1,35 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import TransferComponent from './TransferComponent'
-import { transfer } from './actions'
+import { transfer, checkMetamaskConnection } from './actions'
 
 class TransferContainer extends Component {
   render () {
-    const { open, onClose, transfer, wallet } = this.props
+    const { open, onClose, transfer, checkMetamaskConnection, metamask, wallet } = this.props
     return (
       <TransferComponent
         open={open}
         onClose={onClose}
         wallet={wallet}
-        transfer={transfer} />
+        metamask={metamask}
+        transfer={transfer}
+        checkMetamaskConnection={checkMetamaskConnection}
+      />
     )
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    transfer: (fromWallet, pin, value, destination) => dispatch(transfer(fromWallet, pin, value, destination))
+    transfer: (fromWallet, pin, value, destination) => dispatch(transfer(fromWallet, pin, value, destination)),
+    checkMetamaskConnection: () => dispatch(checkMetamaskConnection(dispatch))
   }
 }
 
 const mapStateToProps = state => {
   return {
-    wallet: state.userReducer.wallet
+    wallet: state.userReducer.wallet,
+    metamask: state.userReducer.metamask
   }
 }
 

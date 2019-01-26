@@ -150,6 +150,28 @@ async function _transfer(fromWallet, pin, value, destination) {
   window._web3.eth.accounts.wallet.clear()
 }
 
+async function _checkMetamaskConnection (dispatch) {
+  let rv = {
+    connected: false,
+    network: null,
+    accounts: null
+  }
+
+  if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+    rv.connected = true
+    rv.network = window.ethereum.networkVersion
+
+    // request the user logs in
+    rv.accounts = await window.ethereum.enable()
+
+    // listen for accounts changes
+    window.ethereum.on('accountsChanged', function (accounts) {
+      dispatch(onMetamaskAccountsChanged(accounts))
+    })
+  }
+  return rv
+}
+
 function createAddress (alias) {
   return (dispatch, getState) => {
     let wallet = getState().userReducer.wallet
@@ -164,11 +186,25 @@ function getWallet () {
   }
 }
 
-
 function transfer (fromWallet, pin, value, destination) {
   return {
     type: 'TRANSFER',
     payload: _transfer(fromWallet, pin, value, destination)
   }
 }
-export { onLogin, createAddress, getWallet, transfer }
+
+function checkMetamaskConnection (dispatch) {
+  return {
+    type: 'CHECK_METAMASK_CONNECTION',
+    payload: _checkMetamaskConnection(dispatch)
+  }
+}
+
+function onMetamaskAccountsChanged (accounts) {
+  return {
+    type: 'UPDATE_METAMASK_ACCOUNTS',
+    payload: accounts
+  }
+}
+
+export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged }
