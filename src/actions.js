@@ -1,5 +1,6 @@
 import API from './apis'
 import UUIDv1 from 'uuid/v1'
+import Web3 from 'web3'
 
 async function loadFile (fileId) {
   let rv = await window.gapi.client.drive.files.get({
@@ -161,6 +162,8 @@ async function _checkMetamaskConnection (dispatch) {
     rv.connected = true
     rv.network = window.ethereum.networkVersion
 
+    window._web3 = new Web3(window.ethereum)
+
     // request the user logs in
     rv.accounts = await window.ethereum.enable()
 
@@ -170,6 +173,70 @@ async function _checkMetamaskConnection (dispatch) {
     })
   }
   return rv
+}
+
+async function _submitTx (dispatch, txRequest) {
+  let { fromWallet, walletType, cryptoType, transferAmount, password } = txRequest
+
+  // step 1: create an escrow wallet
+  let escrow = window._web3.eth.accounts.create()
+
+  // step 2: encrypt the escrow wallet with pin provided
+  let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password)
+
+  // step 3: invoke api to store encripted escrow wallet
+  let id = UUIDv1()
+
+  // update request id
+  txRequest.id = id
+
+  // add escrow wallet to tx request
+  txRequest.encriptedEscrow = encriptedEscrow
+
+  // step 4: transfer funds from [fromWallet] to the newly created escrow wallet
+  if (walletType === 'metamask') {
+    if (cryptoType === 'ethereum') {
+      const BN = window._web3.utils.BN
+
+      let finney = new BN(parseInt(Number(transferAmount) * 1000.0))
+      let wei = finney.mul(new BN('1000000000000000'))
+
+      window._web3.eth.sendTransaction({
+        from: fromWallet.accounts[0],
+        to: escrow.address,
+        value: wei.toString()
+      }).on('transactionHash', (hash) => {
+        // update request tx hash
+        txRequest.sendTxHash = hash
+        dispatch(transactionHashRetrieved(txRequest))
+      })
+    }
+  }
+
+  // step 5: clear wallet
+  window._web3.eth.accounts.wallet.clear()
+}
+
+async function _transactionHashRetrieved (txRequest) {
+  let { id, destination, cryptoType, encriptedEscrow, sendTxHash } = txRequest
+
+  let apiResponse = await API.transfer({
+    id: id,
+    clientId: 'test-client',
+    destination: destination,
+    cryptoType: cryptoType,
+    sendTxHash: sendTxHash,
+    data: encriptedEscrow
+  })
+
+  return apiResponse
+}
+
+function transactionHashRetrieved (txRequest) {
+  return {
+    type: 'TRANSACTION_HASH_RETRIEVED',
+    payload: _transactionHashRetrieved(txRequest)
+  }
 }
 
 function createAddress (alias) {
@@ -193,6 +260,15 @@ function transfer (fromWallet, pin, value, destination) {
   }
 }
 
+function submitTx (txRequest) {
+  return (dispatch, getState) => {
+    return {
+      type: 'SUBMIT_TX',
+      payload: _submitTx(dispatch, txRequest)
+    }
+  }
+}
+
 function checkMetamaskConnection (dispatch) {
   return {
     type: 'CHECK_METAMASK_CONNECTION',
@@ -207,4 +283,4 @@ function onMetamaskAccountsChanged (accounts) {
   }
 }
 
-export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged }
+export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged, submitTx }

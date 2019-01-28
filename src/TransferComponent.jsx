@@ -61,8 +61,8 @@ const walletSelections = [
   }
 ]
 
-    const cryptoSelections = [
-      {
+const cryptoSelections = [
+  {
     cryptoType: 'ethereum',
     title: 'Ethereum',
     logo: EthereumLogo,
@@ -105,7 +105,7 @@ class TransferComponent extends Component {
   }
 
   handleNext = () => {
-      this.setState(state => ({
+    this.setState(state => ({
       activeStep: state.activeStep + 1,
     }));
   };
@@ -126,6 +126,24 @@ class TransferComponent extends Component {
   handleWalletAndCryptoSelectionNext = () => {
     this.setState({requestedNextStep: 1})
     this.props.checkMetamaskConnection()
+  }
+
+  handleRecipientSettingNext = () => {
+    this.setState({activeStep: 2})
+  }
+
+  handleReviewNext = () => {
+    let { walletType, cryptoType, transferAmount, destination, password } = this.state
+    let { metamask } = this.props
+    // submit tx
+    this.props.submitTx({
+      fromWallet: metamask,
+      walletType: walletType,
+      cryptoType: cryptoType,
+      transferAmount: transferAmount,
+      destination: destination,
+      password: password
+    })
   }
 
   handleCryptoTypeOnClick = (cryptoType) => {
@@ -182,9 +200,9 @@ class TransferComponent extends Component {
       { cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
         (<Grid item key={c.cryptoType}>
           <SquareButton
-            disabled={c.disabled}
-            onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}
-            logo={c.logo}
+          disabled={c.disabled}
+          onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}
+          logo={c.logo}
           title={c.title}
           selected={c.cryptoType === cryptoType}
           />
@@ -207,14 +225,14 @@ class TransferComponent extends Component {
           {this.renderWalletSelection()}
         </Grid>
         { walletType && <div>
-        <Grid item>
-          <Typography variant='h6' align='left'>
-            Choose cryptocurrency
-          </Typography>
-        </Grid>
-        <Grid item>
-          {this.renderCryptoSelection()}
-        </Grid>
+          <Grid item>
+            <Typography variant='h6' align='left'>
+              Choose cryptocurrency
+            </Typography>
+          </Grid>
+          <Grid item>
+            {this.renderCryptoSelection()}
+          </Grid>
         </div> }
         <Grid item>
           <Button
@@ -235,12 +253,13 @@ class TransferComponent extends Component {
 
   renderRecipientSetting  = () => {
     const { classes } = this.props
-    const { cryptoType, password } = this.state
+    const { cryptoType, transferAmount, destination, password } = this.state
     return (
-      <Grid container direction='row' justify='center' alignItems='center'>
-        <form className={classes.container} noValidate autoComplete="off">
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+        <form className={classes.recipientSettingForm} noValidate autoComplete="off">
           <Grid item>
             <TextField
+              fullWidth
               required
               id="amount"
               label="Amount"
@@ -255,6 +274,7 @@ class TransferComponent extends Component {
           </Grid>
           <Grid item>
             <TextField
+              fullWidth
               required
               id="destination"
               label="Recipient Email"
@@ -267,6 +287,7 @@ class TransferComponent extends Component {
           </Grid>
           <Grid item>
             <TextField
+              fullWidth
               required
               id="password"
               label="Password"
@@ -277,6 +298,27 @@ class TransferComponent extends Component {
               helperText='Use the auto-generated password for maximum security'
               onChange={this.handleTransferFormChange('password')}
             />
+          </Grid>
+          <Grid item>
+            <Button
+              fullWidth
+              variant='contained'
+              color='primary'
+              size='large'
+              onClick={this.handleRecipientSettingNext}
+              disabled={!transferAmount || !destination || !password}
+            >
+              Continue
+            </Button>
+            <Button
+              fullWidth
+              variant='contained'
+              color='primary'
+              size='large'
+              onClick={this.handleBack}
+            >
+              Back
+            </Button>
           </Grid>
         </form>
       </Grid>
@@ -352,11 +394,20 @@ class TransferComponent extends Component {
           <Button
             fullWidth
             variant='contained'
+            color='primary'
             size='large'
-            className={classes.button}
-            onClick={this.handleNext}
+            onClick={this.handleReviewNext}
           >
-            Confirm and contniue
+            Confirm and submit
+          </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            color='primary'
+            size='large'
+            onClick={this.handleBack}
+          >
+            Back
           </Button>
         </Grid>
       </Grid>
@@ -401,16 +452,16 @@ class TransferComponent extends Component {
               </Grid>
             </Grid>
           </Grid>
+        </div>
+        {activeStep === steps.length && (
+           <Paper square elevation={0} className={classes.resetContainer}>
+             <Typography>All steps completed - you&apos;re finished</Typography>
+             <Button onClick={this.handleReset} className={classes.button}>
+               Reset
+             </Button>
+           </Paper>
+        )}
       </div>
-      {activeStep === steps.length && (
-         <Paper square elevation={0} className={classes.resetContainer}>
-           <Typography>All steps completed - you&apos;re finished</Typography>
-           <Button onClick={this.handleReset} className={classes.button}>
-             Reset
-           </Button>
-         </Paper>
-      )}
-            </div>
     );
   }
 }
@@ -458,11 +509,14 @@ const styles = theme => ({
     height: '100px',
     margin: theme.spacing.unit * 2,
   },
+  recipientSettingForm: {
+    minWidth: '500px'
+  },
   reviewPaper: {
     width: '500px'
   },
   stepContentContainer: {
-    maxWidth: '600px'
+    maxWidth: '500px'
   }
 });
 

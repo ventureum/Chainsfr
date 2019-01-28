@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import TransferComponent from './TransferComponent'
-import { transfer, checkMetamaskConnection } from './actions'
+import { transfer, checkMetamaskConnection, submitTx } from './actions'
 
 class TransferContainer extends Component {
   render () {
-    const { open, onClose, transfer, checkMetamaskConnection, metamask, wallet } = this.props
+    const { open, onClose, transfer, submitTx, checkMetamaskConnection, metamask, wallet } = this.props
     return (
       <TransferComponent
         open={open}
@@ -13,6 +13,7 @@ class TransferContainer extends Component {
         wallet={wallet}
         metamask={metamask}
         transfer={transfer}
+        submitTx={submitTx}
         checkMetamaskConnection={checkMetamaskConnection}
       />
     )
@@ -22,7 +23,8 @@ class TransferContainer extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     transfer: (fromWallet, pin, value, destination) => dispatch(transfer(fromWallet, pin, value, destination)),
-    checkMetamaskConnection: () => dispatch(checkMetamaskConnection(dispatch))
+    checkMetamaskConnection: () => dispatch(checkMetamaskConnection(dispatch)),
+    submitTx: (txRequest) => dispatch(submitTx(txRequest))
   }
 }
 
