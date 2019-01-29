@@ -27,7 +27,7 @@ class LoginContainer extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: loginData => dispatch(onLogin(loginData)),
+    onLogin: loginData => dispatch(onLogin(loginData))
   }
 }
 

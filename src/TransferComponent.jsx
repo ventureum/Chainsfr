@@ -15,11 +15,10 @@ import EthereumLogo from './images/eth.svg'
 import BitcoinLogo from './images/btc.svg'
 import DaiLogo from './images/dai.svg'
 import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
 import Divider from '@material-ui/core/Divider'
 import SquareButton from './SquareButtonComponent'
 
-function getSteps() {
+function getSteps () {
   return ['Access My Wallet', 'Set Recipient and PIN', 'Review']
 }
 
@@ -83,7 +82,6 @@ const cryptoSelections = [
 ]
 
 class TransferComponent extends Component {
-
   state = {
     requestedNextStep: null,
     activeStep: 0,
@@ -95,42 +93,50 @@ class TransferComponent extends Component {
     sender: ''
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate (prevProps, prevState) {
     if (prevProps.metamask && prevProps.metamask.connected && prevState.walletType === 'metamask') {
       // metamask selected and connected
       // move to next step
       if (prevState.activeStep === 0 && prevState.requestedNextStep === 1) {
-        this.setState({activeStep: 1})
+        this.setState({ activeStep: 1 })
+      }
+    } else if (prevProps.ledgerNanoS.connected && prevState.walletType === 'ledger') {
+      if (prevState.activeStep === 0 && prevState.requestedNextStep === 1) {
+        this.setState({ activeStep: 1 })
       }
     }
   }
 
   handleNext = () => {
     this.setState(state => ({
-      activeStep: state.activeStep + 1,
-    }));
+      activeStep: state.activeStep + 1
+    }))
   };
 
   handleBack = () => {
     this.setState(state => ({
       activeStep: state.activeStep - 1,
       requestedNextStep: null
-    }));
+    }))
   };
 
   handleReset = () => {
     this.setState({
-      activeStep: 0,
-    });
+      activeStep: 0
+    })
   };
 
   handleWalletAndCryptoSelectionNext = () => {
-    this.setState({requestedNextStep: 1})
-    this.props.checkMetamaskConnection()
+    this.setState({ requestedNextStep: 1 })
+    if (this.state.walletType === 'metamask') {
+      this.props.checkMetamaskConnection()
+    } else if (this.state.walletType === 'ledger') {
+      this.props.checkLedgerNanoSConnection()
+    }
   }
 
   handleRecipientSettingNext = () => {
-    this.setState({activeStep: 2})
+    this.setState({ activeStep: 2 })
   }
 
   handleReviewNext = () => {
@@ -161,7 +167,7 @@ class TransferComponent extends Component {
     this.setState((state) => {
       return {
         walletType: state.walletType !== walletType ? walletType : '',
-        cryptoType: null, //reset crypto selection
+        cryptoType: null, // reset crypto selection
         requestedNextStep: null
       }
     })
@@ -170,7 +176,7 @@ class TransferComponent extends Component {
   handleTransferFormChange = name => event => {
     console.log(name, event.target.value)
     this.setState({
-      [name]: event.target.value,
+      [name]: event.target.value
     })
   }
 
@@ -195,26 +201,24 @@ class TransferComponent extends Component {
   }
 
   renderCryptoSelection = () => {
-    const { classes } = this.props
     const { walletType, cryptoType } = this.state
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
-      { cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
-        (<Grid item key={c.cryptoType}>
-          <SquareButton
-          disabled={c.disabled}
-          onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}
-          logo={c.logo}
-          title={c.title}
-          selected={c.cryptoType === cryptoType}
-          />
-      </Grid>))}
+        {cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
+          (<Grid item key={c.cryptoType}>
+            <SquareButton
+              disabled={c.disabled}
+              onClick={() => this.handleCryptoTypeOnClick(c.cryptoType)}
+              logo={c.logo}
+              title={c.title}
+              selected={c.cryptoType === cryptoType}
+            />
+          </Grid>))}
       </Grid>
     )
   }
 
   renderWalletAndCryptoSelection = () => {
-    const { classes } = this.props
     const { walletType, cryptoType } = this.state
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
@@ -226,7 +230,7 @@ class TransferComponent extends Component {
         <Grid item>
           {this.renderWalletSelection()}
         </Grid>
-        { walletType && <div>
+        {walletType && <div>
           <Grid item>
             <Typography variant='h6' align='left'>
               Choose cryptocurrency
@@ -235,7 +239,7 @@ class TransferComponent extends Component {
           <Grid item>
             {this.renderCryptoSelection()}
           </Grid>
-        </div> }
+        </div>}
         <Grid item>
           <Button
             fullWidth
@@ -252,22 +256,21 @@ class TransferComponent extends Component {
     )
   }
 
-
-  renderRecipientSetting  = () => {
+  renderRecipientSetting = () => {
     const { classes } = this.props
-    const { cryptoType, transferAmount, destination, password } = this.state
+    const { transferAmount, destination, password } = this.state
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
-        <form className={classes.recipientSettingForm} noValidate autoComplete="off">
+        <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
           <Grid item>
             <TextField
               fullWidth
               required
-              id="amount"
-              label="Amount"
+              id='amount'
+              label='Amount'
               className={classes.textField}
-              margin="normal"
-              variant="outlined"
+              margin='normal'
+              variant='outlined'
               onChange={this.handleTransferFormChange('transferAmount')}
             />
           </Grid>
@@ -275,12 +278,12 @@ class TransferComponent extends Component {
             <TextField
               fullWidth
               required
-              id="sender"
-              label="Your Email"
-              placeholder="john@gmail.com"
+              id='sender'
+              label='Your Email'
+              placeholder='john@gmail.com'
               className={classes.textField}
-              margin="normal"
-              variant="outlined"
+              margin='normal'
+              variant='outlined'
               helperText='A tracking number will be sent to this email. It will also be shown to the recipient'
               onChange={this.handleTransferFormChange('sender')}
             />
@@ -289,12 +292,12 @@ class TransferComponent extends Component {
             <TextField
               fullWidth
               required
-              id="destination"
-              label="Recipient Email"
-              placeholder="john@gmail.com"
+              id='destination'
+              label='Recipient Email'
+              placeholder='john@gmail.com'
               className={classes.textField}
-              margin="normal"
-              variant="outlined"
+              margin='normal'
+              variant='outlined'
               onChange={this.handleTransferFormChange('destination')}
             />
           </Grid>
@@ -302,12 +305,12 @@ class TransferComponent extends Component {
             <TextField
               fullWidth
               required
-              id="password"
-              label="Security Answer"
+              id='password'
+              label='Security Answer'
               defaultValue={password}
               className={classes.textField}
-              margin="normal"
-              variant="outlined"
+              margin='normal'
+              variant='outlined'
               helperText='Use the offline auto-generated password for maximum security'
               onChange={this.handleTransferFormChange('password')}
             />
@@ -383,7 +386,7 @@ class TransferComponent extends Component {
                 </Typography>
               </Grid>
             </Grid>
-            <Divider className={classes.reviewDivider} variant="middle" />
+            <Divider className={classes.reviewDivider} variant='middle' />
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
                 <Typography className={classes.reviewLeftTitle} align='left'>
@@ -441,26 +444,25 @@ class TransferComponent extends Component {
         </Grid>
       </Grid>
     )
-
   }
 
-  getStepContent  = (step) => {
+  getStepContent = (step) => {
     switch (step) {
       case 0:
         return this.renderWalletAndCryptoSelection()
       case 1:
         return this.renderRecipientSetting()
       case 2:
-        return this.renderReview();
+        return this.renderReview()
       default:
-        return 'Unknown step';
+        return 'Unknown step'
     }
   }
 
   render () {
-    const { classes } = this.props;
-    const steps = getSteps();
-    const { activeStep } = this.state;
+    const { classes } = this.props
+    const steps = getSteps()
+    const { activeStep } = this.state
 
     return (
       <div className={classes.root}>
@@ -483,15 +485,15 @@ class TransferComponent extends Component {
           </Grid>
         </div>
         {activeStep === steps.length && (
-           <Paper square elevation={0} className={classes.resetContainer}>
-             <Typography>All steps completed - you&apos;re finished</Typography>
-             <Button onClick={this.handleReset} className={classes.button}>
-               Reset
-             </Button>
-           </Paper>
+          <Paper square elevation={0} className={classes.resetContainer}>
+            <Typography>All steps completed - you&apos;re finished</Typography>
+            <Button onClick={this.handleReset} className={classes.button}>
+              Reset
+            </Button>
+          </Paper>
         )}
       </div>
-    );
+    )
   }
 }
 
@@ -500,13 +502,13 @@ const styles = theme => ({
   },
   button: {
     marginTop: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing.unit
   },
   actionsContainer: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2
   },
   resetContainer: {
-    padding: theme.spacing.unit * 3,
+    padding: theme.spacing.unit * 3
   },
   stepper: {
     background: '#f1f1f1'
@@ -536,7 +538,7 @@ const styles = theme => ({
   },
   cryptoIcon: {
     height: '100px',
-    margin: theme.spacing.unit * 2,
+    margin: theme.spacing.unit * 2
   },
   recipientSettingForm: {
     maxWidth: '400px'
@@ -575,7 +577,7 @@ const styles = theme => ({
     letterSpacaing: '0',
     fontSize: '14px',
     lineHeight: '24px',
-    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif'
   },
   reviewLeftSubtitle: {
     color: '#5d7079',
@@ -583,7 +585,7 @@ const styles = theme => ({
     letterSpacaing: '.016em',
     fontSize: '14px',
     lineHeight: '24px',
-    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif'
   },
   reviewRightSubtitleLarge: {
     color: '#2e4369',
@@ -591,7 +593,7 @@ const styles = theme => ({
     letterSpacaing: '0',
     fontSize: '22px',
     lineHeight: '30px',
-    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif'
   },
   reviewRightSubtitleSmall: {
     color: '#2e4369',
@@ -599,12 +601,12 @@ const styles = theme => ({
     letterSpacaing: '016em',
     fontSize: '16px',
     lineHeight: '24px',
-    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif'
   },
   reviewDivider: {
     marginTop: '16px',
     marginBottom: '16px'
   }
-});
+})
 
 export default withStyles(styles)(TransferComponent)

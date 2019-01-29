@@ -1,6 +1,10 @@
 import API from './apis'
 import UUIDv1 from 'uuid/v1'
 import Web3 from 'web3'
+import LedgerNanoS from './ledgerSigner'
+
+const ledgerNanoS = new LedgerNanoS()
+const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
 
 async function loadFile (fileId) {
   let rv = await window.gapi.client.drive.files.get({
@@ -11,7 +15,7 @@ async function loadFile (fileId) {
   return rv.result
 }
 
-async function listFiles ()  {
+async function listFiles () {
   console.log(window.gapi)
   console.log(window.gapi.client)
   if (!window.gapi.client.drive) {
@@ -112,7 +116,7 @@ async function __createAddress (wallet, alias) {
   }
 }
 
-async function _getWallet() {
+async function _getWallet () {
   return await listFiles()
 }
 
@@ -123,7 +127,7 @@ function _createAddress (wallet, alias) {
   }
 }
 
-async function _transfer(fromWallet, pin, value, destination) {
+async function _transfer (fromWallet, pin, value, destination) {
   // only support ethereum now
   if (!fromWallet || fromWallet.cryptoType !== 'Ethereum') {
     throw 'Only Ethereum is supported!'
@@ -211,6 +215,18 @@ async function _submitTx (dispatch, txRequest) {
         dispatch(transactionHashRetrieved(txRequest))
       })
     }
+  } else if (walletType === 'ledger') {
+    if (cryptoType === 'ethereum') {
+      const signedTransactionObject = await ledgerNanoS.sendEther(0, escrow.address, transferAmount)
+      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
+        .on('transactionHash', (hash) => {
+          console.log('txHash: ', hash)
+          // update request tx hash
+          txRequest.sendTxHash = hash
+          dispatch(transactionHashRetrieved(txRequest))
+        })
+    }
   }
 
   // step 5: clear wallet
@@ -284,4 +300,16 @@ function onMetamaskAccountsChanged (accounts) {
   }
 }
 
-export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged, submitTx }
+async function _checkLedgerNanoSConnection () {
+  const deviceConnected = await ledgerNanoS.deviceConnected()
+  return deviceConnected
+}
+
+function checkLedgerNanoSConnection () {
+  return {
+    type: 'CHECK_LEDGER_NANOS_CONNECTION',
+    payload: _checkLedgerNanoSConnection()
+  }
+}
+
+export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged, submitTx, checkLedgerNanoSConnection }
