@@ -91,7 +91,8 @@ class TransferComponent extends Component {
     walletType: '',
     transferAmount: '0',
     password: 'wallet state title logo',
-    destination: ''
+    destination: '',
+    sender: ''
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -133,7 +134,7 @@ class TransferComponent extends Component {
   }
 
   handleReviewNext = () => {
-    let { walletType, cryptoType, transferAmount, destination, password } = this.state
+    let { walletType, cryptoType, transferAmount, destination, sender, password } = this.state
     let { metamask } = this.props
     // submit tx
     this.props.submitTx({
@@ -142,6 +143,7 @@ class TransferComponent extends Component {
       cryptoType: cryptoType,
       transferAmount: transferAmount,
       destination: destination,
+      sender: sender,
       password: password
     })
   }
@@ -266,10 +268,21 @@ class TransferComponent extends Component {
               className={classes.textField}
               margin="normal"
               variant="outlined"
-              InputProps={{
-                endAdornment: <InputAdornment position="start"> {cryptoAbbreviationMap[cryptoType]} </InputAdornment>,
-              }}
               onChange={this.handleTransferFormChange('transferAmount')}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              fullWidth
+              required
+              id="sender"
+              label="Your Email"
+              placeholder="john@gmail.com"
+              className={classes.textField}
+              margin="normal"
+              variant="outlined"
+              helperText='A tracking number will be sent to this email. It will also be shown to the recipient'
+              onChange={this.handleTransferFormChange('sender')}
             />
           </Grid>
           <Grid item>
@@ -290,17 +303,18 @@ class TransferComponent extends Component {
               fullWidth
               required
               id="password"
-              label="Password"
+              label="Security Answer"
               defaultValue={password}
               className={classes.textField}
               margin="normal"
               variant="outlined"
-              helperText='Use the auto-generated password for maximum security'
+              helperText='Use the offline auto-generated password for maximum security'
               onChange={this.handleTransferFormChange('password')}
             />
           </Grid>
           <Grid item>
             <Button
+              className={classes.continueBtn}
               fullWidth
               variant='contained'
               color='primary'
@@ -311,6 +325,7 @@ class TransferComponent extends Component {
               Continue
             </Button>
             <Button
+              className={classes.backBtn}
               fullWidth
               variant='contained'
               color='primary'
@@ -327,11 +342,11 @@ class TransferComponent extends Component {
 
   renderReview = () => {
     const { classes } = this.props
-    const { walletType, cryptoType, transferAmount, destination, password } = this.state
+    const { walletType, cryptoType, transferAmount, sender, destination, password } = this.state
     return (
-      <Grid container direction='column' justify='center' alignItems='center'>
+      <Grid container direction='column' justify='center' alignItems='stretch'>
         <Grid item>
-          <Typography variant='h6' align='center'>
+          <Typography className={classes.title} variant='h6' align='center'>
             Review details of your transfer
           </Typography>
         </Grid>
@@ -339,51 +354,63 @@ class TransferComponent extends Component {
           <Paper className={classes.reviewPaper} elevation={1}>
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
-                <Typography align='left'>
+                <Typography className={classes.reviewLeftTitle} align='left'>
                   Transfer details
                 </Typography>
               </Grid>
             </Grid>
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
-                <Typography align='left'>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
                   You send
                 </Typography>
               </Grid>
               <Grid item lg={6}>
-                <Typography align='right'>
+                <Typography className={classes.reviewRightSubtitleLarge} align='right'>
                   {transferAmount} {cryptoAbbreviationMap[cryptoType]}
                 </Typography>
               </Grid>
             </Grid>
-            <Divider variant="middle" />
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
-                <Typography align='left'>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  Your email
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
+                  {sender}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Divider className={classes.reviewDivider} variant="middle" />
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftTitle} align='left'>
                   Recipient details
                 </Typography>
               </Grid>
             </Grid>
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
-                <Typography align='left'>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
                   Email
                 </Typography>
               </Grid>
               <Grid item lg={6}>
-                <Typography align='right'>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
                   {destination}
                 </Typography>
               </Grid>
             </Grid>
             <Grid container direction='row' justify='space-between' alignItems='center'>
               <Grid item lg={6}>
-                <Typography align='left'>
-                  Password
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  Security Answer
                 </Typography>
               </Grid>
               <Grid item lg={6}>
-                <Typography align='right'>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
                   {password}
                 </Typography>
               </Grid>
@@ -392,6 +419,7 @@ class TransferComponent extends Component {
         </Grid>
         <Grid item>
           <Button
+            className={classes.submitBtn}
             fullWidth
             variant='contained'
             color='primary'
@@ -401,6 +429,7 @@ class TransferComponent extends Component {
             Confirm and submit
           </Button>
           <Button
+            className={classes.backBtn}
             fullWidth
             variant='contained'
             color='primary'
@@ -510,13 +539,71 @@ const styles = theme => ({
     margin: theme.spacing.unit * 2,
   },
   recipientSettingForm: {
-    minWidth: '500px'
+    maxWidth: '400px'
   },
   reviewPaper: {
-    width: '500px'
+    minWidth: '339px',
+    border: 'solid 1px #e2e6e8',
+    borderRadius: '4px',
+    padding: '24px'
   },
   stepContentContainer: {
-    maxWidth: '500px'
+    maxWidth: '400px'
+  },
+  continueBtn: {
+    marginTop: '16px'
+  },
+  backBtn: {
+    marginTop: '16px'
+  },
+  submitBtn: {
+    marginTop: '16px',
+    color: '#fff',
+    backgroundColor: '#2ED06E'
+  },
+  title: {
+    color: '#2e4369',
+    fontSize: '28px',
+    fontWeight: '800',
+    lineHeight: '32px',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+    padding: '48px 0 24px 0'
+  },
+  reviewLeftTitle: {
+    color: '#829ca9',
+    fontWeight: '600',
+    letterSpacaing: '0',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+  },
+  reviewLeftSubtitle: {
+    color: '#5d7079',
+    fontWeight: '400',
+    letterSpacaing: '.016em',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+  },
+  reviewRightSubtitleLarge: {
+    color: '#2e4369',
+    fontWeight: '600',
+    letterSpacaing: '0',
+    fontSize: '22px',
+    lineHeight: '30px',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+  },
+  reviewRightSubtitleSmall: {
+    color: '#2e4369',
+    fontWeight: '400',
+    letterSpacaing: '016em',
+    fontSize: '16px',
+    lineHeight: '24px',
+    fontFamily: 'Averta,Avenir W02,Avenir,Helvetica,Arial,sans-serif',
+  },
+  reviewDivider: {
+    marginTop: '16px',
+    marginBottom: '16px'
   }
 });
 
