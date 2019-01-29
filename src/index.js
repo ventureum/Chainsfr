@@ -21,14 +21,14 @@ function render () {
 }
 
 async function init () {
-  window._web3 = new Web3("https://ropsten.infura.io/v3/e2011dafd4c240bd8720f84ca826a7b2")
+  window._web3 = new Web3('https://ropsten.infura.io/v3/e2011dafd4c240bd8720f84ca826a7b2')
 
   console.log('init ... ')
   if (window.gapi.client) {
     console.log('loading client ... ')
-    let config =  {
+    let config = {
       scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata',
-      client_id: '754636752811-bdve3j98l74duv96vit2hqm635io3cjv.apps.googleusercontent.com',
+      client_id: '754636752811-bdve3j98l74duv96vit2hqm635io3cjv.apps.googleusercontent.com'
     }
     window.gapi.load('client', async function () {
       console.log('loading client done. ')

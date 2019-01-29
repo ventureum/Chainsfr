@@ -2,13 +2,11 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import Modal from '@material-ui/core/Modal';
-import Button from '@material-ui/core/Button';
+import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 
 class CreateAddressComponent extends Component {
-
   createAddressOnClick = () => {
     this.props.createAddress('test')
   }

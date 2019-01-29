@@ -51,7 +51,6 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
 }
 
 class App extends Component {
-
   constructor (props) {
     super(props)
     this.state = {
@@ -59,7 +58,7 @@ class App extends Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <Router>
         <Switch>
@@ -70,16 +69,5 @@ class App extends Component {
       </Router>)
   }
 }
-
-const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-  icon: {
-    margin: theme.spacing.unit * 2,
-  }
-});
 
 export default App

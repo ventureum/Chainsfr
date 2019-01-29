@@ -13,7 +13,6 @@ import {
 // import contract from '../../TestContract/build/contracts/VetXToken.json'
 
 const basePath = "44'/60'/0'/0"
-console.log(process.env)
 const networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
 
@@ -136,7 +135,7 @@ class LedgerNanoS {
     }
 
     const signedTransactionObject = getSignTransactionObject(tx)
-    console.log(signedTransactionObject.tx)
+
     return signedTransactionObject
     // return web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
   }
@@ -220,7 +219,7 @@ class LedgerNanoS {
     }
 
     const signedTransactionObject = getSignTransactionObject(tx)
-    return web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
+    return signedTransactionObject
   }
 
   callMethod = async (contractAddress, contractAbi, methodName, ...params) => {
@@ -242,12 +241,3 @@ class LedgerNanoS {
 }
 
 export default LedgerNanoS
-
-// async function main () {
-//   const ledgerNanoS = new LedgerNanoS()
-//   await ledgerNanoS.sendEther(0, '0xD3cEd3b16C8977ED0E345D162D982B899e978588', 0.0001)
-// await ledgerNanoS.sendTrasaction(0, contract.networks[networkId].address, contract.abi, 'transfer', '0xD3cEd3b16C8977ED0E345D162D982B899e978588', '100000000000000000')
-// console.log(await ledgerNanoS.callMethod(contract.networks[networkId].address, contract.abi, 'balanceOf', '0xD36Efe3b8A914b57e81676113b510E5c116EAf5e'))
-// }
-
-// main()

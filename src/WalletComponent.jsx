@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import './App.css'
 
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
 import Avatar from '@material-ui/core/Avatar'
 import classNames from 'classnames'
 import Icon from '@material-ui/core/Icon'
@@ -24,7 +24,6 @@ import CreateAddressContainer from './CreateAddressContainer'
  */
 
 class WalletComponent extends Component {
-
   constructor (props) {
     super(props)
     this.state = {
@@ -52,7 +51,7 @@ class WalletComponent extends Component {
       await window.gapi.client.load('drive', 'v3')
     }
 
-    async function addContent(fileId) {
+    async function addContent (fileId) {
       return window.gapi.client.request({
         path: '/upload/drive/v3/files/' + fileId,
         method: 'PATCH',
@@ -68,24 +67,24 @@ class WalletComponent extends Component {
       fields: 'id'
     }
     if (raw) {
-      delete metadata["mimeType"];
+      delete metadata['mimeType']
     }
 
     if (file.parents) {
-      metadata.parents = file.parents;
+      metadata.parents = file.parents
     }
 
-    if (file.id) { //just update
-      let resp = await addContent(file.id).then(function(resp) {
-        console.log('File just updated', resp.result);
+    if (file.id) { // just update
+      let resp = await addContent(file.id).then(function (resp) {
+        console.log('File just updated', resp.result)
       })
-    } else { //create and update
+    } else { // create and update
       console.log(window.gapi.client.drive.files)
       let resp = await window.gapi.client.drive.files.create({
         resource: metadata
       })
       resp = await addContent(resp.result.id)
-      console.log('created and added content', resp.result);
+      console.log('created and added content', resp.result)
     }
   }
 
@@ -94,14 +93,14 @@ class WalletComponent extends Component {
       await this.saveFileGeneric({
         content: JSON.stringify({ data: 'abcdde' }),
         name: 'test.json',
-        parents: ['appDataFolder'],
+        parents: ['appDataFolder']
       }, false)
     } catch (err) {
       console.log(err)
     }
   }
 
-  listFiles = async () =>  {
+  listFiles = async () => {
     try {
       let rv = await window.gapi.client.drive.files.list({
         spaces: 'appDataFolder',
@@ -141,7 +140,7 @@ class WalletComponent extends Component {
     )
   }
 
-  render() {
+  render () {
     const { classes } = this.props
 
     const addressList = [
@@ -165,7 +164,7 @@ class WalletComponent extends Component {
         address: '0x43f2981d05d075a4c13e71defbb683751256d2d1',
         cryptoType: 'Ethereum',
         balance: 100.20
-      },
+      }
     ]
 
     return (
@@ -180,7 +179,7 @@ class WalletComponent extends Component {
                 </List>
                 <Grid container direction='row' justify='flex-end'>
                   <Grid item>
-                    <Fab color="primary" aria-label="Add" className={classes.fab} onClick={this.addAddressOnClick}>
+                    <Fab color='primary' aria-label='Add' className={classes.fab} onClick={this.addAddressOnClick}>
                       <AddIcon />
                     </Fab>
                   </Grid>
@@ -189,7 +188,7 @@ class WalletComponent extends Component {
             </Grid>
           </Grid>
         </Grid>
-        <CreateAddressContainer open={this.state.addAddressModalOpen} onClose={this.addAdressOnClose}/>
+        <CreateAddressContainer open={this.state.addAddressModalOpen} onClose={this.addAdressOnClose} />
       </div>
     )
   }
@@ -225,8 +224,8 @@ const styles = theme => ({
   },
   fab: {
     textAlign: 'right',
-    margin: theme.spacing.unit,
-  },
+    margin: theme.spacing.unit
+  }
 })
 
 export default withStyles(styles)(WalletComponent)

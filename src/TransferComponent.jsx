@@ -15,7 +15,6 @@ import EthereumLogo from './images/eth.svg'
 import BitcoinLogo from './images/btc.svg'
 import DaiLogo from './images/dai.svg'
 import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
 import Divider from '@material-ui/core/Divider'
 import SquareButton from './SquareButtonComponent'
 
@@ -202,7 +201,6 @@ class TransferComponent extends Component {
   }
 
   renderCryptoSelection = () => {
-    const { classes } = this.props
     const { walletType, cryptoType } = this.state
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
@@ -221,7 +219,6 @@ class TransferComponent extends Component {
   }
 
   renderWalletAndCryptoSelection = () => {
-    const { classes } = this.props
     const { walletType, cryptoType } = this.state
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
@@ -261,7 +258,7 @@ class TransferComponent extends Component {
 
   renderRecipientSetting = () => {
     const { classes } = this.props
-    const { cryptoType, transferAmount, destination, password } = this.state
+    const { transferAmount, destination, password } = this.state
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
