@@ -2,9 +2,11 @@ import API from './apis'
 import UUIDv1 from 'uuid/v1'
 import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
+import ERC20_ABI from './contracts/ERC20.json'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+const DAI_CONTRACT_ADDRESS = '0xdb29d7f3973e1a428f0578705e7ea1632f2e4ac5'
 
 async function loadFile (fileId) {
   let rv = await window.gapi.client.drive.files.get({
@@ -219,6 +221,17 @@ async function _submitTx (dispatch, txRequest) {
     if (cryptoType === 'ethereum') {
       const signedTransactionObject = await ledgerNanoS.sendEther(0, escrow.address, transferAmount)
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
+        .on('transactionHash', (hash) => {
+          console.log('txHash: ', hash)
+          // update request tx hash
+          txRequest.sendTxHash = hash
+          dispatch(transactionHashRetrieved(txRequest))
+        })
+    } else if (cryptoType === 'dai') {
+      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.sendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
           console.log('txHash: ', hash)

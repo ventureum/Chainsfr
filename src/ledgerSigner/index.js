@@ -1,5 +1,4 @@
 import 'babel-polyfill'
-// import Transport from '@ledgerhq/hw-transport-node-hid' // for node
 import Transport from '@ledgerhq/hw-transport-u2f' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
@@ -10,7 +9,6 @@ import {
   calculateChainIdFromV,
   networkIdMap
 } from './utils'
-// import contract from '../../TestContract/build/contracts/VetXToken.json'
 
 const basePath = "44'/60'/0'/0"
 const networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
