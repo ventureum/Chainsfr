@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import './App.css'
 
 import { withStyles } from '@material-ui/core/styles'
 import Stepper from '@material-ui/core/Stepper'
@@ -17,6 +16,7 @@ import DaiLogo from './images/dai.svg'
 import TextField from '@material-ui/core/TextField'
 import Divider from '@material-ui/core/Divider'
 import SquareButton from './SquareButtonComponent'
+import NavBar from './NavBarComponent'
 
 function getSteps () {
   return ['Access My Wallet', 'Set Recipient and PIN', 'Review']
@@ -466,6 +466,7 @@ class TransferComponent extends Component {
 
     return (
       <div className={classes.root}>
+        <NavBar />
         <Stepper activeStep={activeStep}>
           {steps.map((label, index) => (
             <Step key={label}>
@@ -485,12 +486,12 @@ class TransferComponent extends Component {
           </Grid>
         </div>
         {activeStep === steps.length && (
-          <Paper square elevation={0} className={classes.resetContainer}>
-            <Typography>All steps completed - you&apos;re finished</Typography>
-            <Button onClick={this.handleReset} className={classes.button}>
-              Reset
-            </Button>
-          </Paper>
+           <Paper square elevation={0} className={classes.resetContainer}>
+             <Typography>All steps completed - you&apos;re finished</Typography>
+             <Button onClick={this.handleReset} className={classes.button}>
+               Reset
+             </Button>
+           </Paper>
         )}
       </div>
     )
@@ -499,6 +500,10 @@ class TransferComponent extends Component {
 
 const styles = theme => ({
   root: {
+    flexGrow: 1,
+  },
+  grow: {
+    flexGrow: 1,
   },
   button: {
     marginTop: theme.spacing.unit,
