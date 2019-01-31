@@ -78,11 +78,11 @@ const cryptoSelections = [
 
 class WalletSelectionComponent extends Component {
   static propTypes = {
-    walletType: PropTypes.string.required,
-    cryptoType: PropTypes.string.required,
-    onCryptoSelected: PropTypes.func.required,
-    onWalletSelected: PropTypes.func.required,
-    handleNext: PropTypes.func.required
+    walletType: PropTypes.string,
+    cryptoType: PropTypes.string,
+    onCryptoSelected: PropTypes.func,
+    onWalletSelected: PropTypes.func,
+    handleNext: PropTypes.func
   }
 
   renderWalletSelection = () => {
@@ -136,59 +136,55 @@ class WalletSelectionComponent extends Component {
   render () {
     const { classes, walletType, cryptoType, handleNext } = this.props
     return (
-      <Grid container direction='column' alignItems='center'>
-        <Grid item className={classes.root}>
-          <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+        <Grid item>
+          <Grid container direction='row' justify='space-between'>
             <Grid item>
-              <Grid container direction='row' justify='space-between'>
-                <Grid item>
-                  <Typography variant='h6' align='left'>
-                    Choose your wallet
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button color='primary'>
-                    <ErrorIcon fontSize='small' color='primary' className={classes.faqIcon} />
-                    FAQ
-                  </Button>
-                </Grid>
-              </Grid>
+              <Typography variant='h6' align='left'>
+                Choose your wallet
+              </Typography>
             </Grid>
             <Grid item>
-              {this.renderWalletSelection()}
+              <Button color='primary'>
+                <ErrorIcon fontSize='small' color='primary' className={classes.faqIcon} />
+                FAQ
+              </Button>
             </Grid>
-            {walletType &&
-              <Grid item>
-                <Typography variant='h6' align='left'>
-                  Choose the coin
-                </Typography>
-              </Grid>
-            }
-            {walletType &&
-              <Grid item>
-                {this.renderCryptoSelection()}
-              </Grid>}
+          </Grid>
+        </Grid>
+        <Grid item>
+          {this.renderWalletSelection()}
+        </Grid>
+        {walletType &&
+          <Grid item>
+            <Typography variant='h6' align='left'>
+              Choose the coin
+            </Typography>
+          </Grid>
+        }
+        {walletType &&
+          <Grid item>
+            {this.renderCryptoSelection()}
+          </Grid>}
+        <Grid item>
+          <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
-              <Grid container direction='row' justify='center' spacing={24}>
-                <Grid item>
-                  <Button color='primary'>
-                    Cancel Transfer
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    fullWidth
-                    variant='contained'
-                    color='primary'
-                    size='large'
-                    component={Link}
-                    to={handleNext()}
-                    disabled={!walletType || !cryptoType}
-                  >
-                    Continue
-                  </Button>
-                </Grid>
-              </Grid>
+              <Button color='primary'>
+                Cancel Transfer
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                fullWidth
+                variant='contained'
+                color='primary'
+                size='large'
+                component={Link}
+                to={handleNext()}
+                disabled={!walletType || !cryptoType}
+              >
+                Continue
+              </Button>
             </Grid>
           </Grid>
         </Grid>
@@ -198,11 +194,6 @@ class WalletSelectionComponent extends Component {
 }
 
 const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: '680px',
-    margin: '8px 0px 16px 0px'
-  },
   faqIcon: {
     marginRight: theme.spacing.unit
   },

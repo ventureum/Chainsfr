@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
 import { checkMetamaskConnection, checkLedgerNanoSConnection, selectCrypto, selectWallet } from '../actions'
+import paths from '../Paths'
 
 class WalletSelectionContainer extends Component {
   onWalletSelected = (walletType) => {
@@ -32,7 +33,7 @@ class WalletSelectionContainer extends Component {
         cryptoType={cryptoSelection}
         onCryptoSelected={selectCrypto}
         onWalletSelected={this.onWalletSelected}
-        handleNext={() => ('/Transfer/SetReipientAndPin')}
+        handleNext={() => (paths.recipient)}
       />
     )
   }

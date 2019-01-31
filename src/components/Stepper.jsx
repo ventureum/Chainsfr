@@ -14,7 +14,7 @@ function getSteps () {
   return ['Access My Wallet', 'Set Recipient and PIN', 'Review']
 }
 
-class MyStepper extends React.Component {
+class TransferStepper extends React.Component {
   render () {
     const { step } = this.props
     const activeStep = routeMap[step]
@@ -34,4 +34,4 @@ class MyStepper extends React.Component {
 const style = theme => ({
 })
 
-export default withStyles(style)(MyStepper)
+export default withStyles(style)(TransferStepper)

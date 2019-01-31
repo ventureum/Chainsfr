@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import SetReipientAndPin from '../components/SetReipientAndPinComponent'
+import Recipient from '../components/RecipientComponent'
 import { updateTransferForm } from '../actions'
 
-class SetReipientAndPinContainer extends Component {
+class RecipientContainer extends Component {
   render () {
     return (
-      <SetReipientAndPin
+      <Recipient
         {...this.props}
       />
     )
@@ -29,4 +29,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SetReipientAndPinContainer)
+)(RecipientContainer)

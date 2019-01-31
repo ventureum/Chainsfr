@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import Divider from '@material-ui/core/Divider'
+import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -13,7 +14,7 @@ const cryptoAbbreviationMap = {
   'dai': 'DAI'
 }
 
-class Review extends Component {
+class ReviewComponent extends Component {
   handleReviewNext = () => {
     const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
@@ -33,105 +34,101 @@ class Review extends Component {
     const { classes, transferForm, cryptoSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
     return (
-      <Grid container direction='column' alignItems='center'>
-        <Grid item className={classes.root}>
-          <Grid container direction='column' justify='center' alignItems='stretch'>
-            <Grid item>
-              <Typography className={classes.title} variant='h6' align='center'>
-                Review details of your transfer
-              </Typography>
+      <Grid container direction='column' justify='center' alignItems='stretch'>
+        <Grid item>
+          <Typography className={classes.title} variant='h6' align='center'>
+            Review details of your transfer
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Paper className={classes.reviewPaper} elevation={1}>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftTitle} align='left'>
+                  Transfer details
+                </Typography>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Paper className={classes.reviewPaper} elevation={1}>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftTitle} align='left'>
-                      Transfer details
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftSubtitle} align='left'>
-                      You send
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewRightSubtitleLarge} align='right'>
-                      {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftSubtitle} align='left'>
-                      Your email
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewRightSubtitleSmall} align='right'>
-                      {sender}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Divider className={classes.reviewDivider} variant='middle' />
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftTitle} align='left'>
-                      Recipient details
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftSubtitle} align='left'>
-                      Email
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewRightSubtitleSmall} align='right'>
-                      {destination}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewLeftSubtitle} align='left'>
-                      Security Answer
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={6}>
-                    <Typography className={classes.reviewRightSubtitleSmall} align='right'>
-                      {password}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Paper>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  You send
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewRightSubtitleLarge} align='right'>
+                  {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
+                </Typography>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button
-                className={classes.submitBtn}
-                fullWidth
-                variant='contained'
-                color='primary'
-                size='large'
-                onClick={this.handleReviewNext}
-              >
-                Confirm and submit
-              </Button>
-              <Button
-                className={classes.backBtn}
-                fullWidth
-                variant='contained'
-                color='primary'
-                size='large'
-                component={Link}
-                to={'/Transfer/SetReipientAndPin'}
-              >
-                Back
-              </Button>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  Your email
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
+                  {sender}
+                </Typography>
+              </Grid>
             </Grid>
-          </Grid>
+            <Divider className={classes.reviewDivider} variant='middle' />
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftTitle} align='left'>
+                  Recipient details
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  Email
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
+                  {destination}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewLeftSubtitle} align='left'>
+                  Security Answer
+                </Typography>
+              </Grid>
+              <Grid item lg={6}>
+                <Typography className={classes.reviewRightSubtitleSmall} align='right'>
+                  {password}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid item>
+          <Button
+            className={classes.submitBtn}
+            fullWidth
+            variant='contained'
+            color='primary'
+            size='large'
+            onClick={this.handleReviewNext}
+          >
+            Confirm and submit
+          </Button>
+          <Button
+            className={classes.backBtn}
+            fullWidth
+            variant='contained'
+            color='primary'
+            size='large'
+            component={Link}
+            to={paths.recipient}
+          >
+            Back
+          </Button>
         </Grid>
       </Grid>
     )
@@ -139,12 +136,6 @@ class Review extends Component {
 }
 
 const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: '680px',
-    margin: '0px 0px 16px 0px'
-  },
-
   button: {
     marginTop: theme.spacing.unit,
     marginRight: theme.spacing.unit
@@ -254,4 +245,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(Review)
+export default withStyles(styles)(ReviewComponent)

@@ -21,7 +21,7 @@ class LedgerNanoS {
 
   getTransport = async () => {
     if (!this.transport) {
-      this.transport = await Transport.create(3000, 3000)
+      this.transport = await Transport.create()
     }
     return this.transport
   }
@@ -67,10 +67,10 @@ class LedgerNanoS {
   /**
    * @param {number}      accountIndex        Index of sender account.
    * @param {string}      receipientAddr      Address of receipient.
-   * @param {number}      amountOfEther       Amount of ether, in unit 'ether'.
+   * @param {number}      amount              Amount of ether, in 'wei'.
    * @param {object}      options             Options of the transaction (i.e. gasLimit & gasPrice)
    */
-  signSendEther = async (accountIndex, receipientAddr, amountOfEther, ...options) => {
+  signSendEther = async (accountIndex, receipientAddr, amount, ...options) => {
     const accountPath = basePath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
@@ -92,7 +92,7 @@ class LedgerNanoS {
       nonce: txCount,
       gasPrice: web3.utils.numberToHex(gasPrice),
       to: receipientAddr,
-      value: web3.utils.numberToHex(this.web3.utils.toWei(amountOfEther.toString(), 'ether')),
+      value: web3.utils.numberToHex(amount),
       data: ''
     }
     const gasNeeded = await web3.eth.estimateGas(rawTx)

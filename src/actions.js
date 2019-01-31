@@ -219,8 +219,9 @@ async function _submitTx (dispatch, txRequest) {
     }
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
-      const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, transferAmount)
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, amountInWei)
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
           console.log('txHash: ', hash)
@@ -230,7 +231,8 @@ async function _submitTx (dispatch, txRequest) {
         })
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, transferAmount)
+      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
           console.log('txHash: ', hash)
