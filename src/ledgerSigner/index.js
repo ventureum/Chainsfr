@@ -21,7 +21,7 @@ class LedgerNanoS {
 
   getTransport = async () => {
     if (!this.transport) {
-      this.transport = await Transport.create()
+      this.transport = await Transport.create(3000, 3000)
     }
     return this.transport
   }
@@ -70,7 +70,7 @@ class LedgerNanoS {
    * @param {number}      amountOfEther       Amount of ether, in unit 'ether'.
    * @param {object}      options             Options of the transaction (i.e. gasLimit & gasPrice)
    */
-  sendEther = async (accountIndex, receipientAddr, amountOfEther, ...options) => {
+  signSendEther = async (accountIndex, receipientAddr, amountOfEther, ...options) => {
     const accountPath = basePath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
@@ -145,7 +145,7 @@ class LedgerNanoS {
    * @param {string}                        methodName          Name of the method being called.
    * @param {[param1[, param2[, ...]]]}     params              Paramaters for the contract. The last param is a optional object contains gasPrice and gasLimit.
    */
-  sendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
+  signSendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
     const accountPath = basePath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()

@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
-import MetamaskLogo from './images/metamask-button.svg'
-import HardwareWalletLogo from './images/hardware-wallet-button.svg'
-import EthereumLogo from './images/eth.svg'
-import BitcoinLogo from './images/btc.svg'
-import DaiLogo from './images/dai.svg'
+import MetamaskLogo from '../images/metamask-button.svg'
+import HardwareWalletLogo from '../images/hardware-wallet-button.svg'
+import EthereumLogo from '../images/eth.svg'
+import BitcoinLogo from '../images/btc.svg'
+import DaiLogo from '../images/dai.svg'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
@@ -18,6 +18,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
+import { Link } from 'react-router-dom'
 
 const walletCryptoSupports = {
   'basic': ['ethereum', 'bitcoin', 'dai'],
@@ -86,7 +87,6 @@ class WalletSelectionComponent extends Component {
 
   renderWalletSelection = () => {
     const { walletType, onWalletSelected } = this.props
-
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         {walletSelections.map(w =>
@@ -136,54 +136,59 @@ class WalletSelectionComponent extends Component {
   render () {
     const { classes, walletType, cryptoType, handleNext } = this.props
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
-        <Grid item>
-          <Grid container direction='row' justify='space-between'>
+      <Grid container direction='column' alignItems='center'>
+        <Grid item className={classes.root}>
+          <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
             <Grid item>
-              <Typography variant='h6' align='left'>
-                Choose your wallet
-              </Typography>
+              <Grid container direction='row' justify='space-between'>
+                <Grid item>
+                  <Typography variant='h6' align='left'>
+                    Choose your wallet
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Button color='primary'>
+                    <ErrorIcon fontSize='small' color='primary' className={classes.faqIcon} />
+                    FAQ
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
-              <Button color='primary'>
-                <ErrorIcon fontSize='small' color='primary' className={classes.faqIcon} />
-                FAQ
-              </Button>
+              {this.renderWalletSelection()}
             </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          {this.renderWalletSelection()}
-        </Grid>
-        {walletType &&
-        <Grid item>
-          <Typography variant='h6' align='left'>
-             Choose the coin
-          </Typography>
-        </Grid>
-        }
-        {walletType &&
-        <Grid item>
-          {this.renderCryptoSelection()}
-        </Grid> }
-        <Grid item>
-          <Grid container direction='row' justify='center' spacing={24}>
+            {walletType &&
+              <Grid item>
+                <Typography variant='h6' align='left'>
+                  Choose the coin
+                </Typography>
+              </Grid>
+            }
+            {walletType &&
+              <Grid item>
+                {this.renderCryptoSelection()}
+              </Grid>}
             <Grid item>
-              <Button color='primary'>
-                Cancel Transfer
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                fullWidth
-                variant='contained'
-                color='primary'
-                size='large'
-                onClick={handleNext}
-                disabled={!walletType || !cryptoType}
-              >
-                Continue
-              </Button>
+              <Grid container direction='row' justify='center' spacing={24}>
+                <Grid item>
+                  <Button color='primary'>
+                    Cancel Transfer
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    color='primary'
+                    size='large'
+                    component={Link}
+                    to={handleNext()}
+                    disabled={!walletType || !cryptoType}
+                  >
+                    Continue
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -193,6 +198,11 @@ class WalletSelectionComponent extends Component {
 }
 
 const styles = theme => ({
+  root: {
+    width: '100%',
+    maxWidth: '680px',
+    margin: '8px 0px 16px 0px'
+  },
   faqIcon: {
     marginRight: theme.spacing.unit
   },

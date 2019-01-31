@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import CreateAddressComponent from './CreateAddressComponent'
-import { createAddress } from './actions'
+import CreateAddressComponent from '../components/CreateAddressComponent'
+import { createAddress } from '../actions'
 
 class CreateAddressContainer extends Component {
   render () {

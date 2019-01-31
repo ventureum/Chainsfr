@@ -7,17 +7,14 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import Avatar from '@material-ui/core/Avatar'
-import classNames from 'classnames'
-import Icon from '@material-ui/core/Icon'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEthereum } from '@fortawesome/free-brands-svg-icons'
-import Divider from '@material-ui/core/Divider'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
-import CreateAddressContainer from './CreateAddressContainer'
+import CreateAddressContainer from '../containers/CreateAddressContainer'
 
 /**
  * Print files.
@@ -119,11 +116,11 @@ class WalletComponent extends Component {
   }
 
   addAddressOnClick = () => {
-    this.setState({addAddressModalOpen: true})
+    this.setState({ addAddressModalOpen: true })
   }
 
   addAdressOnClose = () => {
-    this.setState({addAddressModalOpen: false})
+    this.setState({ addAddressModalOpen: false })
   }
 
   renderAddress (address) {
@@ -134,7 +131,7 @@ class WalletComponent extends Component {
         </Avatar>
         <ListItemText primary={address.alias} secondary={address.balance} />
         <ListItemSecondaryAction>
-          { address.public ? 'Public' : 'Private' }
+          {address.public ? 'Public' : 'Private'}
         </ListItemSecondaryAction>
       </ListItem>
     )
@@ -175,7 +172,7 @@ class WalletComponent extends Component {
             <Grid container direction='row' alignItems='center'>
               <Paper className={classes.addrList}>
                 <List>
-                  { addressList.map(addr => this.renderAddress(addr))}
+                  {addressList.map(addr => this.renderAddress(addr))}
                 </List>
                 <Grid container direction='row' justify='flex-end'>
                   <Grid item>

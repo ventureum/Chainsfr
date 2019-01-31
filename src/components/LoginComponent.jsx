@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { createMuiTheme, withStyles } from '@material-ui/core/styles'
 import { GoogleLogin } from 'react-google-login'
-import logo from './logo.svg'
+import logo from '../logo.svg'
 
 class LoginComponent extends Component {
   loginSuccess = async (response) => {

@@ -219,7 +219,7 @@ async function _submitTx (dispatch, txRequest) {
     }
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
-      const signedTransactionObject = await ledgerNanoS.sendEther(0, escrow.address, transferAmount)
+      const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, transferAmount)
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
@@ -230,8 +230,7 @@ async function _submitTx (dispatch, txRequest) {
         })
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
-      const signedTransactionObject = await ledgerNanoS.sendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
+      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, transferAmount)
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
           console.log('txHash: ', hash)
@@ -325,4 +324,37 @@ function checkLedgerNanoSConnection () {
   }
 }
 
-export { onLogin, createAddress, getWallet, transfer, checkMetamaskConnection, onMetamaskAccountsChanged, submitTx, checkLedgerNanoSConnection }
+function selectWallet (walletSelected) {
+  return {
+    type: 'SELECT_WALLET',
+    payload: walletSelected
+  }
+}
+
+function selectCrypto (cryptoSelected) {
+  return {
+    type: 'SELECT_CRYPTO',
+    payload: cryptoSelected
+  }
+}
+
+function updateTransferForm (form) {
+  return {
+    type: 'UPDATE_TRANSFER_FORM',
+    payload: form
+  }
+}
+
+export {
+  onLogin,
+  createAddress,
+  getWallet,
+  transfer,
+  checkMetamaskConnection,
+  onMetamaskAccountsChanged,
+  submitTx,
+  checkLedgerNanoSConnection,
+  selectWallet,
+  selectCrypto,
+  updateTransferForm
+}

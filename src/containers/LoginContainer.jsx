@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import LoginComponent from './LoginComponent'
-import { onLogin } from './actions'
+import LoginComponent from '../components/LoginComponent'
+import { onLogin } from '../actions'
 
 class LoginContainer extends Component {
   constructor () {
