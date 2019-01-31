@@ -1,5 +1,4 @@
 import 'babel-polyfill'
-// import Transport from '@ledgerhq/hw-transport-node-hid' // for node
 import Transport from '@ledgerhq/hw-transport-u2f' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
@@ -10,7 +9,6 @@ import {
   calculateChainIdFromV,
   networkIdMap
 } from './utils'
-// import contract from '../../TestContract/build/contracts/VetXToken.json'
 
 const basePath = "44'/60'/0'/0"
 const networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
@@ -69,10 +67,10 @@ class LedgerNanoS {
   /**
    * @param {number}      accountIndex        Index of sender account.
    * @param {string}      receipientAddr      Address of receipient.
-   * @param {number}      amountOfEther       Amount of ether, in unit 'ether'.
+   * @param {number}      amount              Amount of ether, in 'wei'.
    * @param {object}      options             Options of the transaction (i.e. gasLimit & gasPrice)
    */
-  sendEther = async (accountIndex, receipientAddr, amountOfEther, ...options) => {
+  signSendEther = async (accountIndex, receipientAddr, amount, ...options) => {
     const accountPath = basePath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
@@ -94,7 +92,7 @@ class LedgerNanoS {
       nonce: txCount,
       gasPrice: web3.utils.numberToHex(gasPrice),
       to: receipientAddr,
-      value: web3.utils.numberToHex(this.web3.utils.toWei(amountOfEther.toString(), 'ether')),
+      value: web3.utils.numberToHex(amount),
       data: ''
     }
     const gasNeeded = await web3.eth.estimateGas(rawTx)
@@ -147,7 +145,7 @@ class LedgerNanoS {
    * @param {string}                        methodName          Name of the method being called.
    * @param {[param1[, param2[, ...]]]}     params              Paramaters for the contract. The last param is a optional object contains gasPrice and gasLimit.
    */
-  sendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
+  signSendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
     const accountPath = basePath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()

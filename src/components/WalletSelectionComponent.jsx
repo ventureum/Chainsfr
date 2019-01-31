@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
-import MetamaskLogo from './images/metamask-button.svg'
-import HardwareWalletLogo from './images/hardware-wallet-button.svg'
-import EthereumLogo from './images/eth.svg'
-import BitcoinLogo from './images/btc.svg'
-import DaiLogo from './images/dai.svg'
+import MetamaskLogo from '../images/metamask-button.svg'
+import HardwareWalletLogo from '../images/hardware-wallet-button.svg'
+import EthereumLogo from '../images/eth.svg'
+import BitcoinLogo from '../images/btc.svg'
+import DaiLogo from '../images/dai.svg'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
@@ -18,6 +18,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
+import { Link } from 'react-router-dom'
 
 const walletCryptoSupports = {
   'basic': ['ethereum', 'bitcoin', 'dai'],
@@ -77,16 +78,15 @@ const cryptoSelections = [
 
 class WalletSelectionComponent extends Component {
   static propTypes = {
-    walletType: PropTypes.string.required,
-    cryptoType: PropTypes.string.required,
-    onCryptoSelected: PropTypes.func.required,
-    onWalletSelected: PropTypes.func.required,
-    handleNext: PropTypes.func.required
+    walletType: PropTypes.string,
+    cryptoType: PropTypes.string,
+    onCryptoSelected: PropTypes.func,
+    onWalletSelected: PropTypes.func,
+    handleNext: PropTypes.func
   }
 
   renderWalletSelection = () => {
     const { walletType, onWalletSelected } = this.props
-
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         {walletSelections.map(w =>
@@ -156,16 +156,16 @@ class WalletSelectionComponent extends Component {
           {this.renderWalletSelection()}
         </Grid>
         {walletType &&
-        <Grid item>
-          <Typography variant='h6' align='left'>
-             Choose the coin
-          </Typography>
-        </Grid>
+          <Grid item>
+            <Typography variant='h6' align='left'>
+              Choose the coin
+            </Typography>
+          </Grid>
         }
         {walletType &&
-        <Grid item>
-          {this.renderCryptoSelection()}
-        </Grid> }
+          <Grid item>
+            {this.renderCryptoSelection()}
+          </Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
@@ -179,7 +179,8 @@ class WalletSelectionComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                onClick={handleNext}
+                component={Link}
+                to={handleNext()}
                 disabled={!walletType || !cryptoType}
               >
                 Continue

@@ -24,7 +24,7 @@ class NavBarComponent extends Component {
 
 const styles = theme => ({
   grow: {
-    flexGrow: 1,
+    flexGrow: 1
   }
 })
 
