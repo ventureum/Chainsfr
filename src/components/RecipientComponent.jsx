@@ -46,19 +46,6 @@ class RecipientComponent extends Component {
             <TextField
               fullWidth
               required
-              id='amount'
-              label='Amount'
-              className={classes.textField}
-              margin='normal'
-              variant='outlined'
-              onChange={this.handleTransferFormChange('transferAmount')}
-              value={transferAmount}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              fullWidth
-              required
               id='sender'
               label='Your Email'
               placeholder='john@gmail.com'
@@ -88,6 +75,19 @@ class RecipientComponent extends Component {
             <TextField
               fullWidth
               required
+              id='amount'
+              label='Amount'
+              className={classes.textField}
+              margin='normal'
+              variant='outlined'
+              onChange={this.handleTransferFormChange('transferAmount')}
+              value={transferAmount}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              fullWidth
+              required
               id='password'
               label='Security Answer'
               className={classes.textField}
@@ -98,32 +98,32 @@ class RecipientComponent extends Component {
               value={password}
             />
           </Grid>
-          <Grid item className={classes.btn}>
-            <Button
-              className={classes.continueBtn}
-              fullWidth
-              variant='contained'
-              color='primary'
-              size='large'
-              component={Link}
-              to={paths.review}
-              disabled={!transferAmount || !destination || !password}
-            >
-              Continue
-            </Button>
-          </Grid>
-          <Grid item className={classes.btn}>
-            <Button
-              className={classes.backBtn}
-              fullWidth
-              variant='contained'
-              color='primary'
-              size='large'
-              component={Link}
-              to={paths.walletSelection}
-            >
-              Back
-            </Button>
+          <Grid item>
+            <Grid container direction='row' justify='center' spacing={24}>
+              <Grid item>
+                <Button
+                  color='primary'
+                  size='large'
+                  component={Link}
+                  to={paths.walletSelection}
+                >
+                  Back to previous
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='primary'
+                  size='large'
+                  component={Link}
+                  to={paths.review}
+                  disabled={!transferAmount || !destination || !password}
+                >
+                  Continue
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
         </form>
       </Grid>
