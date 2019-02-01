@@ -1,3 +1,5 @@
+import update from 'immutability-helper'
+
 const initialState = {
   walletSelection: null,
   cryptoSelection: null,
@@ -27,6 +29,8 @@ export default function (state = initialState, action) {
         ...state,
         transferForm: action.payload
       }
+    case 'GENERATE_SECURITY_ANSWER':
+      return update(state, { transferForm: { password: { $set: action.payload } } })
     default: // need this for default case
       return state
   }
