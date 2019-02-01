@@ -22,6 +22,7 @@
     "googleapis": "^27.0.0",
     "immutability-helper": "^2.8.1",
     "install": "^0.12.2",
+    "niceware": "^1.0.6",
     "npm": "^6.6.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",

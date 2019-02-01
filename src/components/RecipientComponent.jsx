@@ -4,25 +4,41 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
 import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import update from 'immutability-helper'
 import paths from '../Paths'
 
 class RecipientComponent extends Component {
-  state = {
-    transferAmount: this.props.transferForm.transferAmount,
-    password: this.props.transferForm.password,
-    destination: this.props.transferForm.destination,
-    sender: this.props.transferForm.sender
+  handleTransferFormChange = name => event => {
+    const { transferForm } = this.props
+    this.props.updateTransferForm(update(transferForm, {
+      [name]: { $set: event.target.value }
+    }))
   }
 
-  handleTransferFormChange = name => event => {
-    this.setState({
-      [name]: event.target.value
-    })
+  securityAnswerHelperText = () => {
+    const { classes, generateSecurityAnswer } = this.props
+    return (
+      <div>
+        <Button
+          size='small'
+          onClick={generateSecurityAnswer}
+          className={classes.generateSecurityAnswerBtn}
+        >
+          <Typography color='primary' className={classes.generateSecurityAnswerBtnText}>
+            Re-generate Security Answer
+          </Typography>
+        </Button>
+        <Typography className={classes.securityAnswerBtnHelperText}>
+          We recommend you to use auto-generated security password for better security
+        </Typography>
+      </div>
+    )
   }
 
   render () {
-    const { classes, updateTransferForm } = this.props
-    const { transferAmount, destination, password, sender } = this.state
+    const { classes, transferForm} = this.props
+    const { transferAmount, destination, password, sender } = transferForm
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
@@ -77,7 +93,7 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
-              helperText='Use the offline auto-generated password for maximum security'
+              helperText={this.securityAnswerHelperText()}
               onChange={this.handleTransferFormChange('password')}
               value={password}
             />
@@ -89,7 +105,6 @@ class RecipientComponent extends Component {
               variant='contained'
               color='primary'
               size='large'
-              onClick={() => { updateTransferForm(this.state) }}
               component={Link}
               to={paths.review}
               disabled={!transferAmount || !destination || !password}
@@ -119,6 +134,19 @@ class RecipientComponent extends Component {
 const styles = theme => ({
   btn: {
     margin: '16px 0px 16px 0px'
+  },
+  generateSecurityAnswerBtnText: {
+    fontSize: '12px'
+  },
+  securityAnswerBtnHelperText: {
+    fontSize: '0.75rem',
+    color: 'rgba(0, 0, 0, 0.54)',
+    textAlign: 'left',
+    minHeight: '1em',
+    lineHeight: '1em'
+  },
+  generateSecurityAnswerBtn: {
+    padding: '0px 0px 0px 0px'
   }
 })
 

@@ -3,6 +3,7 @@ import UUIDv1 from 'uuid/v1'
 import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
+import niceware from 'niceware'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -347,6 +348,13 @@ function updateTransferForm (form) {
   }
 }
 
+function generateSecurityAnswer () {
+  return {
+    type: 'GENERATE_SECURITY_ANSWER',
+    payload: niceware.generatePassphrase(8).join('-')
+  }
+}
+
 export {
   onLogin,
   createAddress,
@@ -358,5 +366,6 @@ export {
   checkLedgerNanoSConnection,
   selectWallet,
   selectCrypto,
-  updateTransferForm
+  updateTransferForm,
+  generateSecurityAnswer
 }
