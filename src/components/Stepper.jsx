@@ -3,11 +3,12 @@ import { withStyles } from '@material-ui/core'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
+import paths from '../Paths'
 
 const routeMap = {
-  '/Transfer/WalletSelection': 0,
-  '/Transfer/SetReipientAndPin': 1,
-  '/Transfer/Review': 2
+  [paths.walletSelection]: 0,
+  [paths.recipient]: 1,
+  [paths.review]: 2
 }
 
 function getSteps () {
