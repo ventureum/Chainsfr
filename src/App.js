@@ -11,9 +11,6 @@ import WalletContainer from './containers/WalletContainer'
 import TransferContainer from './containers/TransferContainer'
 import Footer from './static/Footer'
 import NaviBar from './components/NavBarComponent'
-import WalletSelection from './containers/WalletSelectionContainer'
-import Recipient from './containers/RecipientContainer'
-import Review from './containers/ReviewContainer'
 import paths from './Paths'
 
 const userIsAuthenticated = connectedRouterRedirect({
@@ -78,15 +75,7 @@ class App extends Component {
         <Switch>
           <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
           <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-          <DefaultLayout path={paths.walletSelection} component={({...props}) => (
-            <TransferContainer component={WalletSelection} {...props} />
-          )} />
-          <DefaultLayout path={paths.recipient} component={({...props}) => (
-            <TransferContainer component={Recipient} {...props} />
-          )} />
-          <DefaultLayout path={paths.review} component={({...props}) => (
-            <TransferContainer component={Review} {...props} />
-          )} />
+          <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
         </Switch>
       </Router>
     )

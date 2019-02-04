@@ -1,9 +1,10 @@
 const paths = {
   login: '/login',
   home: '/',
-  walletSelection: '/transfer/walletSelection',
-  recipient: '/transfer/recipient',
-  review: '/transfer/review'
+  transfer: '/transfer',
+  walletSelectionStep: '/walletSelection',
+  recipientStep: '/recipient',
+  reviewStep: '/review'
 }
 
 export default paths

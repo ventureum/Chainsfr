@@ -6,7 +6,8 @@ import Grid from '@material-ui/core/Grid'
 
 class TransferComponent extends React.Component {
   render () {
-    const { classes, component: Component, location, ...rest } = this.props
+    const { classes, component: Component, location } = this.props
+    console.log(this.props)
     return (
       <Grid container direction='column'>
         <Grid item>
@@ -15,7 +16,7 @@ class TransferComponent extends React.Component {
         <Grid item>
           <Grid container direction='column' alignItems='center' >
             <Grid item className={classes.subComponent}>
-              <Component {...rest} />
+              {this.props.children}
             </Grid>
           </Grid>
         </Grid>
