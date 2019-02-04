@@ -9,6 +9,10 @@ import update from 'immutability-helper'
 import paths from '../Paths'
 
 class RecipientComponent extends Component {
+  componentDidMount () {
+    this.props.generateSecurityAnswer()
+  }
+
   handleTransferFormChange = name => event => {
     const { transferForm } = this.props
     this.props.updateTransferForm(update(transferForm, {
