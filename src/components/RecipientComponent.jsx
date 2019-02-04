@@ -37,7 +37,7 @@ class RecipientComponent extends Component {
   }
 
   render () {
-    const { classes, transferForm} = this.props
+    const { classes, transferForm } = this.props
     const { transferAmount, destination, password, sender } = transferForm
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
@@ -105,7 +105,7 @@ class RecipientComponent extends Component {
                   color='primary'
                   size='large'
                   component={Link}
-                  to={paths.walletSelection}
+                  to={paths.transfer + paths.walletSelectionStep}
                 >
                   Back to previous
                 </Button>
@@ -117,7 +117,7 @@ class RecipientComponent extends Component {
                   color='primary'
                   size='large'
                   component={Link}
-                  to={paths.review}
+                  to={paths.transfer + paths.reviewStep}
                   disabled={!transferAmount || !destination || !password}
                 >
                   Continue

@@ -4,8 +4,6 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import Divider from '@material-ui/core/Divider'
 import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
@@ -101,7 +99,7 @@ class ReviewComponent extends Component {
                 color='primary'
                 size='large'
                 component={Link}
-                to={paths.recipient}
+                to={paths.transfer + paths.recipientStep}
               >
                 Back to previous
               </Button>
@@ -112,8 +110,6 @@ class ReviewComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.review}
                 onClick={this.handleReviewNext}
               >
                 Confirm and transfer
