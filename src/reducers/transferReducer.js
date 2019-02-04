@@ -5,7 +5,7 @@ const initialState = {
   cryptoSelection: null,
   transferForm: {
     transferAmount: '',
-    password: 'wallet state title logo',
+    password: '',
     destination: '',
     sender: ''
   }

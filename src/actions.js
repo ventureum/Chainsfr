@@ -174,6 +174,9 @@ async function _checkMetamaskConnection (dispatch) {
     // request the user logs in
     rv.accounts = await window.ethereum.enable()
 
+    // retrieve eth balance
+    rv.balance = new window._web3.utils.BN(await window._web3.eth.getBalance(rv.accounts[0]))
+
     // listen for accounts changes
     window.ethereum.on('accountsChanged', function (accounts) {
       dispatch(onMetamaskAccountsChanged(accounts))
