@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
 import { checkMetamaskConnection, checkLedgerNanoSConnection, selectCrypto, selectWallet } from '../actions'
-import paths from '../Paths'
+import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 class WalletSelectionContainer extends Component {
   onWalletSelected = (walletType) => {
@@ -25,7 +25,8 @@ class WalletSelectionContainer extends Component {
     const {
       selectCrypto,
       walletSelection,
-      cryptoSelection
+      cryptoSelection,
+      ...other
     } = this.props
     return (
       <WalletSelection
@@ -33,11 +34,14 @@ class WalletSelectionContainer extends Component {
         cryptoType={cryptoSelection}
         onCryptoSelected={selectCrypto}
         onWalletSelected={this.onWalletSelected}
-        handleNext={() => (paths.recipient)}
+        {...other}
       />
     )
   }
 }
+
+const checkMetamaskConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION'])
+const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -51,7 +55,12 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     walletSelection: state.transferReducer.walletSelection,
-    cryptoSelection: state.transferReducer.cryptoSelection
+    cryptoSelection: state.transferReducer.cryptoSelection,
+    metamask: state.userReducer.metamask,
+    actionsPending: {
+      checkMetamaskConnection: checkMetamaskConnectionSelector(state)
+    },
+    error: errorSelector(state)
   }
 }
 

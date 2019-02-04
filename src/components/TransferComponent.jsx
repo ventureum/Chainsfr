@@ -10,7 +10,6 @@ import Review from '../containers/ReviewContainer'
 class TransferComponent extends React.Component {
   render () {
     const { classes, step } = this.props
-    console.log(step)
     return (
       <Grid container direction='column'>
         <Grid item>
