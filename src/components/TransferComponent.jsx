@@ -3,20 +3,25 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
+import WalletSelection from '../containers/WalletSelectionContainer'
+import Recipient from '../containers/RecipientContainer'
+import Review from '../containers/ReviewContainer'
 
 class TransferComponent extends React.Component {
   render () {
-    const { classes, component: Component, location } = this.props
-    console.log(this.props)
+    const { classes, step } = this.props
+    console.log(step)
     return (
       <Grid container direction='column'>
         <Grid item>
-          <Stepper step={location.pathname} />
+          <Stepper step={step} />
         </Grid>
         <Grid item>
           <Grid container direction='column' alignItems='center' >
             <Grid item className={classes.subComponent}>
-              {this.props.children}
+              {step === 0 && <WalletSelection />}
+              {step === 1 && <Recipient />}
+              {step === 2 && <Review />}
             </Grid>
           </Grid>
         </Grid>

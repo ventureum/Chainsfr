@@ -19,6 +19,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
 import { Link } from 'react-router-dom'
+import paths from '../Paths'
 
 const walletCryptoSupports = {
   'basic': ['ethereum', 'bitcoin', 'dai'],
@@ -134,7 +135,7 @@ class WalletSelectionComponent extends Component {
   }
 
   render () {
-    const { classes, walletType, cryptoType, handleNext } = this.props
+    const { classes, walletType, cryptoType } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <Grid item>
@@ -156,16 +157,16 @@ class WalletSelectionComponent extends Component {
           {this.renderWalletSelection()}
         </Grid>
         {walletType &&
-          <Grid item>
-            <Typography variant='h6' align='left'>
-              Choose the coin
-            </Typography>
-          </Grid>
+        <Grid item>
+          <Typography variant='h6' align='left'>
+             Choose the coin
+          </Typography>
+        </Grid>
         }
         {walletType &&
-          <Grid item>
-            {this.renderCryptoSelection()}
-          </Grid>}
+        <Grid item>
+          {this.renderCryptoSelection()}
+        </Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
@@ -180,7 +181,7 @@ class WalletSelectionComponent extends Component {
                 color='primary'
                 size='large'
                 component={Link}
-                to={handleNext()}
+                to={paths.transfer + paths.recipientStep}
                 disabled={!walletType || !cryptoType}
               >
                 Continue
