@@ -57,20 +57,21 @@ class RecipientComponent extends Component {
   securityAnswerHelperText = () => {
     const { classes, generateSecurityAnswer } = this.props
     return (
-      <div>
+      // this section resides in <p>, thus cannot have <div>
+      <span>
         <Button
           size='small'
           onClick={generateSecurityAnswer}
           className={classes.generateSecurityAnswerBtn}
         >
-          <Typography color='primary' className={classes.generateSecurityAnswerBtnText}>
+          <Typography component={'span'} color='primary' className={classes.generateSecurityAnswerBtnText}>
             Re-generate Security Answer
           </Typography>
         </Button>
-        <Typography className={classes.securityAnswerBtnHelperText}>
+        <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
           We recommend you to use auto-generated security password for better security
         </Typography>
-      </div>
+      </span>
     )
   }
 
