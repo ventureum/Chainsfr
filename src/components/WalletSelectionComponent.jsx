@@ -18,7 +18,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
-import LinearProgress from '@material-ui/core/LinearProgress'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { Link } from 'react-router-dom'
 import paths from '../Paths'
 import utils from '../utils'
@@ -110,10 +110,17 @@ class WalletSelectionComponent extends Component {
 
   renderCryptoSelection = () => {
     const { classes, walletType, cryptoType, onCryptoSelected, metamask, actionsPending } = this.props
-    console.log(this.props)
+
     if (actionsPending.checkMetamaskConnection) {
-      return (<LinearProgress />)
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+        </Grid>
+      )
     }
+
     return (
       <List className={classes.cryptoList}>
         {cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
@@ -133,9 +140,9 @@ class WalletSelectionComponent extends Component {
               <ListItemText primary={c.symbol} secondary={c.title} />
               <ListItemSecondaryAction>
                 { walletType === 'metamask' &&
-                    c.cryptoType === 'ethereum' &&
-                    metamask &&
-                    numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a') }
+                  c.cryptoType === 'ethereum' &&
+                  metamask &&
+                  numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a') }
               </ListItemSecondaryAction>
             </ListItem>
           </div>))}

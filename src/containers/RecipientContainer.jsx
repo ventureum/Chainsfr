@@ -23,7 +23,8 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     cryptoSelection: state.transferReducer.cryptoSelection,
-    transferForm: state.transferReducer.transferForm
+    transferForm: state.transferReducer.transferForm,
+    metamask: state.userReducer.metamask
   }
 }
 
