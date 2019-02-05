@@ -7,19 +7,45 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import update from 'immutability-helper'
 import paths from '../Paths'
+import utils from '../utils'
+import numeral from 'numeral'
 
 class RecipientComponent extends Component {
+  state = {
+    formError: {
+      sender: null,
+      destination: null,
+      transferAmount: null,
+      password: null
+    }
+  }
+
   componentDidMount () {
     this.props.generateSecurityAnswer()
   }
 
+  componentDidUpdate (prevProps) {
+    const { transferForm, metamask } = this.props
+
+    if (transferForm.transferAmount !== prevProps.transferForm.transferAmount) {
+      if (transferForm.transferAmount && metamask && metamask.balance) {
+        // validation
+        if (parseFloat(transferForm.transferAmount) > utils.toHumanReadableUnit(metamask.balance)) {
+          this.setState(update(this.state, { formError: { transferAmount: { $set: 'Insufficient balance' } } }))
+        } else if (this.state.formError.transferAmount) {
+          this.setState(update(this.state, { formError: { transferAmount: { $set: null } } }))
+        }
+      }
+    }
+  }
+
   handleTransferFormChange = name => event => {
     const { transferForm } = this.props
+
     this.props.updateTransferForm(update(transferForm, {
       [name]: { $set: event.target.value }
     }))
   }
-
   securityAnswerHelperText = () => {
     const { classes, generateSecurityAnswer } = this.props
     return (
@@ -41,8 +67,10 @@ class RecipientComponent extends Component {
   }
 
   render () {
-    const { classes, transferForm } = this.props
+    const { formError } = this.state
+    const { classes, transferForm, metamask } = this.props
     const { transferAmount, destination, password, sender } = transferForm
+    let balance = metamask.balance ? numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a') : '0'
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
@@ -84,6 +112,8 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
+              error={formError.transferAmount}
+              helperText={formError.transferAmount ? `Insufficient funds, you have ${balance}` : `Balance: ${balance}`}
               onChange={this.handleTransferFormChange('transferAmount')}
               value={transferAmount}
             />

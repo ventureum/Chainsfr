@@ -7,7 +7,6 @@ function toHumanReadableUnit (val, decimals = 18, precision = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = val.div(base)
-  console.log('fuck')
   return rv.toNumber() / precisionBase.toNumber()
 }
 

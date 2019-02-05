@@ -19,7 +19,7 @@ function configureStore (reducers) {
 const loadPartialLoginFilter = createFilter(
   'userReducer',
   null,
-  ['userInfo.isAuthenticated'],
+  null,
   'blacklist'
 )
 
