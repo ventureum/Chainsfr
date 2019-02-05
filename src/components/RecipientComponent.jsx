@@ -24,28 +24,26 @@ class RecipientComponent extends Component {
     this.props.generateSecurityAnswer()
   }
 
-  componentDidUpdate (prevProps) {
+  handleTransferFormChange = name => event => {
     const { transferForm, metamask } = this.props
 
-    if (transferForm.transferAmount !== prevProps.transferForm.transferAmount) {
-      if (transferForm.transferAmount && metamask && metamask.balance) {
-        // validation
-        if (parseFloat(transferForm.transferAmount) > utils.toHumanReadableUnit(metamask.balance)) {
-          this.setState(update(this.state, { formError: { transferAmount: { $set: 'Insufficient balance' } } }))
-        } else if (this.state.formError.transferAmount) {
-          this.setState(update(this.state, { formError: { transferAmount: { $set: null } } }))
-        }
+    // validation
+    if (name === 'transferAmount') {
+      let metamaskBal = utils.toHumanReadableUnit(metamask.balance)
+      if (transferForm.transferAmount &&
+          metamask && metamask.balance &&
+          parseFloat(transferForm.transferAmount) > metamaskBal) {
+        this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${metamaskBal}` } } }))
+      } else {
+        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
       }
     }
-  }
-
-  handleTransferFormChange = name => event => {
-    const { transferForm } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
       [name]: { $set: event.target.value }
     }))
   }
+
   securityAnswerHelperText = () => {
     const { classes, generateSecurityAnswer } = this.props
     return (
@@ -113,7 +111,7 @@ class RecipientComponent extends Component {
               margin='normal'
               variant='outlined'
               error={formError.transferAmount}
-              helperText={formError.transferAmount ? `Insufficient funds, you have ${balance}` : `Balance: ${balance}`}
+              helperText={formError.transferAmount || `Balance: ${balance}`}
               onChange={this.handleTransferFormChange('transferAmount')}
               value={transferAmount}
             />
