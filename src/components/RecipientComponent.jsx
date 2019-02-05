@@ -180,7 +180,7 @@ class RecipientComponent extends Component {
               value={password}
             />
           </Grid>
-          <Grid item>
+          <Grid item className={classes.btnSection}>
             <Grid container direction='row' justify='center' spacing={24}>
               <Grid item>
                 <Button
@@ -236,6 +236,9 @@ const styles = theme => ({
   },
   generateSecurityAnswerBtn: {
     padding: '0px 0px 0px 0px'
+  },
+  btnSection: {
+    marginTop: '60px'
   }
 })
 
