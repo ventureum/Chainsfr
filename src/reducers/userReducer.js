@@ -11,6 +11,9 @@ const initState = {
   ledgerNanoS: {
     connected: false,
     firstAddress: null
+  },
+  metamask: {
+    connected: false
   }
 }
 
