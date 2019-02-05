@@ -125,7 +125,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='sender'
               label='Your Email'
               placeholder='john@gmail.com'
@@ -141,7 +140,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='destination'
               label='Recipient Email'
               placeholder='john@gmail.com'
@@ -157,7 +155,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='amount'
               label='Amount'
               className={classes.textField}
@@ -172,7 +169,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='password'
               label='Security Answer'
               className={classes.textField}
