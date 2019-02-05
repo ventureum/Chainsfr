@@ -25,7 +25,22 @@ class RecipientComponent extends Component {
     this.props.generateSecurityAnswer()
   }
 
-  handleTransferFormChange = name => event => {
+  validateForm = () => {
+    const { formError } = this.state
+    const { transferForm } = this.props
+
+    // form must be filled without errors
+    return (transferForm.sender &&
+            transferForm.destination &&
+            transferForm.transferAmount &&
+            transferForm.password &&
+            !formError.sender &&
+            !formError.destination &&
+            !formError.transferAmount &&
+            !formError.password)
+  }
+
+      handleTransferFormChange = name => event => {
     const { transferForm, metamask } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
@@ -164,7 +179,7 @@ class RecipientComponent extends Component {
                   size='large'
                   component={Link}
                   to={paths.transfer + paths.reviewStep}
-                  disabled={!transferAmount || !destination || !password}
+                  disabled={!this.validateForm()}
                 >
                   Continue
                 </Button>
