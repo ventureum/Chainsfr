@@ -9,6 +9,7 @@ import update from 'immutability-helper'
 import paths from '../Paths'
 import utils from '../utils'
 import numeral from 'numeral'
+import validator from 'validator'
 
 class RecipientComponent extends Component {
   state = {
@@ -27,21 +28,24 @@ class RecipientComponent extends Component {
   handleTransferFormChange = name => event => {
     const { transferForm, metamask } = this.props
 
+    this.props.updateTransferForm(update(transferForm, {
+      [name]: { $set: event.target.value }
+    }))
+
     // validation
     if (name === 'transferAmount') {
       let metamaskBal = utils.toHumanReadableUnit(metamask.balance)
-      if (transferForm.transferAmount &&
-          metamask && metamask.balance &&
-          parseFloat(transferForm.transferAmount) > metamaskBal) {
-        this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${metamaskBal}` } } }))
+      if (metamask && metamask.balance &&
+          !validator.isFloat(event.target.value, { min: 0.0001, max: metamaskBal })) {
+        if (event.target.value === '-' || parseFloat(event.target.value) < 0.0001) {
+          this.setState(update(this.state, { formError: { [name]: { $set: 'The amount must be greater than 0.0001' } } }))
+        } else {
+          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${metamaskBal}` } } }))
+        }
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
       }
     }
-
-    this.props.updateTransferForm(update(transferForm, {
-      [name]: { $set: event.target.value }
-    }))
   }
 
   securityAnswerHelperText = () => {
@@ -110,7 +114,7 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
-              error={formError.transferAmount}
+              error={!!formError.transferAmount}
               helperText={formError.transferAmount || `Balance: ${balance}`}
               onChange={this.handleTransferFormChange('transferAmount')}
               value={transferAmount}
