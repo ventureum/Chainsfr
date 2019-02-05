@@ -25,6 +25,17 @@ class RecipientComponent extends Component {
     this.props.generateSecurityAnswer()
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.transferForm.password !== this.props.transferForm.password) {
+      // need to re-validate password
+      if (!validator.isLength(this.props.transferForm.password, { min: 6, max: undefined })) {
+        this.setState(update(this.state, { formError: { password: { $set: 'Length must be greater or equal than 6' } } }))
+      } else {
+        this.setState(update(this.state, { formError: { password: { $set: null } } }))
+      }
+    }
+  }
+
   validateForm = () => {
     const { formError } = this.state
     const { transferForm } = this.props
@@ -40,7 +51,7 @@ class RecipientComponent extends Component {
             !formError.password)
   }
 
-      handleTransferFormChange = name => event => {
+  handleTransferFormChange = name => event => {
     const { transferForm, metamask } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
@@ -66,10 +77,16 @@ class RecipientComponent extends Component {
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
       }
+    } else if (name === 'password') {
+      if (!validator.isLength(event.target.value, { min: 6, max: undefined })) {
+        this.setState(update(this.state, { formError: { [name]: { $set: 'Length must be greater or equal than 6' } } }))
+      } else {
+        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
+      }
     }
   }
 
-  securityAnswerHelperText = () => {
+  securityAnswerHelperText = (validationErrMsg) => {
     const { classes, generateSecurityAnswer } = this.props
     return (
       // this section resides in <p>, thus cannot have <div>
@@ -83,9 +100,16 @@ class RecipientComponent extends Component {
             Re-generate Security Answer
           </Typography>
         </Button>
-        <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
-          We recommend you to use auto-generated security password for better security
+        {validationErrMsg &&
+        <Typography component={'span'} className={classes.securityAnswerBtnHelperTextError}>
+          {validationErrMsg}
         </Typography>
+        }
+        {!validationErrMsg &&
+        <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
+           We recommend you to use auto-generated security password for better security
+        </Typography>
+        }
       </span>
     )
   }
@@ -112,7 +136,7 @@ class RecipientComponent extends Component {
               helperText={formError.sender || 'A tracking number will be sent to this email. It will also be shown to the recipient'}
               onChange={this.handleTransferFormChange('sender')}
               value={sender}
-      />
+            />
           </Grid>
           <Grid item>
             <TextField
@@ -154,7 +178,8 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
-              helperText={this.securityAnswerHelperText()}
+              error={!!formError.password}
+              helperText={this.securityAnswerHelperText(formError.password)}
               onChange={this.handleTransferFormChange('password')}
               value={password}
             />
@@ -202,6 +227,13 @@ const styles = theme => ({
   securityAnswerBtnHelperText: {
     fontSize: '0.75rem',
     color: 'rgba(0, 0, 0, 0.54)',
+    textAlign: 'left',
+    minHeight: '1em',
+    lineHeight: '1em'
+  },
+  securityAnswerBtnHelperTextError: {
+    fontSize: '0.75rem',
+    color: '#f44336',
     textAlign: 'left',
     minHeight: '1em',
     lineHeight: '1em'
