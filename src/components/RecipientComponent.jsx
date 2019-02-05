@@ -45,6 +45,12 @@ class RecipientComponent extends Component {
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
       }
+    } else if (name === 'sender' || name === 'destination') {
+      if (!validator.isEmail(event.target.value)) {
+        this.setState(update(this.state, { formError: { [name]: { $set: 'Invalid email' } } }))
+      } else {
+        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
+      }
     }
   }
 
@@ -86,10 +92,11 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
-              helperText='A tracking number will be sent to this email. It will also be shown to the recipient'
+              error={!!formError.sender}
+              helperText={formError.sender || 'A tracking number will be sent to this email. It will also be shown to the recipient'}
               onChange={this.handleTransferFormChange('sender')}
               value={sender}
-            />
+      />
           </Grid>
           <Grid item>
             <TextField
@@ -101,6 +108,8 @@ class RecipientComponent extends Component {
               className={classes.textField}
               margin='normal'
               variant='outlined'
+              error={!!formError.destination}
+              helperText={formError.destination}
               onChange={this.handleTransferFormChange('destination')}
               value={destination}
             />
