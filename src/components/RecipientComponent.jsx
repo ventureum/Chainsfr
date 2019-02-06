@@ -125,7 +125,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='sender'
               label='Your Email'
               placeholder='john@gmail.com'
@@ -141,7 +140,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='destination'
               label='Recipient Email'
               placeholder='john@gmail.com'
@@ -157,7 +155,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='amount'
               label='Amount'
               className={classes.textField}
@@ -172,7 +169,6 @@ class RecipientComponent extends Component {
           <Grid item>
             <TextField
               fullWidth
-              required
               id='password'
               label='Security Answer'
               className={classes.textField}
@@ -184,7 +180,7 @@ class RecipientComponent extends Component {
               value={password}
             />
           </Grid>
-          <Grid item>
+          <Grid item className={classes.btnSection}>
             <Grid container direction='row' justify='center' spacing={24}>
               <Grid item>
                 <Button
@@ -240,6 +236,9 @@ const styles = theme => ({
   },
   generateSecurityAnswerBtn: {
     padding: '0px 0px 0px 0px'
+  },
+  btnSection: {
+    marginTop: '60px'
   }
 })
 
