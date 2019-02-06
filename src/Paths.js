@@ -4,7 +4,8 @@ const paths = {
   transfer: '/transfer',
   walletSelectionStep: '/walletSelection',
   recipientStep: '/recipient',
-  reviewStep: '/review'
+  reviewStep: '/review',
+  receiptStep: '/receipt'
 }
 
 export default paths
