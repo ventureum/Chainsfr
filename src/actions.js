@@ -3,7 +3,6 @@ import UUIDv1 from 'uuid/v1'
 import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
-import niceware from 'niceware'
 import moment from 'moment'
 import utils from './utils'
 
@@ -360,7 +359,8 @@ function updateTransferForm (form) {
 function generateSecurityAnswer () {
   return {
     type: 'GENERATE_SECURITY_ANSWER',
-    payload: niceware.generatePassphrase(8).join('-')
+    // 6 bytes, 48 bit, 4 words (12 bit per word)
+    payload: utils.generatePassphrase(6).join(' ')
   }
 }
 
