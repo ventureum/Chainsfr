@@ -11,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import moment from 'moment'
 
 import paths from '../Paths'
 
@@ -28,7 +29,7 @@ class ReceiptComponent extends Component {
   render () {
     const { copied } = this.state
     const { classes, transferForm, cryptoSelection, gasCost } = this.props
-    const { transferAmount, sender, destination, password } = transferForm
+    const { transferAmount, sender, destination, password, sendTimestamp } = transferForm
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -88,7 +89,7 @@ class ReceiptComponent extends Component {
                     Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    2019-02-04 20:21
+                    {moment(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
