@@ -5,6 +5,7 @@ import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
 import niceware from 'niceware'
 import moment from 'moment'
+import utils from './utils'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -158,6 +159,46 @@ async function _checkMetamaskConnection (dispatch) {
   return rv
 }
 
+async function _getGasCost (txRequest) {
+  let { fromWallet, walletType, cryptoType, transferAmount } = txRequest
+
+  let escrow = {
+    address: '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904' // mock address
+  }
+
+  if (walletType === 'metamask') {
+    if (cryptoType === 'ethereum') {
+      let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+      let txObj = {
+        from: fromWallet.accounts[0],
+        to: escrow.address,
+        value: wei
+      }
+
+      return utils.getGasCost(txObj)
+    }
+  } else if (walletType === 'ledger') {
+    if (cryptoType === 'ethereum') {
+      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, amountInWei)
+      return utils.getGasCost(signedTransactionObject.rawTransaction)
+    } else if (cryptoType === 'dai') {
+      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
+      return utils.getGasCost(signedTransactionObject.rawTransaction)
+    }
+  } else if (cryptoType === 'dai') {
+    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+    const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
+    return utils.getGasCost(signedTransactionObject.rawTransaction)
+  }
+
+  throw new Error('Invalid walletType/cryptoType')
+}
+
 async function _submitTx (dispatch, txRequest) {
   let { fromWallet, walletType, cryptoType, transferAmount, password } = txRequest
 
@@ -179,16 +220,14 @@ async function _submitTx (dispatch, txRequest) {
   // step 4: transfer funds from [fromWallet] to the newly created escrow wallet
   if (walletType === 'metamask') {
     if (cryptoType === 'ethereum') {
-      const BN = window._web3.utils.BN
-
-      let finney = new BN(parseInt(Number(transferAmount) * 1000.0))
-      let wei = finney.mul(new BN('1000000000000000'))
-
-      window._web3.eth.sendTransaction({
+      let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+      let txObj = {
         from: fromWallet.accounts[0],
         to: escrow.address,
-        value: wei.toString()
-      }).on('transactionHash', (hash) => {
+        value: wei
+      }
+
+      window._web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
         // update request tx hash
         txRequest.sendTxHash = hash
         dispatch(transactionHashRetrieved(txRequest))
@@ -325,6 +364,13 @@ function generateSecurityAnswer () {
   }
 }
 
+function getGasCost (txRequest) {
+  return {
+    type: 'GET_GAS_COST',
+    payload: _getGasCost(txRequest)
+  }
+}
+
 export {
   onLogin,
   createAddress,
@@ -336,5 +382,6 @@ export {
   selectWallet,
   selectCrypto,
   updateTransferForm,
-  generateSecurityAnswer
+  generateSecurityAnswer,
+  getGasCost
 }

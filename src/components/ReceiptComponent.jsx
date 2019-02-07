@@ -27,7 +27,7 @@ class ReceiptComponent extends Component {
 
   render () {
     const { copied } = this.state
-    const { classes, transferForm, cryptoSelection } = this.props
+    const { classes, transferForm, cryptoSelection, gasCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -72,7 +72,7 @@ class ReceiptComponent extends Component {
                     Gas Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    0.00004 ETH
+                    {`${gasCost.costInEther} ETH`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -80,7 +80,7 @@ class ReceiptComponent extends Component {
                     Total Cost
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    1.24004 ETH
+                    {`${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

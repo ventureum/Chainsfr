@@ -58,6 +58,11 @@ export default function (state = initState, action) {
           firstAddress: null
         }
       }
+    case 'GET_GAS_COST_FULFILLED':
+      return {
+        ...state,
+        gasCost: action.payload
+      }
     case 'TRANSACTION_HASH_RETRIEVED_FULFILLED':
       return {
         ...state,

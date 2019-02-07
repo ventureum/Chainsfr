@@ -29,9 +29,26 @@ class ReviewComponent extends Component {
     })
   }
 
-  render () {
-    const { classes, transferForm, cryptoSelection, actionsPending, receipt } = this.props
+  componentDidMount () {
+    // refresh gas cost
+    const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
+    this.props.getGasCost({
+      fromWallet: metamask,
+      walletType: walletSelection,
+      cryptoType: cryptoSelection,
+      transferAmount: transferAmount,
+      destination: destination,
+      sender: sender,
+      password: password
+    })
+  }
+
+  render () {
+    const { classes, transferForm, cryptoSelection, actionsPending, receipt, gasCost } = this.props
+    const { transferAmount, sender, destination, password } = transferForm
+
+    console.log(this.props)
 
     if (!actionsPending.submitTx && receipt) {
       return (<Redirect push to={paths.transfer + paths.receiptStep} />)
@@ -84,7 +101,9 @@ class ReviewComponent extends Component {
                   Gas Fee
                 </Typography>
                 <Typography className={classes.reviewContent} align='left'>
-                  0.00004 ETH
+                  {!actionsPending.getGasCost && gasCost
+                    ? `${gasCost.costInEther} ETH`
+                    : <CircularProgress size={18} color='primary' />}
                 </Typography>
               </Grid>
               <Grid item className={classes.reviewItem}>
@@ -92,7 +111,9 @@ class ReviewComponent extends Component {
                   Total Cost
                 </Typography>
                 <Typography className={classes.reviewContent} align='left'>
-                  1.24004 ETH
+                  {!actionsPending.getGasCost && gasCost
+                    ? `${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`
+                    : <CircularProgress size={18} color='primary' />}
                 </Typography>
               </Grid>
             </Grid>
