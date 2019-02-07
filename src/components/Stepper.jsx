@@ -5,7 +5,7 @@ import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 
 function getSteps () {
-  return ['Access My Wallet', 'Set Recipient and PIN', 'Review']
+  return ['Wallet', 'Recipient', 'Review']
 }
 
 class TransferStepper extends React.Component {
