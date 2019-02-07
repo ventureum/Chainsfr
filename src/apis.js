@@ -7,7 +7,7 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ id, clientId, sender, destination, cryptoType, sendTxHash, data }) {
+async function transfer ({ id, clientId, sender, destination, cryptoType, sendTxHash, sendTimestamp, data }) {
   let rv = await apiTransfer.post('/transfer', {
     id: id,
     clientId: clientId,
@@ -15,6 +15,7 @@ async function transfer ({ id, clientId, sender, destination, cryptoType, sendTx
     destination: destination,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
+    sendTimestamp: sendTimestamp,
     data: JSON.stringify(data)
   })
   return rv

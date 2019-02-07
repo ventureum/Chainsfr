@@ -15,7 +15,7 @@ class TransferContainer extends Component {
     let stepParam = this.props.match.params.step
 
     return (
-      <TransferComponent step={path2Step['/' + stepParam]} />
+      <TransferComponent step={path2Step['/' + stepParam]} history={this.props.history} />
     )
   }
 }

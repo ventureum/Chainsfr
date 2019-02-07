@@ -4,6 +4,7 @@ import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
 import niceware from 'niceware'
+import moment from 'moment'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -130,34 +131,6 @@ function _createAddress (wallet, alias) {
   }
 }
 
-async function _transfer (fromWallet, pin, value, destination) {
-  // only support ethereum now
-  if (!fromWallet || fromWallet.cryptoType !== 'Ethereum') {
-    throw 'Only Ethereum is supported!'
-  }
-
-  // step 1: create an escrow wallet
-  let escrow = window._web3.eth.accounts.create()
-
-  // step 2: encrypt the escrow wallet with pin provided
-  let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, pin)
-
-  // step 3: transfer funds from [fromWallet] to the newly created escrow wallet
-  window._web3.eth.accounts.wallet.add(fromWallet.privateKey)
-  let txReceipt = await window._web3.eth.sendTransaction({
-    from: fromWallet.address,
-    to: escrow.address,
-    value: value
-  })
-
-  // step 4: invoke api to store encripted escrow wallet
-  let apiResponse = await API.transfer(UUIDv1(), 'test-client', destination, fromWallet.cryptoType, encriptedEscrow)
-  console.log(apiResponse)
-
-  // step 5: clear wallet
-  window._web3.eth.accounts.wallet.clear()
-}
-
 async function _checkMetamaskConnection (dispatch) {
   let rv = {
     connected: false,
@@ -261,10 +234,11 @@ async function _transactionHashRetrieved (txRequest) {
     destination: destination,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
+    sendTimestamp: moment().unix(),
     data: encriptedEscrow
   })
 
-  return apiResponse
+  return { apiResponse, txRequest }
 }
 
 function transactionHashRetrieved (txRequest) {
@@ -285,13 +259,6 @@ function getWallet () {
   return {
     type: 'GET_WALLET',
     payload: _getWallet()
-  }
-}
-
-function transfer (fromWallet, pin, value, destination) {
-  return {
-    type: 'TRANSFER',
-    payload: _transfer(fromWallet, pin, value, destination)
   }
 }
 
@@ -362,7 +329,6 @@ export {
   onLogin,
   createAddress,
   getWallet,
-  transfer,
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
   submitTx,

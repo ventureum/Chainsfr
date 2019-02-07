@@ -23,6 +23,7 @@
     "googleapis": "^27.0.0",
     "immutability-helper": "^2.8.1",
     "install": "^0.12.2",
+    "moment": "^2.24.0",
     "niceware": "^1.0.6",
     "npm": "^6.6.0",
     "numeral": "^2.0.6",
@@ -46,7 +47,7 @@
     "web3": "^1.0.0-beta.37"
   },
   "scripts": {
-    "start": "HTTPS=true react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

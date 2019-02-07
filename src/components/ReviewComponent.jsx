@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
@@ -29,8 +30,13 @@ class ReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transferForm, cryptoSelection } = this.props
+    const { classes, transferForm, cryptoSelection, actionsPending, receipt } = this.props
     const { transferAmount, sender, destination, password } = transferForm
+
+    if (!actionsPending.submitTx && receipt) {
+      return (<Redirect push to={paths.transfer + paths.receiptStep} />)
+    }
+
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
         <Grid item>
@@ -105,15 +111,19 @@ class ReviewComponent extends Component {
               </Button>
             </Grid>
             <Grid item>
-              <Button
-                fullWidth
-                variant='contained'
-                color='primary'
-                size='large'
-                onClick={this.handleReviewNext}
-              >
-                Confirm and transfer
-              </Button>
+              <div className={classes.wrapper}>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='primary'
+                  size='large'
+                  disabled={actionsPending.submitTx}
+                  onClick={this.handleReviewNext}
+                >
+                  Confirm and transfer
+                </Button>
+                {actionsPending.submitTx && <CircularProgress size={24} color='primary' className={classes.buttonProgress} />}
+              </div>
             </Grid>
           </Grid>
         </Grid>
@@ -145,6 +155,16 @@ const styles = theme => ({
   },
   btnSection: {
     marginTop: '60px'
+  },
+  buttonProgress: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12
+  },
+  wrapper: {
+    position: 'relative'
   }
 })
 
