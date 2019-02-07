@@ -4,6 +4,7 @@ import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
 import niceware from 'niceware'
+import moment from 'moment'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -233,10 +234,11 @@ async function _transactionHashRetrieved (txRequest) {
     destination: destination,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
+    sendTimestamp: moment().unix(),
     data: encriptedEscrow
   })
 
-  return apiResponse
+  return { apiResponse, txRequest }
 }
 
 function transactionHashRetrieved (txRequest) {
