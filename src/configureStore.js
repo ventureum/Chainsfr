@@ -29,6 +29,12 @@ const serializeTransform = createTransform(
           value.balance = value.balance.toString()
         }
       }
+
+      if (key === 'receipt') {
+        // ignore receipt data
+        return
+      }
+
       serializeState[key] = JSON.stringify(value)
     })
     return serializeState

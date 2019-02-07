@@ -58,6 +58,11 @@ export default function (state = initState, action) {
           firstAddress: null
         }
       }
+    case 'TRANSACTION_HASH_RETRIEVED_FULFILLED':
+      return {
+        ...state,
+        receipt: action.payload
+      }
     default: // need this for default case
       return state
   }
