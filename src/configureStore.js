@@ -30,29 +30,24 @@ const serializeTransform = createTransform(
         }
       }
 
-      if (key === 'receipt') {
-        // ignore receipt data
-        return
-      }
-
       serializeState[key] = JSON.stringify(value)
     })
     return serializeState
   },
   // transform state being rehydrated
   (outboundState, key) => {
-    let serializeState = {}
+    let unserializeState = {}
     Object.entries(outboundState).forEach(entry => {
       let key = entry[0]
-      serializeState[key] = JSON.parse(outboundState[key])
+      unserializeState[key] = JSON.parse(outboundState[key])
       if (key === 'metamask') {
         // convert balance BN object to string
-        if (serializeState[key].balance) {
-          serializeState[key].balance = new BN(serializeState[key].balance)
+        if (unserializeState[key].balance) {
+          unserializeState[key].balance = new BN(unserializeState[key].balance)
         }
       }
     })
-    return serializeState
+    return unserializeState
   },
   // define which reducers this transform gets called for.
   { whitelist: ['userReducer'] }

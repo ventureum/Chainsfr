@@ -42,7 +42,7 @@ class TransferComponent extends React.Component {
 
 const styles = theme => ({
   rootReceipt: {
-    height: '100vh',
+    minHeight: '100vh',
     backgroundColor: '#fafafa'
   },
   subComponent: {

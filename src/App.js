@@ -39,6 +39,7 @@ const userIsNotAuthenticated = connectedRouterRedirect({
 
 const defaultLayoutStyle = {
   display: 'flex',
+  minHeight: '100vh',
   flexDirection: 'column'
 }
 

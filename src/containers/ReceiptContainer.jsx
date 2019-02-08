@@ -15,8 +15,9 @@ class ReceiptContainer extends Component {
 const mapStateToProps = state => {
   return {
     cryptoSelection: state.transferReducer.cryptoSelection,
-    transferForm: state.transferReducer.transferForm,
-    metamask: state.userReducer.metamask
+    metamask: state.userReducer.metamask,
+    gasCost: state.userReducer.gasCost,
+    receipt: state.userReducer.receipt
   }
 }
 
