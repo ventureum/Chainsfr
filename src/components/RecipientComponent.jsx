@@ -22,13 +22,14 @@ class RecipientComponent extends Component {
   }
 
   componentDidMount () {
-    this.props.generateSecurityAnswer()
+    this.props.clearSecurityAnswer()
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.transferForm.password !== this.props.transferForm.password) {
+    let { password } = this.props.transferForm
+    if (prevProps.transferForm.password !== password) {
       // need to re-validate password
-      if (!validator.isLength(this.props.transferForm.password, { min: 6, max: undefined })) {
+      if (password && !validator.isLength(password, { min: 6, max: undefined })) {
         this.setState(update(this.state, { formError: { password: { $set: 'Length must be greater or equal than 6' } } }))
       } else {
         this.setState(update(this.state, { formError: { password: { $set: null } } }))
@@ -97,7 +98,7 @@ class RecipientComponent extends Component {
           className={classes.generateSecurityAnswerBtn}
         >
           <Typography component={'span'} color='primary' className={classes.generateSecurityAnswerBtnText}>
-            Re-generate Security Answer
+            Generate Security Answer
           </Typography>
         </Button>
         {validationErrMsg &&
@@ -177,7 +178,7 @@ class RecipientComponent extends Component {
               error={!!formError.password}
               helperText={this.securityAnswerHelperText(formError.password)}
               onChange={this.handleTransferFormChange('password')}
-              value={password}
+              value={password || ''}
             />
           </Grid>
           <Grid item className={classes.btnSection}>

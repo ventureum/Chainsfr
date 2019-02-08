@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Recipient from '../components/RecipientComponent'
-import { updateTransferForm, generateSecurityAnswer } from '../actions'
+import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions'
 
 class RecipientContainer extends Component {
   render () {
@@ -16,7 +16,8 @@ class RecipientContainer extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     updateTransferForm: (form) => dispatch(updateTransferForm(form)),
-    generateSecurityAnswer: () => dispatch(generateSecurityAnswer())
+    generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
+    clearSecurityAnswer: () => dispatch(clearSecurityAnswer())
   }
 }
 
