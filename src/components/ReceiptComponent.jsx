@@ -29,7 +29,7 @@ class ReceiptComponent extends Component {
   render () {
     const { copied } = this.state
     const { classes, cryptoSelection, gasCost, receipt } = this.props
-    const { transferAmount, sender, destination, password, sendTimestamp } = receipt.txRequest
+    const { id, transferAmount, sender, destination, password, sendTimestamp } = receipt.txRequest
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -41,6 +41,9 @@ class ReceiptComponent extends Component {
                     <CheckCircleIcon className={classes.checkCircleIcon} />
                     <Typography className={classes.title} variant='h6' align='center'>
                       Transfer Sent
+                    </Typography>
+                    <Typography className={classes.transferId} align='center'>
+                      {`Transfer ID: ${id}`}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -158,6 +161,11 @@ const styles = theme => ({
     fontWeight: '600',
     lineHeight: '24px',
     padding: '0px 0px 0px 0px'
+  },
+  transferId: {
+    color: '#777777',
+    fontSize: '12px',
+    lineHeight: '17px'
   },
   reviewSubtitle: {
     color: '#777777',
