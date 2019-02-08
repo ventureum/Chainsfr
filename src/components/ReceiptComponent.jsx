@@ -92,7 +92,7 @@ class ReceiptComponent extends Component {
                     Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
