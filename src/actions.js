@@ -1,5 +1,4 @@
 import API from './apis'
-import UUIDv1 from 'uuid/v1'
 import Web3 from 'web3'
 import LedgerNanoS from './ledgerSigner'
 import ERC20_ABI from './contracts/ERC20.json'
@@ -206,12 +205,6 @@ async function _submitTx (dispatch, txRequest) {
 
   // step 2: encrypt the escrow wallet with pin provided
   let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password)
-
-  // step 3: invoke api to store encripted escrow wallet
-  let id = UUIDv1()
-
-  // update request id
-  txRequest.id = id
 
   // add escrow wallet to tx request
   txRequest.encriptedEscrow = encriptedEscrow

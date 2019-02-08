@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { Link, Redirect } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import UUIDv1 from 'uuid/v1'
 import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
@@ -14,11 +15,18 @@ const cryptoAbbreviationMap = {
 }
 
 class ReviewComponent extends Component {
+  state = {
+    id: null // on-refresh, clear transfer id so we will not be redirected to the receipt page
+  }
+
   handleReviewNext = () => {
     const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
+
+    let id = UUIDv1()
     // submit tx
     this.props.submitTx({
+      id: id,
       fromWallet: metamask,
       walletType: walletSelection,
       cryptoType: cryptoSelection,
@@ -27,6 +35,8 @@ class ReviewComponent extends Component {
       sender: sender,
       password: password
     })
+
+    this.setState({ id: id })
   }
 
   componentDidMount () {
@@ -45,12 +55,11 @@ class ReviewComponent extends Component {
   }
 
   render () {
+    const { id } = this.state
     const { classes, transferForm, cryptoSelection, actionsPending, receipt, gasCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
-    console.log(this.props)
-
-    if (!actionsPending.submitTx && receipt) {
+    if (!actionsPending.submitTx && receipt && receipt.txRequest.id === id) {
       return (<Redirect push to={paths.transfer + paths.receiptStep} />)
     }
 
