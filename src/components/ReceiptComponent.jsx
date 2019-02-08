@@ -28,8 +28,8 @@ class ReceiptComponent extends Component {
 
   render () {
     const { copied } = this.state
-    const { classes, transferForm, cryptoSelection, gasCost } = this.props
-    const { transferAmount, sender, destination, password, sendTimestamp } = transferForm
+    const { classes, cryptoSelection, gasCost, receipt } = this.props
+    const { transferAmount, sender, destination, password, sendTimestamp } = receipt.txRequest
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>

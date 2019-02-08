@@ -263,7 +263,9 @@ async function _submitTx (dispatch, txRequest) {
 }
 
 async function _transactionHashRetrieved (txRequest) {
-  let { id, sender, destination, cryptoType, encriptedEscrow, sendTxHash } = txRequest
+  txRequest.sendTimestamp = moment().unix()
+
+  let { id, sender, destination, cryptoType, encriptedEscrow, sendTxHash, sendTimestamp } = txRequest
 
   let apiResponse = await API.transfer({
     id: id,
@@ -272,7 +274,7 @@ async function _transactionHashRetrieved (txRequest) {
     destination: destination,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    sendTimestamp: moment().unix(),
+    sendTimestamp: sendTimestamp,
     data: encriptedEscrow
   })
 
