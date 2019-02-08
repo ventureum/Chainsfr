@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import HelpIcon from '@material-ui/icons/Help'
-import FileCopyIcon from '@material-ui/icons/FileCopyOutlined'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
@@ -100,15 +100,21 @@ class ReceiptComponent extends Component {
                     {password}
                     <CopyToClipboard
                       text={password}
-                      onCopy={() => this.setState({ copied: true })}
+                      onCopy={() => {
+                        this.setState({ copied: true },
+                          () => setTimeout(() => this.setState({ copied: false }), 1500)
+                        )
+                      }}
                     >
-                      <Tooltip title='Copy the security answer'>
+                      <Tooltip
+                        placement='right'
+                        open={copied}
+                        title='Copied'>
                         <IconButton disableRipple className={classes.iconBtn}>
                           <FileCopyIcon fontSize='small' />
                         </IconButton>
                       </Tooltip>
                     </CopyToClipboard>
-                    {copied && ' copied'}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
