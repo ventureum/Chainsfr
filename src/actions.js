@@ -359,6 +359,13 @@ function generateSecurityAnswer () {
   }
 }
 
+function clearSecurityAnswer () {
+  return {
+    type: 'GENERATE_SECURITY_ANSWER',
+    payload: undefined
+  }
+}
+
 function getGasCost (txRequest) {
   return {
     type: 'GET_GAS_COST',
@@ -378,5 +385,6 @@ export {
   selectCrypto,
   updateTransferForm,
   generateSecurityAnswer,
+  clearSecurityAnswer,
   getGasCost
 }
