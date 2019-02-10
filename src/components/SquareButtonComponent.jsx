@@ -24,7 +24,7 @@ class SquareButtonComponent extends Component {
     }
 
     return (
-      <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={onClick}>
+      <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={!disabled && onClick}>
         <Grid item>
           <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
         </Grid>
@@ -35,7 +35,7 @@ class SquareButtonComponent extends Component {
         </Grid>
         <Grid item>
           <Typography className={btnDescStyle} align='center'>
-            {desc}
+            {disabled ? 'Coming soon' : desc}
           </Typography>
         </Grid>
       </Grid>
@@ -50,8 +50,9 @@ const styles = theme => ({
     padding: '10px 15px 25px',
     marginLeft: '10px',
     marginRight: '10px',
-    borderRadius: '5px',
-    backgroundColor: '#fff',
+    border: '1px solid #4285F4',
+    borderRadius: '8px',
+    backgroundColor: 'rgba(66,133,244,0.1)',
     transition: 'all .3s ease'
   },
   btnSelected: {
@@ -60,8 +61,9 @@ const styles = theme => ({
     padding: '10px 15px 25px',
     marginLeft: '10px',
     marginRight: '10px',
-    borderRadius: '5px',
-    backgroundColor: '#05c0a5',
+    border: '1px solid #4285F4',
+    borderRadius: '8px',
+    backgroundColor: '#4285F4',
     transition: 'all .3s ease'
   },
   btnDisabled: {
@@ -70,8 +72,9 @@ const styles = theme => ({
     padding: '10px 15px 25px',
     marginLeft: '10px',
     marginRight: '10px',
-    borderRadius: '5px',
-    backgroundColor: '#fff',
+    border: '1px solid #D2D2D2',
+    borderRadius: '8px',
+    backgroundColor: '#F8F8F8',
     transition: 'all .3s ease'
   },
   btnLogo: {
