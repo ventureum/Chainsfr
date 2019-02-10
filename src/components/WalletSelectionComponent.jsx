@@ -25,9 +25,14 @@ import utils from '../utils'
 import numeral from 'numeral'
 
 const walletCryptoSupports = {
-  'basic': ['ethereum', 'bitcoin', 'dai'],
-  'metamask': ['ethereum'],
-  'ledger': ['ethereum', 'bitcoin', 'dai']
+  'basic': [{ cryptoType: 'ethereum', disabled: true },
+    { cryptoType: 'dai', disabled: true },
+    { cryptoType: 'bitcoin', disabled: true }],
+  'metamask': [{ cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: true }],
+  'ledger': [{ cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false },
+    { cryptoType: 'bitcoin', disabled: true }]
 }
 
 const walletSelections = [
@@ -43,16 +48,14 @@ const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskLogo,
-    disabled: false,
-    supportedCrypto: ['ethereum']
+    disabled: false
   },
   {
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: HardwareWalletLogo,
-    disabled: true,
-    supportedCrypto: ['ethereum', 'bitcoin', 'dai']
+    disabled: false
   }
 ]
 
@@ -61,22 +64,19 @@ const cryptoSelections = [
     cryptoType: 'ethereum',
     title: 'Ethereum',
     symbol: 'ETH',
-    logo: EthereumLogo,
-    disabled: false
-  },
-  {
-    cryptoType: 'bitcoin',
-    title: 'Bitcoin',
-    symbol: 'BTC',
-    logo: BitcoinLogo,
-    disabled: true
+    logo: EthereumLogo
   },
   {
     cryptoType: 'dai',
     title: 'Dai',
     symbol: 'DAI',
-    logo: DaiLogo,
-    disabled: true
+    logo: DaiLogo
+  },
+  {
+    cryptoType: 'bitcoin',
+    title: 'Bitcoin',
+    symbol: 'BTC',
+    logo: BitcoinLogo
   }
 ]
 
@@ -87,6 +87,20 @@ class WalletSelectionComponent extends Component {
     onCryptoSelected: PropTypes.func,
     onWalletSelected: PropTypes.func,
     handleNext: PropTypes.func
+  }
+
+  cryptoInWallet = (crypto, walletType) => {
+    for (let item of walletCryptoSupports[walletType]) {
+      if (item.cryptoType === crypto.cryptoType) return true
+    }
+    return false
+  }
+
+  cryptoDisabled = (crypto, walletType) => {
+    for (let item of walletCryptoSupports[walletType]) {
+      if (item.cryptoType === crypto.cryptoType && item.disabled) return true
+    }
+    return false
   }
 
   renderWalletSelection = () => {
@@ -123,12 +137,13 @@ class WalletSelectionComponent extends Component {
 
     return (
       <List className={classes.cryptoList}>
-        {cryptoSelections.filter(c => walletCryptoSupports[walletType].includes(c.cryptoType)).map(c =>
+        {cryptoSelections.filter(c => this.cryptoInWallet(c, walletType)).map(c =>
           (<div key={c.cryptoType}>
             <Divider />
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
+              disabled={this.cryptoDisabled(c, walletType)}
               className={classes.cryptoListItem}
             >
               <Radio
@@ -137,7 +152,7 @@ class WalletSelectionComponent extends Component {
                 tabIndex={-1}
                 disableRipple
               />
-              <ListItemText primary={c.symbol} secondary={c.title} />
+              <ListItemText primary={c.symbol} secondary={this.cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
               <ListItemSecondaryAction>
                 { walletType === 'metamask' &&
                   c.cryptoType === 'ethereum' &&
