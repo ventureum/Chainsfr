@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Link, Redirect } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
+import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import UUIDv1 from 'uuid/v1'
 import paths from '../Paths'
@@ -70,61 +71,63 @@ class ReviewComponent extends Component {
             <Grid item>
               <Grid item>
                 <Typography className={classes.title} variant='h6' align='center'>
-                  Review details of your transfer
+                  Please review details of your transfer
                 </Typography>
               </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  From
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {sender}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  To
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {destination}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  Security Answer
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {password}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  Amount
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  Gas Fee
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {!actionsPending.getGasCost && gasCost
-                    ? `${gasCost.costInEther} ETH`
-                    : <CircularProgress size={18} color='primary' />}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
-                  Total Cost
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {!actionsPending.getGasCost && gasCost
-                    ? `${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`
-                    : <CircularProgress size={18} color='primary' />}
-                </Typography>
-              </Grid>
+              <Paper className={classes.reviewItemContainer}>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    From
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {sender}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    To
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {destination}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Security Answer
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {password}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Amount
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Gas Fee
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {!actionsPending.getGasCost && gasCost
+                      ? `${gasCost.costInEther} ETH`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Total Cost
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {!actionsPending.getGasCost && gasCost
+                      ? `${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
+                </Grid>
+              </Paper>
             </Grid>
           </Grid>
         </Grid>
@@ -168,7 +171,14 @@ const styles = theme => ({
     fontSize: '18px',
     fontWeight: '600',
     lineHeight: '24px',
-    padding: '0px 0px 0px 0px'
+    padding: '0px 0px 0px 0px',
+    marginBottom: '20px'
+  },
+  reviewItemContainer: {
+    border: 'border: 1px solid #D2D2D2',
+    borderRadius: '8px',
+    backgroundColor: '#FAFAFA',
+    padding: '20px'
   },
   reviewSubtitle: {
     color: '#777777',
@@ -181,7 +191,7 @@ const styles = theme => ({
     lineHeight: '24px'
   },
   reviewItem: {
-    marginTop: '30px'
+    marginBottom: '30px'
   },
   btnSection: {
     marginTop: '60px'
