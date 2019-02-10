@@ -103,7 +103,7 @@ class ReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContentAmount} align='left'>
                     {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
                   </Typography>
                 </Grid>
@@ -189,6 +189,12 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentAmount: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
   },
   reviewItem: {
     marginBottom: '30px'
