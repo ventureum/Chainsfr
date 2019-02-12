@@ -5,7 +5,11 @@ const paths = {
   walletSelectionStep: '/walletSelection',
   recipientStep: '/recipient',
   reviewStep: '/review',
-  receiptStep: '/receipt'
+  receiptStep: '/receipt',
+  receive: '/receive',
+  receivePasswordStep: '/password',
+  receiveWalletSelectionStep: '/walletSelection',
+  receiveReviewStep: '/review'
 }
 
 export default paths

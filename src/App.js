@@ -9,9 +9,11 @@ import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
 import WalletContainer from './containers/WalletContainer'
 import TransferContainer from './containers/TransferContainer'
+import ReceiveLandingPageContainer from './containers/ReceiveLandingPageContainer'
 import Footer from './static/Footer'
 import NaviBar from './components/NavBarComponent'
 import paths from './Paths'
+import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -72,15 +74,35 @@ class App extends Component {
 
   render () {
     return (
-      <Router>
-        <Switch>
-          <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-          <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-          <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
-        </Switch>
-      </Router>
+      <MuiThemeProvider theme={theme}>
+        <Router>
+          <Switch>
+            <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+            <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
+            <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
+            <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
+          </Switch>
+        </Router>
+      </MuiThemeProvider>
     )
   }
 }
 
-export default App
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      light: '#757ce8',
+      main: '#3f50b5',
+      dark: '#002884',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#f44336',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
+  }
+})
+
+export default withStyles(theme)(App)
