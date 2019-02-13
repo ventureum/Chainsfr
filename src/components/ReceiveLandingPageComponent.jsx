@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import moment from 'moment'
 
@@ -16,13 +17,10 @@ const cryptoAbbreviationMap = {
 
 class ReceiveLandingPageComponent extends Component {
   render () {
-    let { classes } = this.props
-    let sender = 'Lezhong Li'
-    let destination = 'wanghujie@gmail.com'
-    let transferAmount = '123.2'
-    let sendTimestamp = 1549998773
-    let cryptoSelection = 'ethereum'
-    let id = '024d6c60-24c0-11e9-8437-b7b13bd3fa0d'
+    const { actionsPending, transfer, classes } = this.props
+    if (transfer) {
+      var { id, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+    }
 
     return (
       <Grid container direction='row' alignItems='stretch' className={classes.root}>
@@ -37,14 +35,14 @@ class ReceiveLandingPageComponent extends Component {
               <Grid item className={classes.stepContainer}>
                 <Grid item className={classes.stepTitleContainer}>
                   <Typography className={classes.stepTitle}>
-                      Easy as 3 steps to complete the transfer
+                    Easy as 3 steps to complete the transfer
                   </Typography>
                 </Grid>
                 <Grid item className={classes.step}>
                   <Grid container direction='row'>
                     <Avatar className={classes.stepIcon}> 1 </Avatar>
                     <Typography align='left' className={classes.stepText}>
-                        Log in to enter security answer
+                      Log in to enter security answer
                     </Typography>
                   </Grid>
                 </Grid>
@@ -52,7 +50,7 @@ class ReceiveLandingPageComponent extends Component {
                   <Grid container direction='row'>
                     <Avatar className={classes.stepIcon}> 2 </Avatar>
                     <Typography align='left' className={classes.stepText}>
-                        Select the wallet to deposit
+                      Select the wallet to deposit
                     </Typography>
                   </Grid>
                 </Grid>
@@ -60,7 +58,7 @@ class ReceiveLandingPageComponent extends Component {
                   <Grid container direction='row'>
                     <Avatar className={classes.stepIcon}> 3 </Avatar>
                     <Typography align='left' className={classes.stepText}>
-                        Accept the transfer
+                      Accept the transfer
                     </Typography>
                   </Grid>
                 </Grid>
@@ -70,75 +68,76 @@ class ReceiveLandingPageComponent extends Component {
         </Grid>
         <Grid item xl={5} lg={5} md={5}>
           <Grid item className={classes.rightContainer}>
-            <Grid container direction='column' justify='center' alignItems='stretch'>
-              <Grid item className={classes.titleSection}>
-                <Grid container direction='column' justify='center' alignItems='flex-start'>
-                  <Typography className={classes.title} variant='h6' align='left'>
+            {(actionsPending.getTransfer || !transfer) ? <CircularProgress color='primary' />
+              : <Grid container direction='column' justify='center' alignItems='stretch'>
+                <Grid item className={classes.titleSection}>
+                  <Grid container direction='column' justify='center' alignItems='flex-start'>
+                    <Typography className={classes.title} variant='h6' align='left'>
                     Pending Transaction
-                  </Typography>
-                  <Typography className={classes.transferId} align='left'>
-                    {`Transfer ID: ${id}`}
-                  </Typography>
+                    </Typography>
+                    <Typography className={classes.transferId} align='left'>
+                      {`Transfer ID: ${id}`}
+                    </Typography>
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
                   From
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {sender}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {sender}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
                   To
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {destination}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {destination}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
                   Amount
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.reviewItem}>
-                <Typography className={classes.reviewSubtitle} align='left'>
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {transferAmount} {cryptoAbbreviationMap[cryptoType]}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
                   Sent on
-                </Typography>
-                <Typography className={classes.reviewContent} align='left'>
-                  {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.btnSection}>
-                <Grid container direction='row' justify='flex-start' spacing={24}>
-                  <Grid item>
-                    <Button
-                      variant='outlined'
-                      color='primary'
-                    >
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.btnSection}>
+                  <Grid container direction='row' justify='flex-start' spacing={24}>
+                    <Grid item>
+                      <Button
+                        variant='outlined'
+                        color='primary'
+                      >
                       Accept Anonymouslyt
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      variant='contained'
-                      color='primary'
-                    >
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                      >
                       Log in and Accept
-                    </Button>
+                      </Button>
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid item className={classes.helperTextSection}>
-                <Typography className={classes.helperText} align='left'>
+                <Grid item className={classes.helperTextSection}>
+                  <Typography className={classes.helperText} align='left'>
                   Have questions? Please take a look at our FAQ
-                </Typography>
-              </Grid>
-            </Grid>
+                  </Typography>
+                </Grid>
+              </Grid>}
           </Grid>
         </Grid>
       </Grid>
