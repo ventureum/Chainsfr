@@ -258,13 +258,14 @@ async function _submitTx (dispatch, txRequest) {
 async function _transactionHashRetrieved (txRequest) {
   txRequest.sendTimestamp = moment().unix()
 
-  let { id, sender, destination, cryptoType, encriptedEscrow, sendTxHash, sendTimestamp } = txRequest
+  let { id, sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, sendTimestamp } = txRequest
 
   let apiResponse = await API.transfer({
     id: id,
     clientId: 'test-client',
     sender: sender,
     destination: destination,
+    transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
     sendTimestamp: sendTimestamp,
@@ -272,6 +273,11 @@ async function _transactionHashRetrieved (txRequest) {
   })
 
   return { apiResponse, txRequest }
+}
+
+async function _getTransfer (id) {
+  let apiResponse = await API.getTransfer({ id: id })
+  return apiResponse
 }
 
 function transactionHashRetrieved (txRequest) {
@@ -373,6 +379,13 @@ function getGasCost (txRequest) {
   }
 }
 
+function getTransfer (id) {
+  return {
+    type: 'GET_TRANSFER',
+    payload: _getTransfer(id)
+  }
+}
+
 export {
   onLogin,
   createAddress,
@@ -386,5 +399,6 @@ export {
   updateTransferForm,
   generateSecurityAnswer,
   clearSecurityAnswer,
-  getGasCost
+  getGasCost,
+  getTransfer
 }
