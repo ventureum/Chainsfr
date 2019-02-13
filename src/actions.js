@@ -274,6 +274,11 @@ async function _transactionHashRetrieved (txRequest) {
   return { apiResponse, txRequest }
 }
 
+async function _getTransfer (id) {
+  let apiResponse = await API.getTransfer({ id: id })
+  return apiResponse
+}
+
 function transactionHashRetrieved (txRequest) {
   return {
     type: 'TRANSACTION_HASH_RETRIEVED',
@@ -373,6 +378,13 @@ function getGasCost (txRequest) {
   }
 }
 
+function getTransfer (id) {
+  return {
+    type: 'GET_TRANSFER',
+    payload: _getTransfer(id)
+  }
+}
+
 export {
   onLogin,
   createAddress,
@@ -386,5 +398,6 @@ export {
   updateTransferForm,
   generateSecurityAnswer,
   clearSecurityAnswer,
-  getGasCost
+  getGasCost,
+  getTransfer
 }
