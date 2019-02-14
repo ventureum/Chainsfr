@@ -4,14 +4,15 @@ import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 
-function getSteps () {
-  return ['Wallet', 'Recipient', 'Review']
+const stepsByActionType = {
+  'receive': ['Security Answer', 'Wallet', 'Review'],
+  'transfer': ['Wallet', 'Recipient', 'Review']
 }
 
-class TransferStepper extends React.Component {
+class MyStepper extends React.Component {
   render () {
-    const { step } = this.props
-    const steps = getSteps()
+    const { actionType, step } = this.props
+    const steps = stepsByActionType[actionType]
     return (
       <Stepper activeStep={step}>
         {steps.map((label, index) => (
@@ -27,4 +28,4 @@ class TransferStepper extends React.Component {
 const style = theme => ({
 })
 
-export default withStyles(style)(TransferStepper)
+export default withStyles(style)(MyStepper)

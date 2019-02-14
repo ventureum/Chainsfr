@@ -17,7 +17,7 @@ class TransferComponent extends React.Component {
         direction='column'
         className={step === 3 && classes.rootReceipt}>
         <Grid item>
-          {step <= 2 && <Stepper step={step} />}
+          {step <= 2 && <Stepper actionType='transfer' step={step} />}
         </Grid>
         <Grid item>
           {/* receipt page requires a different background color */}
