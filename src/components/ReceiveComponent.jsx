@@ -3,12 +3,10 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
-import WalletSelection from '../containers/WalletSelectionContainer'
-import Recipient from '../containers/RecipientContainer'
-import Review from '../containers/ReviewContainer'
-import Receipt from '../containers/ReceiptContainer'
+import ReceivePassword from '../containers/ReceivePasswordContainer'
+import ReceiveWalletSelection from '../containers/ReceiveWalletSelectionContainer'
 
-class TransferComponent extends React.Component {
+class ReceiveComponent extends React.Component {
   render () {
     const { classes, step } = this.props
     return (
@@ -17,7 +15,7 @@ class TransferComponent extends React.Component {
         direction='column'
         className={step === 3 && classes.rootReceipt}>
         <Grid item>
-          {step <= 2 && <Stepper actionType='transfer' step={step} />}
+          {step <= 2 && <Stepper actionType='receive' step={step} />}
         </Grid>
         <Grid item>
           {/* receipt page requires a different background color */}
@@ -28,10 +26,8 @@ class TransferComponent extends React.Component {
             className={step === 3 && classes.receiptContainer}
           >
             <Grid item className={classes.subComponent}>
-              {step === 0 && <WalletSelection />}
-              {step === 1 && <Recipient />}
-              {step === 2 && <Review />}
-              {step === 3 && <Receipt />}
+              {step === 0 && <ReceivePassword />}
+              {step === 1 && <ReceiveWalletSelection />}
             </Grid>
           </Grid>
         </Grid>
@@ -52,4 +48,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(TransferComponent)
+export default withStyles(styles)(ReceiveComponent)

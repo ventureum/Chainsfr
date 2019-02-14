@@ -6,7 +6,7 @@ import paths from '../Paths'
 const path2Step = {
   [paths.receivePasswordStep]: 0,
   [paths.receiveWalletSelectionStep]: 1,
-  [paths.receiveReviewStep]: 1
+  [paths.receiveReviewStep]: 2
 }
 
 class ReceiveContainer extends Component {

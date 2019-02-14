@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 import promiseMiddleware from 'redux-promise-middleware'
+import errorMiddleware from './errorMiddleware'
 import logger from 'redux-logger'
 import { persistStore, persistReducer, createTransform } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
@@ -10,7 +11,7 @@ import BN from 'bn.js'
 
 function configureStore (reducers) {
   const enhancer = compose(
-    applyMiddleware(promiseMiddleware(), thunk, logger)
+    applyMiddleware(errorMiddleware, promiseMiddleware(), thunk, logger)
   )
 
   return createStore(reducers, enhancer)

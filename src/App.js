@@ -9,6 +9,7 @@ import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
 import WalletContainer from './containers/WalletContainer'
 import TransferContainer from './containers/TransferContainer'
+import ReceiveContainer from './containers/ReceiveContainer'
 import ReceiveLandingPageContainer from './containers/ReceiveLandingPageContainer'
 import Footer from './static/Footer'
 import NaviBar from './components/NavBarComponent'
@@ -81,6 +82,7 @@ class App extends Component {
             <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
             <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
             <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
+            <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
           </Switch>
         </Router>
       </MuiThemeProvider>

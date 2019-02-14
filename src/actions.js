@@ -280,6 +280,15 @@ async function _getTransfer (id) {
   return apiResponse
 }
 
+async function _verifyPassword (encriptedWallet, password) {
+  let decryptedWallet = utils.decryptWallet(encriptedWallet, password)
+  if (!decryptedWallet) {
+    // wrong password
+    throw new Error('WALLET_DECRYPTION_FAILED')
+  }
+  return decryptedWallet
+}
+
 function transactionHashRetrieved (txRequest) {
   return {
     type: 'TRANSACTION_HASH_RETRIEVED',
@@ -386,6 +395,23 @@ function getTransfer (id) {
   }
 }
 
+function verifyPassword (encriptedWallet, password) {
+  return {
+    type: 'VERIFY_PASSWORD',
+    payload: _verifyPassword(encriptedWallet, password),
+    meta: {
+      globalError: true,
+      silent: true
+    }
+  }
+}
+
+function clearDecryptedWallet () {
+  return {
+    type: 'CLEAR_DECRYPTED_WALLET'
+  }
+}
+
 export {
   onLogin,
   createAddress,
@@ -400,5 +426,7 @@ export {
   generateSecurityAnswer,
   clearSecurityAnswer,
   getGasCost,
-  getTransfer
+  getTransfer,
+  verifyPassword,
+  clearDecryptedWallet
 }

@@ -36,6 +36,11 @@ export default function (state = initialState, action) {
         ...state,
         transfer: action.payload
       }
+    case 'VERIFY_PASSWORD_FULFILLED':
+    // store decrypted wallet in transfer.wallet
+      return update(state, { transfer: { wallet: { $set: action.payload } } })
+    case 'CLEAR_DECRYPTED_WALLET':
+      return update(state, { transfer: { wallet: { $set: null } } })
     default: // need this for default case
       return state
   }
