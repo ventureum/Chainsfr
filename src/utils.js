@@ -101,4 +101,14 @@ function generatePassphrase (size) {
   return bytesToPassphrase(bytes)
 }
 
-export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase }
+function decryptWallet (encryptedWallet, password) {
+  const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  try {
+    return _web3.eth.accounts.decrypt(encryptedWallet, password)
+  } catch (error) {
+    // derivation error, possibly wrong password
+    return null
+  }
+}
+
+export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet }
