@@ -5,6 +5,8 @@ import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
 import ReceivePassword from '../containers/ReceivePasswordContainer'
 import ReceiveWalletSelection from '../containers/ReceiveWalletSelectionContainer'
+import ReceiveReview from '../containers/ReceiveReviewContainer'
+import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
 
 class ReceiveComponent extends React.Component {
   render () {
@@ -28,6 +30,8 @@ class ReceiveComponent extends React.Component {
             <Grid item className={classes.subComponent}>
               {step === 0 && <ReceivePassword />}
               {step === 1 && <ReceiveWalletSelection />}
+              {step === 2 && <ReceiveReview />}
+              {step === 3 && <ReceiveReceipt />}
             </Grid>
           </Grid>
         </Grid>
