@@ -9,7 +9,8 @@ const paths = {
   receive: '/receive',
   receivePasswordStep: '/password',
   receiveWalletSelectionStep: '/walletSelection',
-  receiveReviewStep: '/review'
+  receiveReviewStep: '/review',
+  receiveReceiptStep: '/receipt'
 }
 
 export default paths

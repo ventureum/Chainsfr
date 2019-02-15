@@ -68,6 +68,11 @@ export default function (state = initState, action) {
         ...state,
         receipt: action.payload
       }
+    case 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED_FULFILLED':
+      return {
+        ...state,
+        receipt: action.payload
+      }
     default: // need this for default case
       return state
   }
