@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Review from '../components/ReviewComponent'
-import { submitTx, getGasCost } from '../actions'
+import { submitTx, getGasCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 class ReviewContainer extends Component {
@@ -28,12 +28,12 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    transferForm: state.transferReducer.transferForm,
-    cryptoSelection: state.transferReducer.cryptoSelection,
-    walletSelection: state.transferReducer.walletSelection,
-    metamask: state.userReducer.metamask,
-    receipt: state.userReducer.receipt,
-    gasCost: state.userReducer.gasCost,
+    transferForm: state.formReducer.transferForm,
+    cryptoSelection: state.formReducer.cryptoSelection,
+    walletSelection: state.formReducer.walletSelection,
+    metamask: state.walletReducer.metamask,
+    receipt: state.transferReducer.receipt,
+    gasCost: state.transferReducer.gasCost,
     actionsPending: {
       submitTx: submitTxSelector(state),
       getGasCost: getGasCostSelector(state)

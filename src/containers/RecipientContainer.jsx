@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Recipient from '../components/RecipientComponent'
-import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions'
+import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions/formActions'
 
 class RecipientContainer extends Component {
   render () {
@@ -23,9 +23,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    cryptoSelection: state.transferReducer.cryptoSelection,
-    transferForm: state.transferReducer.transferForm,
-    metamask: state.userReducer.metamask
+    cryptoSelection: state.formReducer.cryptoSelection,
+    transferForm: state.formReducer.transferForm,
+    metamask: state.walletReducer.metamask
   }
 }
 

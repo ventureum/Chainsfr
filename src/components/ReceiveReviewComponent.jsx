@@ -17,17 +17,17 @@ const cryptoAbbreviationMap = {
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, metamask, cryptoSelection, walletSelection, gasCost } = this.props
+    const { transfer, escrowWallet, metamask, walletSelection, gasCost } = this.props
     const { id, transferAmount, sender, destination } = transfer
 
     // accept transfer
     // TODO handle ledger nano s and erc20 tokens
     this.props.acceptTransfer({
       id: id,
-      escrowWallet: transfer.wallet,
+      escrowWallet: escrowWallet.decryptedWallet,
       destinationAddress: metamask.accounts[0],
       walletType: walletSelection,
-      cryptoType: cryptoSelection,
+      cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
       destination: destination,
       sender: sender,
@@ -39,13 +39,11 @@ class ReceiveReviewComponent extends Component {
 
   componentDidMount () {
     // refresh gas cost
-    const { metamask, transfer, cryptoSelection, walletSelection } = this.props
-    console.log(this.props)
+    const { metamask, transfer } = this.props
     const { transferAmount } = transfer
     this.props.getGasCost({
       fromWallet: metamask,
-      walletType: walletSelection,
-      cryptoType: cryptoSelection,
+      cryptoType: transfer.cryptoType,
       transferAmount: transferAmount
     })
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceivePasswordComponent from '../components/ReceivePasswordComponent'
-import { verifyPassword, clearDecryptedWallet } from '../actions'
+import { verifyPassword, clearDecryptedWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 class ReceivePasswordContainer extends Component {
@@ -27,6 +27,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
+    escrowWallet: state.walletReducer.escrowWallet,
     actionsPending: {
       verifyPassword: verifyPasswordSelector(state)
     },

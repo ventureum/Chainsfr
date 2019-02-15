@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Receipt from '../components/ReceiptComponent'
+import ReceiveReceipt from '../components/ReceiveReceiptComponent'
 
-class ReceiptContainer extends Component {
+class ReceiveReceiptContainer extends Component {
   render () {
     return (
-      <Receipt
+      <ReceiveReceipt
         {...this.props}
       />
     )
@@ -24,4 +24,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   null
-)(ReceiptContainer)
+)(ReceiveReceiptContainer)
