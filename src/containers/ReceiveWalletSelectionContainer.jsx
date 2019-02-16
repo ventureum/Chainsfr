@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 import ReceiveWalletSelection from '../components/ReceiveWalletSelectionComponent'
-import { checkMetamaskConnection, checkLedgerNanoSConnection, selectWallet } from '../actions'
+import { checkMetamaskConnection, checkLedgerNanoSConnection } from '../actions/walletActions'
+import { selectWallet } from '../actions/formActions'
+
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 class ReceiveWalletSelectionContainer extends Component {
@@ -51,9 +53,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    walletSelection: state.transferReducer.walletSelection,
-    metamask: state.userReducer.metamask,
-    ledgerNanoS: state.userReducer.ledgerNanoS,
+    walletSelection: state.formReducer.walletSelection,
+    metamask: state.walletReducer.metamask,
+    ledgerNanoS: state.walletReducer.ledgerNanoS,
     actionsPending: {
       checkMetamaskConnection: checkMetamaskConnectionSelector(state),
       checkLedgerNanoSConnection: checkLedgerNanoSConnectionSelector(state)

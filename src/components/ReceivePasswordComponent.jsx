@@ -27,10 +27,10 @@ class ReceivePasswordComponent extends Component {
   }
 
   render () {
-    const { classes, actionsPending, transfer, error } = this.props
+    const { classes, actionsPending, escrowWallet, error } = this.props
     const { password } = this.state
 
-    if (!actionsPending.verifyPassword && transfer.wallet) {
+    if (!actionsPending.verifyPassword && escrowWallet.decryptedWallet) {
       // verifyPassword is not currently running and wallet has been decrypted
       return (<Redirect push to={paths.receive + paths.receiveWalletSelectionStep} />)
     }

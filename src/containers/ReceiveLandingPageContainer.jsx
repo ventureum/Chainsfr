@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import queryString from 'query-string'
 import ReceiveLandingPageComponent from '../components/ReceiveLandingPageComponent'
-import { getTransfer } from '../actions'
+import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 class ReceiveLandingPageContainer extends Component {
