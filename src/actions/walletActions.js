@@ -1,6 +1,7 @@
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
+import BN from 'bn.js'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -21,7 +22,7 @@ async function _checkMetamaskConnection (dispatch) {
     rv.accounts = await window.ethereum.enable()
 
     // retrieve eth balance
-    rv.balance = new window._web3.utils.BN(await window._web3.eth.getBalance(rv.accounts[0]))
+    rv.balance = new BN(await window._web3.eth.getBalance(rv.accounts[0]))
 
     // listen for accounts changes
     window.ethereum.on('accountsChanged', function (accounts) {

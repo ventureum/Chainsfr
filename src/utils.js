@@ -10,7 +10,6 @@ const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${
  * @return float number of val/(10**decimals) with precision [precision]
  */
 function toHumanReadableUnit (val, decimals = 18, precision = 3) {
-  const BN = window._web3.utils.BN
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = val.div(base)
@@ -22,7 +21,6 @@ function toHumanReadableUnit (val, decimals = 18, precision = 3) {
  * @return BN smallest token unit
  */
 function toBasicTokenUnit (val, decimals = 18, precision = 3) {
-  const BN = window._web3.utils.BN
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = parseInt(val * precisionBase.toNumber())
