@@ -77,13 +77,13 @@ class App extends Component {
       <MuiThemeProvider theme={theme}>
         <Provider store={store}>
           <ConnectedRouter history={history}>
-              <Switch>
-                <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-                <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-                <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
-                <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
-                <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
-              </Switch>
+            <Switch>
+              <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
+              <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
+              <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
+              <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
+            </Switch>
           </ConnectedRouter>
         </Provider>
       </MuiThemeProvider>

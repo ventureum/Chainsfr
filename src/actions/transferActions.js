@@ -5,6 +5,8 @@ import ERC20_ABI from '../contracts/ERC20.json'
 import moment from 'moment'
 import utils from '../utils'
 import BN from 'bn.js'
+import { push } from 'connected-react-router'
+import paths from '../Paths'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -168,16 +170,20 @@ async function _getTransfer (id) {
 }
 
 function transactionHashRetrieved (txRequest) {
-  return {
-    type: 'TRANSACTION_HASH_RETRIEVED',
-    payload: _transactionHashRetrieved(txRequest)
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'TRANSACTION_HASH_RETRIEVED',
+      payload: _transactionHashRetrieved(txRequest)
+    }).then(() => dispatch(push(paths.transfer + paths.receiptStep)))
   }
 }
 
 function acceptTransferTransactionHashRetrieved (txRequest) {
-  return {
-    type: 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED',
-    payload: _acceptTransferTransactionHashRetrieved(txRequest)
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED',
+      payload: _acceptTransferTransactionHashRetrieved(txRequest)
+    }).then(() => dispatch(push(paths.receive + paths.receiveReceiptStep)))
   }
 }
 

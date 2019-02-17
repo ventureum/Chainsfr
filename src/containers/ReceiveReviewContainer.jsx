@@ -32,7 +32,6 @@ const mapStateToProps = state => {
     escrowWallet: state.walletReducer.escrowWallet,
     walletSelection: state.formReducer.walletSelection,
     metamask: state.walletReducer.metamask,
-    receipt: state.transferReducer.receipt,
     gasCost: state.transferReducer.gasCost,
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
