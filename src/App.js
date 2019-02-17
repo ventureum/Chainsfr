@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch
-} from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import { ConnectedRouter } from 'connected-react-router'
 import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
@@ -15,6 +13,7 @@ import Footer from './static/Footer'
 import NaviBar from './components/NavBarComponent'
 import paths from './Paths'
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles'
+import { store, history } from './configureStore'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -76,15 +75,17 @@ class App extends Component {
   render () {
     return (
       <MuiThemeProvider theme={theme}>
-        <Router>
-          <Switch>
-            <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-            <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-            <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
-            <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
-            <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
-          </Switch>
-        </Router>
+        <Provider store={store}>
+          <ConnectedRouter history={history}>
+            <Switch>
+              <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
+              <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
+              <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
+              <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
+            </Switch>
+          </ConnectedRouter>
+        </Provider>
       </MuiThemeProvider>
     )
   }

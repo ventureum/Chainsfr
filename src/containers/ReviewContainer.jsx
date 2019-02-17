@@ -32,7 +32,6 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     walletSelection: state.formReducer.walletSelection,
     metamask: state.walletReducer.metamask,
-    receipt: state.transferReducer.receipt,
     gasCost: state.transferReducer.gasCost,
     actionsPending: {
       submitTx: submitTxSelector(state),

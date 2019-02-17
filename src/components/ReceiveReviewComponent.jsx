@@ -49,18 +49,13 @@ class ReceiveReviewComponent extends Component {
   }
 
   render () {
-    const { classes, metamask, transfer, walletSelection, cryptoSelection, actionsPending, receipt, gasCost } = this.props
+    const { classes, metamask, transfer, walletSelection, cryptoSelection, actionsPending, gasCost } = this.props
     const { transferAmount, sender, destination, sendTimestamp } = transfer
 
     if (walletSelection === 'metamask') {
       var address = metamask.accounts[0]
     }
     // TODO handle ledger address
-
-    console.log(actionsPending.acceptTransfer, receipt)
-    if (!actionsPending.acceptTransfer && receipt) {
-      return (<Redirect push to={paths.receive + paths.receiveReceiptStep} />)
-    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>

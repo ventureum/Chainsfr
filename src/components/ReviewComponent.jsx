@@ -16,10 +16,6 @@ const cryptoAbbreviationMap = {
 }
 
 class ReviewComponent extends Component {
-  state = {
-    id: null // on-refresh, clear transfer id so we will not be redirected to the receipt page
-  }
-
   handleReviewNext = () => {
     const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
@@ -56,13 +52,8 @@ class ReviewComponent extends Component {
   }
 
   render () {
-    const { id } = this.state
-    const { classes, transferForm, cryptoSelection, actionsPending, receipt, gasCost } = this.props
+    const { classes, transferForm, cryptoSelection, actionsPending, gasCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm
-
-    if (!actionsPending.submitTx && receipt && receipt.txRequest.id === id) {
-      return (<Redirect push to={paths.transfer + paths.receiptStep} />)
-    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>

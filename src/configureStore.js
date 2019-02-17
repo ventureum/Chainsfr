@@ -8,10 +8,14 @@ import storage from 'redux-persist/lib/storage'
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2'
 import reducers from './reducers'
 import BN from 'bn.js'
+import { routerMiddleware } from 'connected-react-router'
+import { createBrowserHistory } from 'history'
+
+const history = createBrowserHistory()
 
 function configureStore (reducers) {
   const enhancer = compose(
-    applyMiddleware(errorMiddleware, promiseMiddleware(), thunk, logger)
+    applyMiddleware(routerMiddleware(history), errorMiddleware, promiseMiddleware(), thunk, logger)
   )
 
   return createStore(reducers, enhancer)
@@ -64,9 +68,9 @@ const persistConfig = {
   whitelist: ['userReducer', 'transferReducer']
 }
 
-const persistedReducer = persistReducer(persistConfig, reducers)
+const persistedReducer = persistReducer(persistConfig, reducers(history))
 
 var store = configureStore(persistedReducer)
 var persistor = persistStore(store)
 
-export { store, persistor }
+export { store, persistor, history }
