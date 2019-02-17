@@ -48,7 +48,7 @@
     "typeface-roboto": "0.0.54",
     "uuid": "^3.3.2",
     "validator": "^10.11.0",
-    "web3": "^1.0.0-beta.46"
+    "web3": "^1.0.0-beta.37"
   },
   "scripts": {
     "start": "react-scripts start",
