@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -102,21 +102,21 @@ class ReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Gas Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getGasCost && gasCost
-                      ? `${gasCost.costInEther} ETH`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getGasCost && gasCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {gasCost.costInEther} ETH
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />}
                 </Grid>
                 <Grid item>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Total Cost
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getGasCost && gasCost
-                      ? `${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getGasCost && gasCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />}
                 </Grid>
               </Paper>
             </Grid>

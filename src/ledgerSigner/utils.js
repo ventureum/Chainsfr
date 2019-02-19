@@ -1,4 +1,4 @@
-import ethUtil from 'ethereumjs-util'
+import { bufferToInt } from 'ethereumjs-util'
 
 export const getBufferFromHex = hex => {
   const _hex = hex.toLowerCase().replace('0x', '')
@@ -10,7 +10,7 @@ export const bufferToHex = buffer => {
 }
 
 export const calculateChainIdFromV = v => {
-  const sigV = ethUtil.bufferToInt(v)
+  const sigV = bufferToInt(v)
   let chainId = Math.floor((sigV - 35) / 2)
   if (chainId < 0) chainId = 0
   return chainId

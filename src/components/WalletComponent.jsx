@@ -72,7 +72,7 @@ class WalletComponent extends Component {
     }
 
     if (file.id) { // just update
-      let resp = await addContent(file.id).then(function (resp) {
+      await addContent(file.id).then(function (resp) {
         console.log('File just updated', resp.result)
       })
     } else { // create and update

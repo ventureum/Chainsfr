@@ -15,7 +15,8 @@ class TransferComponent extends React.Component {
       <Grid
         container
         direction='column'
-        className={step === 3 && classes.rootReceipt}>
+        className={step === 3 ? classes.rootReceipt : undefined}
+      >
         <Grid item>
           {step <= 2 && <Stepper actionType='transfer' step={step} />}
         </Grid>
@@ -25,7 +26,6 @@ class TransferComponent extends React.Component {
             container
             direction='column'
             alignItems='center'
-            className={step === 3 && classes.receiptContainer}
           >
             <Grid item className={classes.subComponent}>
               {step === 0 && <WalletSelection />}
