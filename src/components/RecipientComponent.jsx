@@ -61,13 +61,12 @@ class RecipientComponent extends Component {
 
     // validation
     if (name === 'transferAmount') {
-      let metamaskBal = utils.toHumanReadableUnit(metamask.balance)
       if (metamask && metamask.balance &&
-          !validator.isFloat(event.target.value, { min: 0.0001, max: metamaskBal })) {
+          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(metamask.balance) })) {
         if (event.target.value === '-' || parseFloat(event.target.value) < 0.0001) {
           this.setState(update(this.state, { formError: { [name]: { $set: 'The amount must be greater than 0.0001' } } }))
         } else {
-          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${metamaskBal}` } } }))
+          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(metamask.balance)}` } } }))
         }
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))

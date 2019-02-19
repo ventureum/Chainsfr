@@ -42,6 +42,7 @@ class WalletSelectionContainer extends Component {
 }
 
 const checkMetamaskConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION'])
+const checkLedgerNanoSConnectionSelector = createLoadingSelector(['CHECK_LEDGER_NANOS_CONNECTION'])
 const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
 
 const mapDispatchToProps = dispatch => {
@@ -58,8 +59,10 @@ const mapStateToProps = state => {
     walletSelection: state.formReducer.walletSelection,
     cryptoSelection: state.formReducer.cryptoSelection,
     metamask: state.walletReducer.metamask,
+    ledgerNanoS: state.walletReducer.ledgerNanoS,
     actionsPending: {
-      checkMetamaskConnection: checkMetamaskConnectionSelector(state)
+      checkMetamaskConnection: checkMetamaskConnectionSelector(state),
+      checkLedgerNanoSConnection: checkLedgerNanoSConnectionSelector(state)
     },
     error: errorSelector(state)
   }

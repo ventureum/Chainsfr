@@ -24,7 +24,7 @@ class SquareButtonComponent extends Component {
     }
 
     return (
-      <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={!disabled && onClick}>
+      <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
         <Grid item>
           <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
         </Grid>

@@ -123,13 +123,26 @@ class WalletSelectionComponent extends Component {
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, metamask, actionsPending } = this.props
+    const { classes, walletType, cryptoType, onCryptoSelected, metamask, actionsPending, ledgerNanoS } = this.props
 
-    if (actionsPending.checkMetamaskConnection) {
+    if (actionsPending.checkMetamaskConnection || actionsPending.checkLedgerNanoSConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>
             <CircularProgress className={classes.circularProgress} />
+          </Grid>
+        </Grid>
+      )
+    }
+
+    if (walletType === 'ledger' && !ledgerNanoS.connected) {
+      return (
+        <Grid container direction='row' alignItems='center'>
+          <Grid item>
+            <ErrorIcon className={classes.notConnectIcon} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.notConnectText}>Please make sure your device is connected</Typography>
           </Grid>
         </Grid>
       )
@@ -154,10 +167,10 @@ class WalletSelectionComponent extends Component {
               />
               <ListItemText primary={c.symbol} secondary={this.cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
               <ListItemSecondaryAction>
-                { walletType === 'metamask' &&
+                {walletType === 'metamask' &&
                   c.cryptoType === 'ethereum' &&
                   metamask &&
-                  numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a') }
+                  numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a')}
               </ListItemSecondaryAction>
             </ListItem>
           </div>))}
@@ -189,16 +202,16 @@ class WalletSelectionComponent extends Component {
           {this.renderWalletSelection()}
         </Grid>
         {walletType &&
-        <Grid item>
-          <Typography variant='h6' align='left'>
-             Choose the coin
-          </Typography>
-        </Grid>
+          <Grid item>
+            <Typography variant='h6' align='left'>
+              Choose the coin
+            </Typography>
+          </Grid>
         }
         {walletType &&
-        <Grid item>
-          {this.renderCryptoSelection()}
-        </Grid>}
+          <Grid item>
+            {this.renderCryptoSelection()}
+          </Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
@@ -233,6 +246,16 @@ const styles = theme => ({
   cryptoList: {
     width: '100%',
     backgroundColor: theme.palette.background.paper
+  },
+  notConnectIcon: {
+    color: '#B00020',
+    marginRight: '8px'
+  },
+  notConnectText: {
+    color: '#333333',
+    fontSize: '14px',
+    fontWeight: 600
+
   }
 })
 
