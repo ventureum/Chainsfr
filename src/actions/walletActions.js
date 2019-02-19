@@ -34,6 +34,10 @@ async function _checkMetamaskConnection (dispatch) {
 
 async function _checkLedgerNanoSConnection () {
   const deviceConnected = await ledgerNanoS.deviceConnected()
+  if (deviceConnected === null) {
+    const msg = 'Ledger not connected'
+    throw msg
+  }
   return deviceConnected
 }
 

@@ -46,6 +46,14 @@ export default function (state = initState, action) {
           firstAddress: action.payload
         }
       }
+    case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
+      return {
+        ...state,
+        ledgerNanoS: {
+          connected: false,
+          firstAddress: null
+        }
+      }
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
     // store decrypted wallet
