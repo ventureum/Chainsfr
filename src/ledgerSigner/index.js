@@ -3,6 +3,7 @@ import Transport from '@ledgerhq/hw-transport-u2f' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
 import Web3 from 'web3'
+import BN from 'bn.js'
 import {
   getSignTransactionObject,
   getBufferFromHex,
@@ -51,13 +52,21 @@ class LedgerNanoS {
     const address = await this.getEthAddress(accountIndex)
     const web3 = this.getWeb3()
     const balance = await web3.eth.getBalance(address)
-    return balance
+    return new BN(balance)
   }
 
   deviceConnected = async () => {
     try {
-      const address = await this.getEthAddress(0)
-      return address
+      return {
+        connected: true,
+        accounts: [{
+          address: await this.getEthAddress(0),
+          balance: {
+            ethereum: await this.getBalance(0)
+          }
+        }],
+        network: networkIdMap[process.env.REACT_APP_NETWORK_NAME]
+      }
     } catch (e) {
       console.log(e)
       return null

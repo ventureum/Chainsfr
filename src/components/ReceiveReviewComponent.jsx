@@ -17,7 +17,7 @@ const cryptoAbbreviationMap = {
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, metamask, walletSelection, gasCost } = this.props
+    const { transfer, escrowWallet, wallet, walletSelection, gasCost } = this.props
     const { id, transferAmount, sender, destination } = transfer
 
     // accept transfer
@@ -25,7 +25,7 @@ class ReceiveReviewComponent extends Component {
     this.props.acceptTransfer({
       id: id,
       escrowWallet: escrowWallet.decryptedWallet,
-      destinationAddress: metamask.accounts[0],
+      destinationAddress: wallet.accounts[0].address,
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
@@ -39,23 +39,20 @@ class ReceiveReviewComponent extends Component {
 
   componentDidMount () {
     // refresh gas cost
-    const { metamask, transfer } = this.props
+    const { wallet, transfer } = this.props
     const { transferAmount } = transfer
     this.props.getGasCost({
-      fromWallet: metamask,
+      fromWallet: wallet,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount
     })
   }
 
   render () {
-    const { classes, metamask, transfer, walletSelection, cryptoSelection, actionsPending, gasCost } = this.props
+    const { classes, wallet, transfer, cryptoSelection, actionsPending, gasCost } = this.props
     const { transferAmount, sender, destination, sendTimestamp } = transfer
 
-    if (walletSelection === 'metamask') {
-      var address = metamask.accounts[0]
-    }
-    // TODO handle ledger address
+    var address = wallet.accounts[0].address
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>

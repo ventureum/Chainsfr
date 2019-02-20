@@ -19,10 +19,18 @@ async function _checkMetamaskConnection (dispatch) {
     window._web3 = new Web3(window.ethereum)
 
     // request the user logs in
-    rv.accounts = await window.ethereum.enable()
+    rv.accounts = []
+
+    let addresses = await window.ethereum.enable()
+    for (let addr of addresses) {
+      rv.accounts.push({
+        address: addr,
+        balance: {}
+      })
+    }
 
     // retrieve eth balance
-    rv.balance = new BN(await window._web3.eth.getBalance(rv.accounts[0]))
+    rv.accounts[0].balance['ethereum'] = new BN(await window._web3.eth.getBalance(rv.accounts[0].address))
 
     // listen for accounts changes
     window.ethereum.on('accountsChanged', function (accounts) {

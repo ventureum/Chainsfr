@@ -123,7 +123,7 @@ class WalletSelectionComponent extends Component {
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, metamask, actionsPending, ledgerNanoS } = this.props
+    const { classes, walletType, cryptoType, onCryptoSelected, wallet, actionsPending } = this.props
 
     if (actionsPending.checkMetamaskConnection || actionsPending.checkLedgerNanoSConnection) {
       return (
@@ -135,7 +135,7 @@ class WalletSelectionComponent extends Component {
       )
     }
 
-    if (walletType === 'ledger' && !ledgerNanoS.connected) {
+    if (walletType === 'ledger' && !wallet.connected) {
       return (
         <Grid container direction='row' alignItems='center'>
           <Grid item>
@@ -167,10 +167,9 @@ class WalletSelectionComponent extends Component {
               />
               <ListItemText primary={c.symbol} secondary={this.cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
               <ListItemSecondaryAction>
-                {walletType === 'metamask' &&
-                  c.cryptoType === 'ethereum' &&
-                  metamask &&
-                  numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a')}
+                {c.cryptoType === 'ethereum' &&
+                 wallet &&
+                 numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a')}
               </ListItemSecondaryAction>
             </ListItem>
           </div>))}
@@ -202,16 +201,16 @@ class WalletSelectionComponent extends Component {
           {this.renderWalletSelection()}
         </Grid>
         {walletType &&
-          <Grid item>
-            <Typography variant='h6' align='left'>
-              Choose the coin
-            </Typography>
-          </Grid>
+        <Grid item>
+          <Typography variant='h6' align='left'>
+             Choose the coin
+          </Typography>
+        </Grid>
         }
         {walletType &&
-          <Grid item>
-            {this.renderCryptoSelection()}
-          </Grid>}
+        <Grid item>
+          {this.renderCryptoSelection()}
+        </Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>

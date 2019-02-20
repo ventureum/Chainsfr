@@ -53,20 +53,22 @@ class RecipientComponent extends Component {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, metamask } = this.props
+    const { transferForm, wallet } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
       [name]: { $set: event.target.value }
     }))
 
+    let balance = wallet ? wallet.accounts[0].balance['ethereum'] : null
+
     // validation
     if (name === 'transferAmount') {
-      if (metamask && metamask.balance &&
-          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(metamask.balance) })) {
+      if (wallet && balance &&
+          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(balance) })) {
         if (event.target.value === '-' || parseFloat(event.target.value) < 0.0001) {
           this.setState(update(this.state, { formError: { [name]: { $set: 'The amount must be greater than 0.0001' } } }))
         } else {
-          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(metamask.balance)}` } } }))
+          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance)}` } } }))
         }
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
@@ -116,9 +118,11 @@ class RecipientComponent extends Component {
 
   render () {
     const { formError } = this.state
-    const { classes, transferForm, metamask } = this.props
+    const { classes, transferForm, wallet } = this.props
     const { transferAmount, destination, password, sender } = transferForm
-    let balance = metamask.balance ? numeral(utils.toHumanReadableUnit(metamask.balance)).format('0.000a') : '0'
+
+    let balance = wallet.accounts[0].balance['ethereum'] ? numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a') : '0'
+
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>

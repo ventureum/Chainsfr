@@ -25,7 +25,7 @@ const mapStateToProps = state => {
   return {
     cryptoSelection: state.formReducer.cryptoSelection,
     transferForm: state.formReducer.transferForm,
-    metamask: state.walletReducer.metamask
+    wallet: state.walletReducer.wallet[state.formReducer.walletSelection]
   }
 }
 

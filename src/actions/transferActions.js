@@ -55,7 +55,7 @@ async function _submitTx (dispatch, txRequest) {
     if (cryptoType === 'ethereum') {
       let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
       let txObj = {
-        from: fromWallet.accounts[0],
+        from: fromWallet.accounts[0].address,
         to: escrow.address,
         value: wei
       }

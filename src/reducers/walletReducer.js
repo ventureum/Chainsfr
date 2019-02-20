@@ -14,16 +14,21 @@ const initState = {
     encryptedWallet: null,
     decryptedWallet: null
   },
-  driveWallet: {
-    fileId: null,
-    content: []
-  },
-  ledgerNanoS: {
-    connected: false,
-    firstAddress: null
-  },
-  metamask: {
-    connected: false
+  wallet: {
+    driveWallet: {
+      fileId: null,
+      content: []
+    },
+    ledger: {
+      connected: false,
+      network: null,
+      accounts: null
+    },
+    metamask: {
+      connected: false,
+      network: null,
+      accounts: null
+    }
   }
 }
 
@@ -31,29 +36,18 @@ export default function (state = initState, action) {
   switch (action.type) {
     // metamask
     case 'CHECK_METAMASK_CONNECTION_FULFILLED':
-      return {
-        ...state,
-        metamask: action.payload
-      }
+      return update(state, { wallet: { metamask: { $set: action.payload } } })
     case 'UPDATE_METAMASK_ACCOUNTS':
-      return update(state, { metamask: { accounts: { $set: action.payload } } })
+      return update(state, { wallet: { metamask: { accounts: { $set: action.payload } } } })
     // ledger
     case 'CHECK_LEDGER_NANOS_CONNECTION_FULFILLED':
-      return {
-        ...state,
-        ledgerNanoS: {
-          connected: true,
-          firstAddress: action.payload
-        }
-      }
+      return update(state, { wallet: { ledger: { $set: action.payload } } })
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return {
-        ...state,
-        ledgerNanoS: {
-          connected: false,
-          firstAddress: null
-        }
-      }
+      return update(state, { wallet: { ledger: { $set: {
+        connected: false,
+        network: null,
+        accounts: null
+      } } } })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
     // store decrypted wallet

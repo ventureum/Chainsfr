@@ -54,8 +54,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     walletSelection: state.formReducer.walletSelection,
-    metamask: state.walletReducer.metamask,
-    ledgerNanoS: state.walletReducer.ledgerNanoS,
+    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     actionsPending: {
       checkMetamaskConnection: checkMetamaskConnectionSelector(state),
       checkLedgerNanoSConnection: checkLedgerNanoSConnectionSelector(state)

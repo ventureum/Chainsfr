@@ -17,14 +17,14 @@ const cryptoAbbreviationMap = {
 
 class ReviewComponent extends Component {
   handleReviewNext = () => {
-    const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
+    const { wallet, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     let id = UUIDv1()
     // submit tx
     this.props.submitTx({
       id: id,
-      fromWallet: metamask,
+      fromWallet: wallet,
       walletType: walletSelection,
       cryptoType: cryptoSelection,
       transferAmount: transferAmount,
@@ -38,10 +38,10 @@ class ReviewComponent extends Component {
 
   componentDidMount () {
     // refresh gas cost
-    const { metamask, transferForm, cryptoSelection, walletSelection } = this.props
+    const { wallet, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
     this.props.getGasCost({
-      fromWallet: metamask,
+      fromWallet: wallet,
       walletType: walletSelection,
       cryptoType: cryptoSelection,
       transferAmount: transferAmount,

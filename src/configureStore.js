@@ -27,15 +27,26 @@ const serializeTransform = createTransform(
     let serializeState = {}
     Object.entries(inboundState).forEach(entry => {
       let key = entry[0]
-      let value = Object.assign({}, entry[1])
-      if (key === 'metamask') {
-        // convert balance BN object to string
-        if (value.balance) {
-          value.balance = value.balance.toString()
-        }
-      }
 
-      serializeState[key] = JSON.stringify(value)
+      // deep clone trick, necessary to keep redux free from the following
+      // transformation
+      let value = JSON.parse(JSON.stringify(entry[1]))
+
+      if (key === 'wallet' && value) {
+        Object.keys(value).forEach(walletType => {
+          let walletByType = value[walletType]
+          if (walletByType.accounts instanceof Array) {
+            for (let i = 0; i < walletByType.accounts.length; i++) {
+              Object.keys(walletByType.accounts[i].balance).forEach(cryptoType => {
+                // convert BN to string
+                value[walletType].accounts[i].balance[cryptoType] =
+                  value[walletType].accounts[i].balance[cryptoType].toString()
+              })
+            }
+          }
+        })
+      }
+      serializeState[entry[0]] = JSON.stringify(value)
     })
     return serializeState
   },
@@ -43,19 +54,29 @@ const serializeTransform = createTransform(
   (outboundState, key) => {
     let unserializeState = {}
     Object.entries(outboundState).forEach(entry => {
+      unserializeState[entry[0]] = JSON.parse(entry[1])
       let key = entry[0]
-      unserializeState[key] = JSON.parse(outboundState[key])
-      if (key === 'metamask') {
-        // convert balance BN object to string
-        if (unserializeState[key].balance) {
-          unserializeState[key].balance = new BN(unserializeState[key].balance)
-        }
+      let value = unserializeState[key]
+
+      if (key === 'wallet' && value) {
+        Object.keys(value).forEach(walletType => {
+          let walletByType = value[walletType]
+          if (walletByType.accounts instanceof Array) {
+            for (let i = 0; i < walletByType.accounts.length; i++) {
+              Object.keys(walletByType.accounts[i].balance).forEach(cryptoType => {
+                // convert string to BN
+                value[walletType].accounts[i].balance[cryptoType] =
+                  new BN(value[walletType].accounts[i].balance[cryptoType])
+              })
+            }
+          }
+        })
       }
     })
     return unserializeState
   },
   // define which reducers this transform gets called for.
-  { whitelist: ['userReducer'] }
+  { whitelist: ['walletReducer'] }
 )
 
 const persistConfig = {
@@ -65,7 +86,7 @@ const persistConfig = {
     serializeTransform
   ],
   stateReconciler: autoMergeLevel2,
-  whitelist: ['userReducer', 'transferReducer']
+  whitelist: ['userReducer', 'walletReducer', 'transferReducer', 'formReducer']
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers(history))

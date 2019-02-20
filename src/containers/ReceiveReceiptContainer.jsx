@@ -15,7 +15,7 @@ class ReceiveReceiptContainer extends Component {
 const mapStateToProps = state => {
   return {
     cryptoSelection: state.formReducer.cryptoSelection,
-    metamask: state.walletReducer.metamask,
+    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     gasCost: state.transferReducer.gasCost,
     receipt: state.transferReducer.receipt
   }
