@@ -13,13 +13,11 @@ const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${
 const DAI_CONTRACT_ADDRESS = '0xdb29d7f3973e1a428f0578705e7ea1632f2e4ac5'
 
 async function _getGasCost (txRequest) {
-  let { cryptoType, transferAmount } = txRequest
+  let { cryptoType } = txRequest
 
   const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
   const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
   const mockNumTokens = '1000'
-
-  const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
 
   let txObj = {
     from: mockFrom,
@@ -27,8 +25,7 @@ async function _getGasCost (txRequest) {
   }
 
   if (cryptoType === 'ethereum') {
-    let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
-    txObj.value = wei
+    txObj.value = mockNumTokens
   } else if (cryptoType === 'dai') {
     const targetContract = new Web3.eth.Contract(ERC20_ABI, DAI_CONTRACT_ADDRESS)
     txObj.data = targetContract.methods['transfer'](mockTo, mockNumTokens).encodeABI()

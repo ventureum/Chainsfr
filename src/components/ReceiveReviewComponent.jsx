@@ -39,13 +39,8 @@ class ReceiveReviewComponent extends Component {
 
   componentDidMount () {
     // refresh gas cost
-    const { wallet, transfer } = this.props
-    const { transferAmount } = transfer
-    this.props.getGasCost({
-      fromWallet: wallet,
-      cryptoType: transfer.cryptoType,
-      transferAmount: transferAmount
-    })
+    const { transfer } = this.props
+    this.props.getGasCost({cryptoType: transfer.cryptoType})
   }
 
   render () {
