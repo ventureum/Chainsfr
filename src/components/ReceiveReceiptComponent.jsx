@@ -92,7 +92,7 @@ class ReceiveReceiptComponent extends Component {
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     It may takes a few minutes to complete the transaction. You can track the transaction
-                    <MuiLink href={`https://rinkeby.etherscan.io/tx/${receiveTxHash}`}>
+                    <MuiLink target='_blank' rel='noopener' href={`https://rinkeby.etherscan.io/tx/${receiveTxHash}`}>
                       {' here'}
                     </MuiLink>
                     . A confirmation email will be sent to you.
