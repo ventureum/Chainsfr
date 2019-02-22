@@ -1,3 +1,4 @@
 .application.json
 /node_modules
-/transferRequest/lambda-payloads.json
+/**/lambda-payloads.json
+/dist

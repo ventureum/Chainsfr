@@ -5,7 +5,7 @@ Resources:
   transferRequest:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: transferRequest/index.handler
+      Handler: dist/index.handler
       Runtime: nodejs6.10
       Description: ''
       MemorySize: 128
