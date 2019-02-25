@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import Review from '../components/ReviewComponent'
 import { submitTx, getGasCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReviewContainer extends Component {
   render () {
@@ -22,7 +23,8 @@ const errorSelector = createErrorSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIE
 const mapDispatchToProps = dispatch => {
   return {
     submitTx: (txRequest) => dispatch(submitTx(txRequest)),
-    getGasCost: (txRequest) => dispatch(getGasCost(txRequest))
+    getGasCost: (txRequest) => dispatch(getGasCost(txRequest)),
+    goToStep: (n) => dispatch(goToStep('send', n))
   }
 }
 

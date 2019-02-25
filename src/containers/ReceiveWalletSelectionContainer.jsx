@@ -6,6 +6,7 @@ import { checkMetamaskConnection, checkLedgerNanoSConnection } from '../actions/
 import { selectWallet } from '../actions/formActions'
 
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceiveWalletSelectionContainer extends Component {
   onWalletSelected = (walletType) => {
@@ -47,7 +48,8 @@ const mapDispatchToProps = dispatch => {
   return {
     checkMetamaskConnection: () => dispatch(checkMetamaskConnection(dispatch)),
     checkLedgerNanoSConnection: () => dispatch(checkLedgerNanoSConnection()),
-    selectWallet: (w) => dispatch(selectWallet(w))
+    selectWallet: (w) => dispatch(selectWallet(w)),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import { Link } from 'react-router-dom'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
@@ -19,7 +18,6 @@ import NotInterestedIcon from '@material-ui/icons/NotInterested'
 import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
-import paths from '../Paths'
 
 class LandingPageComponent extends Component {
   getIdAbbreviation = (id) => {
@@ -199,8 +197,7 @@ class LandingPageComponent extends Component {
                             <Button
                               variant='contained'
                               color='primary'
-                              component={Link}
-                              to={paths.transfer + paths.walletSelectionStep}
+                              onClick={() => this.props.goToStep(1)}
                             >
                               Arrange Transfer
                             </Button>

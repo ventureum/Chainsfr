@@ -5,6 +5,7 @@ import queryString from 'query-string'
 import ReceiveLandingPageComponent from '../components/ReceiveLandingPageComponent'
 import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceiveLandingPageContainer extends Component {
   componentDidMount () {
@@ -27,7 +28,8 @@ const errorSelector = createErrorSelector(['GET_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransfer: (id) => dispatch(getTransfer(id))
+    getTransfer: (id) => dispatch(getTransfer(id)),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 

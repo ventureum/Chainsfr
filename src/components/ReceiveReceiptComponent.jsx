@@ -9,10 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
-import { Link } from 'react-router-dom'
 import moment from 'moment'
-
-import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -115,8 +112,7 @@ class ReceiveReceiptComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.home}
+                onClick={() => this.props.goToStep(-4)}
               >
                 Back to Home
               </Button>

@@ -7,17 +7,24 @@ import ReceivePassword from '../containers/ReceivePasswordContainer'
 import ReceiveWalletSelection from '../containers/ReceiveWalletSelectionContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
 import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
+import ReceiveLandingPage from '../containers/ReceiveLandingPageContainer'
 
 class ReceiveComponent extends React.Component {
   render () {
-    const { classes, step } = this.props
+    const { classes, step, history } = this.props
+
+    if (step === 0) {
+      // landing page
+      return (<ReceiveLandingPage location={history.location} />)
+    }
+
     return (
       <Grid
         container
         direction='column'
-        className={step === 3 && classes.rootReceipt}>
+        className={step === 4 && classes.rootReceipt}>
         <Grid item>
-          {step <= 2 && <Stepper actionType='receive' step={step} />}
+          {step <= 3 && <Stepper actionType='receive' step={step} />}
         </Grid>
         <Grid item>
           {/* receipt page requires a different background color */}
@@ -25,13 +32,13 @@ class ReceiveComponent extends React.Component {
             container
             direction='column'
             alignItems='center'
-            className={step === 3 && classes.receiptContainer}
+            className={step === 4 && classes.receiptContainer}
           >
             <Grid item className={classes.subComponent}>
-              {step === 0 && <ReceivePassword />}
-              {step === 1 && <ReceiveWalletSelection />}
-              {step === 2 && <ReceiveReview />}
-              {step === 3 && <ReceiveReceipt />}
+              {step === 1 && <ReceivePassword />}
+              {step === 2 && <ReceiveWalletSelection />}
+              {step === 3 && <ReceiveReview />}
+              {step === 4 && <ReceiveReceipt />}
             </Grid>
           </Grid>
         </Grid>

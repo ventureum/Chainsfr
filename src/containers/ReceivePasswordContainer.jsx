@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import ReceivePasswordComponent from '../components/ReceivePasswordComponent'
 import { verifyPassword, clearDecryptedWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceivePasswordContainer extends Component {
   render () {
@@ -20,7 +21,8 @@ const errorSelector = createErrorSelector(['VERIFY_PASSWORD'])
 const mapDispatchToProps = dispatch => {
   return {
     verifyPassword: (encriptedWallet, password) => dispatch(verifyPassword(encriptedWallet, password)),
-    clearDecryptedWallet: () => dispatch(clearDecryptedWallet())
+    clearDecryptedWallet: () => dispatch(clearDecryptedWallet()),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 

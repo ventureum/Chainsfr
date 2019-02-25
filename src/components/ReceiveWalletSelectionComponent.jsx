@@ -10,8 +10,6 @@ import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-import { Link } from 'react-router-dom'
-import paths from '../Paths'
 
 const walletCryptoSupports = {
   'basic': [{ cryptoType: 'ethereum', disabled: true },
@@ -172,8 +170,7 @@ class ReceiveWalletSelectionComponent extends Component {
             <Grid item>
               <Button
                 color='primary'
-                component={Link}
-                to={paths.receive}
+                onClick={() => this.props.goToStep(-2)}
               >
                 Cancel
               </Button>
@@ -183,8 +180,7 @@ class ReceiveWalletSelectionComponent extends Component {
                 fullWidth
                 variant='contained'
                 color='primary'
-                component={Link}
-                to={paths.receive + paths.receiveReviewStep}
+                onClick={() => this.props.goToStep(1)}
                 disabled={!walletType}
               >
                 Continue

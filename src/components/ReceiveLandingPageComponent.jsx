@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import { Link } from 'react-router-dom'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
@@ -9,7 +8,6 @@ import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import moment from 'moment'
-import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -120,10 +118,9 @@ class ReceiveLandingPageComponent extends Component {
                       <Button
                         variant='outlined'
                         color='primary'
-                        component={Link}
-                        to={paths.receive + paths.receivePasswordStep}
+                        onClick={() => this.props.goToStep(1)}
                       >
-                       Accept Anonymouslyt
+                       Accept Anonymously
                       </Button>
                     </Grid>
                     <Grid item>
