@@ -18,20 +18,17 @@ const cryptoAbbreviationMap = {
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
     const { transfer, escrowWallet, wallet, walletSelection, gasCost } = this.props
-    const { id, transferAmount, sender, destination } = transfer
+    const { receivingId, transferAmount } = transfer
 
     // accept transfer
     // TODO handle ledger nano s and erc20 tokens
     this.props.acceptTransfer({
-      id: id,
+      receivingId: receivingId,
       escrowWallet: escrowWallet.decryptedWallet,
       destinationAddress: wallet.accounts[0].address,
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
-      destination: destination,
-      sender: sender,
-      sendTimestamp: transfer.sendTimestamp,
       gas: gasCost.gas,
       gasPrice: gasCost.gasPrice
     })
@@ -40,7 +37,7 @@ class ReceiveReviewComponent extends Component {
   componentDidMount () {
     // refresh gas cost
     const { transfer } = this.props
-    this.props.getGasCost({cryptoType: transfer.cryptoType})
+    this.props.getGasCost({ cryptoType: transfer.cryptoType })
   }
 
   render () {

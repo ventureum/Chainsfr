@@ -8,26 +8,45 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ id, clientId, sender, destination, transferAmount, cryptoType, sendTxHash, sendTimestamp, data }) {
-  let rv = await apiTransfer.post('/transfer', {
-    id: id,
+async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash }) {
+  let apiResponse = await apiTransfer.post('/transfer', {
+    action: 'SEND',
     clientId: clientId,
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
-    sendTxHash: sendTxHash,
-    sendTimestamp: sendTimestamp,
-    data: Base64.encode(JSON.stringify(data))
+    data: Base64.encode(JSON.stringify(data)),
+    sendTxHash: sendTxHash
   })
-  return rv
+  return apiResponse.data
 }
 
-async function getTransfer ({ id }) {
-  let rv = await apiTransfer.get('/get-transfer', {
-    params: {
-      id: id
-    }
+async function accept ({ clientId, receivingId, receiveTxHash }) {
+  let apiResponse = await apiTransfer.post('/transfer', {
+    action: 'RECEIVE',
+    clientId: clientId,
+    receivingId: receivingId,
+    receiveTxHash: receiveTxHash
+  })
+  return apiResponse.data
+}
+
+async function cancel ({ clientId, sendingId, cancelTxHash }) {
+  let apiResponse = await apiTransfer.post('/transfer', {
+    action: 'CANCEL',
+    clientId: clientId,
+    sendingId: sendingId,
+    cancelTxHash: cancelTxHash
+  })
+  return apiResponse.data
+}
+
+async function getTransfer ({ sendingId, receivingId }) {
+  let rv = await apiTransfer.post('/transfer', {
+    action: 'GET',
+    sendingId: sendingId,
+    receivingId: receivingId
   })
 
   let responseData = rv.data
@@ -35,4 +54,4 @@ async function getTransfer ({ id }) {
   return responseData
 }
 
-export default { transfer, getTransfer }
+export default { transfer, accept, cancel, getTransfer }
