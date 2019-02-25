@@ -9,11 +9,8 @@ import FileCopyIcon from '@material-ui/icons/FileCopy'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
-import { Link } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import moment from 'moment'
-
-import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -142,8 +139,7 @@ class ReceiptComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.home}
+                onClick={() => this.props.goToStep(-4)}
               >
                 Back to Home
               </Button>

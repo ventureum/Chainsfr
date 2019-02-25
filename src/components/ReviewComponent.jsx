@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import UUIDv1 from 'uuid/v1'
-import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -119,8 +117,7 @@ class ReviewComponent extends Component {
               <Button
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.transfer + paths.recipientStep}
+                onClick={() => this.props.goToStep(-1)}
               >
                 Back to previous
               </Button>

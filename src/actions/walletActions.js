@@ -2,6 +2,7 @@ import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
 import BN from 'bn.js'
+import { goToStep } from './navigationActions'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -80,13 +81,15 @@ function checkLedgerNanoSConnection () {
 }
 
 function verifyPassword (encriptedWallet, password) {
-  return {
-    type: 'VERIFY_PASSWORD',
-    payload: _verifyPassword(encriptedWallet, password),
-    meta: {
-      globalError: true,
-      silent: true
-    }
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'VERIFY_PASSWORD',
+      payload: _verifyPassword(encriptedWallet, password),
+      meta: {
+        globalError: true,
+        silent: true
+      }
+    }).then(() => dispatch(goToStep('receive', 1)))
   }
 }
 

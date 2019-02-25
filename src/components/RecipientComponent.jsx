@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import update from 'immutability-helper'
-import paths from '../Paths'
 import utils from '../utils'
 import numeral from 'numeral'
 import validator from 'validator'
@@ -190,8 +188,7 @@ class RecipientComponent extends Component {
                 <Button
                   color='primary'
                   size='large'
-                  component={Link}
-                  to={paths.transfer + paths.walletSelectionStep}
+                  onClick={() => this.props.goToStep(-1)}
                 >
                   Back to previous
                 </Button>
@@ -202,8 +199,7 @@ class RecipientComponent extends Component {
                   variant='contained'
                   color='primary'
                   size='large'
-                  component={Link}
-                  to={paths.transfer + paths.reviewStep}
+                  onClick={() => this.props.goToStep(1)}
                   disabled={!this.validateForm()}
                 >
                   Continue

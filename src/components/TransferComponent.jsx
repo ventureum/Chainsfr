@@ -7,18 +7,25 @@ import WalletSelection from '../containers/WalletSelectionContainer'
 import Recipient from '../containers/RecipientContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
+import LandingPage from '../containers/LandingPageContainer'
 
 class TransferComponent extends React.Component {
   render () {
     const { classes, step } = this.props
+
+    if (step === 0) {
+      // landing page
+      return (<LandingPage />)
+    }
+
     return (
       <Grid
         container
         direction='column'
-        className={step === 3 ? classes.rootReceipt : undefined}
+        className={step === 4 ? classes.rootReceipt : undefined}
       >
         <Grid item>
-          {step <= 2 && <Stepper actionType='transfer' step={step} />}
+          {step <= 3 && <Stepper actionType='transfer' step={step} />}
         </Grid>
         <Grid item>
           {/* receipt page requires a different background color */}
@@ -28,10 +35,10 @@ class TransferComponent extends React.Component {
             alignItems='center'
           >
             <Grid item className={classes.subComponent}>
-              {step === 0 && <WalletSelection />}
-              {step === 1 && <Recipient />}
-              {step === 2 && <Review />}
-              {step === 3 && <Receipt />}
+              {step === 1 && <WalletSelection />}
+              {step === 2 && <Recipient />}
+              {step === 3 && <Review />}
+              {step === 4 && <Receipt />}
             </Grid>
           </Grid>
         </Grid>

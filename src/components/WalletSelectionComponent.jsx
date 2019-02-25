@@ -19,8 +19,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { Link } from 'react-router-dom'
-import paths from '../Paths'
 import utils from '../utils'
 import numeral from 'numeral'
 
@@ -214,8 +212,11 @@ class WalletSelectionComponent extends Component {
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
-              <Button color='primary'>
-                Cancel Transfer
+              <Button
+                color='primary'
+                onClick={() => this.props.goToStep(-1)}
+              >
+              Cancel Transfer
               </Button>
             </Grid>
             <Grid item>
@@ -224,11 +225,10 @@ class WalletSelectionComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.transfer + paths.recipientStep}
+                onClick={() => this.props.goToStep(1)}
                 disabled={!walletType || !cryptoType}
               >
-                Continue
+              Continue
               </Button>
             </Grid>
           </Grid>

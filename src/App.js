@@ -8,8 +8,6 @@ import LoginContainer from './containers/LoginContainer'
 import WalletContainer from './containers/WalletContainer'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
-import ReceiveLandingPageContainer from './containers/ReceiveLandingPageContainer'
-import LandingPageContainer from './containers/LandingPageContainer'
 import Footer from './static/Footer'
 import NaviBar from './components/NavBarComponent'
 import paths from './Paths'
@@ -81,10 +79,8 @@ class App extends Component {
             <Switch>
               <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
               <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-              <DefaultLayout exact path={`${paths.transfer}`} component={LandingPageContainer} />
-              <DefaultLayout path={`${paths.transfer}/:step`} component={TransferContainer} />
-              <DefaultLayout exact path={`${paths.receive}`} component={ReceiveLandingPageContainer} />
-              <DefaultLayout path={`${paths.receive}/:step`} component={ReceiveContainer} />
+              <DefaultLayout path={`${paths.transfer}`} component={TransferContainer} />
+              <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
             </Switch>
           </ConnectedRouter>
         </Provider>

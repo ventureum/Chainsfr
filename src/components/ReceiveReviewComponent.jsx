@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import paths from '../Paths'
 import moment from 'moment'
 
 const cryptoAbbreviationMap = {
@@ -127,8 +125,7 @@ class ReceiveReviewComponent extends Component {
               <Button
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.receive}
+                onClick={() => this.props.goToStep(-3)}
               >
                 Cancel
               </Button>

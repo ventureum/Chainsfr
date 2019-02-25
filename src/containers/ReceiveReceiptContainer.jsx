@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReceipt from '../components/ReceiveReceiptComponent'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceiveReceiptContainer extends Component {
   render () {
@@ -9,6 +10,12 @@ class ReceiveReceiptContainer extends Component {
         {...this.props}
       />
     )
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 
@@ -23,5 +30,5 @@ const mapStateToProps = state => {
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(ReceiveReceiptContainer)

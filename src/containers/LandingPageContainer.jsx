@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 
+import { connect } from 'react-redux'
 import LandingPageComponent from '../components/LandingPageComponent'
+import { goToStep } from '../actions/navigationActions'
 
 class LandingPageContainer extends Component {
   render () {
@@ -11,4 +13,14 @@ class LandingPageContainer extends Component {
     )
   }
 }
-export default LandingPageContainer
+
+const mapDispatchToProps = dispatch => {
+  return {
+    goToStep: (n) => dispatch(goToStep('send', n))
+  }
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(LandingPageContainer)
