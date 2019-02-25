@@ -2,7 +2,6 @@ import API from '../apis'
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import ERC20_ABI from '../contracts/ERC20.json'
-import moment from 'moment'
 import utils from '../utils'
 import BN from 'bn.js'
 import { push } from 'connected-react-router'
@@ -94,23 +93,19 @@ async function _submitTx (dispatch, txRequest) {
 }
 
 async function _transactionHashRetrieved (txRequest) {
-  txRequest.sendTimestamp = moment().unix()
+  let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash } = txRequest
 
-  let { id, sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, sendTimestamp } = txRequest
-
-  let apiResponse = await API.transfer({
-    id: id,
+  let data = await API.transfer({
     clientId: 'test-client',
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    sendTimestamp: sendTimestamp,
     data: encriptedEscrow
   })
 
-  return { apiResponse, txRequest }
+  return data
 }
 
 async function _acceptTransfer (dispatch, txRequest) {
@@ -153,16 +148,19 @@ async function _acceptTransfer (dispatch, txRequest) {
 }
 
 async function _acceptTransferTransactionHashRetrieved (txRequest) {
-  txRequest.receiveTimestamp = moment().unix()
+  let { receivingId, receiveTxHash } = txRequest
 
-  // TODO add api call
-  let apiResponse = null
+  let data = await API.accept({
+    clientId: 'test-client',
+    receivingId: receivingId,
+    receiveTxHash: receiveTxHash
+  })
 
-  return { apiResponse, txRequest }
+  return data
 }
 
 async function _getTransfer (id) {
-  let apiResponse = await API.getTransfer({ id: id })
+  let apiResponse = await API.getTransfer({ receivingId: id })
   return apiResponse
 }
 

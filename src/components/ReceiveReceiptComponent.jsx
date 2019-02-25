@@ -23,7 +23,7 @@ const cryptoAbbreviationMap = {
 class ReceiveReceiptComponent extends Component {
   render () {
     const { classes, cryptoSelection, gasCost, receipt } = this.props
-    const { id, transferAmount, sender, destination, receiveTimestamp, receiveTxHash } = receipt.txRequest
+    const { receivingId, transferAmount, sender, destination, receiveTimestamp, receiveTxHash } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -37,7 +37,7 @@ class ReceiveReceiptComponent extends Component {
                       Transfer Completed
                     </Typography>
                     <Typography className={classes.transferId} align='center'>
-                      {`Transfer ID: ${id}`}
+                      {`Transfer ID: ${receivingId}`}
                     </Typography>
                   </Grid>
                 </Grid>
