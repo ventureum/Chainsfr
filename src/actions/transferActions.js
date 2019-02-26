@@ -158,8 +158,59 @@ async function _acceptTransferTransactionHashRetrieved (txRequest) {
   return data
 }
 
-async function _getTransfer (id) {
-  let apiResponse = await API.getTransfer({ receivingId: id })
+async function _cancelTransfer (dispatch, txRequest) {
+  // transfer funds from escrowWallet to sender address with cryptoType and transferAmount
+  // fromWallet is a decryptedWallet with the following data
+  // 1. address
+  // 2. privateKey
+
+  let { escrowWallet, sendTxHash, cryptoType, transferAmount, gas, gasPrice } = txRequest
+
+  if (cryptoType === 'ethereum') {
+    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+
+    // add escrow account to web3
+    _web3.eth.accounts.wallet.add(escrowWallet.privateKey)
+
+    // calculate amount in wei to be sent
+    let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+
+    // calculate gas cost in wei
+    let gasCostInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
+
+    let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
+
+    // setup tx object
+    let txObj = {
+      from: escrowWallet.address,
+      to: txReceipt.from, // sender address
+      value: wei - gasCostInWei, // actual receiving amount
+      gas: gas,
+      gasPrice: gasPrice
+    }
+
+    _web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
+      // update request tx hash
+      txRequest.cancelTxHash = hash
+      dispatch(cancelTransferTransactionHashRetrieved(txRequest))
+    })
+  }
+}
+
+async function _cancelTransferTransactionHashRetrieved (txRequest) {
+  let { sendingId, cancelTxHash } = txRequest
+
+  let data = await API.cancel({
+    clientId: 'test-client',
+    sendingId: sendingId,
+    cancelTxHash: cancelTxHash
+  })
+
+  return data
+}
+
+async function _getTransfer (sendingId, receivingId) {
+  let apiResponse = await API.getTransfer({ sendingId, receivingId })
   return apiResponse
 }
 
@@ -181,6 +232,15 @@ function acceptTransferTransactionHashRetrieved (txRequest) {
   }
 }
 
+function cancelTransferTransactionHashRetrieved (txRequest) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED',
+      payload: _cancelTransferTransactionHashRetrieved(txRequest)
+    }).then(() => dispatch(goToStep('cancel', 1)))
+  }
+}
+
 function submitTx (txRequest) {
   return (dispatch, getState) => {
     return {
@@ -199,6 +259,15 @@ function acceptTransfer (txRequest) {
   }
 }
 
+function cancelTransfer (txRequest) {
+  return (dispatch, getState) => {
+    return {
+      type: 'CANCEL_TRANSFER',
+      payload: _cancelTransfer(dispatch, txRequest)
+    }
+  }
+}
+
 function getGasCost (txRequest) {
   return {
     type: 'GET_GAS_COST',
@@ -206,16 +275,17 @@ function getGasCost (txRequest) {
   }
 }
 
-function getTransfer (id) {
+function getTransfer (sendingId, receivingId) {
   return {
     type: 'GET_TRANSFER',
-    payload: _getTransfer(id)
+    payload: _getTransfer(sendingId, receivingId)
   }
 }
 
 export {
   submitTx,
   acceptTransfer,
+  cancelTransfer,
   getGasCost,
   getTransfer
 }
