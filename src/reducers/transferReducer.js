@@ -38,11 +38,11 @@ export default function (state = initialState, action) {
         ...state,
         receipt: action.payload
       }
-  case 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED_FULFILLED':
-    return {
-      ...state,
-      receipt: action.payload
-    }
+    case 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED_FULFILLED':
+      return {
+        ...state,
+        receipt: action.payload
+      }
     default: // need this for default case
       return state
   }
