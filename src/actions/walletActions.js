@@ -83,15 +83,13 @@ function verifyPassword (encriptedWallet, password, nextStep) {
   return (dispatch, getState) => {
     return dispatch({
       type: 'VERIFY_PASSWORD',
-      payload: _verifyPassword(encriptedWallet, password),
-      meta: {
-        globalError: true,
-        silent: true
-      }
+      payload: _verifyPassword(encriptedWallet, password)
     }).then(() => {
       if (nextStep) {
         return dispatch(goToStep(nextStep.transferAction, nextStep.n))
       }
+    }).catch(error => {
+      console.warn(error)
     })
   }
 }
