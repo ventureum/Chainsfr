@@ -17,7 +17,8 @@ async function transfer ({ clientId, sender, destination, transferAmount, crypto
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     data: Base64.encode(JSON.stringify(data)),
-    sendTxHash: sendTxHash
+    sendTxHash: sendTxHash,
+    password: password ? Base64.encode(password) : null
   })
   return apiResponse.data
 }
