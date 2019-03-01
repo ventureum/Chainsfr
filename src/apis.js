@@ -8,19 +8,29 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ id, clientId, sender, destination, transferAmount, cryptoType, sendTxHash, sendTimestamp, data }) {
-  let rv = await apiTransfer.post('/transfer', {
-    id: id,
+async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash, password }) {
+  let apiResponse = await apiTransfer.post('/transfer', {
+    action: 'SEND',
     clientId: clientId,
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
+    data: Base64.encode(JSON.stringify(data)),
     sendTxHash: sendTxHash,
-    sendTimestamp: sendTimestamp,
-    data: Base64.encode(JSON.stringify(data))
+    password: password ? Base64.encode(password) : null // optional param
   })
-  return rv
+  return apiResponse.data
+}
+
+async function accept ({ clientId, receivingId, receiveTxHash }) {
+  let apiResponse = await apiTransfer.post('/transfer', {
+    action: 'RECEIVE',
+    clientId: clientId,
+    receivingId: receivingId,
+    receiveTxHash: receiveTxHash
+  })
+  return apiResponse.data
 }
 
 async function getTransfer ({ id }) {
@@ -32,7 +42,10 @@ async function getTransfer ({ id }) {
 
   let responseData = rv.data
   responseData.data = JSON.parse(Base64.decode(responseData.data))
+  if (responseData.password) {
+    responseData.password = Base64.decode(responseData.password)
+  }
   return responseData
 }
 
-export default { transfer, getTransfer }
+export default { transfer, getTransfer, accept }

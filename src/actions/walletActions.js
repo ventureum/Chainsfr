@@ -79,14 +79,20 @@ function checkLedgerNanoSConnection () {
   }
 }
 
-function verifyPassword (encriptedWallet, password) {
-  return {
-    type: 'VERIFY_PASSWORD',
-    payload: _verifyPassword(encriptedWallet, password),
-    meta: {
-      globalError: true,
-      silent: true
-    }
+function verifyPassword (encriptedWallet, password, nextStep) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'VERIFY_PASSWORD',
+      payload: _verifyPassword(encriptedWallet, password),
+      meta: {
+        globalError: true,
+        silent: true
+      }
+    }).then(() => {
+      if (nextStep) {
+        return dispatch(goToStep(nextStep.transferAction, nextStep.n))
+      }
+    })
   }
 }
 
