@@ -50,7 +50,7 @@ const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
 const mapDispatchToProps = dispatch => {
   return {
     checkMetamaskConnection: (cryptoType) => dispatch(checkMetamaskConnection(cryptoType)),
-    checkLedgerNanoSConnection: () => dispatch(checkLedgerNanoSConnection()),
+    checkLedgerNanoSConnection: (cryptoType) => dispatch(checkLedgerNanoSConnection(cryptoType)),
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n))

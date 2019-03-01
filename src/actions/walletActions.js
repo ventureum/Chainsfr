@@ -49,8 +49,8 @@ async function _checkMetamaskConnection (cryptoType, dispatch) {
   return rv
 }
 
-async function _checkLedgerNanoSConnection () {
-  const deviceConnected = await ledgerNanoS.deviceConnected()
+async function _checkLedgerNanoSConnection (cryptoType) {
+  const deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
   if (deviceConnected === null) {
     const msg = 'Ledger not connected'
     throw msg
@@ -89,10 +89,10 @@ function onMetamaskAccountsChanged (accounts) {
   }
 }
 
-function checkLedgerNanoSConnection () {
+function checkLedgerNanoSConnection (cryptoType) {
   return {
     type: 'CHECK_LEDGER_NANOS_CONNECTION',
-    payload: _checkLedgerNanoSConnection()
+    payload: _checkLedgerNanoSConnection(cryptoType)
   }
 }
 

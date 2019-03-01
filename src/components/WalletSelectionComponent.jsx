@@ -17,7 +17,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import utils from '../utils'
 import numeral from 'numeral'
 import { walletCryptoSupports, walletSelections } from '../wallet'
-import { cryptoSelections, getCryptoSymbol } from '../tokens'
+import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -98,7 +98,7 @@ class WalletSelectionComponent extends Component {
         </Grid>
         <Grid item>
           <Typography className={classes.connectedtext}>Account retrieved, your balance: {
-            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType])).format('0.000a')} {getCryptoSymbol(cryptoType)}
+            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType], getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
           </Typography>
         </Grid>
       </Grid>

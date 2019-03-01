@@ -78,26 +78,30 @@ class ReviewComponent extends Component {
                     {transferAmount} {getCryptoSymbol(cryptoSelection)}
                   </Typography>
                 </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Gas Fee
-                  </Typography>
-                  {!actionsPending.getGasCost && gasCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {gasCost.costInEther} ETH
+                {cryptoSelection !== 'bitcoin' ? <div>
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Gas Fee
                     </Typography>
-                    : <CircularProgress size={18} color='primary' />}
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Total Cost
-                  </Typography>
-                  {!actionsPending.getGasCost && gasCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
+                    {!actionsPending.getGasCost && gasCost
+                      ? <Typography className={classes.reviewContent} align='left'>
+                        {gasCost.costInEther} ETH
+                      </Typography>
+                      : <CircularProgress size={18} color='primary' />}
+                  </Grid>
+                  <Grid item>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Total Cost
                     </Typography>
-                    : <CircularProgress size={18} color='primary' />}
-                </Grid>
+                    {!actionsPending.getGasCost && gasCost
+                      ? <Typography className={classes.reviewContent} align='left'>
+                        {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
+                      </Typography>
+                      : <CircularProgress size={18} color='primary' />}
+                  </Grid>
+                </div>
+                  : null
+                }
               </Paper>
             </Grid>
           </Grid>

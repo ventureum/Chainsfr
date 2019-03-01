@@ -10,6 +10,9 @@ import moment from 'moment'
 import { Base64 } from 'js-base64'
 import ERC20 from '../ERC20'
 import { getCrypto } from '../tokens'
+import bitcore from 'bitcore-lib'
+import * as openpgp from 'openpgp'
+openpgp.initWorker({ path: '/openpgp/openpgp.worker.js' })
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -46,29 +49,41 @@ async function _getGasCost (txRequest) {
 
 async function _submitTx (dispatch, txRequest) {
   let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, gasCost } = txRequest
+  let escrow
+  let encriptedEscrow
 
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
     // step 1: create an escrow wallet
-    var escrow = window._web3.eth.accounts.create()
+    escrow = window._web3.eth.accounts.create()
 
     // step 2: encrypt the escrow wallet with password provided and the destination email address
-    var encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination)
+    encriptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
+  } else if (cryptoType === 'bitcoin') {
+    escrow = new bitcore.PrivateKey(undefined, 'testnet')
+    // console.log('private key', escrow.toString())
+    let options
+    options = {
+      message: openpgp.message.fromText(escrow.toString()),
+      passwords: [password + destination],
+      armor: true
+    }
+    const encrypted = await openpgp.encrypt(options)
 
-    // add escrow wallet to tx request
-    txRequest.encriptedEscrow = encriptedEscrow
-
-    // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
-    await saveTempSendFile({
-      sender: sender,
-      destination: destination,
-      transferAmount: transferAmount,
-      cryptoType: cryptoType,
-      data: Base64.encode(JSON.stringify(encriptedEscrow)),
-      password: Base64.encode(password),
-      tempTimestamp: moment().unix()
-    })
+    encriptedEscrow = encrypted.data
   }
+  // add escrow wallet to tx request
+  txRequest.encriptedEscrow = encriptedEscrow
+  // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
+  await saveTempSendFile({
+    sender: sender,
+    destination: destination,
+    transferAmount: transferAmount,
+    cryptoType: cryptoType,
+    data: Base64.encode(encriptedEscrow),
+    password: Base64.encode(password),
+    tempTimestamp: moment().unix()
+  })
 
   // step 4: transfer funds from [fromWallet] to the newly created escrow wallet
   if (walletType === 'metamask') {
@@ -123,6 +138,14 @@ async function _submitTx (dispatch, txRequest) {
           txRequest.sendTxHash = hash
           dispatch(transactionHashRetrieved(txRequest))
         })
+    } else if (cryptoType === 'bitcoin') {
+      const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
+
+      const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(0, escrow.toAddress().toString(), satoshiValue)
+      const txReceipt = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
+      txRequest.sendTxHash = txReceipt.tx.hash
+
+      dispatch(transactionHashRetrieved(txRequest))
     }
   }
 

@@ -9,7 +9,7 @@ export const walletCryptoSupports = {
     { cryptoType: 'dai', disabled: false }],
   'ledger': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: true }]
+    { cryptoType: 'bitcoin', disabled: false }]
 }
 
 export const walletSelections = [
