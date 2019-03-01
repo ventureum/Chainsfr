@@ -21,7 +21,8 @@ class ReceiveLandingPageComponent extends Component {
   render () {
     const { actionsPending, transfer, classes } = this.props
     if (transfer) {
-      var { receivingId, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+      var { receivingId, receiveTxHash, receiveTimestamp, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+      var hasReceived = !!receiveTxHash
     }
 
     return (
@@ -75,7 +76,7 @@ class ReceiveLandingPageComponent extends Component {
                 <Grid item className={classes.titleSection}>
                   <Grid container direction='column' justify='center' alignItems='flex-start'>
                     <Typography className={classes.title} variant='h6' align='left'>
-                     Pending Transaction
+                      {hasReceived ? 'Transfer has been previously accepted' : 'Pending Transaction'}
                     </Typography>
                     <Typography className={classes.transferId} align='left'>
                       {`Transfer ID: ${receivingId}`}
@@ -114,6 +115,24 @@ class ReceiveLandingPageComponent extends Component {
                     {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
                   </Typography>
                 </Grid>
+                {hasReceived &&
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Received on
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  </Typography>
+                </Grid>
+                }
+                {hasReceived &&
+                <Grid item>
+                  <Typography color='primary' className={classes.etherscanLink} align='left'>
+                    Check status on Etherscan
+                  </Typography>
+                </Grid>
+                }
+                {!hasReceived &&
                 <Grid item className={classes.btnSection}>
                   <Grid container direction='row' justify='flex-start' spacing={24}>
                     <Grid item>
@@ -123,7 +142,7 @@ class ReceiveLandingPageComponent extends Component {
                         component={Link}
                         to={paths.receive + paths.receivePasswordStep}
                       >
-                       Accept Anonymouslyt
+                        Accept Anonymously
                       </Button>
                     </Grid>
                     <Grid item>
@@ -132,11 +151,12 @@ class ReceiveLandingPageComponent extends Component {
                         color='primary'
                         disabled
                       >
-                       Log in and Accept
+                        Log in and Accept
                       </Button>
                     </Grid>
                   </Grid>
                 </Grid>
+                }
                 <Grid item className={classes.helperTextSection}>
                   <Typography className={classes.helperText} align='left'>
                    Have questions? Please take a look at our FAQ
@@ -229,6 +249,10 @@ const styles = theme => ({
     fontSize: '12px',
     fontWeight: '600',
     letterSpacing: '0.48px'
+  },
+  etherscanLink: {
+    fontSize: '12px',
+    fontWeight: '600'
   }
 })
 
