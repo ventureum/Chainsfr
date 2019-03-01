@@ -27,7 +27,8 @@ const errorSelector = createErrorSelector(['GET_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransfer: (id) => dispatch(getTransfer(id))
+    getTransfer: (id) => dispatch(getTransfer(null, id)),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 
