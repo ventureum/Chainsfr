@@ -8,7 +8,7 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash }) {
+async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash, password }) {
   let apiResponse = await apiTransfer.post('/transfer', {
     action: 'SEND',
     clientId: clientId,
@@ -51,6 +51,9 @@ async function getTransfer ({ sendingId, receivingId }) {
 
   let responseData = rv.data
   responseData.data = JSON.parse(Base64.decode(responseData.data))
+  if (responseData.password) {
+    responseData.password = Base64.decode(responseData.password)
+  }
   return responseData
 }
 

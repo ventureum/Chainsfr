@@ -5,6 +5,10 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import Dialog from '@material-ui/core/Dialog'
+import TextField from '@material-ui/core/TextField'
+import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
 
 const cryptoAbbreviationMap = {
@@ -14,116 +18,273 @@ const cryptoAbbreviationMap = {
 }
 
 class CancelReviewComponent extends Component {
-  handleReviewNext = () => {
-    const { transfer, password } = this.props
-    const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
-
-    this.props.verifyPasswordAndCancelTransfer({
-      encriptedWallet: transfer.data,
-      password: password,
-      sendingId: sendingId,
-      sendTxHash: sendTxHash,
-      cryptoType: cryptoType,
-      transferAmount: transferAmount
-    })
+  state = {
+    open: false,
+    destinationInput: ''
   }
 
-  componentDidMount () {
-    // refresh gas cost
-    const { cryptoType } = this.props.transfer
-    this.props.getGasCost({ cryptoType: cryptoType })
+  componentDidUpdate (prevProps) {
+    const { open } = this.state
+    const { transfer, escrowWallet, gasCost, receipt, actionsPending } = this.props
+    if (transfer) {
+      const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
+      if (!actionsPending.cancelTransfer && // cancelTransfer is not currently running
+          !receipt && // cancelTransfer has not been called
+          open && // cancel popup is currently focused
+          escrowWallet.decryptedWallet) { // escrowWallet has been decrypted
+        // submit cancelTransfer action
+        this.props.cancelTransfer({
+          escrowWallet: escrowWallet.decryptedWallet,
+          sendingId: sendingId,
+          sendTxHash: sendTxHash,
+          cryptoType: cryptoType,
+          transferAmount: transferAmount,
+          gas: gasCost.gas,
+          gasPrice: gasCost.gasPrice
+        })
+      }
+    }
+  }
+
+  handleReviewNext = () => {
+    const { destinationInput } = this.state
+    const { transfer, escrowWallet, pwd } = this.props
+
+    if (transfer) {
+      const { data } = transfer
+      if (!escrowWallet.decryptedWallet) {
+        // decrypt wallet first
+        this.props.verifyPassword(data, pwd + destinationInput)
+      }
+    }
+  }
+
+  handleModalOpen = () => {
+    this.setState({ open: true })
+  }
+
+  handleModalClose = () => {
+    this.setState({ open: false })
+  }
+
+  handleDestinationOnChange = (event) => {
+    this.setState({ destinationInput: event.target.value })
+  }
+
+  renderModal = () => {
+    let { destinationField } = this.state
+    let { classes, transfer, actionsPending, error } = this.props
+
+    let wrongPassword = (error === 'WALLET_DECRYPTION_FAILED')
+
+    return (
+      <Dialog
+        aria-labelledby='cancel-dialog-title'
+        open={this.state.open}
+        onClose={this.handleClose}
+      >
+        <DialogTitle id='cancel-dialog-title'>
+          <Typography className={classes.modalTitle}>
+            Cancel Transfer
+          </Typography>
+        </DialogTitle>
+        <Grid container direction='column' justify='center' alignItems='center' className={classes.modalContainer}>
+          <Grid item className={classes.modalDescSection}>
+            <Typography className={classes.modalDesc}>
+              You are going to cancel the arranged transfer. Recepient will receive an email notification and won’t be able to accept the transfer anymore. Gas fee will be applied.
+            </Typography>
+            <form noValidate autoComplete='off'>
+              <TextField
+                fullWidth
+                id='confirm-recipient-email'
+                label='Recipient Email'
+                placeholder={transfer.destination}
+                className={classes.textField}
+                margin='normal'
+                variant='outlined'
+                error={!!wrongPassword}
+                required
+                helperText={wrongPassword ? 'Incorrect recipient email' : 'Please re-type the recipient email to confirm the cancellation'}
+                onChange={this.handleDestinationOnChange}
+                value={destinationField}
+              />
+            </form>
+          </Grid>
+          <Grid item className={classes.modalBtnSection}>
+            <Grid container direction='row' justify='flex-end' alignItems='center'>
+              <Grid item>
+                <Button
+                  color='primary'
+                  onClick={this.handleModalClose}
+                >
+                  Let me think again
+                </Button>
+              </Grid>
+              <Grid item>
+                <div className={classes.wrapper}>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    disabled={actionsPending.cancelTransfer}
+                    onClick={this.handleReviewNext}
+                  >
+                    Cancel Transfer
+                  </Button>
+                  {(actionsPending.verifyPassword || actionsPending.cancelTransfer) &&
+                  <CircularProgress
+                    size={24}
+                    color='primary'
+                    className={classes.buttonProgress}
+                  />}
+                </div>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Dialog>
+    )
   }
 
   render () {
-    const { classes, transfer, actionsPending, gasCost } = this.props
-    const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
+    const { classes, transfer, escrowWallet, actionsPending, gasCost } = this.props
+    if (transfer) {
+      var { sendingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
+      var hasReceived = !!receiveTxHash
+      var hasCancelled = !!cancelTxHash
+    }
 
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch'>
+      <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
-          <Grid container direction='column' justify='center' alignItems='center'>
-            <Grid item>
-              <Grid item>
-                <Typography className={classes.title} variant='h6' align='center'>
-                  Please review details of your transfer
-                </Typography>
-              </Grid>
-              <Paper className={classes.reviewItemContainer}>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    From
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {sender}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    To
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {destination}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Amount
-                  </Typography>
-                  <Typography className={classes.reviewContentAmount} align='left'>
-                    {transferAmount} {cryptoAbbreviationMap[cryptoType]}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Gas Fee
-                  </Typography>
-                  {!actionsPending.getGasCost && gasCost
-                   ? <Typography className={classes.reviewContent} align='left'>
-                     {gasCost.costInEther} ETH
-                   </Typography>
-                   : <CircularProgress size={18} color='primary' />}
-                </Grid>
+          {(actionsPending.getTransfer ||
+            actionsPending.verifyPassword ||
+            !transfer ||
+            !escrowWallet)
+            ? <CircularProgress
+              color='primary'
+              className={classes.transferProgress}
+            />
+            : <Paper className={classes.receiptPaper} elevation={1}>
+              <Grid container direction='column' justify='center' alignItems='stretch'>
                 <Grid item>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Total Cost
-                  </Typography>
-                  {!actionsPending.getGasCost && gasCost
-                   ? <Typography className={classes.reviewContent} align='left'>
-                     {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
-                   </Typography>
-                   : <CircularProgress size={18} color='primary' />}
+                  <Grid item className={classes.titleSection}>
+                    <Grid container direction='column' justify='center' alignItems='flex-start'>
+                      <Typography className={classes.title} variant='h6' align='left'>
+                        {hasReceived && 'Transfer has been received'}
+                        {hasCancelled && 'Transfer has already been cancelled'}
+                        {!hasReceived && !hasCancelled && 'Transfer details'}
+                      </Typography>
+                      <Typography className={classes.transferId} align='left'>
+                        {`Transfer ID: ${sendingId}`}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                     From
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {sender}
+                    </Typography>
+                  </Grid>
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                     To
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {destination}
+                    </Typography>
+                  </Grid>
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                     Amount
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {transferAmount} {cryptoAbbreviationMap[cryptoType]}
+                    </Typography>
+                  </Grid>
+                  {!hasReceived && !hasCancelled && // do not show gas in this case
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Gas Fee
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {!actionsPending.getGasCost && gasCost
+                        ? <Typography className={classes.reviewContent} align='left'>
+                          {gasCost.costInEther} ETH
+                        </Typography>
+                        : <CircularProgress size={18} color='primary' />}
+                    </Typography>
+                  </Grid>
+                  }
+                  {!hasReceived && !hasCancelled && // do not show gas in this case
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Total Cost
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {!actionsPending.getGasCost && gasCost
+                        ? <Typography className={classes.reviewContent} align='left'>
+                          {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
+                        </Typography>
+                        : <CircularProgress size={18} color='primary' />}
+                    </Typography>
+                  </Grid>
+                  }
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                     Sent on
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    </Typography>
+                  </Grid>
+                  {(hasReceived || hasCancelled) &&
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      {hasReceived && 'Received on'}
+                      {hasCancelled && 'Cancelled on'}
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left'>
+                      {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                      {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    </Typography>
+                  </Grid>
+                  }
+                  {(hasReceived || hasCancelled) &&
+                  <Grid item>
+                    <Typography color='primary' className={classes.etherscanLink} align='left'>
+                      <MuiLink
+                        target='_blank'
+                        rel='noopener'
+                        href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
+                        Check status on Etherscan
+                      </MuiLink>
+                    </Typography>
+                  </Grid>
+                  }
                 </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Sent on
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                  </Typography>
-                </Grid>
-              </Paper>
-            </Grid>
-          </Grid>
+              </Grid>
+            </Paper>
+          }
         </Grid>
+        {!hasReceived && !hasCancelled &&
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
-              <div className={classes.wrapper}>
-                <Button
-                  fullWidth
-                  variant='contained'
-                  color='primary'
-                  size='large'
-                  disabled={actionsPending.submitTx}
-                  onClick={this.handleReviewNext}
-                >
-                  Cancel Transfer
-                </Button>
-                {actionsPending.submitTx && <CircularProgress size={24} color='primary' className={classes.buttonProgress} />}
-              </div>
+              <Button
+                fullWidth
+                color='primary'
+                size='large'
+                onClick={this.handleModalOpen}
+              >
+                 Cancel Transfer
+              </Button>
             </Grid>
           </Grid>
         </Grid>
+        }
+        {this.state.open && this.renderModal()}
       </Grid>
     )
   }
@@ -135,14 +296,12 @@ const styles = theme => ({
     fontSize: '18px',
     fontWeight: '600',
     lineHeight: '24px',
-    padding: '0px 0px 0px 0px',
-    marginBottom: '20px'
+    padding: '0px 0px 0px 0px'
   },
-  reviewItemContainer: {
-    border: 'border: 1px solid #D2D2D2',
-    borderRadius: '8px',
-    backgroundColor: '#FAFAFA',
-    padding: '20px'
+  transferId: {
+    color: '#777777',
+    fontSize: '12px',
+    lineHeight: '17px'
   },
   reviewSubtitle: {
     color: '#777777',
@@ -154,17 +313,49 @@ const styles = theme => ({
     fontSize: '18px',
     lineHeight: '24px'
   },
-  reviewContentAmount: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px',
-    fontWeight: 'bold'
-  },
   reviewItem: {
-    marginBottom: '30px'
+    marginTop: '30px'
+  },
+  receiptPaper: {
+    marginTop: '20px',
+    padding: '60px 90px'
+  },
+  checkCircleIcon: {
+    color: '#0CCD70',
+    fontSize: '40px',
+    marginBottom: '14px'
+  },
+  informReceiverText: {
+    color: '#333333',
+    maxWidth: '360px'
   },
   btnSection: {
     marginTop: '60px'
+  },
+  iconBtn: {
+    padding: '0',
+    marginLeft: '16px'
+  },
+  transferProgress: {
+    padding: '60px'
+  },
+  modalContainer: {
+    padding: '0px 24px 24px 24px'
+  },
+  modalBtnSection: {
+    width: '100%'
+  },
+  modalTitle: {
+    color: '#333333',
+    fontSize: '18px',
+    fontWeight: '500'
+  },
+  modalDesc: {
+    color: '#333333',
+    fontSize: '14px'
+  },
+  modalDescSection: {
+    paddingBottom: '20px'
   },
   buttonProgress: {
     position: 'absolute',
@@ -174,6 +365,7 @@ const styles = theme => ({
     marginLeft: -12
   },
   wrapper: {
+    margin: theme.spacing.unit,
     position: 'relative'
   }
 })

@@ -21,7 +21,7 @@ class ReceivePasswordComponent extends Component {
   handleNext = () => {
     let { verifyPassword, transfer } = this.props
     let { password } = this.state
-    verifyPassword(transfer.data, password)
+    verifyPassword(transfer.data, password + transfer.destination)
   }
 
   render () {

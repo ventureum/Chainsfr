@@ -34,13 +34,13 @@ async function _getGasCost (txRequest) {
 }
 
 async function _submitTx (dispatch, txRequest) {
-  let { fromWallet, walletType, cryptoType, transferAmount, password } = txRequest
+  let { fromWallet, walletType, cryptoType, transferAmount, password, destination } = txRequest
 
   // step 1: create an escrow wallet
   let escrow = window._web3.eth.accounts.create()
 
-  // step 2: encrypt the escrow wallet with pin provided
-  let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password)
+  // step 2: encrypt the escrow wallet with password provided and the destination email address
+  let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination)
 
   // add escrow wallet to tx request
   txRequest.encriptedEscrow = encriptedEscrow
@@ -92,16 +92,17 @@ async function _submitTx (dispatch, txRequest) {
 }
 
 async function _transactionHashRetrieved (txRequest) {
-  let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash } = txRequest
+  let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, password } = txRequest
 
-  let data = await API.transfer({
+  let apiResponse = await API.transfer({
     clientId: 'test-client',
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    data: encriptedEscrow
+    data: encriptedEscrow,
+    password: password // optional
   })
 
   return data

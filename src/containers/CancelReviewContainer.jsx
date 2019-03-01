@@ -1,30 +1,28 @@
 import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
-import queryString from 'query-string'
-import CancelReviewComponent from '../components/ReceiveLandingPageComponent'
-import { getTransfer } from '../actions/transferActions'
+
+import CancelReviewComponent from '../components/CancelReviewComponent'
+import { getTransfer, cancelTransfer, getGasCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword } from '../actions/walletActions'
 
 class CancelReviewContainer extends Component {
-  state = {
-    password: null
-  }
-
   componentDidMount () {
-    let { location } = this.props
-    const value = queryString.parse(location.search)
-    this.setState({password: value.pwd})
-    this.props.getTransfer(value.id)
+    let { sendingId } = this.props
+    if (sendingId) {
+      this.props.getTransfer(sendingId)
+    }
   }
 
   componentDidUpdate () {
-    let { transfer } = this.props
-    if (transfer) {
-      // now decrypt wallet
-      this.props.verifyPassword(transfer.data, this.state.password)
+    let { transfer, gasCost, actionsPending, error } = this.props
+    if (!error && transfer) {
+      if (!gasCost && !actionsPending.getGasCost) {
+        // get gas cost
+        this.props.getGasCost({ cryptoType: transfer.cryptoType })
+      }
     }
   }
 
@@ -39,12 +37,16 @@ class CancelReviewContainer extends Component {
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
-const errorSelector = createErrorSelector(['GET_TRANSFER'])
+const getGasCostSelector = createLoadingSelector(['GET_GAS_COST'])
+const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
+const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransfer: (id) => dispatch(getTransfer({id})),
+    getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
     verifyPassword: (encriptedWallet, password) => dispatch(verifyPassword(encriptedWallet, password)),
+    getGasCost: (txRequest) => dispatch(getGasCost(txRequest)),
+    cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
@@ -53,9 +55,13 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     escrowWallet: state.walletReducer.escrowWallet,
+    gasCost: state.transferReducer.gasCost,
+    receipt: state.transferReducer.receipt,
     actionsPending: {
       getTransfer: getTransferSelector(state),
-      verifyPassword: verifyPasswordSelector(state)
+      verifyPassword: verifyPasswordSelector(state),
+      getGasCost: getGasCostSelector(state),
+      cancelTransfer: cancelTransferSelector(state)
     },
     error: errorSelector(state)
   }
