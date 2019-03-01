@@ -2,11 +2,9 @@ import API from '../apis'
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import ERC20_ABI from '../contracts/ERC20.json'
-import moment from 'moment'
 import utils from '../utils'
 import BN from 'bn.js'
-import { push } from 'connected-react-router'
-import paths from '../Paths'
+import { goToStep } from './navigationActions'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -107,7 +105,7 @@ async function _transactionHashRetrieved (txRequest) {
     password: password // optional
   })
 
-  return { apiResponse, txRequest }
+  return data
 }
 
 async function _acceptTransfer (dispatch, txRequest) {
@@ -150,16 +148,70 @@ async function _acceptTransfer (dispatch, txRequest) {
 }
 
 async function _acceptTransferTransactionHashRetrieved (txRequest) {
-  txRequest.receiveTimestamp = moment().unix()
+  let { receivingId, receiveTxHash } = txRequest
 
-  // TODO add api call
-  let apiResponse = null
+  let data = await API.accept({
+    clientId: 'test-client',
+    receivingId: receivingId,
+    receiveTxHash: receiveTxHash
+  })
 
-  return { apiResponse, txRequest }
+  return data
 }
 
-async function _getTransfer (id) {
-  let apiResponse = await API.getTransfer({ id: id })
+async function _cancelTransfer (dispatch, txRequest) {
+  // transfer funds from escrowWallet to sender address with cryptoType and transferAmount
+  // fromWallet is a decryptedWallet with the following data
+  // 1. address
+  // 2. privateKey
+
+  let { escrowWallet, sendTxHash, cryptoType, transferAmount, gas, gasPrice } = txRequest
+
+  if (cryptoType === 'ethereum') {
+    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+
+    // add escrow account to web3
+    _web3.eth.accounts.wallet.add(escrowWallet.privateKey)
+
+    // calculate amount in wei to be sent
+    let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+
+    // calculate gas cost in wei
+    let gasCostInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
+
+    let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
+
+    // setup tx object
+    let txObj = {
+      from: escrowWallet.address,
+      to: txReceipt.from, // sender address
+      value: wei - gasCostInWei, // actual receiving amount
+      gas: gas,
+      gasPrice: gasPrice
+    }
+
+    _web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
+      // update request tx hash
+      txRequest.cancelTxHash = hash
+      dispatch(cancelTransferTransactionHashRetrieved(txRequest))
+    })
+  }
+}
+
+async function _cancelTransferTransactionHashRetrieved (txRequest) {
+  let { sendingId, cancelTxHash } = txRequest
+
+  let data = await API.cancel({
+    clientId: 'test-client',
+    sendingId: sendingId,
+    cancelTxHash: cancelTxHash
+  })
+
+  return data
+}
+
+async function _getTransfer (sendingId, receivingId) {
+  let apiResponse = await API.getTransfer({ sendingId, receivingId })
   return apiResponse
 }
 
@@ -168,7 +220,7 @@ function transactionHashRetrieved (txRequest) {
     return dispatch({
       type: 'TRANSACTION_HASH_RETRIEVED',
       payload: _transactionHashRetrieved(txRequest)
-    }).then(() => dispatch(push(paths.transfer + paths.receiptStep)))
+    }).then(() => dispatch(goToStep('send', 1)))
   }
 }
 
@@ -177,7 +229,16 @@ function acceptTransferTransactionHashRetrieved (txRequest) {
     return dispatch({
       type: 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED',
       payload: _acceptTransferTransactionHashRetrieved(txRequest)
-    }).then(() => dispatch(push(paths.receive + paths.receiveReceiptStep)))
+    }).then(() => dispatch(goToStep('receive', 1)))
+  }
+}
+
+function cancelTransferTransactionHashRetrieved (txRequest) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED',
+      payload: _cancelTransferTransactionHashRetrieved(txRequest)
+    }).then(() => dispatch(goToStep('cancel', 1)))
   }
 }
 
@@ -199,6 +260,15 @@ function acceptTransfer (txRequest) {
   }
 }
 
+function cancelTransfer (txRequest) {
+  return (dispatch, getState) => {
+    return {
+      type: 'CANCEL_TRANSFER',
+      payload: _cancelTransfer(dispatch, txRequest)
+    }
+  }
+}
+
 function getGasCost (txRequest) {
   return {
     type: 'GET_GAS_COST',
@@ -206,16 +276,17 @@ function getGasCost (txRequest) {
   }
 }
 
-function getTransfer (id) {
+function getTransfer (sendingId, receivingId) {
   return {
     type: 'GET_TRANSFER',
-    payload: _getTransfer(id)
+    payload: _getTransfer(sendingId, receivingId)
   }
 }
 
 export {
   submitTx,
   acceptTransfer,
+  cancelTransfer,
   getGasCost,
   getTransfer
 }

@@ -5,6 +5,7 @@ import queryString from 'query-string'
 import ReceiveLandingPageComponent from '../components/ReceiveLandingPageComponent'
 import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceiveLandingPageContainer extends Component {
   componentDidMount () {

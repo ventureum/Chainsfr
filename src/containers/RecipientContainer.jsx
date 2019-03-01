@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Recipient from '../components/RecipientComponent'
 import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions/formActions'
+import { goToStep } from '../actions/navigationActions'
 
 class RecipientContainer extends Component {
   render () {
@@ -17,7 +18,8 @@ const mapDispatchToProps = dispatch => {
   return {
     updateTransferForm: (form) => dispatch(updateTransferForm(form)),
     generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
-    clearSecurityAnswer: () => dispatch(clearSecurityAnswer())
+    clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
+    goToStep: (n) => dispatch(goToStep('send', n))
   }
 }
 

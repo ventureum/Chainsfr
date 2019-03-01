@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
 import { acceptTransfer, getGasCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceiveReviewContainer extends Component {
   render () {
@@ -22,7 +23,8 @@ const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_T
 const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: (txRequest) => dispatch(acceptTransfer(txRequest)),
-    getGasCost: (txRequest) => dispatch(getGasCost(txRequest))
+    getGasCost: (txRequest) => dispatch(getGasCost(txRequest)),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 

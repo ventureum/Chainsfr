@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import paths from '../Paths'
 import moment from 'moment'
 
 const cryptoAbbreviationMap = {
@@ -18,20 +16,17 @@ const cryptoAbbreviationMap = {
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
     const { transfer, escrowWallet, wallet, walletSelection, gasCost } = this.props
-    const { id, transferAmount, sender, destination } = transfer
+    const { receivingId, transferAmount } = transfer
 
     // accept transfer
     // TODO handle ledger nano s and erc20 tokens
     this.props.acceptTransfer({
-      id: id,
+      receivingId: receivingId,
       escrowWallet: escrowWallet.decryptedWallet,
       destinationAddress: wallet.accounts[0].address,
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
-      destination: destination,
-      sender: sender,
-      sendTimestamp: transfer.sendTimestamp,
       gas: gasCost.gas,
       gasPrice: gasCost.gasPrice
     })
@@ -40,7 +35,7 @@ class ReceiveReviewComponent extends Component {
   componentDidMount () {
     // refresh gas cost
     const { transfer } = this.props
-    this.props.getGasCost({cryptoType: transfer.cryptoType})
+    this.props.getGasCost({ cryptoType: transfer.cryptoType })
   }
 
   render () {
@@ -130,8 +125,7 @@ class ReceiveReviewComponent extends Component {
               <Button
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.receive}
+                onClick={() => this.props.goToStep(-3)}
               >
                 Cancel
               </Button>

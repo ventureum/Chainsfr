@@ -2,7 +2,6 @@ import React from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-// import CancelReceipt from '../containers/CancelReceiptContainer'
 import CancelReview from '../containers/CancelReviewContainer'
 import CancelReceipt from '../containers/CancelReceiptContainer'
 import queryString from 'query-string'
@@ -12,7 +11,7 @@ class CancelComponent extends React.Component {
   render () {
     const { classes, step, history } = this.props
     const value = queryString.parse(history.location.search)
-
+    
     return (
       <Grid
         container

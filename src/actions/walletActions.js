@@ -2,6 +2,7 @@ import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
 import BN from 'bn.js'
+import { goToStep } from './navigationActions'
 
 const ledgerNanoS = new LedgerNanoS()
 

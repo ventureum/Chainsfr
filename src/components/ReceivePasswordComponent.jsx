@@ -2,10 +2,8 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Link, Redirect } from 'react-router-dom'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import paths from '../Paths'
 
 class ReceivePasswordComponent extends Component {
   state = {
@@ -27,13 +25,8 @@ class ReceivePasswordComponent extends Component {
   }
 
   render () {
-    const { classes, actionsPending, escrowWallet, error } = this.props
+    const { classes, error } = this.props
     const { password } = this.state
-
-    if (!actionsPending.verifyPassword && escrowWallet.decryptedWallet) {
-      // verifyPassword is not currently running and wallet has been decrypted
-      return (<Redirect push to={paths.receive + paths.receiveWalletSelectionStep} />)
-    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
@@ -63,8 +56,7 @@ class ReceivePasswordComponent extends Component {
                 <Button
                   color='primary'
                   size='large'
-                  component={Link}
-                  to={paths.receive}
+                  onClick={() => this.props.goToStep(-1)}
                 >
                   Cancel
                 </Button>

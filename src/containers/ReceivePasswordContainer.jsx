@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import ReceivePasswordComponent from '../components/ReceivePasswordComponent'
 import { verifyPassword, clearDecryptedWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { goToStep } from '../actions/navigationActions'
 
 class ReceivePasswordContainer extends Component {
   render () {

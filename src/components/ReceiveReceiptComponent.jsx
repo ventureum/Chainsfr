@@ -9,10 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
-import { Link } from 'react-router-dom'
 import moment from 'moment'
-
-import paths from '../Paths'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -23,7 +20,7 @@ const cryptoAbbreviationMap = {
 class ReceiveReceiptComponent extends Component {
   render () {
     const { classes, cryptoSelection, gasCost, receipt } = this.props
-    const { id, transferAmount, sender, destination, receiveTimestamp, receiveTxHash } = receipt.txRequest
+    const { receivingId, transferAmount, sender, destination, receiveTimestamp, receiveTxHash } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -37,7 +34,7 @@ class ReceiveReceiptComponent extends Component {
                       Transfer Completed
                     </Typography>
                     <Typography className={classes.transferId} align='center'>
-                      {`Transfer ID: ${id}`}
+                      {`Transfer ID: ${receivingId}`}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -115,8 +112,7 @@ class ReceiveReceiptComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                component={Link}
-                to={paths.home}
+                onClick={() => this.props.goToStep(-4)}
               >
                 Back to Home
               </Button>
