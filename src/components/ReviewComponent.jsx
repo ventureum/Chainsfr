@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import UUIDv1 from 'uuid/v1'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -18,10 +17,8 @@ class ReviewComponent extends Component {
     const { wallet, transferForm, cryptoSelection, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
-    let id = UUIDv1()
     // submit tx
     this.props.submitTx({
-      id: id,
       fromWallet: wallet,
       walletType: walletSelection,
       cryptoType: cryptoSelection,
@@ -30,8 +27,6 @@ class ReviewComponent extends Component {
       sender: sender,
       password: password
     })
-
-    this.setState({ id: id })
   }
 
   componentDidMount () {
