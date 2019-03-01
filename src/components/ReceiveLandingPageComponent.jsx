@@ -8,6 +8,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
+import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
 import paths from '../Paths'
 
@@ -21,8 +22,9 @@ class ReceiveLandingPageComponent extends Component {
   render () {
     const { actionsPending, transfer, classes } = this.props
     if (transfer) {
-      var { receivingId, receiveTxHash, receiveTimestamp, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+      var { receivingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
       var hasReceived = !!receiveTxHash
+      var hasCancelled = !!cancelTxHash
     }
 
     return (
@@ -76,7 +78,9 @@ class ReceiveLandingPageComponent extends Component {
                 <Grid item className={classes.titleSection}>
                   <Grid container direction='column' justify='center' alignItems='flex-start'>
                     <Typography className={classes.title} variant='h6' align='left'>
-                      {hasReceived ? 'Transfer has been previously accepted' : 'Pending Transaction'}
+                      {hasReceived && 'Transfer has been previously accepted'}
+                      {hasCancelled && 'Transfer has been cancelled'}
+                      {!hasReceived && !hasCancelled && 'Transaction pending'}
                     </Typography>
                     <Typography className={classes.transferId} align='left'>
                       {`Transfer ID: ${receivingId}`}
@@ -115,24 +119,31 @@ class ReceiveLandingPageComponent extends Component {
                     {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
                   </Typography>
                 </Grid>
-                {hasReceived &&
+                {(hasReceived || hasCancelled) &&
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                    Received on
+                    {hasReceived && 'Received on'}
+                    {hasCancelled && 'Cancelled on'}
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
                   </Typography>
                 </Grid>
                 }
-                {hasReceived &&
+                {(hasReceived || hasCancelled) &&
                 <Grid item>
                   <Typography color='primary' className={classes.etherscanLink} align='left'>
-                    Check status on Etherscan
+                    <MuiLink
+                      target='_blank'
+                      rel='noopener'
+                      href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
+                      Check status on Etherscan
+                    </MuiLink>
                   </Typography>
                 </Grid>
                 }
-                {!hasReceived &&
+                {!hasReceived && !hasCancelled &&
                 <Grid item className={classes.btnSection}>
                   <Grid container direction='row' justify='flex-start' spacing={24}>
                     <Grid item>
