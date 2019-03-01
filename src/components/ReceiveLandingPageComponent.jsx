@@ -21,7 +21,7 @@ class ReceiveLandingPageComponent extends Component {
   render () {
     const { actionsPending, transfer, classes } = this.props
     if (transfer) {
-      var { id, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+      var { receivingId, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
     }
 
     return (
@@ -78,7 +78,7 @@ class ReceiveLandingPageComponent extends Component {
                      Pending Transaction
                     </Typography>
                     <Typography className={classes.transferId} align='left'>
-                      {`Transfer ID: ${id}`}
+                      {`Transfer ID: ${receivingId}`}
                     </Typography>
                   </Grid>
                 </Grid>
