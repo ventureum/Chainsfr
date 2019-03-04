@@ -2,81 +2,27 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
-import MetamaskLogo from '../images/metamask-button.svg'
-import HardwareWalletLogo from '../images/hardware-wallet-button.svg'
-import EthereumLogo from '../images/eth.svg'
-import BitcoinLogo from '../images/btc.svg'
-import DaiLogo from '../images/dai.svg'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
+import CheckIcon from '@material-ui/icons/CheckCircle'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import utils from '../utils'
 import numeral from 'numeral'
+import { walletCryptoSupports, walletSelections } from '../wallet'
+import { cryptoSelections, getCryptoSymbol } from '../tokens'
 
-const walletCryptoSupports = {
-  'basic': [{ cryptoType: 'ethereum', disabled: true },
-    { cryptoType: 'dai', disabled: true },
-    { cryptoType: 'bitcoin', disabled: true }],
-  'metamask': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: true }],
-  'ledger': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: true }]
+const WalletConnectionErrorMessage = {
+  'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
+  ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
 }
-
-const walletSelections = [
-  {
-    walletType: 'basic',
-    title: 'Basic',
-    desc: 'Use Basic Wallet',
-    logo: MetamaskLogo,
-    disabled: true
-  },
-  {
-    walletType: 'metamask',
-    title: 'Metamask',
-    desc: 'MetaMask Extension',
-    logo: MetamaskLogo,
-    disabled: false
-  },
-  {
-    walletType: 'ledger',
-    title: 'Ledger',
-    desc: 'Ledger Hardware Wallet',
-    logo: HardwareWalletLogo,
-    disabled: false
-  }
-]
-
-const cryptoSelections = [
-  {
-    cryptoType: 'ethereum',
-    title: 'Ethereum',
-    symbol: 'ETH',
-    logo: EthereumLogo
-  },
-  {
-    cryptoType: 'dai',
-    title: 'Dai',
-    symbol: 'DAI',
-    logo: DaiLogo
-  },
-  {
-    cryptoType: 'bitcoin',
-    title: 'Bitcoin',
-    symbol: 'BTC',
-    logo: BitcoinLogo
-  }
-]
 
 class WalletSelectionComponent extends Component {
   static propTypes = {
@@ -120,10 +66,9 @@ class WalletSelectionComponent extends Component {
     )
   }
 
-  renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, wallet, actionsPending } = this.props
-
-    if (actionsPending.checkMetamaskConnection || actionsPending.checkLedgerNanoSConnection) {
+  renderBalance = () => {
+    const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
+    if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>
@@ -133,18 +78,35 @@ class WalletSelectionComponent extends Component {
       )
     }
 
-    if (walletType === 'ledger' && !wallet.connected) {
+    if (!wallet.connected) {
       return (
         <Grid container direction='row' alignItems='center'>
           <Grid item>
             <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
           <Grid item>
-            <Typography className={classes.notConnectText}>Please make sure your device is connected</Typography>
+            <Typography className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
           </Grid>
         </Grid>
       )
     }
+
+    return (
+      <Grid container direction='row' alignItems='center'>
+        <Grid item>
+          <CheckIcon className={classes.connectedIcon} />
+        </Grid>
+        <Grid item>
+          <Typography className={classes.connectedtext}>Account retrieved, your balance: {
+            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a')} {getCryptoSymbol(cryptoType)}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
+  }
+
+  renderCryptoSelection = () => {
+    const { classes, walletType, cryptoType, onCryptoSelected } = this.props
 
     return (
       <List className={classes.cryptoList}>
@@ -164,11 +126,6 @@ class WalletSelectionComponent extends Component {
                 disableRipple
               />
               <ListItemText primary={c.symbol} secondary={this.cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
-              <ListItemSecondaryAction>
-                {c.cryptoType === 'ethereum' &&
-                 wallet &&
-                 numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a')}
-              </ListItemSecondaryAction>
             </ListItem>
           </div>))}
         <Divider />
@@ -177,7 +134,7 @@ class WalletSelectionComponent extends Component {
   }
 
   render () {
-    const { classes, walletType, cryptoType } = this.props
+    const { classes, walletType, cryptoType, actionsPending, wallet } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <Grid item>
@@ -209,6 +166,10 @@ class WalletSelectionComponent extends Component {
         <Grid item>
           {this.renderCryptoSelection()}
         </Grid>}
+        {cryptoType &&
+          <Grid item>
+            {this.renderBalance()}
+          </Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
@@ -226,7 +187,7 @@ class WalletSelectionComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(1)}
-                disabled={!walletType || !cryptoType}
+                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection}
               >
               Continue
               </Button>
@@ -250,11 +211,20 @@ const styles = theme => ({
     color: '#B00020',
     marginRight: '8px'
   },
+  connectedIcon: {
+    color: '#2E7D32',
+    marginRight: '8px'
+  },
   notConnectText: {
     color: '#333333',
     fontSize: '14px',
     fontWeight: 600
 
+  },
+  connectedtext: {
+    color: '#333333',
+    fontSize: '16px',
+    fontWeight: 600
   }
 })
 
