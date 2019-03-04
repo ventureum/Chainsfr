@@ -7,20 +7,21 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 
 class WalletSelectionContainer extends Component {
-  onWalletSelected = (walletType) => {
+  onCryptoSelected = (cryptoType) => {
     const {
       checkMetamaskConnection,
       checkLedgerNanoSConnection,
-      cryptoSelection,
-      selectWallet
+      selectCrypto,
+      walletSelection,
+      cryptoSelection
     } = this.props
-    if (walletType === 'ledger' && walletType !== cryptoSelection) {
-      checkLedgerNanoSConnection()
-    } else if (walletType === 'metamask' && walletType !== cryptoSelection) {
+    if (walletSelection === 'ledger' && cryptoType !== cryptoSelection) {
+      checkLedgerNanoSConnection(cryptoType)
+    } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
       checkMetamaskConnection()
     }
 
-    selectWallet(walletType)
+    selectCrypto(cryptoType)
   }
 
   render () {
@@ -28,22 +29,22 @@ class WalletSelectionContainer extends Component {
       selectCrypto,
       walletSelection,
       cryptoSelection,
+      selectWallet,
       ...other
     } = this.props
     return (
       <WalletSelection
         walletType={walletSelection}
         cryptoType={cryptoSelection}
-        onCryptoSelected={selectCrypto}
-        onWalletSelected={this.onWalletSelected}
+        onCryptoSelected={this.onCryptoSelected}
+        onWalletSelected={selectWallet}
         {...other}
       />
     )
   }
 }
 
-const checkMetamaskConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION'])
-const checkLedgerNanoSConnectionSelector = createLoadingSelector(['CHECK_LEDGER_NANOS_CONNECTION'])
+const checkWalletConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION', 'CHECK_LEDGER_NANOS_CONNECTION'])
 const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
 
 const mapDispatchToProps = dispatch => {
@@ -62,8 +63,7 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     actionsPending: {
-      checkMetamaskConnection: checkMetamaskConnectionSelector(state),
-      checkLedgerNanoSConnection: checkLedgerNanoSConnectionSelector(state)
+      checkWalletConnection: checkWalletConnectionSelector(state)
     },
     error: errorSelector(state)
   }
