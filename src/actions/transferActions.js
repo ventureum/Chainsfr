@@ -94,7 +94,7 @@ async function _submitTx (dispatch, txRequest) {
 async function _transactionHashRetrieved (txRequest) {
   let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, password } = txRequest
 
-  let apiResponse = await API.transfer({
+  let data = await API.transfer({
     clientId: 'test-client',
     sender: sender,
     destination: destination,
