@@ -78,11 +78,11 @@ class App extends Component {
         <Provider store={store}>
           <ConnectedRouter history={history}>
             <Switch>
-              <Route path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+              <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
               <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
-              <DefaultLayout path={`${paths.transfer}`} component={TransferContainer} />
+              <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
               <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
-              <DefaultLayout path={`${paths.cancel}`} component={CancelContainer} />
+              <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />
             </Switch>
           </ConnectedRouter>
         </Provider>
