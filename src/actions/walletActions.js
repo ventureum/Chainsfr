@@ -3,6 +3,8 @@ import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'
+import { Base64 } from 'js-base64'
+import { getTransferData } from '../drive.js'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -50,7 +52,13 @@ async function _checkLedgerNanoSConnection () {
   return deviceConnected
 }
 
-async function _verifyPassword (encriptedWallet, password) {
+async function _verifyPassword (sendingId, encriptedWallet, password) {
+  if (sendingId) {
+    // retrieve password from drive
+    let transferData = await getTransferData(sendingId)
+    password = Base64.decode(transferData.password) + transferData.destination
+  }
+
   let decryptedWallet = utils.decryptWallet(encriptedWallet, password)
   if (!decryptedWallet) {
     // wrong password
@@ -80,11 +88,11 @@ function checkLedgerNanoSConnection () {
   }
 }
 
-function verifyPassword (encriptedWallet, password, nextStep) {
+function verifyPassword (sendingId, encriptedWallet, password, nextStep) {
   return (dispatch, getState) => {
     return dispatch({
       type: 'VERIFY_PASSWORD',
-      payload: _verifyPassword(encriptedWallet, password)
+      payload: _verifyPassword(sendingId, encriptedWallet, password)
     }).then(() => {
       if (nextStep) {
         return dispatch(goToStep(nextStep.transferAction, nextStep.n))
