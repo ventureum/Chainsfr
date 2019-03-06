@@ -5,6 +5,9 @@ import ERC20_ABI from '../contracts/ERC20.json'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'
+import { saveTempSendFile, saveSendFile } from '../drive.js'
+import moment from 'moment'
+import { Base64 } from 'js-base64'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
@@ -34,16 +37,30 @@ async function _getGasCost (txRequest) {
 }
 
 async function _submitTx (dispatch, txRequest) {
-  let { fromWallet, walletType, cryptoType, transferAmount, password, destination } = txRequest
+  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination } = txRequest
 
-  // step 1: create an escrow wallet
-  let escrow = window._web3.eth.accounts.create()
+  if (['ethereum', 'dai'].includes(cryptoType)) {
+    // ethereum based coins
+    // step 1: create an escrow wallet
+    var escrow = window._web3.eth.accounts.create()
 
-  // step 2: encrypt the escrow wallet with password provided and the destination email address
-  let encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination)
+    // step 2: encrypt the escrow wallet with password provided and the destination email address
+    var encriptedEscrow = window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination)
 
-  // add escrow wallet to tx request
-  txRequest.encriptedEscrow = encriptedEscrow
+    // add escrow wallet to tx request
+    txRequest.encriptedEscrow = encriptedEscrow
+
+    // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
+    await saveTempSendFile({
+      sender: sender,
+      destination: destination,
+      transferAmount: transferAmount,
+      cryptoType: cryptoType,
+      data: Base64.encode(JSON.stringify(encriptedEscrow)),
+      password: Base64.encode(password),
+      tempTimestamp: moment().unix()
+    })
+  }
 
   // step 4: transfer funds from [fromWallet] to the newly created escrow wallet
   if (walletType === 'metamask') {
@@ -94,16 +111,23 @@ async function _submitTx (dispatch, txRequest) {
 async function _transactionHashRetrieved (txRequest) {
   let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, password } = txRequest
 
-  let data = await API.transfer({
+  let transferData = {
     clientId: 'test-client',
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    data: encriptedEscrow,
-    password: password // optional
-  })
+    data: Base64.encode(JSON.stringify(encriptedEscrow)),
+    password: Base64.encode(password)
+  }
+
+  let data = await API.transfer(transferData)
+
+  // TX is now sent and server is notified, we save a copy of transfer data in drive's appDataFolder
+  transferData.sendingId = data.sendingId
+  transferData.sendTimestamp = data.sendTimestamp
+  await saveSendFile(transferData)
 
   return data
 }
@@ -174,7 +198,7 @@ async function _cancelTransfer (dispatch, txRequest) {
     _web3.eth.accounts.wallet.add(escrowWallet.privateKey)
 
     // calculate amount in wei to be sent
-    let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+    let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
 
     // calculate gas cost in wei
     let gasCostInWei = (new BN(gasPrice).mul(new BN(gas))).toString()

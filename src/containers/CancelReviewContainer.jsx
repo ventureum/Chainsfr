@@ -39,7 +39,7 @@ const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
 const getGasCostSelector = createLoadingSelector(['GET_GAS_COST'])
 const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
-const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER'])
+const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD'])
 
 const mapDispatchToProps = dispatch => {
   return {

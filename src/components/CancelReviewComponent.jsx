@@ -7,7 +7,6 @@ import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
 import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
 
@@ -19,8 +18,7 @@ const cryptoAbbreviationMap = {
 
 class CancelReviewComponent extends Component {
   state = {
-    open: false,
-    destinationInput: ''
+    open: false
   }
 
   componentDidUpdate (prevProps) {
@@ -47,14 +45,13 @@ class CancelReviewComponent extends Component {
   }
 
   handleReviewNext = () => {
-    const { destinationInput } = this.state
-    const { transfer, escrowWallet, pwd } = this.props
+    const { transfer, escrowWallet } = this.props
 
     if (transfer) {
       const { data } = transfer
       if (!escrowWallet.decryptedWallet) {
         // decrypt wallet first
-        this.props.verifyPassword(data, pwd + destinationInput)
+        this.props.verifyPassword(transfer.sendingId, data, null)
       }
     }
   }
@@ -72,10 +69,7 @@ class CancelReviewComponent extends Component {
   }
 
   renderModal = () => {
-    let { destinationField } = this.state
-    let { classes, transfer, actionsPending, error } = this.props
-
-    let wrongPassword = (error === 'WALLET_DECRYPTION_FAILED')
+    let { classes, actionsPending } = this.props
 
     return (
       <Dialog
@@ -93,22 +87,6 @@ class CancelReviewComponent extends Component {
             <Typography className={classes.modalDesc}>
               You are going to cancel the arranged transfer. Recepient will receive an email notification and won’t be able to accept the transfer anymore. Gas fee will be applied.
             </Typography>
-            <form noValidate autoComplete='off'>
-              <TextField
-                fullWidth
-                id='confirm-recipient-email'
-                label='Recipient Email'
-                placeholder={transfer.destination}
-                className={classes.textField}
-                margin='normal'
-                variant='outlined'
-                error={!!wrongPassword}
-                required
-                helperText={wrongPassword ? 'Incorrect recipient email' : 'Please re-type the recipient email to confirm the cancellation'}
-                onChange={this.handleDestinationOnChange}
-                value={destinationField}
-              />
-            </form>
           </Grid>
           <Grid item className={classes.modalBtnSection}>
             <Grid container direction='row' justify='flex-end' alignItems='center'>
