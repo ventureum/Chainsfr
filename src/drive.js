@@ -325,8 +325,13 @@ async function getTransferData (sendingId) {
   return transfers[sendingId]
 }
 
+async function getAllTransfers () {
+  return loadFileByNameFromAppData(SEND_FILE_NAME)
+}
+
 export {
   saveTempSendFile,
   saveSendFile,
-  getTransferData
+  getTransferData,
+  getAllTransfers
 }

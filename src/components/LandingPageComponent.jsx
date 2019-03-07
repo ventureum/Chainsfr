@@ -30,20 +30,16 @@ class LandingPageComponent extends Component {
     let secondaryDesc = null
     let icon = null
 
-    if (!transfer.receiveTimestamp) {
-      if (!transfer.refundTimestamp) {
+    if (transfer.state === 'pending') {
         // pending receive
         secondaryDesc = 'Sent on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
         icon = <SendIcon color='primary' className={classes.sendIcon} />
-      } else {
-        // refunded
-        secondaryDesc = 'Cancelled on ' + moment.unix(transfer.refundTimestamp).format('MMM Do YYYY, HH:mm:ss')
-        icon = <NotInterestedIcon className={classes.notInterestedIcon} />
-      }
-    } else {
-      // received
+    } else if (transfer.state === 'received') {
       secondaryDesc = 'Received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
       icon = <CheckCircleIcon className={classes.checkCircleIcon} />
+    } else if (transfer.state === 'cancelled') {
+      secondaryDesc = 'Cancelled on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      icon = <NotInterestedIcon className={classes.notInterestedIcon} />
     }
 
     return (
@@ -66,71 +62,7 @@ class LandingPageComponent extends Component {
     )
   }
   render () {
-    const { classes } = this.props
-
-    // mock data
-    const recentTransfers = [
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '1fab8c50-2b38-11e9-9c4a-e54ddcbe7bb2',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '100.00',
-        cryptoType: 'dai',
-        sendTimestamp: '1549585568',
-        state: 'pendingReceive'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa3d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'btc',
-        sendTimestamp: '1549585568',
-        refundTimestamp: '1549585568',
-        state: 'cancelled'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa3d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'btc',
-        sendTimestamp: '1549585568',
-        refundTimestamp: '1549585568',
-        state: 'cancelled'
-      }
-    ]
-
+    const { classes, transferHistory } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
@@ -217,7 +149,7 @@ class LandingPageComponent extends Component {
                 </Typography>
                 <Scrollbars style={{ height: 300 }}>
                   <List subheader={<li />}>
-                    {recentTransfers.map((transfer) => this.renderRecentTransferItem(transfer))}
+                    {transferHistory && transferHistory.map((transfer) => this.renderRecentTransferItem(transfer))}
                   </List>
                 </Scrollbars>
               </Grid>
