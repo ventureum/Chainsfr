@@ -76,9 +76,7 @@ class WalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    }
-
-    if (!wallet.connected) {
+    } else if (!wallet.connected) {
       return (
         <Grid container direction='row' alignItems='center'>
           <Grid item>
@@ -89,24 +87,35 @@ class WalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
+    } else if (actionsPending.loadAccountInfo) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>Synchronizing Acoount Info</Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (wallet && wallet.accounts && wallet.accounts[0].balance[cryptoType] && !actionsPending.loadAccountInfo) {
+      return (
+        <Grid container direction='row' alignItems='center'>
+          <Grid item>
+            <CheckIcon className={classes.connectedIcon} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>Account retrieved, your balance: {
+              numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType], getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
+            </Typography>
+          </Grid>
+        </Grid>
+      )
     }
-
-    return (
-      <Grid container direction='row' alignItems='center'>
-        <Grid item>
-          <CheckIcon className={classes.connectedIcon} />
-        </Grid>
-        <Grid item>
-          <Typography className={classes.connectedtext}>Account retrieved, your balance: {
-            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType], getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
-          </Typography>
-        </Grid>
-      </Grid>
-    )
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected } = this.props
+    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending } = this.props
 
     return (
       <List className={classes.cryptoList}>
@@ -116,7 +125,7 @@ class WalletSelectionComponent extends Component {
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
-              disabled={this.cryptoDisabled(c, walletType)}
+              disabled={this.cryptoDisabled(c, walletType) || actionsPending.loadAccountInfo}
               className={classes.cryptoListItem}
             >
               <Radio
@@ -187,7 +196,7 @@ class WalletSelectionComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(1)}
-                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection}
+                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection || wallet.accounts === null || actionsPending.loadAccountInfo}
               >
               Continue
               </Button>

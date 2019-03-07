@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
-import { checkMetamaskConnection, checkLedgerNanoSConnection } from '../actions/walletActions'
+import { checkMetamaskConnection, checkLedgerNanoSConnection, loadLedgerAccountInfo } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
@@ -46,6 +46,7 @@ class WalletSelectionContainer extends Component {
 
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION', 'CHECK_LEDGER_NANOS_CONNECTION'])
 const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
+const loadAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO', 'LOAD_LEDGER_ACCOUNT_INFO'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -53,7 +54,8 @@ const mapDispatchToProps = dispatch => {
     checkLedgerNanoSConnection: (cryptoType) => dispatch(checkLedgerNanoSConnection(cryptoType)),
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),
-    goToStep: (n) => dispatch(goToStep('send', n))
+    goToStep: (n) => dispatch(goToStep('send', n)),
+    loadLedgerAccountInfo: (cryptoType, accountIndex) => dispatch(loadLedgerAccountInfo(cryptoType, accountIndex))
   }
 }
 
@@ -63,7 +65,8 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     actionsPending: {
-      checkWalletConnection: checkWalletConnectionSelector(state)
+      checkWalletConnection: checkWalletConnectionSelector(state),
+      loadAccountInfo: loadAccountInfoSelector(state)
     },
     error: errorSelector(state)
   }

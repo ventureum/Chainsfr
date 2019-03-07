@@ -8,6 +8,59 @@ import { getTransferData } from '../drive.js'
 import ERC20 from '../ERC20'
 
 const ledgerNanoS = new LedgerNanoS()
+const LEDGER_ACCOUNT_INFO_KEYS = {
+  'bitcoin': 'bitcoin',
+  'etherum': 'etherum',
+  'dai': 'dai'
+}
+
+async function _syncLedgerAccountInfo (cryptoType, accountIndex = 0) {
+  let accountInfo = await ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex)
+
+  // save to localStorage
+  window.localStorage.setItem(
+    LEDGER_ACCOUNT_INFO_KEYS[cryptoType],
+    JSON.stringify({
+      ...accountInfo,
+      balance: { [cryptoType]: accountInfo.balance[cryptoType].toString(10) }
+    })
+  )
+
+  return accountInfo
+}
+
+function syncLedgerAccountInfo (cryptoType, accountIndex = 0) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'SYNC_LEDGER_ACCOUNT_INFO',
+      payload: _syncLedgerAccountInfo(cryptoType, accountIndex)
+    })
+  }
+}
+
+async function _loadLedgerAccountInfo (cryptoType, accountIndex, dispatch) {
+  // load data from localStorage
+  const rv = window.localStorage.getItem(LEDGER_ACCOUNT_INFO_KEYS[cryptoType])
+  let accountInfo = null
+  if (rv) {
+    accountInfo = JSON.parse(rv)
+    if (accountInfo.balance[cryptoType]) {
+      accountInfo.balance[cryptoType] = new BN(accountInfo.balance[cryptoType])
+    }
+  } else {
+    dispatch(syncLedgerAccountInfo(cryptoType, accountIndex))
+  }
+  return accountInfo
+}
+
+function loadLedgerAccountInfo (cryptoType, accountIndex = 0) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'LOAD_LEDGER_ACCOUNT_INFO',
+      payload: _loadLedgerAccountInfo(cryptoType, accountIndex, dispatch)
+    })
+  }
+}
 
 async function _checkMetamaskConnection (cryptoType, dispatch) {
   let rv = {
@@ -49,7 +102,7 @@ async function _checkMetamaskConnection (cryptoType, dispatch) {
   return rv
 }
 
-async function _checkLedgerNanoSConnection (cryptoType) {
+async function _checkLedgerNanoSConnection (cryptoType, dispatch) {
   const deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
   if (deviceConnected === null) {
     const msg = 'Ledger not connected'
@@ -90,9 +143,13 @@ function onMetamaskAccountsChanged (accounts) {
 }
 
 function checkLedgerNanoSConnection (cryptoType) {
-  return {
-    type: 'CHECK_LEDGER_NANOS_CONNECTION',
-    payload: _checkLedgerNanoSConnection(cryptoType)
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'CHECK_LEDGER_NANOS_CONNECTION',
+      payload: _checkLedgerNanoSConnection(cryptoType, dispatch)
+    }).then(() => {
+      dispatch(loadLedgerAccountInfo(cryptoType))
+    })
   }
 }
 
@@ -130,5 +187,7 @@ export {
   checkLedgerNanoSConnection,
   verifyPassword,
   clearDecryptedWallet,
-  getWallet
+  getWallet,
+  syncLedgerAccountInfo,
+  loadLedgerAccountInfo
 }

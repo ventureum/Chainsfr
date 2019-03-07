@@ -47,21 +47,49 @@ async function _getGasCost (txRequest) {
   return utils.getGasCost(txObj)
 }
 
-async function _submitTx (dispatch, txRequest) {
-  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, gasCost } = txRequest
-  let escrow
-  let encriptedEscrow
+function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
+  let utxosCollected = []
+  let valueCollected = 0
+  let fee = 138 * txFeePerByte // 138 bytes for 1 input, 64 bytes per additional input
+  let i = 0
+  while (i < addressPool.length) {
+    let utxos = addressPool[i].utxos
+    for (let j = 0; j < utxos.length; j++) {
+      const utxo = utxos[j]
+      utxosCollected.push({
+        ...utxo,
+        keyPath: addressPool[i].path
+      })
+      fee += (64 * txFeePerByte)
+      valueCollected += utxo.value
+    }
+    if (valueCollected > transferAmount + fee) {
+      break
+    }
+    i += 1
+  }
+  return {
+    fee,
+    utxosCollected
+  }
+}
 
+async function _submitTx (dispatch, txRequest, getState) {
+  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, gasCost, txFeePerByte = 15 } = txRequest
+  let escrow
+  let encryptedEscrow
+  if (!window._web3) {
+    window._web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  }
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
     // step 1: create an escrow wallet
     escrow = window._web3.eth.accounts.create()
 
     // step 2: encrypt the escrow wallet with password provided and the destination email address
-    encriptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
+    encryptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
   } else if (cryptoType === 'bitcoin') {
     escrow = new bitcore.PrivateKey(undefined, 'testnet')
-    // console.log('private key', escrow.toString())
     let options
     options = {
       message: openpgp.message.fromText(escrow.toString()),
@@ -70,17 +98,17 @@ async function _submitTx (dispatch, txRequest) {
     }
     const encrypted = await openpgp.encrypt(options)
 
-    encriptedEscrow = encrypted.data
+    encryptedEscrow = encrypted.data
   }
   // add escrow wallet to tx request
-  txRequest.encriptedEscrow = encriptedEscrow
+  txRequest.encriptedEscrow = encryptedEscrow
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
-    data: Base64.encode(encriptedEscrow),
+    data: Base64.encode(encryptedEscrow),
     password: Base64.encode(password),
     tempTimestamp: moment().unix()
   })
@@ -140,10 +168,12 @@ async function _submitTx (dispatch, txRequest) {
         })
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
-
-      const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(0, escrow.toAddress().toString(), satoshiValue)
-      const txReceipt = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
-      txRequest.sendTxHash = txReceipt.tx.hash
+      const accountInfo = getState().walletReducer.wallet.ledger.accounts[0]
+      const addressPool = accountInfo.addresses
+      const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue, txFeePerByte)
+      const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
+      const txHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
+      txRequest.sendTxHash = txHash
 
       dispatch(transactionHashRetrieved(txRequest))
     }
@@ -373,7 +403,7 @@ function submitTx (txRequest) {
   return (dispatch, getState) => {
     return {
       type: 'SUBMIT_TX',
-      payload: _submitTx(dispatch, txRequest)
+      payload: _submitTx(dispatch, txRequest, getState)
     }
   }
 }
