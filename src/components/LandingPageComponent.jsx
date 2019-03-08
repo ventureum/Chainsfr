@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
+import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
@@ -8,16 +9,19 @@ import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import SendIcon from '@material-ui/icons/CallMade'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import CheckCircleIcon from '@material-ui/icons/CheckCircleOutlined'
-import NotInterestedIcon from '@material-ui/icons/NotInterested'
 import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
+
+const cryptoAbbreviationMap = {
+  'ethereum': 'ETH',
+  'bitcoin': 'BTC',
+  'dai': 'DAI'
+}
 
 class LandingPageComponent extends Component {
   getIdAbbreviation = (id) => {
@@ -30,107 +34,74 @@ class LandingPageComponent extends Component {
     let secondaryDesc = null
     let icon = null
 
-    if (!transfer.receiveTimestamp) {
-      if (!transfer.refundTimestamp) {
-        // pending receive
-        secondaryDesc = 'Sent on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-        icon = <SendIcon color='primary' className={classes.sendIcon} />
-      } else {
-        // refunded
-        secondaryDesc = 'Cancelled on ' + moment.unix(transfer.refundTimestamp).format('MMM Do YYYY, HH:mm:ss')
-        icon = <NotInterestedIcon className={classes.notInterestedIcon} />
-      }
-    } else {
-      // received
-      secondaryDesc = 'Received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
-      icon = <CheckCircleIcon className={classes.checkCircleIcon} />
+    if (transfer.state === 'pending') {
+      // pending receive
+      secondaryDesc = 'sent on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    } else if (transfer.state === 'received') {
+      secondaryDesc = 'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    } else if (transfer.state === 'cancelled') {
+      secondaryDesc = 'cancelled on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     }
 
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           {icon}
-          <ListItemText primary={`Transfer to ${transfer.destination}`} secondary={secondaryDesc} />
+          <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
           <ListItemSecondaryAction>
-            <Typography className={classes.recentTransferItemTransferAmount}>
-              123.01 ETH
-            </Typography>
+            <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid item>
+                {transfer.state === 'pending' &&
+                <Typography className={classes.recentTransferItemTransferStatusPending}>
+                   Pending
+                </Typography>
+                }
+                {transfer.state === 'received' &&
+                <Typography className={classes.recentTransferItemTransferStatus}>
+                   Received
+                </Typography>
+                }
+                {transfer.state === 'cancelled' &&
+                <Typography className={classes.recentTransferItemTransferStatus}>
+                   Cancelled
+                </Typography>
+                }
+              </Grid>
+              <Grid item>
+                <Typography className={classes.recentTransferItemTransferAmount}>
+                  - {transfer.transferAmount} {cryptoAbbreviationMap[transfer.cryptoType]}
+                </Typography>
+              </Grid>
+            </Grid>
           </ListItemSecondaryAction>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-          </Typography>
+          <Grid container direction='column' justify='center' alignItems='flex-start'>
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferId}>
+                Transfer ID: {transfer.sendingId}
+              </Typography>
+            </Grid>
+            {transfer.state === 'pending' &&
+            <Grid item>
+              <Button
+                color='primary'
+                component={Link}
+                target='_black'
+                to={`cancel?id=${transfer.sendingId}`}
+                className={classes.recentTransferItemCancelBtn}
+              >
+                 Cancel Transfer
+              </Button>
+            </Grid>
+            }
+          </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     )
   }
   render () {
-    const { classes } = this.props
-
-    // mock data
-    const recentTransfers = [
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '1fab8c50-2b38-11e9-9c4a-e54ddcbe7bb2',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '100.00',
-        cryptoType: 'dai',
-        sendTimestamp: '1549585568',
-        state: 'pendingReceive'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa3d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'btc',
-        sendTimestamp: '1549585568',
-        refundTimestamp: '1549585568',
-        state: 'cancelled'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa0d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'ethereum',
-        sendTimestamp: '1549585568',
-        receiveTimestamp: '1549585568',
-        state: 'received'
-      },
-      {
-        id: '024d6c60-24c0-11e9-8437-b7b13bd3fa3d',
-        sender: 'wanghujie@gmail.com',
-        destination: 'vincentzhongca@gmail.com',
-        transferAmount: '12.93',
-        cryptoType: 'btc',
-        sendTimestamp: '1549585568',
-        refundTimestamp: '1549585568',
-        state: 'cancelled'
-      }
-    ]
-
+    const { classes, transferHistory } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
@@ -217,7 +188,7 @@ class LandingPageComponent extends Component {
                 </Typography>
                 <Scrollbars style={{ height: 300 }}>
                   <List subheader={<li />}>
-                    {recentTransfers.map((transfer) => this.renderRecentTransferItem(transfer))}
+                    {transferHistory && transferHistory.map((transfer) => this.renderRecentTransferItem(transfer))}
                   </List>
                 </Scrollbars>
               </Grid>
@@ -230,8 +201,6 @@ class LandingPageComponent extends Component {
 }
 
 const styles = theme => ({
-  leftColumn: {
-  },
   leftContainer: {
     margin: '60px',
     maxWidth: '600px'
@@ -285,9 +254,6 @@ const styles = theme => ({
   btnSection: {
     marginTop: '60px'
   },
-  helperTextSection: {
-    marginTop: '20px'
-  },
   recentTxTitle: {
     color: '#333333',
     fontSize: '18px',
@@ -295,18 +261,26 @@ const styles = theme => ({
     marginBottom: '30px'
   },
   recentTransferItemTransferAmount: {
-    marginRight: '30px'
+    marginRight: '30px',
+    marginLeft: '172px'
   },
-  checkCircleIcon: {
-    color: '#0CCD70',
-    fontSize: '40px'
+  recentTransferItemTransferStatusPending: {
+    borderRadius: '4px',
+    backgroundColor: '#F5A623',
+    color: 'white',
+    padding: '5px 10px 5px 10px',
+    fontSize: '14px',
+    fontWeight: '500'
   },
-  sendIcon: {
-    fontSize: '40px'
+  recentTransferItemTransferId: {
+    color: '#777777',
+    fontSize: '12px'
   },
-  notInterestedIcon: {
-    color: '#a8aaac',
-    fontSize: '40px'
+  recentTransferItemCancelBtn: {
+    padding: '0px',
+    fontSize: '12px',
+    fontWeight: '500',
+    marginTop: '10px'
   }
 })
 

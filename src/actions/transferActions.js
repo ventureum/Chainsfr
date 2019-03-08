@@ -5,7 +5,7 @@ import ERC20_ABI from '../contracts/ERC20.json'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'
-import { saveTempSendFile, saveSendFile } from '../drive.js'
+import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 
@@ -239,6 +239,44 @@ async function _getTransfer (sendingId, receivingId) {
   return apiResponse
 }
 
+async function _getTransferHistory () {
+  let transfersDict = await getAllTransfers()
+
+  // convert dict to array
+  let transfers = []
+  for (let key in transfersDict) {
+    transfers.push(transfersDict[key])
+  }
+
+  // sort transfers by sendTimestamp in descending order
+  transfers.sort((a, b) => b.sendTimestamp - a.sendTimestamp)
+
+  // pick most recent 20 transfers
+  transfers = transfers.slice(0, Math.min(transfers.length, 20))
+
+  // identify transfer state
+  return Promise.all(transfers.map(async (t) => {
+    let transferData = await API.getTransfer({ sendingId: t.sendingId })
+    let state = null
+    if (!transferData.receiveTxHash) {
+      if (!transferData.cancelTxHash) {
+        // pending receive
+        state = 'pending'
+      } else {
+        // cancelled
+        state = 'cancelled'
+      }
+    } else {
+      // received
+      state = 'received'
+    }
+    return {
+      ...transferData,
+      state
+    }
+  }))
+}
+
 function transactionHashRetrieved (txRequest) {
   return (dispatch, getState) => {
     return dispatch({
@@ -307,10 +345,19 @@ function getTransfer (sendingId, receivingId) {
   }
 }
 
+function getTransferHistory () {
+  return {
+    type: 'GET_TRANSFER_HISTORY',
+    payload: _getTransferHistory()
+  }
+}
+
+
 export {
   submitTx,
   acceptTransfer,
   cancelTransfer,
   getGasCost,
-  getTransfer
+  getTransfer,
+  getTransferHistory
 }

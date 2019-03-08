@@ -43,6 +43,11 @@ export default function (state = initialState, action) {
         ...state,
         receipt: action.payload
       }
+  case 'GET_TRANSFER_HISTORY_FULFILLED':
+    return {
+      ...state,
+      transferHistory: action.payload
+    }
     default: // need this for default case
       return state
   }

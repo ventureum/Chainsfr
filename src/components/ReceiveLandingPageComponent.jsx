@@ -8,7 +8,9 @@ import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import MuiLink from '@material-ui/core/Link'
+import { Link } from 'react-router-dom'
 import moment from 'moment'
+import Paths from '../Paths.js'
 
 const cryptoAbbreviationMap = {
   'ethereum': 'ETH',
@@ -150,16 +152,17 @@ class ReceiveLandingPageComponent extends Component {
                         color='primary'
                         onClick={() => this.props.goToStep(1)}
                       >
-                        Accept Anonymously
+                        Guest
                       </Button>
                     </Grid>
                     <Grid item>
                       <Button
                         variant='contained'
                         color='primary'
-                        disabled
+                        component={Link}
+                        to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
                       >
-                        Log in and Accept
+                        Login with Google
                       </Button>
                     </Grid>
                   </Grid>
