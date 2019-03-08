@@ -13,6 +13,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
@@ -96,7 +97,7 @@ class LandingPageComponent extends Component {
     )
   }
   render () {
-    const { classes, transferHistory } = this.props
+    const { classes, actionsPending, transferHistory } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
@@ -183,6 +184,11 @@ class LandingPageComponent extends Component {
                 </Typography>
                 <Scrollbars style={{ height: 300 }}>
                   <List subheader={<li />}>
+                    {actionsPending.getTransferHistory &&
+                    <Grid container direction='row' justify='center' alignItems='center'>
+                      <CircularProgress color='primary' />
+                    </Grid>
+                    }
                     {transferHistory && transferHistory.map((transfer) => this.renderRecentTransferItem(transfer))}
                   </List>
                 </Scrollbars>
