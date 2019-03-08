@@ -9,12 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class CancelReviewComponent extends Component {
   state = {
@@ -178,7 +173,7 @@ class CancelReviewComponent extends Component {
                      Amount
                     </Typography>
                     <Typography className={classes.reviewContent} align='left'>
-                      {transferAmount} {cryptoAbbreviationMap[cryptoType]}
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
                   </Grid>
                   {!hasReceived && !hasCancelled && // do not show gas in this case

@@ -10,12 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import moment from 'moment'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class ReceiveReceiptComponent extends Component {
   render () {
@@ -59,7 +54,7 @@ class ReceiveReceiptComponent extends Component {
                     Amount
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
+                    {transferAmount} {getCryptoSymbol(cryptoSelection)}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

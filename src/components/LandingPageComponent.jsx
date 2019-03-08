@@ -16,12 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class LandingPageComponent extends Component {
   getIdAbbreviation = (id) => {
@@ -69,7 +64,7 @@ class LandingPageComponent extends Component {
               </Grid>
               <Grid item>
                 <Typography className={classes.recentTransferItemTransferAmount}>
-                  - {transfer.transferAmount} {cryptoAbbreviationMap[transfer.cryptoType]}
+                  - {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
                 </Typography>
               </Grid>
             </Grid>

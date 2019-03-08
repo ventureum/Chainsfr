@@ -11,12 +11,7 @@ import MuiLink from '@material-ui/core/Link'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 import Paths from '../Paths.js'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class ReceiveLandingPageComponent extends Component {
   render () {
@@ -108,7 +103,7 @@ class ReceiveLandingPageComponent extends Component {
                    Amount
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {transferAmount} {cryptoAbbreviationMap[cryptoType]}
+                    {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
