@@ -11,9 +11,13 @@ import { Base64 } from 'js-base64'
 import ERC20 from '../ERC20'
 import { getCrypto } from '../tokens'
 import bitcore from 'bitcore-lib'
-import * as openpgp from 'openpgp'
-openpgp.initWorker({ path: '/openpgp/openpgp.worker.js' })
+import wif from 'wif'
+import bip38 from 'bip38'
 
+const WIF_VERSION = {
+  'testnet': 0xEF,
+  'mainnet': 0x80
+}
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
 
@@ -90,15 +94,10 @@ async function _submitTx (dispatch, txRequest, getState) {
     encryptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
   } else if (cryptoType === 'bitcoin') {
     escrow = new bitcore.PrivateKey(undefined, 'testnet')
-    let options
-    options = {
-      message: openpgp.message.fromText(escrow.toString()),
-      passwords: [password + destination],
-      armor: true
-    }
-    const encrypted = await openpgp.encrypt(options)
+    let privateKeyWif = escrow.toWIF()
+    let decoded = wif.decode(privateKeyWif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
 
-    encryptedEscrow = encrypted.data
+    encryptedEscrow = bip38.encrypt(decoded.privateKey, decoded.compressed, password + destination)
   }
   // add escrow wallet to tx request
   txRequest.encriptedEscrow = encryptedEscrow
