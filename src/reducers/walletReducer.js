@@ -6,9 +6,7 @@ import update from 'immutability-helper'
 
 const initState = {
   /*
-   * wallets
-   *
-   * TODO consistent wallet interface
+   * escrow wallet
    */
   escrowWallet: {
     encryptedWallet: null,

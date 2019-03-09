@@ -8,10 +8,11 @@ import { goToStep } from './navigationActions'
 import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
+import ERC20 from '../ERC20'
+import { getCrypto } from '../tokens'
 
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
-const DAI_CONTRACT_ADDRESS = '0xdb29d7f3973e1a428f0578705e7ea1632f2e4ac5'
 
 async function _getGasCost (txRequest) {
   let { cryptoType } = txRequest
@@ -28,8 +29,7 @@ async function _getGasCost (txRequest) {
   if (cryptoType === 'ethereum') {
     txObj.value = mockNumTokens
   } else if (cryptoType === 'dai') {
-    const targetContract = new Web3.eth.Contract(ERC20_ABI, DAI_CONTRACT_ADDRESS)
-    txObj.data = targetContract.methods['transfer'](mockTo, mockNumTokens).encodeABI()
+    txObj = ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType)
   } else {
     throw new Error('Invalid walletType/cryptoType')
   }
@@ -37,7 +37,7 @@ async function _getGasCost (txRequest) {
 }
 
 async function _submitTx (dispatch, txRequest) {
-  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination } = txRequest
+  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, gasCost } = txRequest
 
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
@@ -77,6 +77,22 @@ async function _submitTx (dispatch, txRequest) {
         txRequest.sendTxHash = hash
         dispatch(transactionHashRetrieved(txRequest))
       })
+    } else if (cryptoType === 'dai') {
+      let amountInBasicUnit = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+      let txObj = await ERC20.getTransferTxObj(fromWallet.accounts[0].address, escrow.address, amountInBasicUnit, cryptoType)
+      // we need to transfer a small amount of eth to escrow to pay for
+      // the next transfer's tx fees
+      txObj.value = gasCost.costInWei
+
+      // update tx fees
+      txObj.gas = gasCost.gas
+      txObj.gasPrice = gasCost.gasPrice
+
+      window._web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
+        // update request tx hash
+        txRequest.sendTxHash = hash
+        dispatch(transactionHashRetrieved(txRequest))
+      })
     }
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
@@ -93,7 +109,7 @@ async function _submitTx (dispatch, txRequest) {
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
       const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
-      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, DAI_CONTRACT_ADDRESS, ERC20_ABI, 'transfer', escrow.address, amountInWei)
+      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, getCrypto('dai').address, ERC20_ABI, 'transfer', escrow.address, amountInWei)
       _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
         .on('transactionHash', (hash) => {
           console.log('txHash: ', hash)
@@ -191,34 +207,56 @@ async function _cancelTransfer (dispatch, txRequest) {
 
   let { escrowWallet, sendTxHash, cryptoType, transferAmount, gas, gasPrice } = txRequest
 
-  if (cryptoType === 'ethereum') {
+  if (['ethereum', 'dai'].includes(cryptoType)) {
+    // ethereum based coins
+
     const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
 
     // add escrow account to web3
     _web3.eth.accounts.wallet.add(escrowWallet.privateKey)
 
-    // calculate amount in wei to be sent
-    let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+    if (cryptoType === 'ethereum') {
+      // calculate amount in wei to be sent
+      let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
 
-    // calculate gas cost in wei
-    let gasCostInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
+      // calculate gas cost in wei
+      let gasCostInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
 
-    let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
+      let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
 
-    // setup tx object
-    let txObj = {
-      from: escrowWallet.address,
-      to: txReceipt.from, // sender address
-      value: wei - gasCostInWei, // actual receiving amount
-      gas: gas,
-      gasPrice: gasPrice
+      // setup tx object
+      let txObj = {
+        from: escrowWallet.address,
+        to: txReceipt.from, // sender address
+        value: wei - gasCostInWei, // actual receiving amount
+        gas: gas,
+        gasPrice: gasPrice
+      }
+
+      _web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
+        // update request tx hash
+        txRequest.cancelTxHash = hash
+        dispatch(cancelTransferTransactionHashRetrieved(txRequest))
+      })
+    } else if (cryptoType === 'dai') {
+      // calculate amount in basic token unit to be sent
+      let amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+
+      let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
+      let txObj = await ERC20.getTransferTxObj(escrowWallet.address, txReceipt.from, amountInBasicUnit, cryptoType)
+      
+      // update tx fees
+      txObj.gas = gas
+      txObj.gasPrice = await ERC20.getGasPriceGivenBalance(escrowWallet.address, gasPrice)
+
+      console.log(txObj)
+
+      _web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
+        // update request tx hash
+        txRequest.cancelTxHash = hash
+        dispatch(cancelTransferTransactionHashRetrieved(txRequest))
+      })
     }
-
-    _web3.eth.sendTransaction(txObj).on('transactionHash', (hash) => {
-      // update request tx hash
-      txRequest.cancelTxHash = hash
-      dispatch(cancelTransferTransactionHashRetrieved(txRequest))
-    })
   }
 }
 
