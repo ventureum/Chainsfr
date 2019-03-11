@@ -20,7 +20,7 @@ class ReceiptComponent extends Component {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, gasCost, receipt } = this.props
+    const { classes, cryptoSelection, password, txCost, receipt, cryptoSelection } = this.props
     const { sendingId, transferAmount, sender, destination, sendTimestamp } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -65,10 +65,10 @@ class ReceiptComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                    Gas Fee
+                    Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${gasCost.costInEther} ETH`}
+                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -76,7 +76,7 @@ class ReceiptComponent extends Component {
                     Total Cost
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH`}
+                    {`${parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} ${getCryptoSymbol(cryptoSelection)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

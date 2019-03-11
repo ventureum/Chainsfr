@@ -9,8 +9,8 @@ const initialState = {
   // fetched from database
   transfer: null,
 
-  // gas related data
-  gasCost: null,
+  // tx related data
+  txCost: null,
 
   // transaction receipt
   receipt: null
@@ -23,10 +23,10 @@ export default function (state = initialState, action) {
         ...state,
         transfer: action.payload
       }
-    case 'GET_GAS_COST_FULFILLED':
+    case 'GET_TX_COST_FULFILLED':
       return {
         ...state,
-        gasCost: action.payload
+        txCost: action.payload
       }
     case 'TRANSACTION_HASH_RETRIEVED_FULFILLED':
       return {
@@ -43,11 +43,11 @@ export default function (state = initialState, action) {
         ...state,
         receipt: action.payload
       }
-  case 'GET_TRANSFER_HISTORY_FULFILLED':
-    return {
-      ...state,
-      transferHistory: action.payload
-    }
+    case 'GET_TRANSFER_HISTORY_FULFILLED':
+      return {
+        ...state,
+        transferHistory: action.payload
+      }
     default: // need this for default case
       return state
   }

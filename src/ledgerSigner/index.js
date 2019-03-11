@@ -472,6 +472,62 @@ class LedgerNanoS {
     const rv = (await axios.get(blockcypherBaseUrl)).data
     return rv.height
   }
+
+  // Function to estimate Tx size
+  // Referrenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/094d3741527e181a626d929d56ab4a515403e4a0/src/TransactionUtils.js#L10
+  estimateTransactionSize = (
+    inputsCount,
+    outputsCount,
+    handleSegwit
+  ) => {
+    var maxNoWitness,
+      maxSize,
+      maxWitness,
+      minNoWitness,
+      minSize,
+      minWitness,
+      varintLength
+    if (inputsCount < 0xfd) {
+      varintLength = 1
+    } else if (inputsCount < 0xffff) {
+      varintLength = 3
+    } else {
+      varintLength = 5
+    }
+    if (handleSegwit) {
+      minNoWitness =
+        varintLength + 4 + 2 + 59 * inputsCount + 1 + 31 * outputsCount + 4
+      maxNoWitness =
+        varintLength + 4 + 2 + 59 * inputsCount + 1 + 33 * outputsCount + 4
+      minWitness =
+        varintLength +
+        4 +
+        2 +
+        59 * inputsCount +
+        1 +
+        31 * outputsCount +
+        4 +
+        106 * inputsCount
+      maxWitness =
+        varintLength +
+        4 +
+        2 +
+        59 * inputsCount +
+        1 +
+        33 * outputsCount +
+        4 +
+        108 * inputsCount
+      minSize = (minNoWitness * 3 + minWitness) / 4
+      maxSize = (maxNoWitness * 3 + maxWitness) / 4
+    } else {
+      minSize = varintLength + 4 + 146 * inputsCount + 1 + 31 * outputsCount + 4
+      maxSize = varintLength + 4 + 148 * inputsCount + 1 + 33 * outputsCount + 4
+    }
+    return {
+      min: minSize,
+      max: maxSize
+    }
+  }
 }
 
 export default LedgerNanoS

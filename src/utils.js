@@ -29,12 +29,12 @@ function toBasicTokenUnit (val, decimals = 18, precision = 3) {
 
 async function getGasCost (txObj) {
   const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-  let gasPrice = await _web3.eth.getGasPrice()
+  let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()
-  let costInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
-  let costInEther = _web3.utils.fromWei(costInWei, 'ether')
+  let costInBasicUnit = (new BN(price).mul(new BN(gas))).toString()
+  let costInStandardUnit = _web3.utils.fromWei(costInBasicUnit, 'ether')
 
-  return { gasPrice, gas, costInWei, costInEther }
+  return { price, gas, costInBasicUnit, costInStandardUnit }
 }
 
 /**

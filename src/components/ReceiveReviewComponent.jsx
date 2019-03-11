@@ -10,7 +10,7 @@ import { getCryptoSymbol } from '../tokens'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, wallet, walletSelection, gasCost } = this.props
+    const { transfer, escrowWallet, wallet, walletSelection, txCost } = this.props
     const { receivingId, transferAmount } = transfer
 
     // accept transfer
@@ -22,18 +22,18 @@ class ReceiveReviewComponent extends Component {
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
-      gasCost: gasCost
+      txCost: txCost
     })
   }
 
   componentDidMount () {
     // refresh gas cost
     const { transfer } = this.props
-    this.props.getGasCost({ cryptoType: transfer.cryptoType })
+    this.props.getTxCost({ cryptoType: transfer.cryptoType })
   }
 
   render () {
-    const { classes, wallet, transfer, actionsPending, gasCost } = this.props
+    const { classes, wallet, transfer, cryptoSelection, actionsPending, txCost } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
     var address = wallet.accounts[0].address
@@ -91,11 +91,11 @@ class ReceiveReviewComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                    Gas Fee
+                    Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getGasCost && gasCost
-                      ? `${gasCost.costInEther} ETH`
+                    {!actionsPending.getTxCost && txCost
+                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>
@@ -104,8 +104,8 @@ class ReceiveReviewComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getGasCost && gasCost
-                      ? `${parseFloat(transferAmount) - parseFloat(gasCost.costInEther)} ETH`
+                    {!actionsPending.getTxCost && txCost
+                      ? `${parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)} ${getCryptoSymbol(cryptoSelection)}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>

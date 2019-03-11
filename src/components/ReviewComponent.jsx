@@ -9,7 +9,7 @@ import { getCryptoSymbol } from '../tokens'
 
 class ReviewComponent extends Component {
   handleReviewNext = () => {
-    const { wallet, transferForm, cryptoSelection, walletSelection, gasCost } = this.props
+    const { wallet, transferForm, cryptoSelection, walletSelection, txCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     // submit tx
@@ -21,18 +21,18 @@ class ReviewComponent extends Component {
       destination: destination,
       sender: sender,
       password: password,
-      gasCost: gasCost
+      txCost: txCost
     })
   }
 
   componentDidMount () {
     // refresh gas cost
-    const { cryptoSelection } = this.props
-    this.props.getGasCost({ cryptoType: cryptoSelection })
+    const { cryptoSelection, getTxCost } = this.props
+    getTxCost({ cryptoType: cryptoSelection })
   }
 
   render () {
-    const { classes, transferForm, cryptoSelection, actionsPending, gasCost } = this.props
+    const { classes, transferForm, cryptoSelection, actionsPending, txCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     return (
@@ -78,30 +78,26 @@ class ReviewComponent extends Component {
                     {transferAmount} {getCryptoSymbol(cryptoSelection)}
                   </Typography>
                 </Grid>
-                {cryptoSelection !== 'bitcoin' ? <div>
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Gas Fee
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Transaction Fee
+                  </Typography>
+                  {!actionsPending.getTxCost && txCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {txCost.costInStandardUnit} {getCryptoSymbol(cryptoSelection)}
                     </Typography>
-                    {!actionsPending.getGasCost && gasCost
-                      ? <Typography className={classes.reviewContent} align='left'>
-                        {gasCost.costInEther} ETH
-                      </Typography>
-                      : <CircularProgress size={18} color='primary' />}
-                  </Grid>
-                  <Grid item>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Total Cost
+                    : <CircularProgress size={18} color='primary' />}
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Total Cost
+                  </Typography>
+                  {!actionsPending.getTxCost && txCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoSelection)}
                     </Typography>
-                    {!actionsPending.getGasCost && gasCost
-                      ? <Typography className={classes.reviewContent} align='left'>
-                        {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
-                      </Typography>
-                      : <CircularProgress size={18} color='primary' />}
-                  </Grid>
-                </div>
-                  : null
-                }
+                    : <CircularProgress size={18} color='primary' />}
+                </Grid>
               </Paper>
             </Grid>
           </Grid>

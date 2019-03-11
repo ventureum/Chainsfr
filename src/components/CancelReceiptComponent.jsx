@@ -16,7 +16,7 @@ import { getCryptoSymbol } from '../tokens'
 
 class CancelReceiptComponent extends Component {
   render () {
-    const { classes, receipt, gasCost } = this.props
+    const { classes, receipt, txCost } = this.props
     const { sendingId, transferAmount, cryptoType, cancelTimestamp, cancelTxHash } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -45,10 +45,10 @@ class CancelReceiptComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                    Gas Fee
+                    Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${gasCost.costInEther} ETH`}
+                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -56,7 +56,7 @@ class CancelReceiptComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${parseFloat(transferAmount) - parseFloat(gasCost.costInEther)} ETH`}
+                    {`${parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
