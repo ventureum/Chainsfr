@@ -32,8 +32,7 @@ class CancelReviewComponent extends Component {
           sendTxHash: sendTxHash,
           cryptoType: cryptoType,
           transferAmount: transferAmount,
-          gas: gasCost.gas,
-          gasPrice: gasCost.gasPrice
+          gasCost: gasCost
         })
       }
     }
