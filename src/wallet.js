@@ -6,7 +6,7 @@ export const walletCryptoSupports = {
     { cryptoType: 'dai', disabled: true },
     { cryptoType: 'bitcoin', disabled: true }],
   'metamask': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: true }],
+    { cryptoType: 'dai', disabled: false }],
   'ledger': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: true }]

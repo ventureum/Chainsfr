@@ -5,10 +5,11 @@ import BN from 'bn.js'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
+import ERC20 from '../ERC20'
 
 const ledgerNanoS = new LedgerNanoS()
 
-async function _checkMetamaskConnection (dispatch) {
+async function _checkMetamaskConnection (cryptoType, dispatch) {
   let rv = {
     connected: false,
     network: null,
@@ -32,8 +33,13 @@ async function _checkMetamaskConnection (dispatch) {
       })
     }
 
-    // retrieve eth balance
-    rv.accounts[0].balance['ethereum'] = new BN(await window._web3.eth.getBalance(rv.accounts[0].address))
+    // retrieve eth balance, mandatory step, necessary for tx fees
+    rv.accounts[0].balance[cryptoType] = new BN(await window._web3.eth.getBalance(rv.accounts[0].address))
+
+    if (cryptoType !== 'ethereum') {
+      // retrieve erc20 token balance
+      rv.accounts[0].balance[cryptoType] = new BN(await ERC20.getBalance(rv.accounts[0].address, cryptoType))
+    }
 
     // listen for accounts changes
     window.ethereum.on('accountsChanged', function (accounts) {
@@ -67,10 +73,12 @@ async function _verifyPassword (sendingId, encriptedWallet, password) {
   return decryptedWallet
 }
 
-function checkMetamaskConnection (dispatch) {
-  return {
-    type: 'CHECK_METAMASK_CONNECTION',
-    payload: _checkMetamaskConnection(dispatch)
+function checkMetamaskConnection (crypoType) {
+  return (dispatch, getState) => {
+    return dispatch({
+      type: 'CHECK_METAMASK_CONNECTION',
+      payload: _checkMetamaskConnection(crypoType, dispatch)
+    })
   }
 }
 

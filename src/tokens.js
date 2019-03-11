@@ -13,7 +13,8 @@ export const cryptoSelections = [
     cryptoType: 'dai',
     title: 'Dai',
     symbol: 'DAI',
-    logo: DaiLogo
+    logo: DaiLogo,
+    address: process.env.REACT_APP_DAI_ADDRESS
   },
   {
     cryptoType: 'bitcoin',
@@ -28,4 +29,10 @@ export function getCryptoSymbol (cryptoType) {
     return cryptoType === crypto.cryptoType
   })
   return c.symbol
+}
+
+export function getCrypto (cryptoType) {
+  return cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
 }

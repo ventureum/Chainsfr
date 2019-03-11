@@ -98,7 +98,7 @@ class WalletSelectionComponent extends Component {
         </Grid>
         <Grid item>
           <Typography className={classes.connectedtext}>Account retrieved, your balance: {
-            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a')} {getCryptoSymbol(cryptoType)}
+            numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType])).format('0.000a')} {getCryptoSymbol(cryptoType)}
           </Typography>
         </Grid>
       </Grid>

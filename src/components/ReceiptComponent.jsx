@@ -11,12 +11,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import moment from 'moment'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class ReceiptComponent extends Component {
   state = {
@@ -65,7 +60,7 @@ class ReceiptComponent extends Component {
                     Amount
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
+                    {transferAmount} {getCryptoSymbol(cryptoSelection)}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

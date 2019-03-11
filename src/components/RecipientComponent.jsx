@@ -116,10 +116,10 @@ class RecipientComponent extends Component {
 
   render () {
     const { formError } = this.state
-    const { classes, transferForm, wallet } = this.props
+    const { classes, transferForm, wallet, cryptoSelection } = this.props
     const { transferAmount, destination, password, sender } = transferForm
 
-    let balance = wallet.accounts[0].balance['ethereum'] ? numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance['ethereum'])).format('0.000a') : '0'
+    let balance = wallet.accounts[0].balance[cryptoSelection] ? numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoSelection])).format('0.000a') : '0'
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>

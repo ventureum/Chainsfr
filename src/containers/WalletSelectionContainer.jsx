@@ -18,7 +18,7 @@ class WalletSelectionContainer extends Component {
     if (walletSelection === 'ledger' && cryptoType !== cryptoSelection) {
       checkLedgerNanoSConnection(cryptoType)
     } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
-      checkMetamaskConnection()
+      checkMetamaskConnection(cryptoType)
     }
 
     selectCrypto(cryptoType)
@@ -49,7 +49,7 @@ const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    checkMetamaskConnection: () => dispatch(checkMetamaskConnection(dispatch)),
+    checkMetamaskConnection: (cryptoType) => dispatch(checkMetamaskConnection(cryptoType)),
     checkLedgerNanoSConnection: () => dispatch(checkLedgerNanoSConnection()),
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),

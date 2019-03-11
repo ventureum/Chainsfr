@@ -6,12 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import moment from 'moment'
-
-const cryptoAbbreviationMap = {
-  'ethereum': 'ETH',
-  'bitcoin': 'BTC',
-  'dai': 'DAI'
-}
+import { getCryptoSymbol } from '../tokens'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
@@ -27,8 +22,7 @@ class ReceiveReviewComponent extends Component {
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
-      gas: gasCost.gas,
-      gasPrice: gasCost.gasPrice
+      gasCost: gasCost
     })
   }
 
@@ -39,8 +33,8 @@ class ReceiveReviewComponent extends Component {
   }
 
   render () {
-    const { classes, wallet, transfer, cryptoSelection, actionsPending, gasCost } = this.props
-    const { transferAmount, sender, destination, sendTimestamp } = transfer
+    const { classes, wallet, transfer, actionsPending, gasCost } = this.props
+    const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
     var address = wallet.accounts[0].address
 
@@ -92,7 +86,7 @@ class ReceiveReviewComponent extends Component {
                     Amount
                   </Typography>
                   <Typography className={classes.reviewContentAmount} align='left'>
-                    {transferAmount} {cryptoAbbreviationMap[cryptoSelection]}
+                    {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
