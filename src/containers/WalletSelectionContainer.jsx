@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
-import { checkMetamaskConnection, checkLedgerNanoSConnection, loadLedgerAccountInfo } from '../actions/walletActions'
+import { checkMetamaskConnection, checkLedgerNanoSConnection, syncLedgerAccountInfo } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
@@ -22,6 +22,13 @@ class WalletSelectionContainer extends Component {
     }
 
     selectCrypto(cryptoType)
+  }
+
+  componentDidUpdate (prevProps) {
+    const { wallet, cryptoSelection, syncLedgerAccountInfo, actionsPending } = this.props
+    if (wallet.connected && !wallet.crypto[cryptoSelection] && !actionsPending.syncAccountInfo) {
+      syncLedgerAccountInfo(cryptoSelection)
+    }
   }
 
   render () {
@@ -46,7 +53,7 @@ class WalletSelectionContainer extends Component {
 
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION', 'CHECK_LEDGER_NANOS_CONNECTION'])
 const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
-const loadAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO', 'LOAD_LEDGER_ACCOUNT_INFO'])
+const syncAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -55,7 +62,7 @@ const mapDispatchToProps = dispatch => {
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n)),
-    loadLedgerAccountInfo: (cryptoType, accountIndex) => dispatch(loadLedgerAccountInfo(cryptoType, accountIndex))
+    syncLedgerAccountInfo: (c) => dispatch(syncLedgerAccountInfo(c))
   }
 }
 
@@ -66,7 +73,7 @@ const mapStateToProps = state => {
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
-      loadAccountInfo: loadAccountInfoSelector(state)
+      syncAccountInfo: syncAccountInfoSelector(state)
     },
     error: errorSelector(state)
   }

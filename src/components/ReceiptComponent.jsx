@@ -20,7 +20,7 @@ class ReceiptComponent extends Component {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, txCost, receipt, cryptoSelection } = this.props
+    const { classes, cryptoSelection, password, txCost, receipt } = this.props
     const { sendingId, transferAmount, sender, destination, sendTimestamp } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>

@@ -87,7 +87,7 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletConnectionNotification = () => {
-    let { classes, actionsPending, walletType, wallet } = this.props
+    let { classes, actionsPending, walletType, wallet, transfer } = this.props
 
     if ((walletType === 'metamask' && actionsPending.checkMetamaskConnection) ||
         (walletType === 'ledger' && actionsPending.checkLedgerNanoSConnection)) {
@@ -140,7 +140,7 @@ class ReceiveWalletSelectionComponent extends Component {
               <Grid item>
                 <Typography className={classes.notificationAddress}>
                   Wallet address:
-                  { wallet.accounts[0].address }
+                  { wallet.crypto[transfer.cryptoType][0].address }
                 </Typography>
               </Grid>
             </Grid>

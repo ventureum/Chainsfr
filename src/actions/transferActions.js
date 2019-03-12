@@ -29,7 +29,7 @@ function web3EthSendTransactionPromise (web3Instance, txObj) {
   })
 }
 
-async function _getTxCost (txRequest, getState) {
+async function _getTxCost (txRequest, addressPool) {
   let { cryptoType, transferAmount, txFeePerByte = 15 } = txRequest
 
   const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
@@ -46,15 +46,13 @@ async function _getTxCost (txRequest, getState) {
   } else if (cryptoType === 'dai') {
     txObj = ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType)
   } else if (cryptoType === 'bitcoin') {
-    const accountInfo = getState().walletReducer.wallet.ledger.accounts[0]
-    const addressPool = accountInfo.addresses
     const { size, fee } = collectUtxos(addressPool, transferAmount, txFeePerByte)
     let price = txFeePerByte.toString()
     let gas = size.toString()
-    let costInBasicUnit = fee.toString()
+    let costInBasicUnit = fee
     const base = new BN(100000000)
     const precision = (new BN(10).pow(new BN(12)))
-    let costInStandardUnit = parseFloat((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toString()) / precision
+    let costInStandardUnit = (parseFloat((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toString()) / precision).toString()
     return { price, gas, costInBasicUnit, costInStandardUnit }
   } else {
     throw new Error('Invalid walletType/cryptoType')
@@ -77,22 +75,22 @@ function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
         keyPath: addressPool[i].path
       })
       size = ledgerNanoS.estimateTransactionSize(utxosCollected.length, 2, true).max
-      fee = new BN(size).mul(new BN(txFeePerByte))
+      fee = ((new BN(size)).mul(new BN(txFeePerByte))).toString()
       valueCollected += utxo.value
-    }
-    if (valueCollected > transferAmount + fee) {
-      break
+      if (valueCollected > transferAmount + fee) {
+        return {
+          fee,
+          size,
+          utxosCollected
+        }
+      }
     }
     i += 1
   }
-  return {
-    fee,
-    size,
-    utxosCollected
-  }
+  throw new Error('Transfer amount greater and fee than utxo values.')
 }
 
-async function _submitTx (dispatch, txRequest, getState) {
+async function _submitTx (dispatch, txRequest, accountInfo) {
   let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost, txFeePerByte = 15 } = txRequest
   let escrow
   let encryptedEscrow
@@ -107,7 +105,7 @@ async function _submitTx (dispatch, txRequest, getState) {
     // step 2: encrypt the escrow wallet with password provided and the destination email address
     encryptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
   } else if (cryptoType === 'bitcoin') {
-    escrow = new bitcore.PrivateKey(undefined, 'testnet')
+    escrow = new bitcore.PrivateKey(undefined, process.env.REACT_APP_BTC_NETWORK)
     let privateKeyWif = escrow.toWIF()
     let decoded = wif.decode(privateKeyWif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
 
@@ -132,7 +130,7 @@ async function _submitTx (dispatch, txRequest, getState) {
     if (cryptoType === 'ethereum') {
       let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
       txObj = {
-        from: fromWallet.accounts[0].address,
+        from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
         value: wei
       }
@@ -140,14 +138,14 @@ async function _submitTx (dispatch, txRequest, getState) {
       // we need to transfer a small amount of eth to escrow to pay for
       // the next transfer's tx fees
       txRequest.sendTxFeeTxHash = await web3EthSendTransactionPromise(window._web3, {
-        from: fromWallet.accounts[0].address,
+        from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
         value: txCost.costInBasicUnit // estimated gas cost for the next tx
       })
 
       // next, we send tokens to the escrow address
       let amountInBasicUnit = window._web3.utils.toWei(transferAmount.toString(), 'ether')
-      txObj = await ERC20.getTransferTxObj(fromWallet.accounts[0].address, escrow.address, amountInBasicUnit, cryptoType)
+      txObj = await ERC20.getTransferTxObj(fromWallet.crypto[cryptoType][0].address, escrow.address, amountInBasicUnit, cryptoType)
 
       // update tx fees
       txObj.gas = txCost.gas
@@ -181,7 +179,6 @@ async function _submitTx (dispatch, txRequest, getState) {
         })
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
-      const accountInfo = getState().walletReducer.wallet.ledger.accounts[0]
       const addressPool = accountInfo.addresses
       const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue, txFeePerByte)
       const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
@@ -237,10 +234,10 @@ async function _acceptTransfer (dispatch, txRequest) {
 
     if (cryptoType === 'ethereum') {
       // calculate amount in wei to be sent
-      let wei = new BN(window._web3.utils.toWei(transferAmount.toString(), 'ether'))
+      let wei = (new BN(window._web3.utils.toWei(transferAmount.toString(), 'ether'))).toString()
 
       // actual amount to receive = escrow balance - tx fees
-      let amountExcludeGasInWei = new BN(wei).sub(new BN(txCost.costInBasicUnit))
+      let amountExcludeGasInWei = (new BN(wei).sub(new BN(txCost.costInBasicUnit))).toString()
 
       // setup tx object
       txObj = {
@@ -301,7 +298,7 @@ async function _cancelTransfer (dispatch, txRequest) {
       let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
 
       // actual amount to receive = escrow balance - tx fees
-      let amountExcludeGasInWei = new BN(wei).sub(new BN(txCost.costInBasicUnit))
+      let amountExcludeGasInWei = (new BN(wei).sub(new BN(txCost.costInBasicUnit))).toString()
 
       let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
       // setup tx object
@@ -414,9 +411,10 @@ function cancelTransferTransactionHashRetrieved (txRequest) {
 
 function submitTx (txRequest) {
   return (dispatch, getState) => {
+    const accountInfo = txRequest.cryptoType === 'bitcoin' ? getState().walletReducer.wallet.ledger.crypto[txRequest.cryptoType][0] : {}
     return {
       type: 'SUBMIT_TX',
-      payload: _submitTx(dispatch, txRequest, getState)
+      payload: _submitTx(dispatch, txRequest, accountInfo)
     }
   }
 }
@@ -441,9 +439,10 @@ function cancelTransfer (txRequest) {
 
 function getTxCost (txRequest) {
   return (dispatch, getState) => {
+    const addressPool = txRequest.cryptoType === 'bitcoin' ? getState().walletReducer.wallet.ledger.crypto[txRequest.cryptoType][0].addresses : []
     return dispatch({
       type: 'GET_TX_COST',
-      payload: _getTxCost(txRequest, getState)
+      payload: _getTxCost(txRequest, addressPool)
     })
   }
 }

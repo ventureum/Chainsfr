@@ -21,7 +21,7 @@ class CancelReviewContainer extends Component {
     if (!error && transfer) {
       if (!txCost && !actionsPending.getTxCost) {
         // get gas cost
-        this.props.getTxCost({ cryptoType: transfer.cryptoType })
+        this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
       }
     }
   }

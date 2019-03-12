@@ -18,7 +18,7 @@ class ReceiveReviewComponent extends Component {
     this.props.acceptTransfer({
       receivingId: receivingId,
       escrowWallet: escrowWallet.decryptedWallet,
-      destinationAddress: wallet.accounts[0].address,
+      destinationAddress: wallet.crypto[transfer.cryptoType][0].address,
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
@@ -29,14 +29,14 @@ class ReceiveReviewComponent extends Component {
   componentDidMount () {
     // refresh gas cost
     const { transfer } = this.props
-    this.props.getTxCost({ cryptoType: transfer.cryptoType })
+    this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
   }
 
   render () {
     const { classes, wallet, transfer, cryptoSelection, actionsPending, txCost } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
-    var address = wallet.accounts[0].address
+    var address = wallet.crypto[cryptoType][0].address
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>

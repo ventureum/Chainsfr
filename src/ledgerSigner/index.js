@@ -3,7 +3,6 @@ import Transport from '@ledgerhq/hw-transport-u2f' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
 import Web3 from 'web3'
-import BN from 'bn.js'
 import {
   getSignTransactionObject,
   getBufferFromHex,
@@ -62,24 +61,6 @@ class LedgerNanoS {
     return addr
   }
 
-  getBalance = async (cryptoType, accountIndex = 0) => {
-    let balance
-    switch (cryptoType) {
-      case 'ethereum' || 'dai': // TODO: Get correct balance for ERC20 tokens
-        const address = await this.getEthAddress(accountIndex)
-        const web3 = this.getWeb3()
-        balance = await web3.eth.getBalance(address)
-        break
-      case 'bitcoin':
-        balance = await this.getTotaBtclBalance(accountIndex)
-        break
-      default:
-        balance = 0
-    }
-
-    return new BN(balance)
-  }
-
   getBtcLedger = async () => {
     if (!this.btcLedger) {
       this.btcLedger = new BtcLedger(await this.getTransport())
@@ -87,25 +68,39 @@ class LedgerNanoS {
     return this.btcLedger
   }
 
-  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex) => {
+  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex = 0) => {
+    let address, web3, balance
     switch (cryptoType) {
       case 'ethereum':
+        address = await this.getEthAddress(accountIndex)
+        web3 = this.getWeb3()
+        balance = await web3.eth.getBalance(address)
         return {
-          address: await this.getEthAddress(0),
-          balance: {
-            ethereum: await this.getBalance(cryptoType, accountIndex)
+          [cryptoType]: {
+            [accountIndex]: {
+              address: address,
+              balance: balance
+            }
           }
         }
       case 'dai':
+      // TODO: add supoort for dai
+        address = await this.getEthAddress(accountIndex)
+        web3 = this.getWeb3()
+        balance = await web3.eth.getBalance(address)
         return {
-          address: await this.getEthAddress(0),
-          balance: {
-            dai: await this.getBalance(cryptoType, accountIndex)
+          [cryptoType]: {
+            [accountIndex]: {
+              address: address,
+              balance: balance
+            }
           }
         }
       case 'bitcoin':
-        const account = await this.syncBtcAccountInfo(accountIndex)
-        return account
+        return {
+          [cryptoType]: {
+            [accountIndex]: await this.syncBtcAccountInfo(accountIndex)
+          } }
       default:
         throw new Error('Ledger Wallet received invalid cryptoType')
     }
@@ -120,7 +115,7 @@ class LedgerNanoS {
       }
       return {
         connected: true,
-        network: cryptoType === 'bitcoin' ? 'testnet' : networkIdMap[process.env.REACT_APP_NETWORK_NAME]
+        network: cryptoType === 'bitcoin' ? process.env.REACT_APP_BTC_NETWORK : networkIdMap[process.env.REACT_APP_NETWORK_NAME]
       }
     } catch (e) {
       console.log(e)
@@ -303,7 +298,6 @@ class LedgerNanoS {
 
   getUtxoDetails = async (txHash) => {
     const details = await axios.get(`${ledgerApiUrl}/transactions/${txHash}/hex`)
-    console.log(details)
     return details.data[0].hex
   }
 
@@ -458,7 +452,7 @@ class LedgerNanoS {
       i += 1
     }
     let accountData = {
-      balance: { bitcoin: new BN(totalBalance) },
+      balance: totalBalance.toString(),
       nextAddressIndex: addressIndex + 1,
       nextChangeIndex: changeIndex + 1,
       addresses,

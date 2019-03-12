@@ -27,8 +27,8 @@ class ReviewComponent extends Component {
 
   componentDidMount () {
     // refresh gas cost
-    const { cryptoSelection, getTxCost } = this.props
-    getTxCost({ cryptoType: cryptoSelection })
+    const { cryptoSelection, getTxCost, transferForm } = this.props
+    getTxCost({ cryptoType: cryptoSelection, transferAmount: transferForm.transferAmount })
   }
 
   render () {

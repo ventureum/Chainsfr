@@ -58,7 +58,7 @@ class RecipientComponent extends Component {
       [name]: { $set: event.target.value }
     }))
 
-    let balance = wallet ? wallet.accounts[0].balance[cryptoSelection] : null
+    let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
     // validation
     if (name === 'transferAmount') {
@@ -120,7 +120,7 @@ class RecipientComponent extends Component {
     const { classes, transferForm, wallet, cryptoSelection } = this.props
     const { transferAmount, destination, password, sender } = transferForm
 
-    let balance = wallet.accounts[0].balance[cryptoSelection] ? numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoSelection], getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
+    let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>

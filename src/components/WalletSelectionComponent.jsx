@@ -87,7 +87,7 @@ class WalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.loadAccountInfo) {
+    } else if (actionsPending.syncAccountInfo) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>
@@ -98,7 +98,7 @@ class WalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && wallet.accounts && wallet.accounts[0].balance[cryptoType] && !actionsPending.loadAccountInfo) {
+    } else if (wallet && wallet.crypto[cryptoType] && wallet.crypto[cryptoType][0] && !actionsPending.syncAccountInfo) {
       return (
         <Grid container direction='row' alignItems='center'>
           <Grid item>
@@ -106,7 +106,7 @@ class WalletSelectionComponent extends Component {
           </Grid>
           <Grid item>
             <Typography className={classes.connectedtext}>Account retrieved, your balance: {
-              numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoType], getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
+              numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
             </Typography>
           </Grid>
         </Grid>
@@ -125,7 +125,7 @@ class WalletSelectionComponent extends Component {
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
-              disabled={this.cryptoDisabled(c, walletType) || actionsPending.loadAccountInfo}
+              disabled={this.cryptoDisabled(c, walletType) || actionsPending.syncAccountInfo || actionsPending.checkWalletConnection}
               className={classes.cryptoListItem}
             >
               <Radio
@@ -196,7 +196,7 @@ class WalletSelectionComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(1)}
-                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection || wallet.accounts === null || actionsPending.loadAccountInfo}
+                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection || !wallet.crypto[cryptoType] || actionsPending.syncAccountInfo}
               >
               Continue
               </Button>
