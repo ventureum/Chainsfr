@@ -73,14 +73,6 @@ class ReceiptComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                    Total Cost
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {`${parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} ${getCryptoSymbol(cryptoSelection)}`}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
                     Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>

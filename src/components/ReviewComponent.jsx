@@ -88,16 +88,6 @@ class ReviewComponent extends Component {
                     </Typography>
                     : <CircularProgress size={18} color='primary' />}
                 </Grid>
-                <Grid item>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Total Cost
-                  </Typography>
-                  {!actionsPending.getTxCost && txCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoSelection)}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />}
-                </Grid>
               </Paper>
             </Grid>
           </Grid>

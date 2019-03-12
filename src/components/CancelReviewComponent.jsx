@@ -189,20 +189,6 @@ class CancelReviewComponent extends Component {
                     </Typography>
                   </Grid>
                   }
-                  {!hasReceived && !hasCancelled && // do not show gas in this case
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Total Cost
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {!actionsPending.getTxCost && txCost
-                        ? <Typography className={classes.reviewContent} align='left'>
-                          {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoType)}
-                        </Typography>
-                        : <CircularProgress size={18} color='primary' />}
-                    </Typography>
-                  </Grid>
-                  }
                   <Grid item className={classes.reviewItem}>
                     <Typography className={classes.reviewSubtitle} align='left'>
                      Sent on
