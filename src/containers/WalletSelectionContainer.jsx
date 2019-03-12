@@ -17,16 +17,16 @@ class WalletSelectionContainer extends Component {
     } = this.props
     if (walletSelection === 'ledger' && cryptoType !== cryptoSelection) {
       checkLedgerNanoSConnection(cryptoType)
+      selectCrypto(cryptoType)
     } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
       checkMetamaskConnection(cryptoType)
+      selectCrypto(cryptoType)
     }
-
-    selectCrypto(cryptoType)
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, syncLedgerAccountInfo, actionsPending } = this.props
-    if (wallet.connected && !wallet.crypto[cryptoSelection] && !actionsPending.syncAccountInfo) {
+    const { wallet, cryptoSelection, syncLedgerAccountInfo, actionsPending, walletSelection } = this.props
+    if (wallet.connected && !wallet.crypto[cryptoSelection] && !actionsPending.syncAccountInfo && walletSelection === 'ledger') {
       syncLedgerAccountInfo(cryptoSelection)
     }
   }
