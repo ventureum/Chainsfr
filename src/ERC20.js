@@ -27,7 +27,7 @@ async function getTransferTxObj (from, to, transferAmount, cryptoType) {
 async function getGasPriceGivenBalance (address, gas) {
   let web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
   let balance = new BN(await web3.eth.getBalance(address))
-  return balance.div(new BN(gas))
+  return balance.div(new BN(gas)).toString()
 }
 
 export default { getBalance, getTransferTxObj, getGasPriceGivenBalance }

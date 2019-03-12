@@ -18,13 +18,13 @@ class CancelReviewComponent extends Component {
 
   componentDidUpdate (prevProps) {
     const { open } = this.state
-    const { transfer, escrowWallet, gasCost, receipt, actionsPending } = this.props
+    const { transfer, escrowWallet, txCost, receipt, actionsPending } = this.props
     if (transfer) {
       const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
       if (!actionsPending.cancelTransfer && // cancelTransfer is not currently running
-          !receipt && // cancelTransfer has not been called
-          open && // cancel popup is currently focused
-          escrowWallet.decryptedWallet) { // escrowWallet has been decrypted
+      !receipt && // cancelTransfer has not been called
+        open && // cancel popup is currently focused
+        escrowWallet.decryptedWallet) { // escrowWallet has been decrypted
         // submit cancelTransfer action
         this.props.cancelTransfer({
           escrowWallet: escrowWallet.decryptedWallet,
@@ -32,7 +32,7 @@ class CancelReviewComponent extends Component {
           sendTxHash: sendTxHash,
           cryptoType: cryptoType,
           transferAmount: transferAmount,
-          gasCost: gasCost
+          txCost: txCost
         })
       }
     }
@@ -118,7 +118,7 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, gasCost } = this.props
+    const { classes, transfer, escrowWallet, actionsPending, txCost } = this.props
     if (transfer) {
       var { sendingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
       var hasReceived = !!receiveTxHash
@@ -178,12 +178,12 @@ class CancelReviewComponent extends Component {
                   {!hasReceived && !hasCancelled && // do not show gas in this case
                   <Grid item className={classes.reviewItem}>
                     <Typography className={classes.reviewSubtitle} align='left'>
-                      Gas Fee
+                      Transaction Fee
                     </Typography>
                     <Typography className={classes.reviewContent} align='left'>
-                      {!actionsPending.getGasCost && gasCost
+                      {!actionsPending.getTxCost && txCost
                         ? <Typography className={classes.reviewContent} align='left'>
-                          {gasCost.costInEther} ETH
+                          {txCost.costInStandardUnit} {getCryptoSymbol(cryptoType)}
                         </Typography>
                         : <CircularProgress size={18} color='primary' />}
                     </Typography>
@@ -195,9 +195,9 @@ class CancelReviewComponent extends Component {
                       Total Cost
                     </Typography>
                     <Typography className={classes.reviewContent} align='left'>
-                      {!actionsPending.getGasCost && gasCost
+                      {!actionsPending.getTxCost && txCost
                         ? <Typography className={classes.reviewContent} align='left'>
-                          {parseFloat(gasCost.costInEther) + parseFloat(transferAmount)} ETH
+                          {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoType)}
                         </Typography>
                         : <CircularProgress size={18} color='primary' />}
                     </Typography>
@@ -250,7 +250,7 @@ class CancelReviewComponent extends Component {
                 size='large'
                 onClick={this.handleModalOpen}
               >
-                 Cancel Transfer
+                Cancel Transfer
               </Button>
             </Grid>
           </Grid>

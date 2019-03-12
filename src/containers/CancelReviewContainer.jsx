@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import CancelReviewComponent from '../components/CancelReviewComponent'
-import { getTransfer, cancelTransfer, getGasCost } from '../actions/transferActions'
+import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword } from '../actions/walletActions'
@@ -17,11 +17,11 @@ class CancelReviewContainer extends Component {
   }
 
   componentDidUpdate () {
-    let { transfer, gasCost, actionsPending, error } = this.props
+    let { transfer, txCost, actionsPending, error } = this.props
     if (!error && transfer) {
-      if (!gasCost && !actionsPending.getGasCost) {
+      if (!txCost && !actionsPending.getTxCost) {
         // get gas cost
-        this.props.getGasCost({ cryptoType: transfer.cryptoType })
+        this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
       }
     }
   }
@@ -37,7 +37,7 @@ class CancelReviewContainer extends Component {
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
-const getGasCostSelector = createLoadingSelector(['GET_GAS_COST'])
+const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
 const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
 const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD'])
 
@@ -45,7 +45,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
     verifyPassword: (encriptedWallet, password) => dispatch(verifyPassword(encriptedWallet, password)),
-    getGasCost: (txRequest) => dispatch(getGasCost(txRequest)),
+    getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n))
   }
@@ -55,12 +55,12 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     escrowWallet: state.walletReducer.escrowWallet,
-    gasCost: state.transferReducer.gasCost,
+    txCost: state.transferReducer.txCost,
     receipt: state.transferReducer.receipt,
     actionsPending: {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),
-      getGasCost: getGasCostSelector(state),
+      getTxCost: getTxCostSelector(state),
       cancelTransfer: cancelTransferSelector(state)
     },
     error: errorSelector(state)

@@ -12,7 +12,7 @@ const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${
 function toHumanReadableUnit (val, decimals = 18, precision = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
-  let rv = val.div(base)
+  let rv = (new BN(val)).div(base)
   return rv.toNumber() / precisionBase.toNumber()
 }
 
@@ -24,17 +24,17 @@ function toBasicTokenUnit (val, decimals = 18, precision = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = parseInt(val * precisionBase.toNumber())
-  return new BN(rv).pow(base)
+  return (new BN(rv).pow(base)).toString()
 }
 
 async function getGasCost (txObj) {
   const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-  let gasPrice = await _web3.eth.getGasPrice()
+  let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()
-  let costInWei = (new BN(gasPrice).mul(new BN(gas))).toString()
-  let costInEther = _web3.utils.fromWei(costInWei, 'ether')
+  let costInBasicUnit = (new BN(price).mul(new BN(gas))).toString()
+  let costInStandardUnit = _web3.utils.fromWei(costInBasicUnit, 'ether')
 
-  return { gasPrice, gas, costInWei, costInEther }
+  return { price, gas, costInBasicUnit, costInStandardUnit }
 }
 
 /**

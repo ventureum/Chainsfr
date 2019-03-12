@@ -8,6 +8,7 @@ import update from 'immutability-helper'
 import utils from '../utils'
 import numeral from 'numeral'
 import validator from 'validator'
+import { getCryptoDecimals } from '../tokens'
 
 class RecipientComponent extends Component {
   state = {
@@ -51,22 +52,22 @@ class RecipientComponent extends Component {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, wallet } = this.props
+    const { transferForm, wallet, cryptoSelection } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
       [name]: { $set: event.target.value }
     }))
 
-    let balance = wallet ? wallet.accounts[0].balance['ethereum'] : null
-
+    let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
+    const decimals = getCryptoDecimals(cryptoSelection)
     // validation
     if (name === 'transferAmount') {
       if (wallet && balance &&
-          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(balance) })) {
+          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
         if (event.target.value === '-' || parseFloat(event.target.value) < 0.0001) {
           this.setState(update(this.state, { formError: { [name]: { $set: 'The amount must be greater than 0.0001' } } }))
         } else {
-          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance)}` } } }))
+          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}` } } }))
         }
       } else {
         this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
@@ -119,7 +120,7 @@ class RecipientComponent extends Component {
     const { classes, transferForm, wallet, cryptoSelection } = this.props
     const { transferAmount, destination, password, sender } = transferForm
 
-    let balance = wallet.accounts[0].balance[cryptoSelection] ? numeral(utils.toHumanReadableUnit(wallet.accounts[0].balance[cryptoSelection])).format('0.000a') : '0'
+    let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>

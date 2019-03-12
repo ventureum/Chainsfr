@@ -1,7 +1,6 @@
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
-import BN from 'bn.js'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
@@ -9,11 +8,18 @@ import ERC20 from '../ERC20'
 
 const ledgerNanoS = new LedgerNanoS()
 
+function syncLedgerAccountInfo (cryptoType, accountIndex = 0) {
+  return {
+    type: 'SYNC_LEDGER_ACCOUNT_INFO',
+    payload: ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex)
+  }
+}
+
 async function _checkMetamaskConnection (cryptoType, dispatch) {
   let rv = {
     connected: false,
     network: null,
-    accounts: null
+    crypto: null
   }
 
   if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
@@ -23,22 +29,20 @@ async function _checkMetamaskConnection (cryptoType, dispatch) {
     window._web3 = new Web3(window.ethereum)
 
     // request the user logs in
-    rv.accounts = []
+    rv.crypto = {}
 
     let addresses = await window.ethereum.enable()
-    for (let addr of addresses) {
-      rv.accounts.push({
-        address: addr,
-        balance: {}
-      })
-    }
-
-    // retrieve eth balance, mandatory step, necessary for tx fees
-    rv.accounts[0].balance[cryptoType] = new BN(await window._web3.eth.getBalance(rv.accounts[0].address))
-
-    if (cryptoType !== 'ethereum') {
-      // retrieve erc20 token balance
-      rv.accounts[0].balance[cryptoType] = new BN(await ERC20.getBalance(rv.accounts[0].address, cryptoType))
+    if (addresses) {
+      for (let i = 0; i < addresses.length; i++) {
+        rv.crypto = {
+          [cryptoType]: {
+            [i]: {
+              address: addresses[i],
+              balance: cryptoType === 'ethereum' ? await window._web3.eth.getBalance(addresses[i]) : await ERC20.getBalance(addresses[i], cryptoType)
+            }
+          }
+        }
+      }
     }
 
     // listen for accounts changes
@@ -49,8 +53,8 @@ async function _checkMetamaskConnection (cryptoType, dispatch) {
   return rv
 }
 
-async function _checkLedgerNanoSConnection () {
-  const deviceConnected = await ledgerNanoS.deviceConnected()
+async function _checkLedgerNanoSConnection (cryptoType) {
+  const deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
   if (deviceConnected === null) {
     const msg = 'Ledger not connected'
     throw msg
@@ -89,10 +93,10 @@ function onMetamaskAccountsChanged (accounts) {
   }
 }
 
-function checkLedgerNanoSConnection () {
+function checkLedgerNanoSConnection (cryptoType) {
   return {
     type: 'CHECK_LEDGER_NANOS_CONNECTION',
-    payload: _checkLedgerNanoSConnection()
+    payload: _checkLedgerNanoSConnection(cryptoType)
   }
 }
 
@@ -130,5 +134,6 @@ export {
   checkLedgerNanoSConnection,
   verifyPassword,
   clearDecryptedWallet,
-  getWallet
+  getWallet,
+  syncLedgerAccountInfo
 }

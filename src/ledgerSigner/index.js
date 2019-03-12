@@ -3,17 +3,23 @@ import Transport from '@ledgerhq/hw-transport-u2f' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
 import Web3 from 'web3'
-import BN from 'bn.js'
 import {
   getSignTransactionObject,
   getBufferFromHex,
   calculateChainIdFromV,
   networkIdMap
 } from './utils'
+import BtcLedger from '@ledgerhq/hw-app-btc'
+import { address, networks } from 'bitcoinjs-lib'
+import axios from 'axios'
+import moment from 'moment'
 
-const basePath = "44'/60'/0'/0"
+const baseEtherPath = "44'/60'/0'/0"
+const baseBtcPath = "49'/1'"
 const networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
+const ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
 
 class LedgerNanoS {
   static transport
@@ -42,30 +48,74 @@ class LedgerNanoS {
   }
 
   getEthAddress = async (accountIndex) => {
-    const accountPath = basePath + `/${accountIndex}`
+    const accountPath = baseEtherPath + `/${accountIndex}`
     const ethLedger = await this.getEtherLedger()
     const result = await ethLedger.getAddress(accountPath)
     return result.address
   }
 
-  getBalance = async (accountIndex) => {
-    const address = await this.getEthAddress(accountIndex)
-    const web3 = this.getWeb3()
-    const balance = await web3.eth.getBalance(address)
-    return new BN(balance)
+  getBtcAddresss = async (accountIndex) => {
+    const btcLedger = await this.getBtcLedger()
+    const accountPath = `${baseBtcPath}/${accountIndex}'/0/0`
+    const addr = await btcLedger.getWalletPublicKey(accountPath, false, true)
+    return addr
   }
 
-  deviceConnected = async () => {
+  getBtcLedger = async () => {
+    if (!this.btcLedger) {
+      this.btcLedger = new BtcLedger(await this.getTransport())
+    }
+    return this.btcLedger
+  }
+
+  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex = 0) => {
+    let address, web3, balance
+    switch (cryptoType) {
+      case 'ethereum':
+        address = await this.getEthAddress(accountIndex)
+        web3 = this.getWeb3()
+        balance = await web3.eth.getBalance(address)
+        return {
+          [cryptoType]: {
+            [accountIndex]: {
+              address: address,
+              balance: balance
+            }
+          }
+        }
+      case 'dai':
+      // TODO: add supoort for dai
+        address = await this.getEthAddress(accountIndex)
+        web3 = this.getWeb3()
+        balance = await web3.eth.getBalance(address)
+        return {
+          [cryptoType]: {
+            [accountIndex]: {
+              address: address,
+              balance: balance
+            }
+          }
+        }
+      case 'bitcoin':
+        return {
+          [cryptoType]: {
+            [accountIndex]: await this.syncBtcAccountInfo(accountIndex)
+          } }
+      default:
+        throw new Error('Ledger Wallet received invalid cryptoType')
+    }
+  }
+
+  deviceConnected = async (cryptoType) => {
     try {
+      if (cryptoType !== 'bitcoin') {
+        await this.getEthAddress()
+      } else {
+        await this.getBtcAddresss()
+      }
       return {
         connected: true,
-        accounts: [{
-          address: await this.getEthAddress(0),
-          balance: {
-            ethereum: await this.getBalance(0)
-          }
-        }],
-        network: networkIdMap[process.env.REACT_APP_NETWORK_NAME]
+        network: cryptoType === 'bitcoin' ? process.env.REACT_APP_BTC_NETWORK : networkIdMap[process.env.REACT_APP_NETWORK_NAME]
       }
     } catch (e) {
       console.log(e)
@@ -80,7 +130,7 @@ class LedgerNanoS {
    * @param {object}      options             Options of the transaction (i.e. gasLimit & gasPrice)
    */
   signSendEther = async (accountIndex, receipientAddr, amount, ...options) => {
-    const accountPath = basePath + `/${accountIndex}`
+    const accountPath = baseEtherPath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
     const address = await this.getEthAddress(accountIndex)
@@ -155,7 +205,7 @@ class LedgerNanoS {
    * @param {[param1[, param2[, ...]]]}     params              Paramaters for the contract. The last param is a optional object contains gasPrice and gasLimit.
    */
   signSendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
-    const accountPath = basePath + `/${accountIndex}`
+    const accountPath = baseEtherPath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
     const address = await this.getEthAddress(accountIndex)
@@ -244,6 +294,233 @@ class LedgerNanoS {
     const targetContract = new web3.eth.Contract(contractAbi, contractAddress)
     const rv = await targetContract.methods[methodName](...functionParams).call()
     return rv
+  }
+
+  getUtxoDetails = async (txHash) => {
+    const details = await axios.get(`${ledgerApiUrl}/transactions/${txHash}/hex`)
+    return details.data[0].hex
+  }
+
+  createNewBtcPaymentTransaction = async (inputs, to, amount, fee, changeIndex) => {
+    const btcLedger = await this.getBtcLedger()
+    const changeAddressPath = `${baseBtcPath}/0'/1/${changeIndex}`
+
+    let associatedKeysets = []
+    let finalInputs = []
+    let inputValueTotal = 0
+    for (let i = 0; i < inputs.length; i++) {
+      const utxo = inputs[i]
+      const utxoDetails = await this.getUtxoDetails(utxo.txHash)
+
+      const txObj = btcLedger.splitTransaction(utxoDetails, true)
+      const input = [txObj, utxo.outputIndex]
+      finalInputs.push(input)
+      associatedKeysets.push(utxo.keyPath)
+      inputValueTotal += utxo.value
+    }
+    let outputs = []
+    let amountBuffer = Buffer.alloc(8, 0)
+    amountBuffer.writeUIntLE(amount, 0, 8)
+    const txOutput = {
+      amount: amountBuffer,
+      script: address.toOutputScript(to, networks.testnet)
+    }
+    outputs.push(txOutput)
+    const change = inputValueTotal - amount - fee // 138 bytes for 1 input, 64 bytes per additional input
+
+    let changeBuffer = Buffer.alloc(8, 0)
+    changeBuffer.writeUIntLE(change, 0, 8)
+    const changeAddress = (await btcLedger.getWalletPublicKey(changeAddressPath, false, true)).bitcoinAddress
+    const changeOutput = {
+      amount: changeBuffer,
+      script: address.toOutputScript(changeAddress, networks.testnet)
+    }
+    outputs.push(changeOutput)
+
+    const outputScriptHex = btcLedger.serializeTransactionOutputs({ outputs: outputs }).toString('hex')
+    const signedTxRaw = await btcLedger.createPaymentTransactionNew(
+      finalInputs,
+      associatedKeysets,
+      changeAddressPath,
+      outputScriptHex,
+      undefined,
+      undefined,
+      true
+    )
+
+    return signedTxRaw
+  }
+
+  broadcastBtcRawTx = async (txRaw) => {
+    const rv = await axios.post(
+      `${ledgerApiUrl}/transactions/send`,
+      { tx: txRaw })
+    return rv.data.result
+  }
+
+  getUtxosFromTxs = (txs, address) => {
+    let utxos = []
+    let spent = {}
+    txs.forEach(tx => {
+      tx.inputs.forEach(input => {
+        if (input.address === address) {
+          if (!spent[input.output_hash]) {
+            spent[input.output_hash] = {}
+          }
+          spent[input.output_hash][input.output_index] = true
+        }
+      })
+    })
+    txs.forEach(tx => {
+      tx.outputs.forEach(output => {
+        if (output.address === address) {
+          if (!spent[tx.hash]) {
+            spent[tx.hash] = {}
+          }
+          if (!spent[tx.hash][output.output_index]) {
+            utxos.push({
+              txHash: tx.hash,
+              outputIndex: output.output_index,
+              value: output.value
+            })
+          }
+        }
+      })
+    })
+
+    return utxos
+  }
+
+  syncBtcAccountInfo = async (accountIndex) => {
+    const btcLedger = await this.getBtcLedger()
+    let i = 0
+    let totalBalance = 0
+    let addresses = []
+    let gap = 0
+    let utxos = []
+    let changeIndex = 0
+    let addressIndex = 0
+    while (gap < 5) {
+      let address
+      const externalAddressPath = `${baseBtcPath}/${accountIndex}'/0/${i}`
+      const external = await btcLedger.getWalletPublicKey(externalAddressPath, false, true)
+      const externalAddress = external.bitcoinAddress
+
+      const externalAddressData = (await axios.get(`${ledgerApiUrl}/addresses/${externalAddress}/transactions?noToken=true&truncated=true`)).data
+      if (externalAddressData.txs.length === 0) {
+        gap += 1
+      } else {
+        addressIndex = i
+        gap = 0
+        utxos = this.getUtxosFromTxs(externalAddressData.txs, externalAddress)
+        if (utxos.length !== 0) {
+          let value = utxos.reduce((accu, utxo) => {
+            return accu + utxo.value
+          }, 0)
+          totalBalance += value
+          address = {
+            path: externalAddressPath,
+            publicKeyInfo: external,
+            utxos: utxos
+          }
+          addresses.push(address)
+        }
+      }
+      // check change address
+      const internalAddressPath = `${baseBtcPath}/${accountIndex}'/1/${i}`
+      const internal = await btcLedger.getWalletPublicKey(internalAddressPath, false, true)
+      const internalAddress = internal.bitcoinAddress
+      const internalAddressData = (await axios.get(`${ledgerApiUrl}/addresses/${internalAddress}/transactions?noToken=true&truncated=true`)).data
+      if (internalAddressData.txs.length !== 0) {
+        changeIndex = i
+        gap = 0
+        utxos = this.getUtxosFromTxs(internalAddressData.txs, internalAddress)
+        if (utxos.length !== 0) {
+          let value = utxos.reduce((accu, utxo) => {
+            return accu + utxo.value
+          }, 0)
+          totalBalance += value
+          address = {
+            path: internalAddressPath,
+            publicKeyInfo: internal,
+            utxos: utxos
+          }
+          addresses.push(address)
+        }
+      }
+
+      i += 1
+    }
+    let accountData = {
+      balance: totalBalance.toString(),
+      nextAddressIndex: addressIndex + 1,
+      nextChangeIndex: changeIndex + 1,
+      addresses,
+      lastBlockHeight: await this.getLastBlockHeight(),
+      lastUpdate: moment().unix()
+    }
+    return accountData
+  }
+
+  getLastBlockHeight = async () => {
+    const rv = (await axios.get(blockcypherBaseUrl)).data
+    return rv.height
+  }
+
+  // Function to estimate Tx size
+  // Referrenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/094d3741527e181a626d929d56ab4a515403e4a0/src/TransactionUtils.js#L10
+  estimateTransactionSize = (
+    inputsCount,
+    outputsCount,
+    handleSegwit
+  ) => {
+    var maxNoWitness,
+      maxSize,
+      maxWitness,
+      minNoWitness,
+      minSize,
+      minWitness,
+      varintLength
+    if (inputsCount < 0xfd) {
+      varintLength = 1
+    } else if (inputsCount < 0xffff) {
+      varintLength = 3
+    } else {
+      varintLength = 5
+    }
+    if (handleSegwit) {
+      minNoWitness =
+        varintLength + 4 + 2 + 59 * inputsCount + 1 + 31 * outputsCount + 4
+      maxNoWitness =
+        varintLength + 4 + 2 + 59 * inputsCount + 1 + 33 * outputsCount + 4
+      minWitness =
+        varintLength +
+        4 +
+        2 +
+        59 * inputsCount +
+        1 +
+        31 * outputsCount +
+        4 +
+        106 * inputsCount
+      maxWitness =
+        varintLength +
+        4 +
+        2 +
+        59 * inputsCount +
+        1 +
+        33 * outputsCount +
+        4 +
+        108 * inputsCount
+      minSize = (minNoWitness * 3 + minWitness) / 4
+      maxSize = (maxNoWitness * 3 + maxWitness) / 4
+    } else {
+      minSize = varintLength + 4 + 146 * inputsCount + 1 + 31 * outputsCount + 4
+      maxSize = varintLength + 4 + 148 * inputsCount + 1 + 33 * outputsCount + 4
+    }
+    return {
+      min: minSize,
+      max: maxSize
+    }
   }
 }
 
