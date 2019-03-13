@@ -5,7 +5,6 @@ import { ConnectedRouter } from 'connected-react-router'
 import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
-import WalletContainer from './containers/WalletContainer'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
@@ -79,7 +78,7 @@ class App extends Component {
           <ConnectedRouter history={history}>
             <Switch>
               <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(WalletContainer)} />
+              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(TransferContainer)} />
               <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
               <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
               <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />
