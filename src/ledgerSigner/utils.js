@@ -2,7 +2,7 @@ import { bufferToInt } from 'ethereumjs-util'
 
 export const getBufferFromHex = hex => {
   const _hex = hex.toLowerCase().replace('0x', '')
-  return new Buffer(_hex, 'hex')
+  return Buffer.from(_hex, 'hex')
 }
 
 export const bufferToHex = buffer => {
