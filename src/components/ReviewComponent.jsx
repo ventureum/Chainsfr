@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReviewComponent extends Component {
   handleReviewNext = () => {
@@ -84,17 +84,7 @@ class ReviewComponent extends Component {
                   </Typography>
                   {!actionsPending.getTxCost && txCost
                     ? <Typography className={classes.reviewContent} align='left'>
-                      {txCost.costInStandardUnit} {getCryptoSymbol(cryptoSelection)}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />}
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Total Cost
-                  </Typography>
-                  {!actionsPending.getTxCost && txCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoSelection)}
+                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
                     </Typography>
                     : <CircularProgress size={18} color='primary' />}
                 </Grid>

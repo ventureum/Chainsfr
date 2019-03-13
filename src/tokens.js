@@ -8,7 +8,8 @@ export const cryptoSelections = [
     title: 'Ethereum',
     symbol: 'ETH',
     logo: EthereumLogo,
-    decimals: 18
+    decimals: 18,
+    txFeesCryptoType: 'ethereum'
   },
   {
     cryptoType: 'dai',
@@ -16,14 +17,16 @@ export const cryptoSelections = [
     symbol: 'DAI',
     logo: DaiLogo,
     address: process.env.REACT_APP_DAI_ADDRESS,
-    decimals: 18
+    decimals: 18,
+    txFeesCryptoType: 'ethereum'
   },
   {
     cryptoType: 'bitcoin',
     title: 'Bitcoin',
     symbol: 'BTC',
     logo: BitcoinLogo,
-    decimals: 8
+    decimals: 8,
+    txFeesCryptoType: 'bitcoin'
   }
 ]
 
@@ -45,4 +48,11 @@ export function getCryptoDecimals (cryptoType) {
     return cryptoType === crypto.cryptoType
   })
   return c.decimals
+}
+
+export function getTxFeesCryptoType (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.txFeesCryptoType
 }

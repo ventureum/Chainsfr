@@ -1,0 +1,28 @@
+dist: trusty
+notifications:
+  slack: ventureum-team:DSE8wxmLTenq0Yz17BrYBWg9
+language: node_js
+node_js:
+- 8
+fail_fast: true
+script:
+- npm install eslint -g
+- npm install babel-eslint -g
+- npm install standard -g
+- standard
+- wget https://s3.amazonaws.com/chainsfer-config/.env.dev -o .env
+- npm run build
+deploy:
+  skip_cleanup: true
+  provider: s3
+  access_key_id: AKIAJIJVVOXCCJ2RFGEA
+  secret_access_key:
+    secure: JcyCJseFclorgwG2eI4v1cdJyG6iWynWikFBRslqnDMi2EorYdgBn9gJc9chjs9hsMX8lj4b8u/HVARlsuT7CS6Xhe4ZpVsTv1ESZxPJNwDhp4Gq3NjrOUKROTlcaiOxNho4lMS6bH7bq/6VdoHDDplYe6X1HF4Y8zLFXU9N1yB5oRVPZ5YIyprdxTtu1wVmpSfI4J0sTVnVi/z8wtyTW9KR1Xb+hRXbWGAjbFZWqUUuYBa1pTvYm42fdy6JfpEBpLhh2yIzGTnl6vs3vT3rawYJaO1K8KA3ri7X5gtkVWOX9xOLz+Pu8OXdciza9kUn7lnjFI+0zvuybnsqwFKyHHan0+kR6mm9uvHsv12rikNU6ZmsfomlB3mYu7vQITgrsvW3M3aCA9B5oSmmp8dmHandkS82hNFlZRndnJyz+oz8kcM1gn8ahZeapeLwLmlnskzPHzOksj3HxFdOWw5PX6i7RShjJ3JW6Q06gXXZTB9dU7xGBhJqPa1zT3tZiFsJEMBnuR9q4wXd5GZZJkr9Oa+krSRG+iGkJVgE4G+4VXGhVw4aK0m9z76TONDnGfC8cLpdc9iRTzKiTFqz3AhMU0MhRiPen8Rc0E4Y1PG5KC4Po09KbEuBjEPd2q0kt4KD4tOZCtoVSMBWfCj7HDVTdPGjC3C/cWMUT7CvhDAnDJM=
+  bucket: www.chainsfer.io
+  local_dir: build
+  region: us-east-1
+  acl: public_read
+  on:
+    repo: timothywangdev/Chainsfer
+true:
+  branch: master

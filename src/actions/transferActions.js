@@ -9,7 +9,7 @@ import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 import ERC20 from '../ERC20'
-import { getCrypto } from '../tokens'
+import { getCrypto, getCryptoDecimals } from '../tokens'
 import bitcore from 'bitcore-lib'
 import wif from 'wif'
 import bip38 from 'bip38'
@@ -36,28 +36,60 @@ async function _getTxCost (txRequest, addressPool) {
   const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
   const mockNumTokens = '1000'
 
-  let txObj = {
-    from: mockFrom,
-    to: mockTo
-  }
+  const precision = (new BN(10).pow(new BN(12)))
 
   if (cryptoType === 'ethereum') {
-    txObj.value = mockNumTokens
+    return utils.getGasCost({
+      from: mockFrom,
+      to: mockTo,
+      value: mockNumTokens
+    })
   } else if (cryptoType === 'dai') {
-    txObj = ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType)
+    // eth transfer cost
+    let txCostEth = await utils.getGasCost({
+      from: mockFrom,
+      to: mockTo,
+      value: mockNumTokens
+    })
+
+    // ERC20 transfer tx cost
+    let txCostERC20 = await utils.getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType))
+
+    // amount of eth to be transfered to the escrow wallet
+    // this will be spent as tx fees for the next token transfer (from escrow wallet)
+    // otherwise, the tokens in the escrow wallet cannot be transfered out
+    // we use the current estimation to calculate amount of ETH to be transfered
+    let ethTransfer = txCostERC20.costInBasicUnit
+
+    let costInBasicUnit = new BN(txCostEth.costInBasicUnit)
+      .add(new BN(txCostERC20.costInBasicUnit))
+      .add(new BN(ethTransfer))
+
+    let base = new BN(10).pow(new BN(getCryptoDecimals(cryptoType)))
+
+    return {
+      // use the current estimated price
+      price: txCostERC20.price,
+      // eth transfer gas + erc20 transfer gas
+      gas: (new BN(txCostEth.gas).add(new BN(txCostERC20.gas))).toString(),
+      // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
+      costInBasicUnit: costInBasicUnit.toString(),
+      costInStandardUnit: ((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toNumber() / parseFloat(precision.toNumber())).toString(),
+      // subtotal tx cost
+      // this is used for submitTx()
+      costByType: { txCostEth, txCostERC20, ethTransfer }
+    }
   } else if (cryptoType === 'bitcoin') {
     const { size, fee } = collectUtxos(addressPool, transferAmount, txFeePerByte)
     let price = txFeePerByte.toString()
     let gas = size.toString()
     let costInBasicUnit = fee
     const base = new BN(100000000)
-    const precision = (new BN(10).pow(new BN(12)))
     let costInStandardUnit = (parseFloat((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toString()) / precision).toString()
     return { price, gas, costInBasicUnit, costInStandardUnit }
   } else {
     throw new Error('Invalid walletType/cryptoType')
   }
-  return utils.getGasCost(txObj)
 }
 
 function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
@@ -140,7 +172,9 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
       txRequest.sendTxFeeTxHash = await web3EthSendTransactionPromise(window._web3, {
         from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
-        value: txCost.costInBasicUnit // estimated gas cost for the next tx
+        value: txCost.costByType.ethTransfer, // estimated gas cost for the next tx
+        gas: txCost.costByType.txCostEth.gas,
+        gasPrice: txCost.costByType.txCostEth.price
       })
 
       // next, we send tokens to the escrow address
@@ -148,8 +182,8 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
       txObj = await ERC20.getTransferTxObj(fromWallet.crypto[cryptoType][0].address, escrow.address, amountInBasicUnit, cryptoType)
 
       // update tx fees
-      txObj.gas = txCost.gas
-      txObj.gasPrice = txCost.price
+      txObj.gas = txCost.costByType.txCostERC20.gas
+      txObj.gasPrice = txCost.costByType.txCostERC20.price
     }
 
     txRequest.sendTxHash = await web3EthSendTransactionPromise(window._web3, txObj)

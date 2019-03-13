@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReviewComponent extends Component {
   state = {
@@ -182,23 +182,7 @@ class CancelReviewComponent extends Component {
                     </Typography>
                     <Typography className={classes.reviewContent} align='left'>
                       {!actionsPending.getTxCost && txCost
-                        ? <Typography className={classes.reviewContent} align='left'>
-                          {txCost.costInStandardUnit} {getCryptoSymbol(cryptoType)}
-                        </Typography>
-                        : <CircularProgress size={18} color='primary' />}
-                    </Typography>
-                  </Grid>
-                  }
-                  {!hasReceived && !hasCancelled && // do not show gas in this case
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Total Cost
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {!actionsPending.getTxCost && txCost
-                        ? <Typography className={classes.reviewContent} align='left'>
-                          {parseFloat(txCost.costInStandardUnit) + parseFloat(transferAmount)} {getCryptoSymbol(cryptoType)}
-                        </Typography>
+                        ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                         : <CircularProgress size={18} color='primary' />}
                     </Typography>
                   </Grid>
