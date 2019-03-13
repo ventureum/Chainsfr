@@ -13,6 +13,8 @@ import BtcLedger from '@ledgerhq/hw-app-btc'
 import { address, networks } from 'bitcoinjs-lib'
 import axios from 'axios'
 import moment from 'moment'
+import ERC20 from '../ERC20'
+import BN from 'bn.js'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = "49'/1'"
@@ -84,15 +86,12 @@ class LedgerNanoS {
           }
         }
       case 'dai':
-      // TODO: add supoort for dai
         address = await this.getEthAddress(accountIndex)
-        web3 = this.getWeb3()
-        balance = await web3.eth.getBalance(address)
         return {
           [cryptoType]: {
             [accountIndex]: {
               address: address,
-              balance: balance
+              balance: await ERC20.getBalance(address, cryptoType)
             }
           }
         }
@@ -100,7 +99,8 @@ class LedgerNanoS {
         return {
           [cryptoType]: {
             [accountIndex]: await this.syncBtcAccountInfo(accountIndex)
-          } }
+          }
+        }
       default:
         throw new Error('Ledger Wallet received invalid cryptoType')
     }
@@ -156,10 +156,10 @@ class LedgerNanoS {
     }
     const gasNeeded = await web3.eth.estimateGas(rawTx)
 
-    if (gasNeeded >= gasLimit) {
-      console.error('Insufficient gas.')
-    } else if (gasLimit === undefined) {
+    if (gasLimit === undefined) {
       gasLimit = gasNeeded
+    } else if (new BN(gasNeeded).gt(new BN(gasLimit))) {
+      console.error('Insufficient gas.')
     }
 
     rawTx = {
@@ -222,28 +222,29 @@ class LedgerNanoS {
     }
 
     let functionParams = []
-    if (['undefined', 'object'].indexOf(typeof params[params.length - 1]) >= 0) {
+    if (['undefined', 'object'].indexOf(typeof params[params.length - 1]) >= 0 && params.length === 1) {
       console.log('no param')
     } else {
       params.forEach((item) => {
-        if (['undefined', 'object'].indexOf(typeof item)) {
+        if (['undefined', 'object'].indexOf(typeof item) < 0) {
           functionParams.push(item)
         }
       })
     }
+
     const targetContract = new web3.eth.Contract(contractAbi, contractAddress)
     const data = targetContract.methods[methodName](...functionParams).encodeABI()
     const gasNeeded = await targetContract.methods[methodName](...functionParams).estimateGas({ from: address })
 
-    if (gasNeeded >= gasLimit) {
-      console.error('Insufficient gas set for transaction.')
-    } else if (gasLimit === undefined) {
+    if (gasLimit === undefined) {
       gasLimit = gasNeeded
+    } else if (new BN(gasNeeded).gt(new BN(gasLimit))) {
+      console.error('Insufficient gas.')
     }
 
     let rawTx = {
       from: address,
-      nonce: txCount,
+      nonce: txCount + 1,
       gasPrice: web3.utils.numberToHex(gasPrice),
       gas: web3.utils.numberToHex(gasLimit),
       to: contractAddress,
