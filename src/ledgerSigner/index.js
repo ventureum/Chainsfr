@@ -1,5 +1,6 @@
 import 'babel-polyfill'
-import Transport from '@ledgerhq/hw-transport-u2f' // for browser
+import U2FTransport from '@ledgerhq/hw-transport-u2f' // for browser
+import WebUsbTransport from '@ledgerhq/hw-transport-webusb' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
 import Web3 from 'web3'
@@ -24,20 +25,28 @@ const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
 const ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
 
 class LedgerNanoS {
-  static transport
+  static u2fTransport
+  static webUsbTransport
   static ethLedger
   static web3
 
-  getTransport = async () => {
-    if (!this.transport) {
-      this.transport = await Transport.create()
+  getU2FTransport = async () => {
+    if (!this.u2fTransport) {
+      this.u2fTransport = await U2FTransport.create()
     }
-    return this.transport
+    return this.u2fTransport
+  }
+
+  getWebUsbTransport = async () => {
+    if (!this.u2fTransport) {
+      this.webUsbTransport = await WebUsbTransport.create()
+    }
+    return this.webUsbTransport
   }
 
   getEtherLedger = async () => {
     if (!this.ethLedger) {
-      this.ethLedger = new Ledger(await this.getTransport())
+      this.ethLedger = new Ledger(await this.getWebUsbTransport())
     }
     return this.ethLedger
   }
@@ -65,7 +74,7 @@ class LedgerNanoS {
 
   getBtcLedger = async () => {
     if (!this.btcLedger) {
-      this.btcLedger = new BtcLedger(await this.getTransport())
+      this.btcLedger = new BtcLedger(await this.getU2FTransport())
     }
     return this.btcLedger
   }
