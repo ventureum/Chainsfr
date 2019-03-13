@@ -26,7 +26,11 @@ class WalletSelectionContainer extends Component {
 
   componentDidUpdate (prevProps) {
     const { wallet, cryptoSelection, syncLedgerAccountInfo, actionsPending, walletSelection } = this.props
-    if (wallet.connected && !wallet.crypto[cryptoSelection] && !actionsPending.syncAccountInfo && walletSelection === 'ledger') {
+    if (wallet &&
+      wallet.connected &&
+      !wallet.crypto[cryptoSelection] &&
+      !actionsPending.syncAccountInfo &&
+      walletSelection === 'ledger') {
       syncLedgerAccountInfo(cryptoSelection)
     }
   }

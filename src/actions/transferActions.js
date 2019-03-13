@@ -21,9 +21,9 @@ const WIF_VERSION = {
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
 
-function web3EthSendTransactionPromise (web3Instance, txObj) {
+function web3EthSendTransactionPromise (web3Function, txObj) {
   return new Promise((resolve, reject) => {
-    web3Instance.eth.sendTransaction(txObj)
+    web3Function(txObj)
       .on('transactionHash', (hash) => resolve(hash))
       .on('error', (error) => reject(error))
   })
@@ -169,7 +169,7 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
     } else if (cryptoType === 'dai') {
       // we need to transfer a small amount of eth to escrow to pay for
       // the next transfer's tx fees
-      txRequest.sendTxFeeTxHash = await web3EthSendTransactionPromise(window._web3, {
+      txRequest.sendTxFeeTxHash = await web3EthSendTransactionPromise(window._web3.eth.sendTransaction, {
         from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
         value: txCost.costByType.ethTransfer, // estimated gas cost for the next tx
@@ -186,7 +186,7 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
       txObj.gasPrice = txCost.costByType.txCostERC20.price
     }
 
-    txRequest.sendTxHash = await web3EthSendTransactionPromise(window._web3, txObj)
+    txRequest.sendTxHash = await web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
     dispatch(transactionHashRetrieved(txRequest))
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
@@ -202,15 +202,30 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
         })
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
-      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(0, getCrypto('dai').address, ERC20_ABI, 'transfer', escrow.address, amountInWei)
-      _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
-        .on('transactionHash', (hash) => {
-          console.log('txHash: ', hash)
-          // update request tx hash
-          txRequest.sendTxHash = hash
-          dispatch(transactionHashRetrieved(txRequest))
+      // send out tx fee for next tx
+      const signedTxFee = await ledgerNanoS.signSendEther(
+        0,
+        escrow.address,
+        txCost.costByType.ethTransfer,
+        {
+          gasLimit: txCost.costByType.txCostEth.gas,
+          gasPrice: txCost.costByType.txCostEth.price
         })
+      txRequest.sendTxFeeTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTxFee.rawTransaction)
+
+      const amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const signedTransactionObject = await ledgerNanoS.signSendTrasaction(
+        0,
+        getCrypto('dai').address, ERC20_ABI,
+        'transfer',
+        escrow.address,
+        amountInBasicUnit,
+        {
+          gasLimit: txCost.costByType.txCostERC20.gas,
+          gasPrice: txCost.costByType.txCostERC20.price
+        })
+      txRequest.sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
+      dispatch(transactionHashRetrieved(txRequest))
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
       const addressPool = accountInfo.addresses
@@ -222,7 +237,6 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
       dispatch(transactionHashRetrieved(txRequest))
     }
   }
-
   // step 5: clear wallet
   window._web3.eth.accounts.wallet.clear()
 }
@@ -292,7 +306,7 @@ async function _acceptTransfer (dispatch, txRequest) {
       txObj.gasPrice = await ERC20.getGasPriceGivenBalance(escrowWallet.address, txCost.gas)
     }
 
-    txRequest.receiveTxHash = await web3EthSendTransactionPromise(_web3, txObj)
+    txRequest.receiveTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
     dispatch(acceptTransferTransactionHashRetrieved(txRequest))
   }
 }
@@ -356,7 +370,7 @@ async function _cancelTransfer (dispatch, txRequest) {
     }
 
     // now boardcast tx
-    txRequest.cancelTxHash = await web3EthSendTransactionPromise(_web3, txObj)
+    txRequest.cancelTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
     dispatch(cancelTransferTransactionHashRetrieved(txRequest))
   }
 }

@@ -1,5 +1,6 @@
 import 'babel-polyfill'
-import Transport from '@ledgerhq/hw-transport-u2f' // for browser
+import U2FTransport from '@ledgerhq/hw-transport-u2f' // for browser
+import WebUsbTransport from '@ledgerhq/hw-transport-webusb' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
 import Web3 from 'web3'
@@ -13,6 +14,8 @@ import BtcLedger from '@ledgerhq/hw-app-btc'
 import { address, networks } from 'bitcoinjs-lib'
 import axios from 'axios'
 import moment from 'moment'
+import ERC20 from '../ERC20'
+import BN from 'bn.js'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = "49'/1'"
@@ -22,20 +25,28 @@ const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
 const ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
 
 class LedgerNanoS {
-  static transport
+  static u2fTransport
+  static webUsbTransport
   static ethLedger
   static web3
 
-  getTransport = async () => {
-    if (!this.transport) {
-      this.transport = await Transport.create()
+  getU2FTransport = async () => {
+    if (!this.u2fTransport) {
+      this.u2fTransport = await U2FTransport.create()
     }
-    return this.transport
+    return this.u2fTransport
+  }
+
+  getWebUsbTransport = async () => {
+    if (!this.u2fTransport) {
+      this.webUsbTransport = await WebUsbTransport.create()
+    }
+    return this.webUsbTransport
   }
 
   getEtherLedger = async () => {
     if (!this.ethLedger) {
-      this.ethLedger = new Ledger(await this.getTransport())
+      this.ethLedger = new Ledger(await this.getWebUsbTransport())
     }
     return this.ethLedger
   }
@@ -63,7 +74,7 @@ class LedgerNanoS {
 
   getBtcLedger = async () => {
     if (!this.btcLedger) {
-      this.btcLedger = new BtcLedger(await this.getTransport())
+      this.btcLedger = new BtcLedger(await this.getU2FTransport())
     }
     return this.btcLedger
   }
@@ -84,15 +95,12 @@ class LedgerNanoS {
           }
         }
       case 'dai':
-      // TODO: add supoort for dai
         address = await this.getEthAddress(accountIndex)
-        web3 = this.getWeb3()
-        balance = await web3.eth.getBalance(address)
         return {
           [cryptoType]: {
             [accountIndex]: {
               address: address,
-              balance: balance
+              balance: await ERC20.getBalance(address, cryptoType)
             }
           }
         }
@@ -100,7 +108,8 @@ class LedgerNanoS {
         return {
           [cryptoType]: {
             [accountIndex]: await this.syncBtcAccountInfo(accountIndex)
-          } }
+          }
+        }
       default:
         throw new Error('Ledger Wallet received invalid cryptoType')
     }
@@ -156,10 +165,10 @@ class LedgerNanoS {
     }
     const gasNeeded = await web3.eth.estimateGas(rawTx)
 
-    if (gasNeeded >= gasLimit) {
-      console.error('Insufficient gas.')
-    } else if (gasLimit === undefined) {
+    if (gasLimit === undefined) {
       gasLimit = gasNeeded
+    } else if (new BN(gasNeeded).gt(new BN(gasLimit))) {
+      console.error('Insufficient gas.')
     }
 
     rawTx = {
@@ -222,28 +231,29 @@ class LedgerNanoS {
     }
 
     let functionParams = []
-    if (['undefined', 'object'].indexOf(typeof params[params.length - 1]) >= 0) {
+    if (['undefined', 'object'].indexOf(typeof params[params.length - 1]) >= 0 && params.length === 1) {
       console.log('no param')
     } else {
       params.forEach((item) => {
-        if (['undefined', 'object'].indexOf(typeof item)) {
+        if (['undefined', 'object'].indexOf(typeof item) < 0) {
           functionParams.push(item)
         }
       })
     }
+
     const targetContract = new web3.eth.Contract(contractAbi, contractAddress)
     const data = targetContract.methods[methodName](...functionParams).encodeABI()
     const gasNeeded = await targetContract.methods[methodName](...functionParams).estimateGas({ from: address })
 
-    if (gasNeeded >= gasLimit) {
-      console.error('Insufficient gas set for transaction.')
-    } else if (gasLimit === undefined) {
+    if (gasLimit === undefined) {
       gasLimit = gasNeeded
+    } else if (new BN(gasNeeded).gt(new BN(gasLimit))) {
+      console.error('Insufficient gas.')
     }
 
     let rawTx = {
       from: address,
-      nonce: txCount,
+      nonce: txCount + 1,
       gasPrice: web3.utils.numberToHex(gasPrice),
       gas: web3.utils.numberToHex(gasLimit),
       to: contractAddress,
