@@ -10,12 +10,19 @@ import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import moment from 'moment'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, cryptoSelection, txCost, receipt } = this.props
+    const { classes, txCost, receipt } = this.props
     const { receivingId, transferAmount, sender, destination, cryptoType, receiveTimestamp, receiveTxHash } = receipt
+
+    if (txCost) {
+      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
+        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        : parseFloat(transferAmount)
+    }
+
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -62,7 +69,7 @@ class ReceiveReceiptComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
+                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -70,7 +77,7 @@ class ReceiveReceiptComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)} ${getCryptoSymbol(cryptoSelection)}`}
+                    {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

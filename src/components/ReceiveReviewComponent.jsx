@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import moment from 'moment'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
@@ -33,10 +33,16 @@ class ReceiveReviewComponent extends Component {
   }
 
   render () {
-    const { classes, wallet, transfer, cryptoSelection, actionsPending, txCost } = this.props
+    const { classes, wallet, transfer, actionsPending, txCost } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
     var address = wallet.crypto[cryptoType][0].address
+
+    if (!actionsPending.getTxCost && txCost) {
+      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
+        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        : parseFloat(transferAmount)
+    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
@@ -95,7 +101,7 @@ class ReceiveReviewComponent extends Component {
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
                     {!actionsPending.getTxCost && txCost
-                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`
+                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>
@@ -105,7 +111,7 @@ class ReceiveReviewComponent extends Component {
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
                     {!actionsPending.getTxCost && txCost
-                      ? `${parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)} ${getCryptoSymbol(cryptoSelection)}`
+                      ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>

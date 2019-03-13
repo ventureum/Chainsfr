@@ -12,12 +12,19 @@ import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import moment from 'moment'
 import Paths from '../Paths'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReceiptComponent extends Component {
   render () {
     const { classes, receipt, txCost } = this.props
     const { sendingId, transferAmount, cryptoType, cancelTimestamp, cancelTxHash } = receipt
+
+    if (txCost) {
+      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
+        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        : parseFloat(transferAmount)
+    }
+
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -48,7 +55,7 @@ class CancelReceiptComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoType)}`}
+                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -56,7 +63,7 @@ class CancelReceiptComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)} ${getCryptoSymbol(cryptoType)}`}
+                    {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
