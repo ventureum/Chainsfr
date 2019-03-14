@@ -44,10 +44,9 @@ export default function (state = initState, action) {
     case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
       return update(state, { wallet: { ledger: { $merge: { connected: false } } } })
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return update(state, { wallet: { ledger: { $set: {
+      return update(state, { wallet: { ledger: { $merge: {
         connected: false,
-        network: null,
-        accounts: {}
+        network: null
       } } } })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
