@@ -8,6 +8,8 @@ import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
 import CheckIcon from '@material-ui/icons/CheckCircle'
+import RefreshIcon from '@material-ui/icons/Refresh'
+import IconButton from '@material-ui/core/IconButton'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -67,7 +69,7 @@ class WalletSelectionComponent extends Component {
   }
 
   renderBalance = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
+    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onSync } = this.props
     if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
@@ -94,7 +96,7 @@ class WalletSelectionComponent extends Component {
             <CircularProgress className={classes.circularProgress} />
           </Grid>
           <Grid item>
-            <Typography className={classes.connectedtext}>Synchronizing Acoount Info</Typography>
+            <Typography className={classes.connectedtext}>Synchronizing Acoount Info: {syncProgress} {syncProgress <= 2 ? 'address' : 'addresses'} synced</Typography>
           </Grid>
         </Grid>
       )
@@ -108,6 +110,11 @@ class WalletSelectionComponent extends Component {
             <Typography className={classes.connectedtext}>Account retrieved, your balance: {
               numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
             </Typography>
+          </Grid>
+          <Grid item>
+            <IconButton onClick={() => { onSync(cryptoType) }}>
+              <RefreshIcon />
+            </IconButton>
           </Grid>
         </Grid>
       )

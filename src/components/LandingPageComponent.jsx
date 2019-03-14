@@ -8,7 +8,6 @@ import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List'
 import ListItemText from '@material-ui/core/ListItemText'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
@@ -24,11 +23,10 @@ class LandingPageComponent extends Component {
     return id.slice(0, 4) + '...' + id.slice(-4)
   }
 
-  renderRecentTransferItem = (transfer) => {
+  renderRecentTransferItem = (transfer, i) => {
     const { classes } = this.props
 
     let secondaryDesc = null
-    let icon = null
 
     if (transfer.state === 'pending') {
       // pending receive
@@ -40,36 +38,39 @@ class LandingPageComponent extends Component {
     }
 
     return (
-      <ExpansionPanel>
+      <ExpansionPanel key={i}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          {icon}
-          <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
-          <ListItemSecondaryAction>
-            <Grid container direction='row' justify='space-between' alignItems='center'>
-              <Grid item>
-                {transfer.state === 'pending' &&
-                <Typography className={classes.recentTransferItemTransferStatusPending}>
+          <Grid container direction='row' alignItems='center' >
+            <Grid xs={8} item>
+              <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
+            </Grid>
+            <Grid xs={4} item>
+              <Grid container direction='row' justify='space-between' alignItems='center'>
+                <Grid item>
+                  {transfer.state === 'pending' &&
+                  <Typography className={classes.recentTransferItemTransferStatusPending}>
                    Pending
-                </Typography>
-                }
-                {transfer.state === 'received' &&
-                <Typography className={classes.recentTransferItemTransferStatus}>
+                  </Typography>
+                  }
+                  {transfer.state === 'received' &&
+                  <Typography className={classes.recentTransferItemTransferStatus}>
                    Received
-                </Typography>
-                }
-                {transfer.state === 'cancelled' &&
-                <Typography className={classes.recentTransferItemTransferStatus}>
+                  </Typography>
+                  }
+                  {transfer.state === 'cancelled' &&
+                  <Typography className={classes.recentTransferItemTransferStatus}>
                    Cancelled
-                </Typography>
-                }
-              </Grid>
-              <Grid item>
-                <Typography className={classes.recentTransferItemTransferAmount}>
-                  - {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
-                </Typography>
+                  </Typography>
+                  }
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.recentTransferItemTransferAmount}>
+                    - {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
+                  </Typography>
+                </Grid>
               </Grid>
             </Grid>
-          </ListItemSecondaryAction>
+          </Grid>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Grid container direction='column' justify='center' alignItems='flex-start'>
@@ -189,7 +190,7 @@ class LandingPageComponent extends Component {
                       <CircularProgress color='primary' />
                     </Grid>
                     }
-                    {transferHistory && transferHistory.map((transfer) => this.renderRecentTransferItem(transfer))}
+                    {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
                   </List>
                 </Scrollbars>
               </Grid>
@@ -262,8 +263,7 @@ const styles = theme => ({
     marginBottom: '30px'
   },
   recentTransferItemTransferAmount: {
-    marginRight: '30px',
-    marginLeft: '172px'
+    marginRight: '30px'
   },
   recentTransferItemTransferStatusPending: {
     borderRadius: '4px',

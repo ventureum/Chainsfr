@@ -79,7 +79,7 @@ class LedgerNanoS {
     return this.btcLedger
   }
 
-  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex = 0) => {
+  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex = 0, progress) => {
     let address, web3, balance
     switch (cryptoType) {
       case 'ethereum':
@@ -107,7 +107,7 @@ class LedgerNanoS {
       case 'bitcoin':
         return {
           [cryptoType]: {
-            [accountIndex]: await this.syncBtcAccountInfo(accountIndex)
+            [accountIndex]: await this.syncBtcAccountInfo(accountIndex, progress)
           }
         }
       default:
@@ -401,7 +401,7 @@ class LedgerNanoS {
     return utxos
   }
 
-  syncBtcAccountInfo = async (accountIndex) => {
+  syncBtcAccountInfo = async (accountIndex, progress) => {
     const btcLedger = await this.getBtcLedger()
     let i = 0
     let totalBalance = 0
@@ -460,6 +460,9 @@ class LedgerNanoS {
       }
 
       i += 1
+      if (progress) {
+        progress(i)
+      }
     }
     let accountData = {
       balance: totalBalance.toString(),
