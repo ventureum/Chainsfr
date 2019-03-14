@@ -265,7 +265,7 @@ async function loadFileByNameFromAppData (fileName) {
     // now load content of the file
     return loadFile(fileId)
   } else {
-    if (files.length === 0) throw new Error('File not found')
+    if (files.length === 0) return null
     else throw new Error('Multiple files with same file name found')
   }
 }
@@ -292,11 +292,7 @@ async function saveTempSendFile (transferData) {
  */
 async function saveSendFile (transferData) {
   let transfers = null
-  try {
-    transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
-  } catch (err) {
-    if (err.message !== 'File not found') throw err
-  }
+  transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
 
   if (transfers) {
     transfers[transferData.sendingId] = transferData
