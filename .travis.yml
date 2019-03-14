@@ -16,7 +16,7 @@ deploy:
   provider: s3
   skip_cleanup: true
   cache_control: "no-cache"
-  access_key_id: AKIAJK37WKERUEXODQZA
+  access_key_id: AKIAIFWICYKK6GWUDRMA
   secret_access_key: $S3_SECRET
   bucket: www.chainsfer.io
   local_dir: build
