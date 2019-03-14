@@ -7,6 +7,10 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 
 class WalletSelectionContainer extends Component {
+  state = {
+    syncProgress: 0
+  }
+
   onCryptoSelected = (cryptoType) => {
     const {
       checkMetamaskConnection,
@@ -25,14 +29,19 @@ class WalletSelectionContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, syncLedgerAccountInfo, actionsPending, walletSelection } = this.props
+    const { wallet, cryptoSelection, actionsPending, walletSelection } = this.props
     if (wallet &&
       wallet.connected &&
       !wallet.crypto[cryptoSelection] &&
       !actionsPending.syncAccountInfo &&
       walletSelection === 'ledger') {
-      syncLedgerAccountInfo(cryptoSelection)
+      this.onSync(cryptoSelection)
     }
+  }
+
+  onSync= (cryptoSelection) => {
+    const { syncLedgerAccountInfo } = this.props
+    syncLedgerAccountInfo(cryptoSelection, 0, (index) => { this.setState({ syncProgress: index }) })
   }
 
   render () {
@@ -49,6 +58,8 @@ class WalletSelectionContainer extends Component {
         cryptoType={cryptoSelection}
         onCryptoSelected={this.onCryptoSelected}
         onWalletSelected={selectWallet}
+        syncProgress={this.state.syncProgress}
+        onSync={this.onSync}
         {...other}
       />
     )
@@ -66,7 +77,7 @@ const mapDispatchToProps = dispatch => {
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n)),
-    syncLedgerAccountInfo: (c) => dispatch(syncLedgerAccountInfo(c))
+    syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress))
   }
 }
 

@@ -8,10 +8,10 @@ import ERC20 from '../ERC20'
 
 const ledgerNanoS = new LedgerNanoS()
 
-function syncLedgerAccountInfo (cryptoType, accountIndex = 0) {
+function syncLedgerAccountInfo (cryptoType, accountIndex = 0, progress) {
   return {
     type: 'SYNC_LEDGER_ACCOUNT_INFO',
-    payload: ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex)
+    payload: ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex, progress)
   }
 }
 
