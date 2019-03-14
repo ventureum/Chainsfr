@@ -1,22 +1,23 @@
+// @flow
 import { bufferToInt } from 'ethereumjs-util'
 
-export const getBufferFromHex = hex => {
+export const getBufferFromHex = (hex: string) => {
   const _hex = hex.toLowerCase().replace('0x', '')
   return Buffer.from(_hex, 'hex')
 }
 
-export const bufferToHex = buffer => {
+export const bufferToHex = (buffer: Buffer) => {
   return '0x' + buffer.toString('hex')
 }
 
-export const calculateChainIdFromV = v => {
+export const calculateChainIdFromV = (v: Buffer) => {
   const sigV = bufferToInt(v)
   let chainId = Math.floor((sigV - 35) / 2)
   if (chainId < 0) chainId = 0
   return chainId
 }
 
-export const getSignTransactionObject = tx => {
+export const getSignTransactionObject = (tx: Object) => {
   return {
     rawTransaction: bufferToHex(tx.serialize()),
     tx: {

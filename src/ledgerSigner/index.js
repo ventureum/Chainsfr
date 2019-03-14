@@ -1,3 +1,4 @@
+// @flow
 import 'babel-polyfill'
 import U2FTransport from '@ledgerhq/hw-transport-u2f' // for browser
 import WebUsbTransport from '@ledgerhq/hw-transport-webusb' // for browser
@@ -19,68 +20,83 @@ import BN from 'bn.js'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = "49'/1'"
-const networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
-const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+
+let networkId: number = 1
+if (process.env.REACT_APP_NETWORK_NAME) {
+  networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
+}
+
+let infuraApi: string = ''
+if (process.env.REACT_APP_NETWORK_NAME && process.env.REACT_APP_INFURA_API_KEY) {
+  infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+}
 const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
-const ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
+
+let ledgerApiUrl :string = ''
+if (process.env.REACT_APP_LEDGER_API_URL) {
+  ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
+}
 
 class LedgerNanoS {
-  static u2fTransport
-  static webUsbTransport
-  static ethLedger
-  static web3
+  u2fTransport: any
+  webUsbTransport: any
+  ethLedger: any
+  web3:any
+  btcLedger: any
 
-  getU2FTransport = async () => {
+  getU2FTransport = async (): Promise<any> => {
     if (!this.u2fTransport) {
       this.u2fTransport = await U2FTransport.create()
     }
     return this.u2fTransport
   }
 
-  getWebUsbTransport = async () => {
+  getWebUsbTransport = async (): Promise<any> => {
     if (!this.u2fTransport) {
       this.webUsbTransport = await WebUsbTransport.create()
     }
     return this.webUsbTransport
   }
 
-  getEtherLedger = async () => {
+  getEtherLedger = async (): Promise<any> => {
     if (!this.ethLedger) {
       this.ethLedger = new Ledger(await this.getWebUsbTransport())
     }
     return this.ethLedger
   }
 
-  getWeb3 = () => {
+  getWeb3 = (): any => {
     if (!this.web3) {
       this.web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
     }
     return this.web3
   }
 
-  getEthAddress = async (accountIndex) => {
+  getEthAddress = async (accountIndex: number): Promise<string> => {
     const accountPath = baseEtherPath + `/${accountIndex}`
     const ethLedger = await this.getEtherLedger()
     const result = await ethLedger.getAddress(accountPath)
     return result.address
   }
 
-  getBtcAddresss = async (accountIndex) => {
+  getBtcAddresss = async (accountIndex: number): Promise<Object> => {
     const btcLedger = await this.getBtcLedger()
     const accountPath = `${baseBtcPath}/${accountIndex}'/0/0`
     const addr = await btcLedger.getWalletPublicKey(accountPath, false, true)
     return addr
   }
 
-  getBtcLedger = async () => {
+  getBtcLedger = async (): Promise<any> => {
     if (!this.btcLedger) {
       this.btcLedger = new BtcLedger(await this.getU2FTransport())
     }
     return this.btcLedger
   }
 
-  syncAccountBaseOnCryptoType = async (cryptoType, accountIndex = 0, progress) => {
-    let address, web3, balance
+  syncAccountBaseOnCryptoType = async (cryptoType: string, accountIndex: number = 0, progress: Function): Promise<Object> => {
+    let address: string
+    let web3: any
+    let balance: string
     switch (cryptoType) {
       case 'ethereum':
         address = await this.getEthAddress(accountIndex)
@@ -115,16 +131,16 @@ class LedgerNanoS {
     }
   }
 
-  deviceConnected = async (cryptoType) => {
+  deviceConnected = async (cryptoType: string) => {
     try {
       if (cryptoType !== 'bitcoin') {
-        await this.getEthAddress()
+        await this.getEthAddress(0)
       } else {
-        await this.getBtcAddresss()
+        await this.getBtcAddresss(0)
       }
       return {
         connected: true,
-        network: cryptoType === 'bitcoin' ? process.env.REACT_APP_BTC_NETWORK : networkIdMap[process.env.REACT_APP_NETWORK_NAME]
+        network: cryptoType === 'bitcoin' ? process.env.REACT_APP_BTC_NETWORK : networkId
       }
     } catch (e) {
       console.log(e)
@@ -138,7 +154,7 @@ class LedgerNanoS {
    * @param {number}      amount              Amount of ether, in 'wei'.
    * @param {object}      options             Options of the transaction (i.e. gasLimit & gasPrice)
    */
-  signSendEther = async (accountIndex, receipientAddr, amount, ...options) => {
+  signSendEther = async (accountIndex: number, receipientAddr: string, amount: string, ...options: Array<any>) => {
     const accountPath = baseEtherPath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
@@ -213,7 +229,7 @@ class LedgerNanoS {
    * @param {string}                        methodName          Name of the method being called.
    * @param {[param1[, param2[, ...]]]}     params              Paramaters for the contract. The last param is a optional object contains gasPrice and gasLimit.
    */
-  signSendTrasaction = async (accountIndex, contractAddress, contractAbi, methodName, ...params) => {
+  signSendTrasaction = async (accountIndex: number, contractAddress: string, contractAbi: Object, methodName: string, ...params: Array<any>) => {
     const accountPath = baseEtherPath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
@@ -289,7 +305,7 @@ class LedgerNanoS {
     return signedTransactionObject
   }
 
-  callMethod = async (contractAddress, contractAbi, methodName, ...params) => {
+  callMethod = async (contractAddress: string, contractAbi: Object, methodName: string, ...params: Array<any>) => {
     let functionParams = []
     if (['undefined', 'object'].indexOf(typeof params[params.length - 1]) >= 0) {
       console.log('no param')
@@ -306,12 +322,12 @@ class LedgerNanoS {
     return rv
   }
 
-  getUtxoDetails = async (txHash) => {
+  getUtxoDetails = async (txHash: string) => {
     const details = await axios.get(`${ledgerApiUrl}/transactions/${txHash}/hex`)
     return details.data[0].hex
   }
 
-  createNewBtcPaymentTransaction = async (inputs, to, amount, fee, changeIndex) => {
+  createNewBtcPaymentTransaction = async (inputs: Array<Object>, to: string, amount: number, fee: number, changeIndex: number) => {
     const btcLedger = await this.getBtcLedger()
     const changeAddressPath = `${baseBtcPath}/0'/1/${changeIndex}`
 
@@ -361,14 +377,14 @@ class LedgerNanoS {
     return signedTxRaw
   }
 
-  broadcastBtcRawTx = async (txRaw) => {
+  broadcastBtcRawTx = async (txRaw: string) => {
     const rv = await axios.post(
       `${ledgerApiUrl}/transactions/send`,
       { tx: txRaw })
     return rv.data.result
   }
 
-  getUtxosFromTxs = (txs, address) => {
+  getUtxosFromTxs = (txs: Array<Object>, address: string) => {
     let utxos = []
     let spent = {}
     txs.forEach(tx => {
@@ -401,7 +417,7 @@ class LedgerNanoS {
     return utxos
   }
 
-  syncBtcAccountInfo = async (accountIndex, progress) => {
+  syncBtcAccountInfo = async (accountIndex: number, progress: Function) => {
     const btcLedger = await this.getBtcLedger()
     let i = 0
     let totalBalance = 0
@@ -483,9 +499,9 @@ class LedgerNanoS {
   // Function to estimate Tx size
   // Referrenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/094d3741527e181a626d929d56ab4a515403e4a0/src/TransactionUtils.js#L10
   estimateTransactionSize = (
-    inputsCount,
-    outputsCount,
-    handleSegwit
+    inputsCount: number,
+    outputsCount: number,
+    handleSegwit: boolean
   ) => {
     var maxNoWitness,
       maxSize,

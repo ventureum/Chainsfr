@@ -111,11 +111,13 @@ class WalletSelectionComponent extends Component {
               numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
             </Typography>
           </Grid>
+          {walletType === 'ledger' &&
           <Grid item>
             <IconButton onClick={() => { onSync(cryptoType) }}>
               <RefreshIcon />
             </IconButton>
           </Grid>
+          }
         </Grid>
       )
     }
