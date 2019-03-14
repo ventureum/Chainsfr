@@ -13,8 +13,14 @@ import { createBrowserHistory } from 'history'
 const history = createBrowserHistory()
 
 function configureStore (reducers) {
+  const middlewares = [routerMiddleware(history), errorMiddleware, promiseMiddleware(), thunk]
+
+  if (process.env.NODE_ENV === `development`) {
+    middlewares.push(logger)
+  }
+
   const enhancer = compose(
-    applyMiddleware(routerMiddleware(history), errorMiddleware, promiseMiddleware(), thunk, logger)
+    applyMiddleware(...middlewares)
   )
 
   return createStore(reducers, enhancer)
