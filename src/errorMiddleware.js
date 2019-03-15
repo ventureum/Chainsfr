@@ -7,7 +7,6 @@ export default function errorMiddleware (store) {
     if (!action.meta || !action.meta.localErrorHandling) {
       // If not a promise, continue on
       if (!isPromise(action.payload)) {
-        console.log(action.type)
         return next(action)
       }
 
