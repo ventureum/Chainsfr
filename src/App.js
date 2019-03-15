@@ -13,6 +13,7 @@ import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles'
 import { store, history } from './configureStore'
+import LandingPage from './containers/LandingPageContainer'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -53,7 +54,7 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={matchProps => (
       <div style={defaultLayoutStyle}>
-        <NaviBar />
+        <NaviBar {...matchProps} />
         <div style={componentStyle}>
           <Component {...matchProps} />
         </div>
@@ -78,7 +79,7 @@ class App extends Component {
           <ConnectedRouter history={history}>
             <Switch>
               <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(TransferContainer)} />
+              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(LandingPage)} />
               <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
               <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
               <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />

@@ -20,6 +20,8 @@ import utils from '../utils'
 import numeral from 'numeral'
 import { walletCryptoSupports, walletSelections } from '../wallet'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import path from '../Paths.js'
+import { Link } from 'react-router-dom'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -193,7 +195,8 @@ class WalletSelectionComponent extends Component {
             <Grid item>
               <Button
                 color='primary'
-                onClick={() => this.props.goToStep(-1)}
+                component={Link}
+                to={path.home}
               >
               Cancel Transfer
               </Button>

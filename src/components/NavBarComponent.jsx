@@ -40,14 +40,14 @@ class NavBarComponent extends Component {
   }
 
   render () {
-    const { classes } = this.props
+    const { classes, backToHome } = this.props
     const { open } = this.state
     return (
       <AppBar position='static'>
         <Toolbar>
           <Grid container direction='row' justify='space-between' alignItems='center'>
             <Grid item>
-              <Button classes={{ root: classes.homeButton }} component={Link} to={path.home} >
+              <Button classes={{ root: classes.homeButton }} component={Link} to={path.home} onClick={() => { backToHome() }}>
                 <Typography className={classes.appNameText} >
                   Chainsfer
                 </Typography>

@@ -16,6 +16,8 @@ export default function (state = initialState, action) {
       let { transferAction, n } = action.payload
       let idx = state[transferAction] + n
       return update(state, { [transferAction]: { $set: idx } })
+    case 'BACK_TO_HOME':
+      return initialState
     default:
       return state
   }

@@ -7,17 +7,10 @@ import WalletSelection from '../containers/WalletSelectionContainer'
 import Recipient from '../containers/RecipientContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
-import LandingPage from '../containers/LandingPageContainer'
 
 class TransferComponent extends React.Component {
   render () {
     const { classes, step } = this.props
-
-    if (step === 0) {
-      // landing page
-      return (<LandingPage />)
-    }
-
     return (
       <Grid
         container
@@ -35,10 +28,10 @@ class TransferComponent extends React.Component {
             alignItems='center'
           >
             <Grid item className={classes.subComponent}>
-              {step === 1 && <WalletSelection />}
-              {step === 2 && <Recipient />}
-              {step === 3 && <Review />}
-              {step === 4 && <Receipt />}
+              {step === 0 && <WalletSelection />}
+              {step === 1 && <Recipient />}
+              {step === 2 && <Review />}
+              {step === 3 && <Receipt />}
             </Grid>
           </Grid>
         </Grid>
