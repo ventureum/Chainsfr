@@ -8,20 +8,85 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import path from '../Paths.js'
+import Grow from '@material-ui/core/Grow'
+import Paper from '@material-ui/core/Paper'
+import Popper from '@material-ui/core/Popper'
+import MenuItem from '@material-ui/core/MenuItem'
+import MenuList from '@material-ui/core/MenuList'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import IconButton from '@material-ui/core/IconButton'
+import Grid from '@material-ui/core/Grid'
 
 class NavBarComponent extends Component {
+  state = {
+    open: false
+  }
+
+  handleToggle = () => {
+    const { profile } = this.props
+    this.setState(state => ({ open: profile.isAuthenticated && !state.open }))
+  };
+
+  handleClose = (event, action) => {
+    if (this.anchorEl.contains(event.target)) {
+      return
+    }
+
+    if (action === 'logout') {
+      this.props.onLogout()
+    }
+
+    this.setState({ open: false })
+  }
+
   render () {
     const { classes } = this.props
+    const { open } = this.state
     return (
       <AppBar position='static'>
         <Toolbar>
-          <Button classes={{ root: classes.button }} component={Link} to={path.home} >
-            <Typography variant='h6' color='inherit' className={classes.grow}>
-              Chainsfer
-            </Typography>
-          </Button>
-          <AccountCircle />
+          <Grid container direction='row' justify='space-between' alignItems='center'>
+            <Grid item>
+              <Button classes={{ root: classes.homeButton }} component={Link} to={path.home} >
+                <Typography className={classes.appNameText} >
+                  Chainsfer
+                </Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              <IconButton
+                buttonRef={node => {
+                  this.anchorEl = node
+                }}
+                aria-owns={open ? 'menu-list-grow' : undefined}
+                aria-haspopup='true'
+                onClick={this.handleToggle}
+              >
+                <AccountCircle className={classes.userIcon} />
+              </IconButton>
+              <Popper open={open} anchorEl={this.anchorEl} transition disablePortal>
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    id='menu-list-grow'
+                    style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                  >
+                    <Paper>
+                      <ClickAwayListener onClickAway={this.handleClose}>
+                        <MenuList>
+                          <MenuItem onClick={(event) => { this.handleClose(event, 'logout') }}>Logout</MenuItem>
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
+
+            </Grid>
+          </Grid>
+
         </Toolbar>
+
       </AppBar>
     )
   }
@@ -31,10 +96,18 @@ const styles = theme => ({
   grow: {
     flexGrow: 1
   },
-  button: {
+  appNameText: {
+    color: '#ffffff',
+    fontSize: '18px',
+    fontWeight: 600
+  },
+  homeButton: {
     '&:hover': {
       backgroundColor: 'transparent'
     }
+  },
+  userIcon: {
+    color: '#ffffff'
   }
 })
 

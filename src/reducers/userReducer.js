@@ -16,6 +16,8 @@ export default function (state = initState, action) {
         ...state,
         profile: action.payload.profile
       }
+    case 'LOGOUT':
+      return initState
     default: // need this for default case
       return state
   }
