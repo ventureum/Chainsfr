@@ -1,27 +1,26 @@
 import isPromise from 'is-promise'
+import { enqueueSnackbar } from './actions/notificationActions'
 
-export default function errorMiddleware () {
+export default function errorMiddleware (store) {
   return next => action => {
-    // If not a promise, continue on
-    if (!isPromise(action.payload)) {
+    // Errors are handled globally by default
+    if (!action.meta || !action.meta.localErrorHandling) {
+      // If not a promise, continue on
+      if (!isPromise(action.payload)) {
+        console.log(action.type)
+        return next(action)
+      }
+
+      return next(action).catch(error => store.dispatch(enqueueSnackbar({
+        message: (typeof error === 'string') ? error : error.message,
+        options: {
+          variant: 'error',
+          persist: true
+        }
+      })))
+    } else {
+      // process as usual, do not handle errors
       return next(action)
     }
-
-    /*
-     * The error middleware serves to dispatch the initial pending promise to
-     * the promise middleware, but adds a `catch`.
-     */
-    if (action.meta && action.meta.globalError === true) {
-      // Dispatch initial pending promise, but catch any errors
-      return next(action).catch(error => {
-        if (!action.meta.silent) {
-          // warn in console if silent === false
-          console.warn(error)
-        }
-        return error
-      })
-    }
-
-    return next(action)
   }
 }

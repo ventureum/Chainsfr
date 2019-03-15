@@ -7,6 +7,7 @@ import walletReducer from './reducers/walletReducer.js'
 import navigationReducer from './reducers/navigationReducer.js'
 import loadingReducer from './reducers/loadingReducer.js'
 import errorReducer from './reducers/errorReducer.js'
+import notificationReducer from './reducers/notificationReducer.js'
 
 export default (history) => combineReducers({
   router: connectRouter(history),
@@ -16,5 +17,6 @@ export default (history) => combineReducers({
   walletReducer,
   navigationReducer,
   loadingReducer,
-  errorReducer
+  errorReducer,
+  notificationReducer
 })

@@ -14,6 +14,10 @@ import paths from './Paths'
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles'
 import { store, history } from './configureStore'
 import LandingPage from './containers/LandingPageContainer'
+import { SnackbarProvider } from 'notistack'
+import NotifierComponent from './components/NotifierComponent'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -58,6 +62,7 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
         <div style={componentStyle}>
           <Component {...matchProps} />
         </div>
+        <NotifierComponent />
         <Footer />
       </div>
     )} />
@@ -76,15 +81,25 @@ class App extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <Provider store={store}>
-          <ConnectedRouter history={history}>
-            <Switch>
-              <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-              <DefaultLayout exact path={paths.home} component={userIsAuthenticated(LandingPage)} />
-              <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
-              <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
-              <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />
-            </Switch>
-          </ConnectedRouter>
+          <SnackbarProvider action={[
+            <IconButton
+              key='close'
+              aria-label='Close'
+              color='inherit'
+            >
+              <CloseIcon />
+            </IconButton>
+          ]}>
+            <ConnectedRouter history={history}>
+              <Switch>
+                <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+                <DefaultLayout exact path={paths.home} component={userIsAuthenticated(LandingPage)} />
+                <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
+                <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
+                <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />
+              </Switch>
+            </ConnectedRouter>
+          </SnackbarProvider>
         </Provider>
       </MuiThemeProvider>
     )
