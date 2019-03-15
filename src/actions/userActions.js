@@ -10,4 +10,10 @@ function onLogin (loginData) {
   }
 }
 
-export { onLogin }
+function onLogout () {
+  return {
+    type: 'LOGOUT'
+  }
+}
+
+export { onLogin, onLogout }

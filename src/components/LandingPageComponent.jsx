@@ -17,6 +17,7 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
+import path from '../Paths.js'
 
 class LandingPageComponent extends Component {
   getIdAbbreviation = (id) => {
@@ -165,7 +166,8 @@ class LandingPageComponent extends Component {
                             <Button
                               variant='contained'
                               color='primary'
-                              onClick={() => this.props.goToStep(1)}
+                              component={Link}
+                              to={path.transfer}
                             >
                               Arrange Transfer
                             </Button>

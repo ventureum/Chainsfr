@@ -12,6 +12,8 @@ import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
+import path from '../Paths.js'
+import { Link } from 'react-router-dom'
 
 class ReceiptComponent extends Component {
   state = {
@@ -126,7 +128,8 @@ class ReceiptComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(-4)}
+                component={Link}
+                to={path.home}
               >
                 Back to Home
               </Button>

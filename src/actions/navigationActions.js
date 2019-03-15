@@ -6,4 +6,10 @@ function goToStep (transferAction, n) {
   }
 }
 
-export { goToStep }
+function backToHome () {
+  return {
+    type: 'BACK_TO_HOME'
+  }
+}
+
+export { goToStep, backToHome }
