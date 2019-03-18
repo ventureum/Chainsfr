@@ -29,12 +29,14 @@ class WalletSelectionContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, actionsPending, walletSelection } = this.props
+    const { wallet, cryptoSelection, actionsPending, walletSelection, error } = this.props
     if (wallet &&
-      wallet.connected &&
+        wallet.connected &&
+        cryptoSelection &&
       !wallet.crypto[cryptoSelection] &&
       !actionsPending.syncAccountInfo &&
-      walletSelection === 'ledger') {
+        walletSelection === 'ledger' &&
+        !error) {
       this.onSync(cryptoSelection)
     }
   }
@@ -67,7 +69,7 @@ class WalletSelectionContainer extends Component {
 }
 
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION', 'CHECK_LEDGER_NANOS_CONNECTION'])
-const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION'])
+const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION', 'SYNC_LEDGER_ACCOUNT_INFO', 'CHECK_LEDGER_NANOS_CONNECTION'])
 const syncAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO'])
 
 const mapDispatchToProps = dispatch => {
