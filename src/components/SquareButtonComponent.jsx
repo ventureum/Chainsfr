@@ -1,10 +1,21 @@
+// @flow
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 
-class SquareButtonComponent extends Component {
+type Props = {
+  onClick: Function,
+  classes: Object,
+  disabled: boolean,
+  selected: boolean,
+  logo: string,
+  title: string,
+  desc: string
+}
+
+class SquareButtonComponent extends Component<Props> {
   render () {
     const { classes, disabled, selected, onClick, logo, title, desc } = this.props
     let btnStyle = classes.btn

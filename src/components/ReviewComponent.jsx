@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -7,7 +8,24 @@ import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
-class ReviewComponent extends Component {
+type Props = {
+  submitTx: Function,
+  getTxCost: Function,
+  goToStep: Function,
+  classes: Object,
+  transferForm: Object,
+  cryptoSelection: string,
+  walletSelection: string,
+  wallet: Object,
+  txCost: Object,
+  actionsPending: {
+    submitTx: boolean,
+    getTxCost: boolean
+  },
+  error: any
+}
+
+class ReviewComponent extends Component<Props> {
   handleReviewNext = () => {
     const { wallet, transferForm, cryptoSelection, walletSelection, txCost } = this.props
     const { transferAmount, sender, destination, password } = transferForm

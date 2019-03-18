@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
@@ -6,7 +7,25 @@ import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 
-class WalletSelectionContainer extends Component {
+type Props = {
+  checkMetamaskConnection: Function,
+  checkLedgerNanoSConnection: Function,
+  selectCrypto: Function,
+  selectWallet: Function,
+  goToStep:Function,
+  syncLedgerAccountInfo:Function,
+  walletSelection: string,
+  cryptoSelection: string,
+  wallet: Object,
+  actionsPending: Object,
+  error: any
+}
+
+type State = {
+  syncProgress: number
+}
+
+class WalletSelectionContainer extends Component<Props, State> {
   state = {
     syncProgress: 0
   }
@@ -41,7 +60,7 @@ class WalletSelectionContainer extends Component {
     }
   }
 
-  onSync= (cryptoSelection) => {
+  onSync = (cryptoSelection) => {
     const { syncLedgerAccountInfo } = this.props
     syncLedgerAccountInfo(cryptoSelection, 0, (index) => { this.setState({ syncProgress: index }) })
   }

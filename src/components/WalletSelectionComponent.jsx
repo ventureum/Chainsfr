@@ -1,5 +1,5 @@
+// @flow
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -28,23 +28,29 @@ const WalletConnectionErrorMessage = {
   ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
 }
 
-class WalletSelectionComponent extends Component {
-  static propTypes = {
-    walletType: PropTypes.string,
-    cryptoType: PropTypes.string,
-    onCryptoSelected: PropTypes.func,
-    onWalletSelected: PropTypes.func,
-    handleNext: PropTypes.func
-  }
+type Props = {
+  onWalletSelected: Function,
+  onCryptoSelected: Function,
+  onSync: Function,
+  goToStep:Function,
+  classes:Object,
+  syncProgress: number,
+  walletType: string,
+  cryptoType: string,
+  wallet: Object,
+  actionsPending: Object,
+  error: any
+}
 
-  cryptoInWallet = (crypto, walletType) => {
+class WalletSelectionComponent extends Component<Props> {
+  cryptoInWallet = (crypto: Object, walletType: string): boolean => {
     for (let item of walletCryptoSupports[walletType]) {
       if (item.cryptoType === crypto.cryptoType) return true
     }
     return false
   }
 
-  cryptoDisabled = (crypto, walletType) => {
+  cryptoDisabled = (crypto: Object, walletType: string): boolean => {
     for (let item of walletCryptoSupports[walletType]) {
       if (item.cryptoType === crypto.cryptoType && item.disabled) return true
     }
