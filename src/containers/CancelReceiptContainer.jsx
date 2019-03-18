@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import CancelReceipt from '../components/CancelReceiptComponent'
-import { goToStep } from '../actions/navigationActions'
+import { goToStep, backToHome } from '../actions/navigationActions'
 
 class CancelReceiptContainer extends Component {
   render () {
@@ -15,7 +15,8 @@ class CancelReceiptContainer extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    goToStep: (n) => dispatch(goToStep('cancel', n))
+    goToStep: (n) => dispatch(goToStep('cancel', n)),
+    backToHome: () => dispatch(backToHome())
   }
 }
 

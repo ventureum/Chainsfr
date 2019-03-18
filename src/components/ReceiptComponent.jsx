@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
-import path from '../Paths.js'
+import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 
 class ReceiptComponent extends Component {
@@ -22,7 +22,7 @@ class ReceiptComponent extends Component {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, txCost, receipt } = this.props
+    const { classes, cryptoSelection, password, txCost, receipt, backToHome } = this.props
     const { sendingId, transferAmount, sender, destination, sendTimestamp } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -129,7 +129,8 @@ class ReceiptComponent extends Component {
                 color='primary'
                 size='large'
                 component={Link}
-                to={path.home}
+                to={Paths.home}
+                onClick={backToHome}
               >
                 Back to Home
               </Button>

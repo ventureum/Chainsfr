@@ -16,7 +16,7 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReceiptComponent extends Component {
   render () {
-    const { classes, receipt, txCost } = this.props
+    const { classes, receipt, txCost, backToHome } = this.props
     const { sendingId, transferAmount, cryptoType, cancelTimestamp, cancelTxHash } = receipt
 
     if (txCost) {
@@ -102,6 +102,7 @@ class CancelReceiptComponent extends Component {
                 size='large'
                 component={Link}
                 to={Paths.home}
+                onClick={backToHome}
               >
                 Back to Home
               </Button>

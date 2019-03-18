@@ -10,11 +10,13 @@ import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import moment from 'moment'
+import Paths from '../Paths.js'
+import { Link } from 'react-router-dom'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txCost, receipt } = this.props
+    const { classes, txCost, receipt, backToHome } = this.props
     const { receivingId, transferAmount, sender, destination, cryptoType, receiveTimestamp, receiveTxHash } = receipt
 
     if (txCost) {
@@ -114,7 +116,9 @@ class ReceiveReceiptComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(-4)}
+                component={Link}
+                to={Paths.home}
+                onClick={backToHome}
               >
                 Back to Home
               </Button>
