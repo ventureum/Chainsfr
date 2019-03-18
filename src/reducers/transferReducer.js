@@ -28,17 +28,17 @@ export default function (state = initialState, action) {
         ...state,
         txCost: action.payload
       }
-    case 'TRANSACTION_HASH_RETRIEVED_FULFILLED':
+    case 'SUBMIT_TX_FULFILLED':
       return {
         ...state,
         receipt: action.payload
       }
-    case 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED_FULFILLED':
+    case 'ACCEPT_TRANSFER_FULFILLED':
       return {
         ...state,
         receipt: action.payload
       }
-    case 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED_FULFILLED':
+    case 'CANCEL_TRANSFER_FULFILLED':
       return {
         ...state,
         receipt: action.payload
