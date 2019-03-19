@@ -122,7 +122,7 @@ function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
   throw new Error('Transfer amount greater and fee than utxo values.')
 }
 
-async function _submitTx (dispatch, txRequest, accountInfo) {
+async function _submitTx (txRequest, accountInfo) {
   let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost, txFeePerByte = 15 } = txRequest
   let escrow
   let encryptedEscrow
@@ -187,19 +187,12 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
     }
 
     txRequest.sendTxHash = await web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
-    dispatch(transactionHashRetrieved(txRequest))
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
       const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
       const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, amountInWei)
-      _web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
-        .on('transactionHash', (hash) => {
-          console.log('txHash: ', hash)
-          // update request tx hash
-          txRequest.sendTxHash = hash
-          dispatch(transactionHashRetrieved(txRequest))
-        })
+      txRequest.sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
       // send out tx fee for next tx
@@ -225,20 +218,19 @@ async function _submitTx (dispatch, txRequest, accountInfo) {
           gasPrice: txCost.costByType.txCostERC20.price
         })
       txRequest.sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
-      dispatch(transactionHashRetrieved(txRequest))
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
       const addressPool = accountInfo.addresses
       const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue, txFeePerByte)
       const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
-      const txHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
-      txRequest.sendTxHash = txHash
-
-      dispatch(transactionHashRetrieved(txRequest))
+      txRequest.sendTxHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
     }
   }
   // step 5: clear wallet
   window._web3.eth.accounts.wallet.clear()
+
+  // step 6: update tx data
+  return _transactionHashRetrieved(txRequest)
 }
 
 async function _transactionHashRetrieved (txRequest) {
@@ -265,7 +257,7 @@ async function _transactionHashRetrieved (txRequest) {
   return data
 }
 
-async function _acceptTransfer (dispatch, txRequest) {
+async function _acceptTransfer (txRequest) {
   // transfer funds from escrowWallet to destinationAddress with cryptoType and transferAmount
   // fromWallet is a decryptedWallet with the following data
   // 1. address
@@ -307,7 +299,7 @@ async function _acceptTransfer (dispatch, txRequest) {
     }
 
     txRequest.receiveTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
-    dispatch(acceptTransferTransactionHashRetrieved(txRequest))
+    return _acceptTransferTransactionHashRetrieved(txRequest)
   }
 }
 
@@ -323,7 +315,7 @@ async function _acceptTransferTransactionHashRetrieved (txRequest) {
   return data
 }
 
-async function _cancelTransfer (dispatch, txRequest) {
+async function _cancelTransfer (txRequest) {
   // transfer funds from escrowWallet to sender address with cryptoType and transferAmount
   // fromWallet is a decryptedWallet with the following data
   // 1. address
@@ -371,7 +363,7 @@ async function _cancelTransfer (dispatch, txRequest) {
 
     // now boardcast tx
     txRequest.cancelTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
-    dispatch(cancelTransferTransactionHashRetrieved(txRequest))
+    return _cancelTransferTransactionHashRetrieved(txRequest)
   }
 }
 
@@ -430,58 +422,31 @@ async function _getTransferHistory () {
   }))
 }
 
-function transactionHashRetrieved (txRequest) {
-  return (dispatch, getState) => {
-    return dispatch({
-      type: 'TRANSACTION_HASH_RETRIEVED',
-      payload: _transactionHashRetrieved(txRequest)
-    }).then(() => dispatch(goToStep('send', 1)))
-  }
-}
-
-function acceptTransferTransactionHashRetrieved (txRequest) {
-  return (dispatch, getState) => {
-    return dispatch({
-      type: 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED',
-      payload: _acceptTransferTransactionHashRetrieved(txRequest)
-    }).then(() => dispatch(goToStep('receive', 1)))
-  }
-}
-
-function cancelTransferTransactionHashRetrieved (txRequest) {
-  return (dispatch, getState) => {
-    return dispatch({
-      type: 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED',
-      payload: _cancelTransferTransactionHashRetrieved(txRequest)
-    }).then(() => dispatch(goToStep('cancel', 1)))
-  }
-}
-
 function submitTx (txRequest) {
   return (dispatch, getState) => {
     const accountInfo = txRequest.cryptoType === 'bitcoin' ? getState().walletReducer.wallet.ledger.crypto[txRequest.cryptoType][0] : {}
-    return {
+    return dispatch({
       type: 'SUBMIT_TX',
-      payload: _submitTx(dispatch, txRequest, accountInfo)
-    }
+      payload: _submitTx(txRequest, accountInfo)
+    }).then(() => dispatch(goToStep('send', 1)))
   }
 }
 
 function acceptTransfer (txRequest) {
   return (dispatch, getState) => {
-    return {
+    return dispatch({
       type: 'ACCEPT_TRANSFER',
-      payload: _acceptTransfer(dispatch, txRequest)
-    }
+      payload: _acceptTransfer(txRequest)
+    }).then(() => dispatch(goToStep('receive', 1)))
   }
 }
 
 function cancelTransfer (txRequest) {
   return (dispatch, getState) => {
-    return {
+    return dispatch({
       type: 'CANCEL_TRANSFER',
-      payload: _cancelTransfer(dispatch, txRequest)
-    }
+      payload: _cancelTransfer(txRequest)
+    }).then(() => dispatch(goToStep('cancel', 1)))
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReceipt from '../components/ReceiveReceiptComponent'
-import { goToStep } from '../actions/navigationActions'
+import { goToStep, backToHome } from '../actions/navigationActions'
 
 class ReceiveReceiptContainer extends Component {
   render () {
@@ -15,7 +15,8 @@ class ReceiveReceiptContainer extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    goToStep: (n) => dispatch(goToStep('receive', n))
+    goToStep: (n) => dispatch(goToStep('receive', n)),
+    backToHome: () => dispatch(backToHome())
   }
 }
 

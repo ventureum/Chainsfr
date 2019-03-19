@@ -10,13 +10,16 @@ export default function errorMiddleware (store) {
         return next(action)
       }
 
-      return next(action).catch(error => store.dispatch(enqueueSnackbar({
-        message: (typeof error === 'string') ? error : error.message,
-        options: {
-          variant: 'error',
-          persist: true
-        }
-      })))
+      return next(action).catch(error => {
+        store.dispatch(enqueueSnackbar({
+          message: (typeof error === 'string') ? error : error.message,
+          options: {
+            variant: 'error',
+            persist: true
+          }
+        }))
+        throw error
+      })
     } else {
       // process as usual, do not handle errors
       return next(action)
