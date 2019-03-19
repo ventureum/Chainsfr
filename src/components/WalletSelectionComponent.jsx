@@ -31,10 +31,13 @@ const WalletConnectionErrorMessage = {
 type Props = {
   onWalletSelected: Function,
   onCryptoSelected: Function,
-  onSync: Function,
-  goToStep:Function,
-  classes:Object,
-  syncProgress: number,
+  onUpdate: Function,
+  goToStep: Function,
+  classes: Object,
+  syncProgress: {
+    index: number,
+    change: number
+  },
   walletType: string,
   cryptoType: string,
   wallet: Object,
@@ -77,7 +80,7 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderBalance = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onSync } = this.props
+    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onUpdate } = this.props
     if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
@@ -104,7 +107,26 @@ class WalletSelectionComponent extends Component<Props> {
             <CircularProgress className={classes.circularProgress} />
           </Grid>
           <Grid item>
-            <Typography className={classes.connectedtext}>Synchronizing Acoount Info: {syncProgress} {syncProgress <= 2 ? 'address' : 'addresses'} synced</Typography>
+            <Typography className={classes.connectedtext}>
+            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} addresss: {syncProgress.index}
+            </Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.updateBtcAccountInfo) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+            Update Acoount Info: {
+                syncProgress.index === 0
+                  ? 'checking used addresses'
+                  : `discovering new ${syncProgress.change !== 0 ? 'internal' : 'external'} address: ${syncProgress.index}`
+              }
+            </Typography>
           </Grid>
         </Grid>
       )
@@ -121,7 +143,7 @@ class WalletSelectionComponent extends Component<Props> {
           </Grid>
           {walletType === 'ledger' &&
           <Grid item>
-            <IconButton onClick={() => { onSync(cryptoType) }}>
+            <IconButton onClick={() => { onUpdate(cryptoType) }}>
               <RefreshIcon />
             </IconButton>
           </Grid>
@@ -142,7 +164,12 @@ class WalletSelectionComponent extends Component<Props> {
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
-              disabled={this.cryptoDisabled(c, walletType) || actionsPending.syncAccountInfo || actionsPending.checkWalletConnection}
+              disabled={
+                this.cryptoDisabled(c, walletType) ||
+                actionsPending.syncAccountInfo ||
+                actionsPending.checkWalletConnection ||
+                actionsPending.updateBtcAccountInfo
+              }
               className={classes.cryptoListItem}
             >
               <Radio
@@ -214,7 +241,15 @@ class WalletSelectionComponent extends Component<Props> {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(1)}
-                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection || !wallet.crypto[cryptoType] || actionsPending.syncAccountInfo}
+                disabled={
+                  !walletType ||
+                  !cryptoType ||
+                  !wallet.connected ||
+                  actionsPending.checkWalletConnection ||
+                  !wallet.crypto[cryptoType] ||
+                  actionsPending.syncAccountInfo ||
+                  actionsPending.updateBtcAccountInfo
+                }
               >
               Continue
               </Button>
