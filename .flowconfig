@@ -4,9 +4,16 @@
 ./src
 
 [libs]
+./flow-typed/npm/.*
 
 [lints]
 
 [options]
+emoji=true
+module.file_ext=.js
+module.file_ext=.jsx
 
 [strict]
+
+[untyped]
+.*/node_modules/.*
