@@ -1,5 +1,5 @@
+// @flow
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -28,23 +28,32 @@ const WalletConnectionErrorMessage = {
   ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
 }
 
-class WalletSelectionComponent extends Component {
-  static propTypes = {
-    walletType: PropTypes.string,
-    cryptoType: PropTypes.string,
-    onCryptoSelected: PropTypes.func,
-    onWalletSelected: PropTypes.func,
-    handleNext: PropTypes.func
-  }
+type Props = {
+  onWalletSelected: Function,
+  onCryptoSelected: Function,
+  onUpdate: Function,
+  goToStep: Function,
+  classes: Object,
+  syncProgress: {
+    index: number,
+    change: number
+  },
+  walletType: string,
+  cryptoType: string,
+  wallet: Object,
+  actionsPending: Object,
+  error: any
+}
 
-  cryptoInWallet = (crypto, walletType) => {
+class WalletSelectionComponent extends Component<Props> {
+  cryptoInWallet = (crypto: Object, walletType: string): boolean => {
     for (let item of walletCryptoSupports[walletType]) {
       if (item.cryptoType === crypto.cryptoType) return true
     }
     return false
   }
 
-  cryptoDisabled = (crypto, walletType) => {
+  cryptoDisabled = (crypto: Object, walletType: string): boolean => {
     for (let item of walletCryptoSupports[walletType]) {
       if (item.cryptoType === crypto.cryptoType && item.disabled) return true
     }
@@ -71,7 +80,7 @@ class WalletSelectionComponent extends Component {
   }
 
   renderBalance = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onSync } = this.props
+    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onUpdate } = this.props
     if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
@@ -98,7 +107,26 @@ class WalletSelectionComponent extends Component {
             <CircularProgress className={classes.circularProgress} />
           </Grid>
           <Grid item>
-            <Typography className={classes.connectedtext}>Synchronizing Acoount Info: {syncProgress} {syncProgress <= 2 ? 'address' : 'addresses'} synced</Typography>
+            <Typography className={classes.connectedtext}>
+            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} addresss: {syncProgress.index}
+            </Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.updateBtcAccountInfo) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+            Update Acoount Info: {
+                syncProgress.index === 0
+                  ? 'checking used addresses'
+                  : `discovering new ${syncProgress.change !== 0 ? 'internal' : 'external'} address: ${syncProgress.index}`
+              }
+            </Typography>
           </Grid>
         </Grid>
       )
@@ -115,7 +143,7 @@ class WalletSelectionComponent extends Component {
           </Grid>
           {walletType === 'ledger' &&
           <Grid item>
-            <IconButton onClick={() => { onSync(cryptoType) }}>
+            <IconButton onClick={() => { onUpdate(cryptoType) }}>
               <RefreshIcon />
             </IconButton>
           </Grid>
@@ -136,7 +164,12 @@ class WalletSelectionComponent extends Component {
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
-              disabled={this.cryptoDisabled(c, walletType) || actionsPending.syncAccountInfo || actionsPending.checkWalletConnection}
+              disabled={
+                this.cryptoDisabled(c, walletType) ||
+                actionsPending.syncAccountInfo ||
+                actionsPending.checkWalletConnection ||
+                actionsPending.updateBtcAccountInfo
+              }
               className={classes.cryptoListItem}
             >
               <Radio
@@ -208,7 +241,15 @@ class WalletSelectionComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(1)}
-                disabled={!walletType || !cryptoType || !wallet.connected || actionsPending.checkWalletConnection || !wallet.crypto[cryptoType] || actionsPending.syncAccountInfo}
+                disabled={
+                  !walletType ||
+                  !cryptoType ||
+                  !wallet.connected ||
+                  actionsPending.checkWalletConnection ||
+                  !wallet.crypto[cryptoType] ||
+                  actionsPending.syncAccountInfo ||
+                  actionsPending.updateBtcAccountInfo
+                }
               >
               Continue
               </Button>

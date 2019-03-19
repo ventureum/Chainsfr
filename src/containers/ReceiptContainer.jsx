@@ -1,9 +1,19 @@
+// @flow
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Receipt from '../components/ReceiptComponent'
 import { goToStep, backToHome } from '../actions/navigationActions'
 
-class ReceiptContainer extends Component {
+type Props = {
+  goToStep: Function,
+  cryptoSelection: string,
+  wallet: Object,
+  txCost: Object,
+  receipt: Object,
+  password: string
+}
+
+class ReceiptContainer extends Component<Props> {
   render () {
     return (
       <Receipt

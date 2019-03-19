@@ -1,3 +1,4 @@
+// @flow
 import React from 'react'
 import { withStyles } from '@material-ui/core'
 import Stepper from '@material-ui/core/Stepper'
@@ -9,7 +10,12 @@ const stepsByActionType = {
   'transfer': ['Wallet', 'Recipient', 'Review']
 }
 
-class MyStepper extends React.Component {
+type Props ={
+  actionType: string,
+  step: number
+}
+
+class MyStepper extends React.Component<Props> {
   render () {
     const { actionType, step } = this.props
     const steps = stepsByActionType[actionType]

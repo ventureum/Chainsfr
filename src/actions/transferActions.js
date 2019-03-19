@@ -94,8 +94,7 @@ async function _getTxCost (txRequest, addressPool) {
 
 function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
   let utxosCollected = []
-  let valueCollected = 0
-  let fee = 0
+  let valueCollected = new BN(0)
   let i = 0
   let size = 0
   while (i < addressPool.length) {
@@ -107,11 +106,11 @@ function collectUtxos (addressPool = [], transferAmount = 0, txFeePerByte) {
         keyPath: addressPool[i].path
       })
       size = ledgerNanoS.estimateTransactionSize(utxosCollected.length, 2, true).max
-      fee = ((new BN(size)).mul(new BN(txFeePerByte))).toString()
-      valueCollected += utxo.value
-      if (valueCollected > transferAmount + fee) {
+      let fee = (new BN(size)).mul(new BN(txFeePerByte))
+      valueCollected = valueCollected.add(new BN(utxo.value))
+      if (valueCollected.gte(new BN(transferAmount).add(fee))) {
         return {
-          fee,
+          fee: fee.toString(),
           size,
           utxosCollected
         }

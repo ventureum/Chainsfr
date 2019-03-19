@@ -1,3 +1,4 @@
+// @flow
 import React from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
@@ -8,7 +9,13 @@ import Recipient from '../containers/RecipientContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
 
-class TransferComponent extends React.Component {
+type Props = {
+  classes:Object,
+  step: number,
+  history: Object
+}
+
+class TransferComponent extends React.Component<Props> {
   render () {
     const { classes, step } = this.props
     return (

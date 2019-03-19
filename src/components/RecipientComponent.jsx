@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -10,7 +11,27 @@ import numeral from 'numeral'
 import validator from 'validator'
 import { getCryptoDecimals } from '../tokens'
 
-class RecipientComponent extends Component {
+type Props = {
+  updateTransferForm: Function,
+  generateSecurityAnswer: Function,
+  clearSecurityAnswer: Function,
+  goToStep: Function,
+  cryptoSelection: string,
+  transferForm: Object,
+  wallet: Object,
+  classes: Object
+}
+
+type State = {
+  formError: {
+    sender: ?string,
+    destination: ?string,
+    transferAmount:?string,
+    password: ?string,
+  }
+}
+
+class RecipientComponent extends Component<Props, State> {
   state = {
     formError: {
       sender: null,

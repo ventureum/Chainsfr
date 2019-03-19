@@ -4,7 +4,17 @@ import Recipient from '../components/RecipientComponent'
 import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions/formActions'
 import { goToStep } from '../actions/navigationActions'
 
-class RecipientContainer extends Component {
+type Props = {
+  updateTransferForm: Function,
+  generateSecurityAnswer: Function,
+  clearSecurityAnswer: Function,
+  goToStep: Function,
+  cryptoSelection: string,
+  transferForm: Object,
+  wallet: Object
+}
+
+class RecipientContainer extends Component<Props> {
   render () {
     return (
       <Recipient

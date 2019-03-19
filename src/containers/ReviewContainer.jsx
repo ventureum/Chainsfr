@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Review from '../components/ReviewComponent'
@@ -5,7 +6,23 @@ import { submitTx, getTxCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 
-class ReviewContainer extends Component {
+type Props = {
+  submitTx: Function,
+  getTxCost: Function,
+  goToStep: Function,
+  transferForm: Object,
+  cryptoSelection: string,
+  walletSelection: string,
+  wallet: Object,
+  txCost: Object,
+  actionsPending: {
+    submitTx: boolean,
+    getTxCost: boolean
+  },
+  error: any
+}
+
+class ReviewContainer extends Component<Props> {
   render () {
     return (
       <Review

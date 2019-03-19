@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -15,7 +16,22 @@ import { getCryptoSymbol } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 
-class ReceiptComponent extends Component {
+type Props = {
+  goToStep: Function,
+  backToHome: Function,
+  cryptoSelection: string,
+  wallet: Object,
+  txCost: Object,
+  receipt: Object,
+  classes: Object,
+  password: string
+}
+
+type State = {
+  copied: boolean
+}
+
+class ReceiptComponent extends Component<Props, State> {
   state = {
     copied: false
   }

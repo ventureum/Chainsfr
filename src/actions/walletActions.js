@@ -15,6 +15,16 @@ function syncLedgerAccountInfo (cryptoType, accountIndex = 0, progress) {
   }
 }
 
+function updateBtcAccountInfo (progress) {
+  return (dispatch, getState) => {
+    const accountInfo = getState().walletReducer.wallet.ledger.crypto.bitcoin
+    return dispatch({
+      type: 'UPDATE_BTC_ACCOUNT_INFO',
+      payload: ledgerNanoS.updateBtcAccountInfo(0, accountInfo, progress)
+    })
+  }
+}
+
 async function _checkMetamaskConnection (cryptoType, dispatch) {
   let rv = {
     connected: false,
@@ -135,5 +145,6 @@ export {
   verifyPassword,
   clearDecryptedWallet,
   getWallet,
-  syncLedgerAccountInfo
+  syncLedgerAccountInfo,
+  updateBtcAccountInfo
 }
