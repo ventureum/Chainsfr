@@ -6,6 +6,7 @@ import ReceiveLandingPageComponent from '../components/ReceiveLandingPageCompone
 import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
+import { onLogin } from '../actions/userActions'
 
 class ReceiveLandingPageContainer extends Component {
   componentDidMount () {
@@ -28,6 +29,7 @@ const errorSelector = createErrorSelector(['GET_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
   return {
+    onLogin: loginData => dispatch(onLogin(loginData)),
     getTransfer: (id) => dispatch(getTransfer(null, id)),
     goToStep: (n) => dispatch(goToStep('receive', n))
   }
@@ -36,6 +38,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
+    isAuthenticated: state.userReducer.profile.isAuthenticated,
     actionsPending: {
       getTransfer: getTransferSelector(state)
     },
