@@ -21,13 +21,16 @@ class ReceivePasswordComponent extends Component {
   handleNext = () => {
     let { verifyPassword, transfer } = this.props
     let { password } = this.state
-    verifyPassword(transfer.data, password + transfer.destination)
+    verifyPassword({
+      encriptedWallet: transfer.data,
+      password: password + transfer.destination,
+      cryptoType: transfer.cryptoType
+    })
   }
 
   render () {
     const { classes, error } = this.props
     const { password } = this.state
-
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.root} noValidate autoComplete='off'>

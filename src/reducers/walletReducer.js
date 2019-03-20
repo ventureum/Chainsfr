@@ -58,6 +58,8 @@ export default function (state = initState, action) {
       return update(state, { wallet: { ledger: { crypto: { $merge: action.payload } } } })
     case 'UPDATE_BTC_ACCOUNT_INFO_FULFILLED':
       return update(state, { wallet: { ledger: { crypto: { $merge: action.payload } } } })
+    case 'GET_UTXO_FOR_ESCROW_WALLET_FULFILLED':
+      return update(state, { escrowWallet: { decryptedWallet: { $merge: action.payload } } })
     case REHYDRATE:
       if (action.payload) {
         var incoming = action.payload.walletReducer.wallet.ledger

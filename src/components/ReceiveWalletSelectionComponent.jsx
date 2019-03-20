@@ -116,7 +116,33 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && ((walletType === 'metamask') || (walletType === 'ledger'))) {
+    } else if (actionsPending.syncAccountInfo) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+            Synchronizing for the first time, this can take several minutes...
+            </Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.updateBtcAccountInfo) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress className={classes.circularProgress} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+            Update Ledger Acoount Info...
+            </Typography>
+          </Grid>
+        </Grid>
+      )
+    } else if (wallet && ((walletType === 'metamask') || (walletType === 'ledger')) && wallet.crypto[transfer.cryptoType]) {
       return (
         <Grid
           container

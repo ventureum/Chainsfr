@@ -26,12 +26,6 @@ class ReceiveReviewComponent extends Component {
     })
   }
 
-  componentDidMount () {
-    // refresh gas cost
-    const { transfer } = this.props
-    this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
-  }
-
   render () {
     const { classes, wallet, transfer, actionsPending, txCost } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer

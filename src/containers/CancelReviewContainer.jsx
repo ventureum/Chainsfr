@@ -44,7 +44,7 @@ const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'C
 const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
-    verifyPassword: (encriptedWallet, password) => dispatch(verifyPassword(encriptedWallet, password)),
+    verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
     getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n))

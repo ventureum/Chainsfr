@@ -42,10 +42,13 @@ class CancelReviewComponent extends Component {
     const { transfer, escrowWallet } = this.props
 
     if (transfer) {
-      const { data } = transfer
       if (!escrowWallet.decryptedWallet) {
         // decrypt wallet first
-        this.props.verifyPassword(transfer.sendingId, data, null)
+        this.props.verifyPassword({
+          sendingId: transfer.sendingId,
+          encriptedWallet: transfer.data,
+          cryptoType: transfer.cryptoType
+        })
       }
     }
   }

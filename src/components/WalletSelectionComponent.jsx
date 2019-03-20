@@ -108,7 +108,7 @@ class WalletSelectionComponent extends Component<Props> {
           </Grid>
           <Grid item>
             <Typography className={classes.connectedtext}>
-            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} addresss: {syncProgress.index}
+            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} address: {syncProgress.index}
             </Typography>
           </Grid>
         </Grid>
