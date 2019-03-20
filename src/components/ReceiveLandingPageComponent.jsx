@@ -14,6 +14,53 @@ import Paths from '../Paths.js'
 import { getCryptoSymbol } from '../tokens'
 
 class ReceiveLandingPageComponent extends Component {
+  renderBtnSection = () => {
+    let { isAuthenticated, transfer } = this.props
+    if (transfer) {
+      var { receivingId } = transfer
+    }
+
+    if (isAuthenticated) {
+      // show 'Accept' button only for authenticated users
+      return (
+        <Grid item>
+          <Button
+            variant='outlined'
+            color='primary'
+            onClick={() => this.props.goToStep(1)}
+          >
+            Accept
+          </Button>
+        </Grid>
+      )
+    } else {
+      // show two buttons, one for guest, one for logging in
+      return (
+        <>
+          <Grid item>
+            <Button
+              variant='outlined'
+              color='primary'
+              onClick={() => this.props.goToStep(1)}
+            >
+              Guest
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant='contained'
+              color='primary'
+              component={Link}
+              to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
+            >
+              Login with Google
+            </Button>
+          </Grid>
+        </>
+      )
+    }
+  }
+
   render () {
     const { actionsPending, transfer, classes } = this.props
     if (transfer) {
@@ -141,25 +188,7 @@ class ReceiveLandingPageComponent extends Component {
                 {!hasReceived && !hasCancelled &&
                 <Grid item className={classes.btnSection}>
                   <Grid container direction='row' justify='flex-start' spacing={24}>
-                    <Grid item>
-                      <Button
-                        variant='outlined'
-                        color='primary'
-                        onClick={() => this.props.goToStep(1)}
-                      >
-                        Guest
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        variant='contained'
-                        color='primary'
-                        component={Link}
-                        to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
-                      >
-                        Login with Google
-                      </Button>
-                    </Grid>
+                    { this.renderBtnSection() }
                   </Grid>
                 </Grid>
                 }
