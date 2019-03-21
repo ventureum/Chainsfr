@@ -21,22 +21,21 @@ class ReceiveWalletSelectionContainer extends Component {
     let { cryptoType } = transfer
 
     if (walletType === 'ledger' && walletType !== walletSelection) {
+      selectWallet(walletType)
       checkLedgerNanoSConnection(cryptoType)
-      selectWallet(walletType)
     } else if (walletType === 'metamask' && walletType !== walletSelection) {
-      checkMetamaskConnection(cryptoType)
       selectWallet(walletType)
+      checkMetamaskConnection(cryptoType)
     }
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, actionsPending, walletSelection, transfer, error } = this.props
+    const { wallet, actionsPending, transfer, error } = this.props
+    const prevActionsPending = prevProps.actionsPending
     let { cryptoType } = transfer
     if (wallet &&
       wallet.connected &&
-      !actionsPending.syncAccountInfo &&
-      !actionsPending.updateBtcAccountInfo &&
-      walletSelection === 'ledger' &&
+      (prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection) &&
       !error) {
       if (!wallet.crypto[cryptoType] || cryptoType !== 'bitcoin') {
         this.onSync(cryptoType)
