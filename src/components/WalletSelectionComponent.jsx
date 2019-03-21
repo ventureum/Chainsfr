@@ -18,7 +18,7 @@ import Divider from '@material-ui/core/Divider'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import utils from '../utils'
 import numeral from 'numeral'
-import { walletCryptoSupports, walletSelections } from '../wallet'
+import { walletSelections, cryptoDisabled, cryptoInWallet } from '../wallet'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
 import { Link } from 'react-router-dom'
@@ -46,20 +46,6 @@ type Props = {
 }
 
 class WalletSelectionComponent extends Component<Props> {
-  cryptoInWallet = (crypto: Object, walletType: string): boolean => {
-    for (let item of walletCryptoSupports[walletType]) {
-      if (item.cryptoType === crypto.cryptoType) return true
-    }
-    return false
-  }
-
-  cryptoDisabled = (crypto: Object, walletType: string): boolean => {
-    for (let item of walletCryptoSupports[walletType]) {
-      if (item.cryptoType === crypto.cryptoType && item.disabled) return true
-    }
-    return false
-  }
-
   renderWalletSelection = () => {
     const { walletType, onWalletSelected } = this.props
     return (
@@ -158,14 +144,14 @@ class WalletSelectionComponent extends Component<Props> {
 
     return (
       <List className={classes.cryptoList}>
-        {cryptoSelections.filter(c => this.cryptoInWallet(c, walletType)).map(c =>
+        {cryptoSelections.filter(c => cryptoInWallet(c, walletType)).map(c =>
           (<div key={c.cryptoType}>
             <Divider />
             <ListItem
               button
               onClick={() => onCryptoSelected(c.cryptoType)}
               disabled={
-                this.cryptoDisabled(c, walletType) ||
+                cryptoDisabled(c, walletType) ||
                 actionsPending.syncAccountInfo ||
                 actionsPending.checkWalletConnection ||
                 actionsPending.updateBtcAccountInfo
@@ -178,7 +164,7 @@ class WalletSelectionComponent extends Component<Props> {
                 tabIndex={-1}
                 disableRipple
               />
-              <ListItemText primary={c.symbol} secondary={this.cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
+              <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
             </ListItem>
           </div>))}
         <Divider />

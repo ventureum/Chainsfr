@@ -10,6 +10,7 @@ import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import { walletDisabledByCrypto } from '../wallet'
 
 const walletCryptoSupports = {
   'basic': [{ cryptoType: 'ethereum', disabled: true },
@@ -68,13 +69,13 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletSelection = () => {
-    const { walletType, onWalletSelected } = this.props
+    const { walletType, onWalletSelected, transfer } = this.props
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         {walletSelections.map(w =>
           (<Grid item key={w.walletType}>
             <SquareButton
-              disabled={w.disabled}
+              disabled={w.disabled || walletDisabledByCrypto(w.walletType, transfer.cryptoType)}
               onClick={() => onWalletSelected(w.walletType)}
               logo={w.logo}
               title={w.title}
@@ -118,27 +119,49 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (actionsPending.syncAccountInfo) {
       return (
-        <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid
+          container
+          direction='row'
+          justify='center'
+          alignItems='center'
+          spacing={8}
+          className={classes.notificationContainer}
+        >
           <Grid item>
-            <CircularProgress className={classes.circularProgress} />
+            <CircularProgress color='primary' size={20} />
           </Grid>
           <Grid item>
-            <Typography className={classes.connectedtext}>
-            Synchronizing for the first time, this can take several minutes...
-            </Typography>
+            <Grid container direction='column' justify='center'>
+              <Grid item>
+                <Typography className={classes.notificationTitle}>
+                  Synchronizing for the first time, this can take several minutes...
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       )
     } else if (actionsPending.updateBtcAccountInfo) {
       return (
-        <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid
+          container
+          direction='row'
+          justify='center'
+          alignItems='center'
+          spacing={8}
+          className={classes.notificationContainer}
+        >
           <Grid item>
-            <CircularProgress className={classes.circularProgress} />
+            <CircularProgress color='primary' size={20} />
           </Grid>
           <Grid item>
-            <Typography className={classes.connectedtext}>
-            Update Ledger Acoount Info...
-            </Typography>
+            <Grid container direction='column' justify='center'>
+              <Grid item>
+                <Typography className={classes.notificationTitle}>
+                  Update Ledger Acoount Info...
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       )
