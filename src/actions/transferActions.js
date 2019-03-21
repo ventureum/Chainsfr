@@ -13,6 +13,7 @@ import { getCrypto, getCryptoDecimals } from '../tokens'
 import bitcore from 'bitcore-lib'
 import wif from 'wif'
 import bip38 from 'bip38'
+import axios from 'axios'
 
 const WIF_VERSION = {
   'testnet': 0xEF,
@@ -20,6 +21,10 @@ const WIF_VERSION = {
 }
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+let ledgerApiUrl: string = ''
+if (process.env.REACT_APP_LEDGER_API_URL) {
+  ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
+}
 
 function web3EthSendTransactionPromise (web3Function, txObj) {
   return new Promise((resolve, reject) => {
@@ -27,6 +32,12 @@ function web3EthSendTransactionPromise (web3Function, txObj) {
       .on('transactionHash', (hash) => resolve(hash))
       .on('error', (error) => reject(error))
   })
+}
+
+async function getFirstFromAddress (txHash) {
+  const rv = (await axios.get(`${ledgerApiUrl}/transactions/${txHash}`)).data
+  const address = rv[0].inputs[0].address
+  return address
 }
 
 async function _getTxCost (txRequest, addressPool) {
@@ -332,15 +343,34 @@ async function _acceptTransferTransactionHashRetrieved (txRequest) {
   return data
 }
 
-async function _cancelTransfer (txRequest) {
+async function _cancelTransfer (txRequest, utxos) {
   // transfer funds from escrowWallet to sender address with cryptoType and transferAmount
   // fromWallet is a decryptedWallet with the following data
   // 1. address
   // 2. privateKey
 
   let { escrowWallet, sendTxHash, cryptoType, transferAmount, txCost } = txRequest
-
-  if (['ethereum', 'dai'].includes(cryptoType)) {
+  if (cryptoType === 'bitcoin') {
+    const firstFromAddress = await getFirstFromAddress(sendTxHash)
+    let bitcoreUtxoFormat = utxos.map(utxo => {
+      return {
+        txid: utxo.txHash,
+        vout: utxo.outputIndex,
+        address: escrowWallet.address,
+        script: utxo.script,
+        satoshis: utxo.value
+      }
+    })
+    const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
+    const fee = parseInt(txCost.costInBasicUnit)
+    let transaction = new bitcore.Transaction()
+      .from(bitcoreUtxoFormat)
+      .to(firstFromAddress, satoshiValue - fee)
+      .fee(parseInt(txCost.costInBasicUnit))
+      .sign(escrowWallet.privateKey)
+    const txHex = transaction.serialize()
+    txRequest.receiveTxHash = await ledgerNanoS.broadcastBtcRawTx(txHex)
+  } else if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
 
     const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
@@ -380,8 +410,8 @@ async function _cancelTransfer (txRequest) {
 
     // now boardcast tx
     txRequest.cancelTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
-    return _cancelTransferTransactionHashRetrieved(txRequest)
   }
+  return _cancelTransferTransactionHashRetrieved(txRequest)
 }
 
 async function _cancelTransferTransactionHashRetrieved (txRequest) {
@@ -464,9 +494,13 @@ function acceptTransfer (txRequest) {
 
 function cancelTransfer (txRequest) {
   return (dispatch, getState) => {
+    let utxos
+    if (txRequest.cryptoType === 'bitcoin') {
+      utxos = getState().walletReducer.escrowWallet.decryptedWallet.utxos
+    }
     return dispatch({
       type: 'CANCEL_TRANSFER',
-      payload: _cancelTransfer(txRequest)
+      payload: _cancelTransfer(txRequest, utxos)
     }).then(() => dispatch(goToStep('cancel', 1)))
   }
 }

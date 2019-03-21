@@ -6,7 +6,7 @@ import CancelReviewComponent from '../components/CancelReviewComponent'
 import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { verifyPassword } from '../actions/walletActions'
+import { verifyPassword, getUtxoForEscrowWallet } from '../actions/walletActions'
 
 class CancelReviewContainer extends Component {
   componentDidMount () {
@@ -16,12 +16,26 @@ class CancelReviewContainer extends Component {
     }
   }
 
-  componentDidUpdate () {
-    let { transfer, txCost, actionsPending, error } = this.props
+  componentDidUpdate (prevProps) {
+    let { transfer, actionsPending, error, getUtxoForEscrowWallet } = this.props
+    let prevActionPending = prevProps.actionsPending
     if (!error && transfer) {
-      if (!txCost && !actionsPending.getTxCost) {
-        // get gas cost
-        this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
+      if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
+        this.props.verifyPassword({
+          sendingId: transfer.sendingId,
+          encriptedWallet: transfer.data,
+          cryptoType: transfer.cryptoType
+        })
+      } else if (
+        (prevActionPending.verifyPassword && !actionsPending.verifyPassword) ||
+        (prevActionPending.getUtxoForEscrowWallet && !actionsPending.getUtxoForEscrowWallet)
+      ) {
+        if (transfer.cryptoType === 'bitcoin' && !prevActionPending.getUtxoForEscrowWallet) {
+          getUtxoForEscrowWallet()
+        } else if (transfer.cryptoType !== 'bitcoin' || prevActionPending.getUtxoForEscrowWallet) {
+          // get gas cost
+          this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
+        }
       }
     }
   }
@@ -38,8 +52,9 @@ class CancelReviewContainer extends Component {
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
 const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
+const getUtxoForEscrowWalletSelector = createLoadingSelector(['GET_UTXO_FOR_ESCROW_WALLET'])
 const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
-const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD', 'GET_TX_COST'])
+const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD', 'GET_TX_COST', 'GET_UTXO_FOR_ESCROW_WALLET'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -47,7 +62,8 @@ const mapDispatchToProps = dispatch => {
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
     getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
-    goToStep: (n) => dispatch(goToStep('receive', n))
+    goToStep: (n) => dispatch(goToStep('receive', n)),
+    getUtxoForEscrowWallet: () => dispatch(getUtxoForEscrowWallet())
   }
 }
 
@@ -61,7 +77,8 @@ const mapStateToProps = state => {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),
       getTxCost: getTxCostSelector(state),
-      cancelTransfer: cancelTransferSelector(state)
+      cancelTransfer: cancelTransferSelector(state),
+      getUtxoForEscrowWallet: getUtxoForEscrowWalletSelector(state)
     },
     error: errorSelector(state)
   }

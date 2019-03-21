@@ -16,41 +16,17 @@ class CancelReviewComponent extends Component {
     open: false
   }
 
-  componentDidUpdate (prevProps) {
-    const { open } = this.state
-    const { transfer, escrowWallet, txCost, receipt, actionsPending } = this.props
-    if (transfer) {
-      const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
-      if (!actionsPending.cancelTransfer && // cancelTransfer is not currently running
-      !receipt && // cancelTransfer has not been called
-        open && // cancel popup is currently focused
-        escrowWallet.decryptedWallet) { // escrowWallet has been decrypted
-        // submit cancelTransfer action
-        this.props.cancelTransfer({
-          escrowWallet: escrowWallet.decryptedWallet,
-          sendingId: sendingId,
-          sendTxHash: sendTxHash,
-          cryptoType: cryptoType,
-          transferAmount: transferAmount,
-          txCost: txCost
-        })
-      }
-    }
-  }
-
   handleReviewNext = () => {
-    const { transfer, escrowWallet } = this.props
-
-    if (transfer) {
-      if (!escrowWallet.decryptedWallet) {
-        // decrypt wallet first
-        this.props.verifyPassword({
-          sendingId: transfer.sendingId,
-          encriptedWallet: transfer.data,
-          cryptoType: transfer.cryptoType
-        })
-      }
-    }
+    const { transfer, escrowWallet, txCost } = this.props
+    const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
+    this.props.cancelTransfer({
+      escrowWallet: escrowWallet.decryptedWallet,
+      sendingId: sendingId,
+      sendTxHash: sendTxHash,
+      cryptoType: cryptoType,
+      transferAmount: transferAmount,
+      txCost: txCost
+    })
   }
 
   handleModalOpen = () => {
