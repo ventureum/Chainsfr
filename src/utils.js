@@ -2,8 +2,17 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import randomBytes from 'randombytes'
 import wordlist from './wordlist.js'
+import wif from 'wif'
+import bip38 from 'bip38'
+import bitcore from 'bitcore-lib'
+import axios from 'axios'
 
+const WIF_VERSION = {
+  'testnet': 0xEF,
+  'mainnet': 0x80
+}
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
 
 /*
  * @param val BN instance, assuming smallest token unit
@@ -99,14 +108,33 @@ function generatePassphrase (size) {
   return bytesToPassphrase(bytes)
 }
 
-function decryptWallet (encryptedWallet, password) {
-  const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+function decryptWallet (encryptedWallet, password, cryptoType) {
   try {
+    if (cryptoType === 'bitcoin') {
+      let decryptedKey = bip38.decrypt(encryptedWallet, password)
+
+      const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], decryptedKey.privateKey, decryptedKey.compressed)
+      const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
+      const publicKey = privateKey.toPublicKey()
+      const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
+      return {
+        WIF: walletWIF,
+        privateKey: privateKey,
+        publicKey: publicKey.compressed,
+        address: escrowWalletAddress
+      }
+    }
+    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
     return _web3.eth.accounts.decrypt(encryptedWallet, password)
   } catch (error) {
     // derivation error, possibly wrong password
     return null
   }
+}
+
+export async function getBtcLastBlockHeight () {
+  const rv = (await axios.get(blockcypherBaseUrl)).data
+  return rv.height
 }
 
 export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet }

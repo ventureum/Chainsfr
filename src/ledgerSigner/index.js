@@ -17,6 +17,7 @@ import axios from 'axios'
 import moment from 'moment'
 import ERC20 from '../ERC20'
 import BN from 'bn.js'
+import { getBtcLastBlockHeight } from '../utils'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = "49'/1'"
@@ -30,7 +31,6 @@ let infuraApi: string = ''
 if (process.env.REACT_APP_NETWORK_NAME && process.env.REACT_APP_INFURA_API_KEY) {
   infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
 }
-const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
 
 let ledgerApiUrl: string = ''
 if (process.env.REACT_APP_LEDGER_API_URL) {
@@ -407,7 +407,8 @@ class LedgerNanoS {
             utxos.push({
               txHash: tx.hash,
               outputIndex: output.output_index,
-              value: output.value
+              value: output.value,
+              script: output.script_hex
             })
           }
         }
@@ -421,7 +422,7 @@ class LedgerNanoS {
     const btcLedger = await this.getBtcLedger()
     let addresses = []
     let balance = new BN(0)
-
+    let nextAddress
     let gap = 0
     let i = offset
     let cuurentIndex = offset === 0 ? 0 : offset - 1
@@ -431,13 +432,14 @@ class LedgerNanoS {
       const keyInfo = await btcLedger.getWalletPublicKey(addressPath, false, true)
       const { bitcoinAddress } = keyInfo
 
-      const externalAddressData = (await axios.get(`${ledgerApiUrl}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)).data
-      if (externalAddressData.txs.length === 0) {
+      const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)).data
+      if (addressData.txs.length === 0) {
+        if (!nextAddress) nextAddress = bitcoinAddress
         gap += 1
       } else {
         cuurentIndex = i
         gap = 0
-        let utxos = this.getUtxosFromTxs(externalAddressData.txs, bitcoinAddress)
+        let utxos = this.getUtxosFromTxs(addressData.txs, bitcoinAddress)
         let value = utxos.reduce((accu, utxo) => {
           return new BN(utxo.value).add(accu)
         }, new BN(0))
@@ -457,7 +459,8 @@ class LedgerNanoS {
     return {
       balance: balance.toString(),
       nextIndex: cuurentIndex + 1,
-      addresses
+      addresses,
+      nextAddress
     }
   }
 
@@ -468,17 +471,13 @@ class LedgerNanoS {
     let accountData = {
       balance: (new BN(externalAddressData.balance).add(new BN(internalAddressData.balance))).toString(),
       nextAddressIndex: externalAddressData.nextIndex,
+      address: externalAddressData.nextAddress, // address for receiving
       nextChangeIndex: internalAddressData.nextIndex,
       addresses: [...externalAddressData.addresses, ...internalAddressData.addresses],
-      lastBlockHeight: await this.getLastBlockHeight(),
+      lastBlockHeight: await getBtcLastBlockHeight(),
       lastUpdate: moment().unix()
     }
     return accountData
-  }
-
-  getLastBlockHeight = async () => {
-    const rv = (await axios.get(blockcypherBaseUrl)).data
-    return rv.height
   }
 
   updateBtcAccountInfo = async (accountIndex: number = 0, accountInfo: Object, progress: ?Function) => {
@@ -520,9 +519,10 @@ class LedgerNanoS {
     let accountData = {
       balance: newBalance.add(new BN(externalAddressData.balance)).add(new BN(internalAddressData.balance)).toString(),
       nextAddressIndex: externalAddressData.nextIndex,
+      address: externalAddressData.nextAddress, // address for receiving; match name with ethereum[accountIndex].address
       nextChangeIndex: internalAddressData.nextIndex,
       addresses: [...updatedAddresses, ...externalAddressData.addresses, ...internalAddressData.addresses],
-      lastBlockHeight: await this.getLastBlockHeight(),
+      lastBlockHeight: await getBtcLastBlockHeight(),
       lastUpdate: moment().unix()
     }
     return {

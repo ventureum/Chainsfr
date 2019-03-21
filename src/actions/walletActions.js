@@ -5,7 +5,12 @@ import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
 import ERC20 from '../ERC20'
+import axios from 'axios'
 
+let ledgerApiUrl: string = ''
+if (process.env.REACT_APP_LEDGER_API_URL) {
+  ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
+}
 const ledgerNanoS = new LedgerNanoS()
 
 function syncLedgerAccountInfo (cryptoType, accountIndex = 0, progress) {
@@ -72,14 +77,14 @@ async function _checkLedgerNanoSConnection (cryptoType) {
   return deviceConnected
 }
 
-async function _verifyPassword (sendingId, encriptedWallet, password) {
+async function _verifyPassword ({ sendingId, encriptedWallet, password, cryptoType }) {
   if (sendingId) {
     // retrieve password from drive
     let transferData = await getTransferData(sendingId)
     password = Base64.decode(transferData.password) + transferData.destination
   }
 
-  let decryptedWallet = utils.decryptWallet(encriptedWallet, password)
+  let decryptedWallet = utils.decryptWallet(encriptedWallet, password, cryptoType)
   if (!decryptedWallet) {
     // wrong password
     throw new Error('WALLET_DECRYPTION_FAILED')
@@ -110,11 +115,11 @@ function checkLedgerNanoSConnection (cryptoType) {
   }
 }
 
-function verifyPassword (sendingId, encriptedWallet, password, nextStep) {
+function verifyPassword (transferInfo, nextStep) {
   return (dispatch, getState) => {
     return dispatch({
       type: 'VERIFY_PASSWORD',
-      payload: _verifyPassword(sendingId, encriptedWallet, password)
+      payload: _verifyPassword(transferInfo)
     }).then(() => {
       if (nextStep) {
         return dispatch(goToStep(nextStep.transferAction, nextStep.n))
@@ -128,6 +133,21 @@ function verifyPassword (sendingId, encriptedWallet, password, nextStep) {
 function clearDecryptedWallet () {
   return {
     type: 'CLEAR_DECRYPTED_WALLET'
+  }
+}
+async function _getUtxoForEscrowWallet (address) {
+  const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${address}/transactions?noToken=true&truncated=true`)).data
+  const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, address)
+  return { utxos }
+}
+
+function getUtxoForEscrowWallet () {
+  return (dispatch, getState) => {
+    const { address } = getState().walletReducer.escrowWallet.decryptedWallet
+    return dispatch({
+      type: 'GET_UTXO_FOR_ESCROW_WALLET',
+      payload: _getUtxoForEscrowWallet(address)
+    })
   }
 }
 
@@ -146,5 +166,6 @@ export {
   clearDecryptedWallet,
   getWallet,
   syncLedgerAccountInfo,
-  updateBtcAccountInfo
+  updateBtcAccountInfo,
+  getUtxoForEscrowWallet
 }

@@ -10,6 +10,7 @@ import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import { walletDisabledByCrypto } from '../wallet'
 
 const walletCryptoSupports = {
   'basic': [{ cryptoType: 'ethereum', disabled: true },
@@ -68,13 +69,13 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletSelection = () => {
-    const { walletType, onWalletSelected } = this.props
+    const { walletType, onWalletSelected, transfer } = this.props
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         {walletSelections.map(w =>
           (<Grid item key={w.walletType}>
             <SquareButton
-              disabled={w.disabled}
+              disabled={w.disabled || walletDisabledByCrypto(w.walletType, transfer.cryptoType)}
               onClick={() => onWalletSelected(w.walletType)}
               logo={w.logo}
               title={w.title}
@@ -116,7 +117,55 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && ((walletType === 'metamask') || (walletType === 'ledger'))) {
+    } else if (actionsPending.syncAccountInfo) {
+      return (
+        <Grid
+          container
+          direction='row'
+          justify='center'
+          alignItems='center'
+          spacing={8}
+          className={classes.notificationContainer}
+        >
+          <Grid item>
+            <CircularProgress color='primary' size={20} />
+          </Grid>
+          <Grid item>
+            <Grid container direction='column' justify='center'>
+              <Grid item>
+                <Typography className={classes.notificationTitle}>
+                  Synchronizing for the first time, this can take several minutes...
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.updateBtcAccountInfo) {
+      return (
+        <Grid
+          container
+          direction='row'
+          justify='center'
+          alignItems='center'
+          spacing={8}
+          className={classes.notificationContainer}
+        >
+          <Grid item>
+            <CircularProgress color='primary' size={20} />
+          </Grid>
+          <Grid item>
+            <Grid container direction='column' justify='center'>
+              <Grid item>
+                <Typography className={classes.notificationTitle}>
+                  Update Ledger Acoount Info...
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      )
+    } else if (wallet && ((walletType === 'metamask') || (walletType === 'ledger')) && wallet.crypto[transfer.cryptoType]) {
       return (
         <Grid
           container

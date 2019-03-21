@@ -1,3 +1,4 @@
+// @flow
 import MetamaskLogo from './images/metamask-button.svg'
 import HardwareWalletLogo from './images/hardware-wallet-button.svg'
 
@@ -35,3 +36,23 @@ export const walletSelections = [
     disabled: false
   }
 ]
+
+export function cryptoInWallet (crypto: Object, walletType: string): boolean {
+  for (let item of walletCryptoSupports[walletType]) {
+    if (item.cryptoType === crypto.cryptoType) return true
+  }
+  return false
+}
+
+export function cryptoDisabled (crypto: Object, walletType: string): boolean {
+  for (let item of walletCryptoSupports[walletType]) {
+    if (item.cryptoType === crypto.cryptoType && item.disabled) return true
+  }
+  return false
+}
+
+export function walletDisabledByCrypto (walletType: string, cryptoType: string): boolean {
+  return !walletCryptoSupports[walletType].find(element => {
+    return element.cryptoType === cryptoType
+  })
+}

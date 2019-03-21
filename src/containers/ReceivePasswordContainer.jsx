@@ -20,7 +20,7 @@ const errorSelector = createErrorSelector(['VERIFY_PASSWORD'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    verifyPassword: (encriptedWallet, password) => dispatch(verifyPassword(null, encriptedWallet, password, { transferAction: 'receive', n: 1 })),
+    verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo, { transferAction: 'receive', n: 1 })),
     clearDecryptedWallet: () => dispatch(clearDecryptedWallet()),
     goToStep: (n) => dispatch(goToStep('receive', n))
   }

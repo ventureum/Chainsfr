@@ -46,23 +46,21 @@ class WalletSelectionContainer extends Component<Props, State> {
       cryptoSelection
     } = this.props
     if (walletSelection === 'ledger' && cryptoType !== cryptoSelection) {
+      selectCrypto(cryptoType)
       checkLedgerNanoSConnection(cryptoType)
-      selectCrypto(cryptoType)
     } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
-      checkMetamaskConnection(cryptoType)
       selectCrypto(cryptoType)
+      checkMetamaskConnection(cryptoType)
     }
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, actionsPending, walletSelection, error } = this.props
+    const { wallet, cryptoSelection, actionsPending, error } = this.props
+    const prevActionsPending = prevProps.actionsPending
     if (wallet &&
-        wallet.connected &&
-        cryptoSelection &&
-      !wallet.crypto[cryptoSelection] &&
-      !actionsPending.syncAccountInfo &&
-        walletSelection === 'ledger' &&
-        !error) {
+      wallet.connected &&
+      (prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection) &&
+      !error) {
       this.onSync(cryptoSelection)
     }
   }
