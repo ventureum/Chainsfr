@@ -1,6 +1,5 @@
 // @flow
 import 'babel-polyfill'
-import U2FTransport from '@ledgerhq/hw-transport-u2f' // for browser
 import WebUsbTransport from '@ledgerhq/hw-transport-webusb' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
 import EthTx from 'ethereumjs-tx'
@@ -18,6 +17,7 @@ import moment from 'moment'
 import ERC20 from '../ERC20'
 import BN from 'bn.js'
 import { getBtcLastBlockHeight } from '../utils'
+import { getAccountXPub, findAddress } from './addressFinderUtils'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = "49'/1'"
@@ -38,30 +38,20 @@ if (process.env.REACT_APP_LEDGER_API_URL) {
 }
 
 class LedgerNanoS {
-  u2fTransport: any
   webUsbTransport: any
   ethLedger: any
   web3: any
   btcLedger: any
 
-  getU2FTransport = async (): Promise<any> => {
-    if (!this.u2fTransport) {
-      this.u2fTransport = await U2FTransport.create()
-    }
-    return this.u2fTransport
-  }
-
   getWebUsbTransport = async (): Promise<any> => {
-    if (!this.u2fTransport) {
+    if (!this.webUsbTransport || !this.webUsbTransport.device || !this.webUsbTransport.device.opened) {
       this.webUsbTransport = await WebUsbTransport.create()
     }
     return this.webUsbTransport
   }
 
   getEtherLedger = async (): Promise<any> => {
-    if (!this.ethLedger) {
-      this.ethLedger = new Ledger(await this.getWebUsbTransport())
-    }
+    this.ethLedger = new Ledger(await this.getWebUsbTransport())
     return this.ethLedger
   }
 
@@ -87,9 +77,7 @@ class LedgerNanoS {
   }
 
   getBtcLedger = async (): Promise<any> => {
-    if (!this.btcLedger) {
-      this.btcLedger = new BtcLedger(await this.getU2FTransport())
-    }
+    this.btcLedger = new BtcLedger(await this.getWebUsbTransport())
     return this.btcLedger
   }
 
@@ -418,19 +406,17 @@ class LedgerNanoS {
     return utxos
   }
 
-  discoverAddress = async (accountIndex: number, change: number, offset: number, progress: ?Function): Object => {
-    const btcLedger = await this.getBtcLedger()
+  discoverAddress = async (xpub: string, accountIndex: number, change: number, offset: number, progress: ?Function): Object => {
+    let gap = 0
     let addresses = []
     let balance = new BN(0)
     let nextAddress
-    let gap = 0
     let i = offset
     let cuurentIndex = offset === 0 ? 0 : offset - 1
     while (gap < 5) {
       let address
       const addressPath = `${baseBtcPath}/${accountIndex}'/${change}/${i}`
-      const keyInfo = await btcLedger.getWalletPublicKey(addressPath, false, true)
-      const { bitcoinAddress } = keyInfo
+      const bitcoinAddress = await findAddress(addressPath, true, xpub)
 
       const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)).data
       if (addressData.txs.length === 0) {
@@ -446,7 +432,7 @@ class LedgerNanoS {
         balance = balance.add(value)
         address = {
           path: addressPath,
-          publicKeyInfo: keyInfo,
+          publicKeyInfo: { bitcoinAddress },
           utxos: utxos
         }
         addresses.push(address)
@@ -465,14 +451,18 @@ class LedgerNanoS {
   }
 
   syncBtcAccountInfo = async (accountIndex: number, progress: ?Function): Object => {
-    const externalAddressData = await this.discoverAddress(accountIndex, 0, 0, progress)
-    const internalAddressData = await this.discoverAddress(accountIndex, 1, 0, progress)
+    const btcLedger = await this.getBtcLedger()
+    const xpub = await getAccountXPub(btcLedger, baseBtcPath, `${accountIndex}'`, true)
+
+    const externalAddressData = await this.discoverAddress(xpub, accountIndex, 0, 0, progress)
+    const internalAddressData = await this.discoverAddress(xpub, accountIndex, 1, 0, progress)
 
     let accountData = {
       balance: (new BN(externalAddressData.balance).add(new BN(internalAddressData.balance))).toString(),
       nextAddressIndex: externalAddressData.nextIndex,
       address: externalAddressData.nextAddress, // address for receiving
       nextChangeIndex: internalAddressData.nextIndex,
+      changeAddress: internalAddressData.nextAddress,
       addresses: [...externalAddressData.addresses, ...internalAddressData.addresses],
       lastBlockHeight: await getBtcLastBlockHeight(),
       lastUpdate: moment().unix()
@@ -512,15 +502,18 @@ class LedgerNanoS {
       updatedAddresses.push(address)
     })
 
+    const btcLedger = await this.getBtcLedger()
+    const xpub = await getAccountXPub(btcLedger, baseBtcPath, `${accountIndex}'`, true)
     // discover new address
-    const externalAddressData = await this.discoverAddress(accountIndex, 0, nextAddressIndex, progress)
-    const internalAddressData = await this.discoverAddress(accountIndex, 1, nextChangeIndex, progress)
+    const externalAddressData = await this.discoverAddress(xpub, accountIndex, 0, nextAddressIndex, progress)
+    const internalAddressData = await this.discoverAddress(xpub, accountIndex, 1, nextChangeIndex, progress)
 
     let accountData = {
       balance: newBalance.add(new BN(externalAddressData.balance)).add(new BN(internalAddressData.balance)).toString(),
       nextAddressIndex: externalAddressData.nextIndex,
       address: externalAddressData.nextAddress, // address for receiving; match name with ethereum[accountIndex].address
       nextChangeIndex: internalAddressData.nextIndex,
+      changeAddress: internalAddressData.nextAddress,
       addresses: [...updatedAddresses, ...externalAddressData.addresses, ...internalAddressData.addresses],
       lastBlockHeight: await getBtcLastBlockHeight(),
       lastUpdate: moment().unix()

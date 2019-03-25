@@ -55,11 +55,13 @@ class WalletSelectionContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, actionsPending, error } = this.props
+    const { wallet, cryptoSelection, actionsPending, error, walletSelection } = this.props
     const prevActionsPending = prevProps.actionsPending
     if (wallet &&
       wallet.connected &&
-      (prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection) &&
+      (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
+      !wallet.crypto[cryptoSelection] &&
+      walletSelection === 'ledger' &&
       !error) {
       this.onSync(cryptoSelection)
     }
