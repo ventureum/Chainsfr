@@ -1,7 +1,5 @@
 // Modified and referenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/master/src/PathFinderUtils.js
 import 'babel-polyfill'
-import Transport from '@ledgerhq/hw-transport-webusb' // for browser
-import AppBtc from '@ledgerhq/hw-app-btc'
 import bitcoinjs from 'bitcoinjs-lib'
 import bs58 from 'bs58'
 import padStart from 'lodash/padStart'
@@ -82,13 +80,10 @@ function createXPUB (
   return xpub
 }
 
-export async function getAccountXPub (prevPath, account, segwit) {
-  const transport = await Transport.create()
-  const btc = new AppBtc(transport)
-
+export async function getAccountXPub (btcLedger, prevPath, account, segwit) {
   const finalize = async fingerprint => {
     let path = prevPath + '/' + account
-    let nodeData = await btc.getWalletPublicKey(path, undefined, segwit)
+    let nodeData = await btcLedger.getWalletPublicKey(path, undefined, segwit)
     let publicKey = compressPublicKey(nodeData.publicKey)
     let childnum = (0x80000000 | account) >>> 0
     let xpub = createXPUB(
@@ -101,7 +96,7 @@ export async function getAccountXPub (prevPath, account, segwit) {
     )
     return encodeBase58Check(xpub)
   }
-  let nodeData = await btc.getWalletPublicKey(prevPath, undefined, segwit)
+  let nodeData = await btcLedger.getWalletPublicKey(prevPath, undefined, segwit)
   let publicKey = compressPublicKey(nodeData.publicKey)
   publicKey = parseHexString(publicKey)
   let result = bitcoinjs.crypto.sha256(Buffer.from(publicKey))
