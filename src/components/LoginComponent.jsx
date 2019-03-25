@@ -21,24 +21,20 @@ class LoginComponent extends Component {
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
-        <Grid item>
+        <Grid item className={classes.centerContainer}>
           {/* 'stretch' ensures upper and lower section align properly */}
           <Grid container direction='column' justify='center' alignItems='stretch'>
             {/* Upper section */}
             <Grid item>
-              <Grid container direction='row' alignItems='center'>
-                <Grid item xl={6} lg={6} md={6} className={classes.leftColumn}>
-                  <Grid container direction='column' justify='center' alignItems='center'>
-                    <Grid item className={classes.leftContainer}>
-                      <img
-                        src={SendLandingIllustration}
-                        alt={'landing-illustration'}
-                        className={classes.landingIllustration}
-                      />
-                    </Grid>
-                  </Grid>
+              <Grid container direction='row' alignItems='center' justify='space-around'>
+                <Grid item md={6} className={classes.leftContainer}>
+                  <img
+                    src={SendLandingIllustration}
+                    alt={'landing-illustration'}
+                    className={classes.landingIllustration}
+                  />
                 </Grid>
-                <Grid item xl={6} lg={6} md={6} className={classes.rightColumn}>
+                <Grid item md={6} className={classes.rightColumn}>
                   <Grid container direction='column' justify='center' alignItems='center'>
                     <Grid item className={classes.rightContainer}>
                       <Grid item className={classes.stepTitleContainer}>
@@ -101,15 +97,14 @@ const styles = theme => ({
     margin: '0px 0px 16px 0px'
   },
   leftContainer: {
-    margin: '60px',
+    margin: '60px 0px 60px 0px',
     maxWidth: '600px'
   },
   rightContainer: {
-    margin: '60px'
+    margin: '60px 0px 60px 0px'
   },
   landingIllustration: {
-    maxWidth: '100%',
-    marginBottom: '60px'
+    width: '100%'
   },
   stepContainer: {
     padding: '30px'
@@ -200,8 +195,13 @@ const styles = theme => ({
     lineHeight: '24px'
   },
   loginBtn: {
-    width: '60%',
-    margin: '60px'
+    width: '100%',
+    maxWidth: '320px',
+    margin: '60px 0px 60px 0px'
+  },
+  centerContainer: {
+    maxWidth: '1330px',
+    width: '100%'
   }
 })
 
