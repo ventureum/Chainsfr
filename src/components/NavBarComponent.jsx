@@ -16,6 +16,7 @@ import MenuList from '@material-ui/core/MenuList'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import Grid from '@material-ui/core/Grid'
+import Avatar from '@material-ui/core/Avatar'
 
 class NavBarComponent extends Component {
   state = {
@@ -40,7 +41,7 @@ class NavBarComponent extends Component {
   }
 
   render () {
-    const { classes, backToHome } = this.props
+    const { classes, backToHome, profile } = this.props
     const { open } = this.state
     return (
       <AppBar position='static'>
@@ -62,7 +63,10 @@ class NavBarComponent extends Component {
                 aria-haspopup='true'
                 onClick={this.handleToggle}
               >
-                <AccountCircle className={classes.userIcon} />
+                {profile && profile.profileObj && profile.profileObj.imageUrl
+                  ? <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
+                  : <AccountCircle className={classes.userIcon} />
+                }
               </IconButton>
               <Popper open={open} anchorEl={this.anchorEl} transition disablePortal>
                 {({ TransitionProps, placement }) => (
@@ -108,6 +112,10 @@ const styles = theme => ({
   },
   userIcon: {
     color: '#ffffff'
+  },
+  avatar: {
+    width: '32px',
+    height: '32px'
   }
 })
 
