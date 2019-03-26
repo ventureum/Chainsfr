@@ -22,6 +22,7 @@ import { walletSelections, cryptoDisabled, cryptoInWallet } from '../wallet'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
 import { Link } from 'react-router-dom'
+import BN from 'bn.js'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -234,7 +235,8 @@ class WalletSelectionComponent extends Component<Props> {
                   actionsPending.checkWalletConnection ||
                   !wallet.crypto[cryptoType] ||
                   actionsPending.syncAccountInfo ||
-                  actionsPending.updateBtcAccountInfo
+                  actionsPending.updateBtcAccountInfo ||
+                  (new BN(wallet.crypto[cryptoType][0].balance)).lte(new BN(0))
                 }
               >
               Continue
