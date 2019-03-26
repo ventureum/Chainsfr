@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
-import { onLogin } from '../actions/userActions'
+import { onLogin, setRecoveryPassword } from '../actions/userActions'
 
 class LoginContainer extends Component {
   constructor () {
@@ -25,13 +25,20 @@ class LoginContainer extends Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    profile: state.userReducer.profile
+  }
+}
+
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: loginData => dispatch(onLogin(loginData))
+    onLogin: loginData => dispatch(onLogin(loginData)),
+    setRecoveryPassword: password => dispatch(setRecoveryPassword(password))
   }
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(LoginContainer)
