@@ -36,7 +36,7 @@ class SquareButtonComponent extends Component<Props> {
 
     return (
       <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
-        <Grid item>
+        <Grid item className={classes.imgContainer}>
           <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
         </Grid>
         <Grid item>
@@ -121,6 +121,10 @@ const styles = theme => ({
     lineHeight: '20px',
     fontSize: '14px',
     color: 'white'
+  },
+  imgContainer: {
+    marginBottom: '6px',
+    marginTop: '4px'
   }
 })
 

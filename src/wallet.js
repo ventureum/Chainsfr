@@ -1,6 +1,7 @@
 // @flow
-import MetamaskLogo from './images/metamask-button.svg'
-import HardwareWalletLogo from './images/hardware-wallet-button.svg'
+import MetamaskLogo from './images/metamask-button.png'
+import LedgerWalletLogo from './images/ledger-button.png'
+import DriveWalletLogo from './images/drive-wallet-button.png'
 
 export const walletCryptoSupports = {
   'basic': [{ cryptoType: 'ethereum', disabled: true },
@@ -18,7 +19,7 @@ export const walletSelections = [
     walletType: 'basic',
     title: 'Basic',
     desc: 'Use Basic Wallet',
-    logo: MetamaskLogo,
+    logo: DriveWalletLogo,
     disabled: true
   },
   {
@@ -32,7 +33,7 @@ export const walletSelections = [
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
-    logo: HardwareWalletLogo,
+    logo: LedgerWalletLogo,
     disabled: false
   }
 ]
