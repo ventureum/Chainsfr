@@ -54,6 +54,7 @@ class NavBarComponent extends Component {
                 </Typography>
               </Button>
             </Grid>
+            {profile.isAuthenticated &&
             <Grid item>
               <IconButton
                 buttonRef={node => {
@@ -86,9 +87,8 @@ class NavBarComponent extends Component {
                 )}
               </Popper>
 
-            </Grid>
+            </Grid>}
           </Grid>
-
         </Toolbar>
 
       </AppBar>
