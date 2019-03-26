@@ -2,7 +2,7 @@
 import API from '../apis'
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
-import ERC20_ABI from '../contracts/ERC20.json'
+import ERC20_ABI from '../contracts/ERC20.js'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'

@@ -1,6 +1,6 @@
 import Web3 from 'web3'
 import BN from 'bn.js'
-import ERC20_ABI from './contracts/ERC20.json'
+import ERC20_ABI from './contracts/ERC20.js'
 import { getCrypto } from './tokens'
 
 const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
