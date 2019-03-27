@@ -1,23 +1,7 @@
-import { Base64 } from 'js-base64'
-
-async function _onLogin (loginData) {
-  return {
-    ...loginData,
-    isAuthenticated: true,
-    newUser: !wallet
-  }
-}
-
-async function _setRecoveryPassword (password) {
-  // TODO save password in appDataFolder
-
-  return Base64.encode(password)
-}
-
 function onLogin (loginData) {
   return {
     type: 'LOGIN',
-    payload: _onLogin(loginData)
+    payload: loginData
   }
 }
 
@@ -27,11 +11,11 @@ function onLogout () {
   }
 }
 
-function setRecoveryPassword (password) {
+function setNewUserTag (isNewUser) {
   return {
-    type: 'SET_RECOVERY_PASSWORD',
-    payload: _setRecoveryPassword(password)
+    type: 'SET_NEW_USER_TAG',
+    payload: isNewUser
   }
 }
 
-export { onLogin, onLogout, setRecoveryPassword }
+export { onLogin, onLogout, setNewUserTag }

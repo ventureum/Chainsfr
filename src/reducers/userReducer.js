@@ -8,22 +8,25 @@ const initState = {
   // user profile
   profile: {
     isAuthenticated: false,
-    newUser: true
+    newUser: null
   }
 }
 
 export default function (state = initState, action) {
   switch (action.type) {
-    case 'LOGIN_FULFILLED':
+    case 'LOGIN':
       return {
         ...state,
-        profile: action.payload
+        profile: {
+          ...action.payload,
+          isAuthenticated: true,
+          newUser: false
+        }
       }
     case 'LOGOUT':
       return initState
-    case 'SET_RECOVERY_PASSWORD_FULFILLED':
-      let _state = update(state, { profile: { recoveryPassword: { $set: action.payload } } })
-      return update(_state, { profile: { newUser: { $set: false } } })
+    case 'SET_NEW_USER_TAG':
+      return update(state, { profile: { newUser: { $set: action.payload } } })
     default: // need this for default case
       return state
   }
