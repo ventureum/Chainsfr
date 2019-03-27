@@ -14,9 +14,9 @@ const initState = {
     decryptedWallet: null
   },
   wallet: {
-    driveWallet: {
-      fileId: null,
-      content: []
+    cloudWallet: {
+      connected: false,
+      crypto: {}
     },
     ledger: {
       connected: false,
@@ -60,6 +60,9 @@ export default function (state = initState, action) {
       return update(state, { wallet: { ledger: { crypto: { $merge: action.payload } } } })
     case 'GET_UTXO_FOR_ESCROW_WALLET_FULFILLED':
       return update(state, { escrowWallet: { decryptedWallet: { $merge: action.payload } } })
+    case 'GET_CLOUD_WALLET_FULFILLED':
+    case 'CREATE_CLOUD_WALLET_FULFILLED':
+      return update(state, { wallet: { cloudWallet: { $merge: action.payload } } })
     case REHYDRATE:
       if (action.payload) {
         var incoming = action.payload.walletReducer.wallet.ledger

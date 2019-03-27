@@ -269,15 +269,17 @@ async function loadFileByNameFromAppData (fileName) {
   // get fileId first
   let files = await listFiles('appDataFolder', null, false, fileName)
 
-  if (files.length === 1) {
-    // we should have exactly one file
+  if (files.length >= 1) {
+    // always use the first file
     let fileId = files[0].id
 
+    if (files.length > 1) {
+      console.warn('Multiple files with same file name found')
+    }
     // now load content of the file
     return loadFile(fileId)
   } else {
-    if (files.length === 0) return null
-    else throw new Error('Multiple files with same file name found')
+    return null
   }
 }
 
