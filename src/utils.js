@@ -108,6 +108,27 @@ function generatePassphrase (size) {
   return bytesToPassphrase(bytes)
 }
 
+/*
+ * Encrypt wallet with the given password
+ *
+ * wallet format:
+ * ethereum - { privateKey }
+ * bitcoin - { wif }
+ *
+ * @returns keystore object for ethereum, base58 encoded string for bitcoin
+ */
+function encryptWallet (wallet, password, cryptoType) {
+  if (cryptoType === 'ethereum') {
+    let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    return _web3.eth.accounts.encrypt(wallet.privateKey, password)
+  } else if (cryptoType === 'bitcoin') {
+    let btcWalletWifDecoded = wif.decode(wallet.wif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
+    return bip38.encrypt(btcWalletWifDecoded.privateKey, btcWalletWifDecoded.compressed, password)
+  } else {
+    throw new Error(`Unsupported cryptoType: ${cryptoType}`)
+  }
+}
+
 function decryptWallet (encryptedWallet, password, cryptoType) {
   try {
     if (cryptoType === 'bitcoin') {
@@ -123,10 +144,12 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
         publicKey: publicKey.compressed,
         address: escrowWalletAddress
       }
+    } else if (cryptoType === 'ethereum') {
+      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      return _web3.eth.accounts.decrypt(encryptedWallet, password)
     }
-    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-    return _web3.eth.accounts.decrypt(encryptedWallet, password)
   } catch (error) {
+    console.warn(error)
     // derivation error, possibly wrong password
     return null
   }
@@ -137,4 +160,4 @@ export async function getBtcLastBlockHeight () {
   return rv.height
 }
 
-export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet }
+export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet, encryptWallet }

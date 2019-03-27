@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { GoogleLogin } from 'react-google-login'
 import Avatar from '@material-ui/core/Avatar'
 import SendLandingIllustration from '../images/send-landing.svg'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 class LoginComponent extends Component {
   loginSuccess = async (response) => {
@@ -16,8 +17,7 @@ class LoginComponent extends Component {
   }
 
   render () {
-    let { classes } = this.props
-
+    let { classes, actionsPending } = this.props
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
@@ -67,15 +67,24 @@ class LoginComponent extends Component {
                         </Grid>
                       </Grid>
                       <Grid item align='center'>
-                        <GoogleLogin
-                          className={classes.loginBtn}
-                          theme='dark'
-                          clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                          scope={process.env.REACT_APP_GOOGLE_API_SCOPE}
-                          discoveryDocs={process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS}
-                          onSuccess={this.loginSuccess}
-                          onFailure={this.loginFailure}
-                        />
+                        <div className={classes.wrapper}>
+                          <GoogleLogin
+                            className={classes.loginBtn}
+                            theme='dark'
+                            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                            scope={process.env.REACT_APP_GOOGLE_API_SCOPE}
+                            discoveryDocs={process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS}
+                            onSuccess={this.loginSuccess}
+                            onFailure={this.loginFailure}
+                            disabled={actionsPending.getCloudWallet}
+                          />
+                          {actionsPending.getCloudWallet &&
+                          <CircularProgress
+                            size={24}
+                            color='primary'
+                            className={classes.buttonProgress}
+                          />}
+                        </div>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -91,6 +100,38 @@ class LoginComponent extends Component {
 }
 
 const styles = theme => ({
+  root: {
+    flex: 1
+  },
+  container: {
+    marginTop: '60px',
+    '@media (min-width: 380px) and (max-width : 751px)': {
+      maxWidth: '380px'
+    },
+    '@media (min-width: 752px) and (max-width : 1129px)': {
+      maxWidth: '752px'
+    },
+    '@media (min-width: 1130px) and (max-width : 1489px)': {
+      maxWidth: '1130px'
+    },
+    '@media (min-width: 1490px) ': {
+      maxWidth: '1490px'
+    }
+  },
+  onBoardingTitle: {
+    fontSize: '24px',
+    fontWeight: 500,
+    color: '#333333'
+  },
+  onBoardingSubtitle: {
+    fontSize: '14px',
+    color: '#333333',
+    maxWidth: '340px'
+  },
+  wrapper: {
+    margin: theme.spacing.unit,
+    position: 'relative'
+  },
   subComponent: {
     width: '100%',
     maxWidth: '680px',
@@ -202,6 +243,13 @@ const styles = theme => ({
   centerContainer: {
     maxWidth: '1330px',
     width: '100%'
+  },
+  buttonProgress: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12
   }
 })
 

@@ -1,12 +1,7 @@
 function onLogin (loginData) {
   return {
     type: 'LOGIN',
-    payload: {
-      profile: {
-        ...loginData,
-        isAuthenticated: true
-      }
-    }
+    payload: loginData
   }
 }
 
@@ -16,4 +11,11 @@ function onLogout () {
   }
 }
 
-export { onLogin, onLogout }
+function setNewUserTag (isNewUser) {
+  return {
+    type: 'SET_NEW_USER_TAG',
+    payload: isNewUser
+  }
+}
+
+export { onLogin, onLogout, setNewUserTag }

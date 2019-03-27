@@ -51,6 +51,17 @@ const TEMP_SEND_FILE_NAME = '__chainsfer_temp_send__.json'
  */
 const SEND_FILE_NAME = '__chainsfer_send__.json'
 
+/*
+ * A single file storing encrypted wallet data
+ *
+ * Data format:
+ * {
+ *   ethereum: Base64 encoded encrypted privateKey
+ *   bitcoin: Base58 encoded BIP38 encrypted privateKey
+ * }
+ */
+const WALLET_FILE_NAME = '__chainsfer_wallet__.json'
+
 // gapi.load does not support promise
 // convert it into a promise
 function gapiLoad () {
@@ -258,15 +269,17 @@ async function loadFileByNameFromAppData (fileName) {
   // get fileId first
   let files = await listFiles('appDataFolder', null, false, fileName)
 
-  if (files.length === 1) {
-    // we should have exactly one file
+  if (files.length >= 1) {
+    // always use the first file
     let fileId = files[0].id
 
+    if (files.length > 1) {
+      console.warn('Multiple files with same file name found')
+    }
     // now load content of the file
     return loadFile(fileId)
   } else {
-    if (files.length === 0) return null
-    else throw new Error('Multiple files with same file name found')
+    return null
   }
 }
 
@@ -309,6 +322,14 @@ async function saveSendFile (transferData) {
   })
 }
 
+async function saveWallet (wallet) {
+  // update the wallet
+  return saveFileByName('appDataFolder', null, {
+    name: WALLET_FILE_NAME,
+    content: wallet
+  })
+}
+
 /*
  * Return the transfer data stored in SEND_FILE_NAME by sendingId
  *
@@ -325,9 +346,15 @@ async function getAllTransfers () {
   return loadFileByNameFromAppData(SEND_FILE_NAME)
 }
 
+async function getWallet () {
+  return loadFileByNameFromAppData(WALLET_FILE_NAME)
+}
+
 export {
   saveTempSendFile,
   saveSendFile,
+  saveWallet,
   getTransferData,
-  getAllTransfers
+  getAllTransfers,
+  getWallet
 }

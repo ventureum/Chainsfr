@@ -5,20 +5,16 @@ import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Avatar from '@material-ui/core/Avatar'
 import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEthereum } from '@fortawesome/free-brands-svg-icons'
-import Fab from '@material-ui/core/Fab'
-import AddIcon from '@material-ui/icons/Add'
-import CreateAddressContainer from '../containers/CreateAddressContainer'
-
-/**
- * Print files.
- */
+import IconButton from '@material-ui/core/IconButton'
+import SendIcon from '@material-ui/icons/Send'
+import OpenInNewIcon from '@material-ui/icons/OpenInNew'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import Divider from '@material-ui/core/Divider'
+import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { getCryptoSymbol, getCryptoTitle } from '../tokens'
+import { walletCryptoSupports } from '../wallet'
 
 class WalletComponent extends Component {
   constructor (props) {
@@ -28,77 +24,113 @@ class WalletComponent extends Component {
     }
   }
 
-  addAddressOnClick = async () => {
-    this.setState({ addAddressModalOpen: true })
-  }
-
-  addAdressOnClose = () => {
-    this.setState({ addAddressModalOpen: false })
-  }
-
-  renderAddress (address) {
+  renderItem = (walletByCryptoType) => {
+    let { classes } = this.props
     return (
-      <ListItem>
-        <Avatar>
-          <FontAwesomeIcon icon={faEthereum} />
-        </Avatar>
-        <ListItemText primary={address.alias} secondary={address.balance} />
-        <ListItemSecondaryAction>
-          {address.public ? 'Public' : 'Private'}
-        </ListItemSecondaryAction>
-      </ListItem>
+      /* add key to fragment to supress non-unique key warnings */
+      <React.Fragment key={walletByCryptoType.cryptoType}>
+        <ListItem>
+          <Grid container direction='row' alignItems='center'>
+            <Grid item lg={9} md={8} sm={6} xs={3}>
+              <Typography className={classes.walletCryptoSymbol} align='left'>
+                {getCryptoSymbol(walletByCryptoType.cryptoType)}
+              </Typography>
+              <Typography className={classes.walletCryptoTitle} align='left'>
+                {getCryptoTitle(walletByCryptoType.cryptoType)}
+              </Typography>
+            </Grid>
+            <Grid item lg={1} md={1} sm={1} xs={4}>
+              <Typography align='right' className={classes.walletCryptoBalance}>
+                {walletByCryptoType.balance}
+              </Typography>
+            </Grid>
+            <Grid item lg={2} md={3} sm={5} xs={5}>
+              <Grid container direction='row' justify='flex-end'>
+                <Grid item>
+                  <IconButton className={classes.button} aria-label='Send'>
+                    <SendIcon />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton className={classes.button} aria-label='Explorer'>
+                    <OpenInNewIcon />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton className={classes.button} aria-label='Explorer'>
+                    <MoreVertIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </ListItem>
+        <Divider />
+      </React.Fragment>
     )
   }
 
   render () {
-    const { classes } = this.props
+    const { classes, wallet, actionsPending } = this.props
 
-    const addressList = [
-      {
-        alias: 'Primary',
-        public: true,
-        address: '0x43f2981d05d075a4c13e71defbb683751256d2d1',
-        cryptoType: 'Ethereum',
-        balance: 13.23
-      },
-      {
-        alias: 'Secondary',
-        public: false,
-        address: '0x43f2981d05d075a4c13e71defbb683751256d2d1',
-        cryptoType: 'Ethereum',
-        balance: 15.23
-      },
-      {
-        alias: 'Another',
-        public: false,
-        address: '0x43f2981d05d075a4c13e71defbb683751256d2d1',
-        cryptoType: 'Ethereum',
-        balance: 100.20
-      }
-    ]
+    let walletList = []
+    if (wallet.connected) {
+      walletList = walletCryptoSupports.basic.map(crypto => {
+        return {
+          cryptoType: crypto.cryptoType,
+          balance: wallet.crypto[crypto.cryptoType][0].balance,
+          address: wallet.crypto[crypto.cryptoType][0].address
+        }
+      })
+    }
 
     return (
       <div className={classes.root}>
         <Grid container direction='column' alignItems='center'>
-          <Grid container direction='column' className={classes.projectListContainer} alignItems='center'>
-            <Typography variant='h4' className={classes.projectsHeader}>Wallet</Typography>
-            <Grid container direction='row' alignItems='center'>
-              <Paper className={classes.addrList}>
-                <List>
-                  {addressList.map(addr => this.renderAddress(addr))}
-                </List>
-                <Grid container direction='row' justify='flex-end'>
-                  <Grid item>
-                    <Fab color='primary' aria-label='Add' className={classes.fab} onClick={this.addAddressOnClick}>
-                      <AddIcon />
-                    </Fab>
+          <Grid container direction='column' className={classes.walletListContainer} alignItems='center'>
+            <Grid item className={classes.headerSection}>
+              {/* Back button */}
+              <Button color='primary' className={classes.backBtn}>
+                {'< Back to Home'}
+              </Button>
+              {/* Title */}
+              <Typography className={classes.title} align='left'>My Chainsfer Wallet</Typography>
+            </Grid>
+            <Grid container direction='column' alignItems='center'>
+              <List className={classes.walletList}>
+                {/* List header */}
+                <ListItem key='walletListHeader'>
+                  <Grid container direction='row' alignItems='center'>
+                    <Grid item lg={9} md={8} sm={6} xs={3}>
+                      <Typography className={classes.walletListHeaderLabel} align='left'>
+                        Token
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={1} md={1} sm={1} xs={4}>
+                      <Typography className={classes.walletListHeaderLabel} align='right'>
+                        Balance
+                      </Typography>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Paper>
+                </ListItem>
+                <Divider />
+                {/* List content */}
+                {!actionsPending.getCloudWallet && wallet.connected &&
+                 walletList.map(wallet => this.renderItem(wallet))
+                }
+              </List>
+              {actionsPending.getCloudWallet &&
+              <Grid item align='center'>
+                <CircularProgress
+                  size={24}
+                  color='primary'
+                  className={classes.buttonProgress}
+                />
+              </Grid>
+              }
             </Grid>
           </Grid>
         </Grid>
-        <CreateAddressContainer open={this.state.addAddressModalOpen} onClose={this.addAdressOnClose} />
       </div>
     )
   }
@@ -106,13 +138,19 @@ class WalletComponent extends Component {
 
 const styles = theme => ({
   root: {
-    flex: 1,
-    backgroundColor: '#f5f5f5'
+    flex: 1
   },
-  addrList: {
+  walletList: {
     width: '100%'
   },
-  projectListContainer: {
+  title: {
+    fontSize: '18px',
+    fontWeight: '500',
+    color: '#333333',
+    alignSelf: 'flex-start',
+    marginBottom: '30px'
+  },
+  walletListContainer: {
     marginTop: '60px',
     '@media (min-width: 380px) and (max-width : 751px)': {
       maxWidth: '380px'
@@ -127,14 +165,37 @@ const styles = theme => ({
       maxWidth: '1490px'
     }
   },
+  walletListHeaderLabel: {
+    fontSize: '12px',
+    color: '#777777',
+    fontWeight: 500
+  },
+  walletCryptoTitle: {
+    fontSize: '12px',
+    color: '#777777'
+  },
+  walletCryptoSymbol: {
+    fontSize: '12px',
+    color: '#333333'
+  },
+  walletCryptoBalance: {
+    fontSize: '14px',
+    color: '#333333'
+  },
   projectsHeader: {
     marginBottom: 16,
     color: '#333333',
     alignSelf: 'flex-start'
   },
-  fab: {
-    textAlign: 'right',
-    margin: theme.spacing.unit
+  headerSection: {
+    alignSelf: 'flex-start',
+    marginLeft: '16px'
+  },
+  backBtn: {
+    fontSize: '12px',
+    fontWeight: 500,
+    padding: '0px',
+    marginBottom: '30px'
   }
 })
 
