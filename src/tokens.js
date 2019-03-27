@@ -30,6 +30,13 @@ export const cryptoSelections = [
   }
 ]
 
+export function getCryptoTitle (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.title
+}
+
 export function getCryptoSymbol (cryptoType) {
   const c = cryptoSelections.find(crypto => {
     return cryptoType === crypto.cryptoType
