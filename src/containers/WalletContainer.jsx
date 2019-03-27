@@ -1,45 +1,43 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletComponent from '../components/WalletComponent'
-import { getWallet } from '../actions/walletActions'
+import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { getCloudWallet } from '../actions/walletActions'
 
 class WalletContainer extends Component {
-  constructor () {
-    super()
-    this.state = { error: null, errorInfo: null }
-  }
-
-  componentDidCatch (error, info) {
-    this.setState(
-      { error: error, errorInfo: info }
-    )
-  }
-
   componentDidMount () {
-    if (!this.props.wallet) {
-      this.props.getWallet()
+    let { wallet, getCloudWallet } = this.props
+    if (!wallet.connected) {
+      getCloudWallet()
     }
   }
 
   render () {
-    let { addresses, ...others } = this.props
+    let { ...others } = this.props
     return (
       <WalletComponent
-        addresses={addresses}
         {...others}
-      />)
+      />
+    )
   }
 }
 
+const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
+const errorSelector = createErrorSelector(['GET_CLOUD_WALLET'])
+
 const mapStateToProps = state => {
   return {
-    addresses: state.userReducer.addresses
+    wallet: state.walletReducer.wallet.cloudWallet,
+    actionsPending: {
+      getCloudWallet: getCloudWalletSelector(state)
+    },
+    error: errorSelector(state)
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    getWallet: () => dispatch(getWallet())
+    getCloudWallet: () => dispatch(getCloudWallet())
   }
 }
 
