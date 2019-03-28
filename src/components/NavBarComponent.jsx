@@ -28,7 +28,7 @@ class NavBarComponent extends Component {
     this.setState(state => ({ open: profile.isAuthenticated && !state.open }))
   };
 
-  handleClose = (event, action) => {
+  handleClose = async (event, action) => {
     if (this.anchorEl.contains(event.target)) {
       return
     }
