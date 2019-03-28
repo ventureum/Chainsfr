@@ -12,9 +12,11 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
+import { Link } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
+import Paths from '../Paths'
 
 class WalletComponent extends Component {
   constructor (props) {
@@ -90,7 +92,12 @@ class WalletComponent extends Component {
           <Grid container direction='column' className={classes.walletListContainer} alignItems='center'>
             <Grid item className={classes.headerSection}>
               {/* Back button */}
-              <Button color='primary' className={classes.backBtn}>
+              <Button
+                color='primary'
+                className={classes.backBtn}
+                component={Link}
+                to={Paths.home}
+              >
                 {'< Back to Home'}
               </Button>
               {/* Title */}
