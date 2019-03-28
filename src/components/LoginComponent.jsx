@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import { GoogleLogin } from 'react-google-login'
 import Avatar from '@material-ui/core/Avatar'
 import SendLandingIllustration from '../images/send-landing.svg'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import GoogleLoginButton from './GoogleLoginButton'
 
 class LoginComponent extends Component {
   loginSuccess = async (response) => {
@@ -68,12 +68,7 @@ class LoginComponent extends Component {
                       </Grid>
                       <Grid item align='center'>
                         <div className={classes.wrapper}>
-                          <GoogleLogin
-                            className={classes.loginBtn}
-                            theme='dark'
-                            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                            scope={process.env.REACT_APP_GOOGLE_API_SCOPE}
-                            discoveryDocs={process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS}
+                          <GoogleLoginButton
                             onSuccess={this.loginSuccess}
                             onFailure={this.loginFailure}
                             disabled={actionsPending.getCloudWallet}

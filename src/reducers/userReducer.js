@@ -23,7 +23,7 @@ export default function (state = initState, action) {
           newUser: false
         }
       }
-    case 'LOGOUT':
+    case 'LOGOUT_FULFILLED':
       return initState
     case 'SET_NEW_USER_TAG':
       return update(state, { profile: { newUser: { $set: action.payload } } })

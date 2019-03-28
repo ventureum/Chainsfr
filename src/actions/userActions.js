@@ -5,9 +5,17 @@ function onLogin (loginData) {
   }
 }
 
+async function _onLogout () {
+  let googleAuth = await window.gapi.auth2.getAuthInstance()
+  if (googleAuth && googleAuth.isSignedIn.get()) {
+    await googleAuth.signOut()
+  }
+}
+
 function onLogout () {
   return {
-    type: 'LOGOUT'
+    type: 'LOGOUT',
+    payload: _onLogout()
   }
 }
 
