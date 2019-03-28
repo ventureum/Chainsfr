@@ -123,8 +123,7 @@ const styles = theme => ({
     color: 'white'
   },
   imgContainer: {
-    marginBottom: '6px',
-    marginTop: '4px'
+    marginTop: '8px'
   }
 })
 
