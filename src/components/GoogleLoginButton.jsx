@@ -65,9 +65,8 @@ class GoogleLoginButton extends Component {
 
   render () {
     const { classes, disabled } = this.props
-    const btnClassNmae = disabled ? `${classes.btn} ${classes.btnDisabled}` : classes.btn
     return (
-      <Grid container direction='row' alignItems='center' className={btnClassNmae} onClick={() => this.login()} >
+      <Grid container direction='row' alignItems='center' className={disabled ? classes.btnDisabled : classes.btn} onClick={() => this.login()} >
         <Grid item className={classes.iconContainer}>
           <SvgIcon viewBox='0 0 18 18' className={classes.svg}>
             <g fill='#000' fillRule='evenodd'>
@@ -112,6 +111,13 @@ const styles = theme => ({
     boxShadow: '0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)'
   },
   btnDisabled: {
+    margin: '60px 0px 60px 0px',
+    backgroundColor: 'rgb(66, 133, 244)',
+    padding: '1px',
+    display: 'flex',
+    width: '65%',
+    borderRadius: 2,
+    boxShadow: '0 2px 2px 0 rgba(0, 0, 0, .24), 0 0 1px 0 rgba(0, 0, 0, .24)',
     opacity: 0.5
   },
   iconContainer: {
