@@ -14,7 +14,7 @@ const initState = {
     decryptedWallet: null
   },
   wallet: {
-    cloudWallet: {
+    drive: {
       connected: false,
       crypto: {}
     },
@@ -48,6 +48,8 @@ export default function (state = initState, action) {
         connected: false,
         network: null
       } } } })
+    case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
+      return update(state, { wallet: { drive: { $merge: action.payload } } })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
     // store decrypted wallet
@@ -62,7 +64,7 @@ export default function (state = initState, action) {
       return update(state, { escrowWallet: { decryptedWallet: { $merge: action.payload } } })
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
-      return update(state, { wallet: { cloudWallet: { $merge: action.payload } } })
+      return update(state, { wallet: { drive: { $merge: action.payload } } })
     case REHYDRATE:
       if (action.payload) {
         var incoming = action.payload.walletReducer.wallet.ledger

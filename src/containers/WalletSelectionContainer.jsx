@@ -2,7 +2,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
-import { checkMetamaskConnection, checkLedgerNanoSConnection, syncLedgerAccountInfo, updateBtcAccountInfo } from '../actions/walletActions'
+import {
+  checkMetamaskConnection,
+  checkLedgerNanoSConnection,
+  checkCloudWalletConnection,
+  syncLedgerAccountInfo,
+  updateBtcAccountInfo
+} from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
@@ -10,6 +16,7 @@ import { goToStep } from '../actions/navigationActions'
 type Props = {
   checkMetamaskConnection: Function,
   checkLedgerNanoSConnection: Function,
+  checkCloudWalletConnection: Function,
   selectCrypto: Function,
   selectWallet: Function,
   goToStep: Function,
@@ -17,6 +24,8 @@ type Props = {
   updateBtcAccountInfo: Function,
   walletSelection: string,
   cryptoSelection: string,
+  walletSelectionPrefilled: string,
+  cryptoSelectionPrefilled: string,
   wallet: Object,
   actionsPending: Object,
   error: any
@@ -37,10 +46,30 @@ class WalletSelectionContainer extends Component<Props, State> {
     }
   }
 
+  componentDidMount () {
+    let {
+      selectWallet,
+      walletSelection,
+      walletSelectionPrefilled
+    } = this.props
+
+    if (walletSelection !== walletSelectionPrefilled &&
+        walletSelectionPrefilled) {
+      // do not override wallet selection if they
+      // have been set to the same value. Otherwise, selections will
+      // be reset to null, see formReducer.js for details
+      //
+      // prefill wallet selections with url parameters
+      selectWallet(walletSelectionPrefilled)
+    }
+  }
+
   onCryptoSelected = (cryptoType) => {
     const {
+      wallet,
       checkMetamaskConnection,
       checkLedgerNanoSConnection,
+      checkCloudWalletConnection,
       selectCrypto,
       walletSelection,
       cryptoSelection
@@ -51,19 +80,49 @@ class WalletSelectionContainer extends Component<Props, State> {
     } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
       checkMetamaskConnection(cryptoType)
+    } else if (walletSelection === 'drive' && cryptoType !== cryptoSelection) {
+      selectCrypto(cryptoType)
+      if (!wallet.connected) {
+        checkCloudWalletConnection(cryptoType)
+      }
     }
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, cryptoSelection, actionsPending, error, walletSelection } = this.props
+    const {
+      goToStep,
+      wallet,
+      walletSelectionPrefilled,
+      cryptoSelectionPrefilled,
+      walletSelection,
+      cryptoSelection,
+      actionsPending,
+      error
+    } = this.props
+
     const prevActionsPending = prevProps.actionsPending
     if (wallet &&
-      wallet.connected &&
-      (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
-      !wallet.crypto[cryptoSelection] &&
-      walletSelection === 'ledger' &&
-      !error) {
+        wallet.connected &&
+        (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
+        !wallet.crypto[cryptoSelection] &&
+        walletSelection === 'ledger' &&
+        !error) {
       this.onSync(cryptoSelection)
+    }
+
+    if (walletSelectionPrefilled && cryptoSelectionPrefilled) {
+      // prefilled, special case
+      if (walletSelection) {
+        if (!cryptoSelection) {
+          // wallet has been filled, crypto waiting to be filled
+          this.onCryptoSelected(cryptoSelectionPrefilled)
+        } else if (wallet.connected) {
+          // wallet and crypto are filled
+          // wallet is ready
+          // auto-jump to the next page
+          goToStep(1)
+        }
+      }
     }
   }
 
@@ -106,11 +165,13 @@ const checkWalletConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CON
 const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION', 'SYNC_LEDGER_ACCOUNT_INFO', 'CHECK_LEDGER_NANOS_CONNECTION'])
 const syncAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO'])
 const updateBtcAccountInfoSelector = createLoadingSelector(['UPDATE_BTC_ACCOUNT_INFO'])
+const checkCloudWalletConnectionSelector = createLoadingSelector(['CHECK_CLOUD_WALLET_CONNECTION'])
 
 const mapDispatchToProps = dispatch => {
   return {
     checkMetamaskConnection: (cryptoType) => dispatch(checkMetamaskConnection(cryptoType)),
     checkLedgerNanoSConnection: (cryptoType) => dispatch(checkLedgerNanoSConnection(cryptoType)),
+    checkCloudWalletConnection: (cryptoType) => dispatch(checkCloudWalletConnection(cryptoType)),
     selectCrypto: (c) => dispatch(selectCrypto(c)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n)),
@@ -127,7 +188,8 @@ const mapStateToProps = state => {
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
       syncAccountInfo: syncAccountInfoSelector(state),
-      updateBtcAccountInfo: updateBtcAccountInfoSelector(state)
+      updateBtcAccountInfo: updateBtcAccountInfoSelector(state),
+      checkCloudWalletConnection: checkCloudWalletConnectionSelector(state)
     },
     error: errorSelector(state)
   }
