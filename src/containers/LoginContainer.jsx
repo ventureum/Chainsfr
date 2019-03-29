@@ -71,7 +71,7 @@ const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WAL
 const mapStateToProps = state => {
   return {
     profile: state.userReducer.profile,
-    cloudWalletConnected: state.walletReducer.wallet.cloudWallet.connected,
+    cloudWalletConnected: state.walletReducer.wallet.drive.connected,
     actionsPending: {
       createCloudWallet: createCloudWalletSelector(state),
       getCloudWallet: getCloudWalletSelector(state)
