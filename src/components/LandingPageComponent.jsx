@@ -16,8 +16,11 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { Scrollbars } from 'react-custom-scrollbars'
 import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
-import { getCryptoSymbol } from '../tokens'
+import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
+import HelpIcon from '@material-ui/icons/Help'
+import utils from '../utils'
+import numeral from 'numeral'
 
 class LandingPageComponent extends Component {
   getIdAbbreviation = (id) => {
@@ -98,6 +101,57 @@ class LandingPageComponent extends Component {
       </ExpansionPanel>
     )
   }
+
+  renderWalletInfo = () => {
+    const { classes, cloudWallet, actionsPending } = this.props
+    return (
+      <Grid container direction='column' alignItems='stretch' className={classes.walletInfoSection}>
+        <Grid item>
+          <Grid container direction='row' justify='space-between' alignItems='center'>
+            <Grid item>
+              <Typography className={classes.recentTxTitle}>
+                My Balance
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Link to={path.wallet} style={{ textDecoration: 'none' }}>
+                <Grid container direction='row' alignItems='center' justify='space-around'>
+                  <Typography className={classes.walletLinkText}>
+                    View Drive Wallet
+                  </Typography>
+                  <HelpIcon className={classes.helpIcon} />
+                </Grid>
+              </Link>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container direction='row' alignItems='center'>
+            {cryptoSelections.map((c, i) => {
+              return (
+                <Grid item xs={4}>
+                  <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
+                    <Grid item >
+                      {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
+                        ? <Typography className={classes.balanceText}>
+                          { numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')}
+                        </Typography>
+                        : <CircularProgress color='primary' />
+                      }
+                    </Grid>
+                    <Grid item >
+                      <Typography>{c.symbol}</Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )
+            })}
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
+
   render () {
     const { classes, actionsPending, transferHistory } = this.props
     return (
@@ -178,6 +232,9 @@ class LandingPageComponent extends Component {
                   </Grid>
                 </Grid>
               </Grid>
+            </Grid>
+            <Grid item>
+              {this.renderWalletInfo()}
             </Grid>
             {/* Lower section */}
             <Grid item>
@@ -284,6 +341,28 @@ const styles = theme => ({
     fontSize: '12px',
     fontWeight: '500',
     marginTop: '10px'
+  },
+  balanceContainer: {
+    height: '120px',
+    border: '1px solid #E9E9E9'
+  },
+  balanceText: {
+    fontSize: '24px',
+    fontWeight: '500',
+    color: '#333333'
+  },
+  walletInfoSection: {
+    margin: '30px 0px 60px 0px'
+  },
+  walletLinkText: {
+    color: theme.palette.primary.main,
+    fontSize: '12px',
+    fontWeight: '500'
+  },
+  helpIcon: {
+    color: theme.palette.primary.main,
+    fontSize: '14px',
+    marginLeft: '12px'
   }
 })
 

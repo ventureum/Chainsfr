@@ -11,7 +11,13 @@ const initialState = {
     transferAmount: '',
     password: '',
     destination: '',
-    sender: ''
+    sender: '',
+    formError: {
+      sender: null,
+      destination: null,
+      transferAmount: null,
+      password: null
+    }
   }
 }
 

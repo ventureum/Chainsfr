@@ -50,13 +50,13 @@ class ReviewComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, transferForm, cryptoSelection, actionsPending, txCost } = this.props
+    const { classes, transferForm, cryptoSelection, actionsPending, txCost, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch'>
-        <Grid item>
-          <Grid container direction='column' justify='center' alignItems='center'>
+      <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid item className={classes.reviewSection}>
+          <Grid container direction='column' justify='center'>
             <Grid item>
               <Grid item>
                 <Typography className={classes.title} variant='h6' align='center'>
@@ -107,6 +107,24 @@ class ReviewComponent extends Component<Props> {
                     : <CircularProgress size={18} color='primary' />}
                 </Grid>
               </Paper>
+              { actionsPending.submitTx && walletSelection === 'ledger' &&
+                <Grid item>
+                  <Grid container direction='column' className={classes.instructionContainer}>
+                    <Grid item>
+                      <Typography className={classes.instructionTitile}>
+                        Ledger Transfer Instructions
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Typography className={classes.instructionText}>
+                        {'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
+                        'Press the right button to confirm and sign the transaction if everything is correct. ' +
+                        'The transaction is then signed and sent to the network for confirmation.  '}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              }
             </Grid>
           </Grid>
         </Grid>
@@ -178,7 +196,9 @@ const styles = theme => ({
     marginBottom: '30px'
   },
   btnSection: {
-    marginTop: '60px'
+    marginTop: '60px',
+    width: '100%',
+    maxWidth: '470px'
   },
   buttonProgress: {
     position: 'absolute',
@@ -189,6 +209,24 @@ const styles = theme => ({
   },
   wrapper: {
     position: 'relative'
+  },
+  instructionContainer: {
+    padding: '20px',
+    backgroundColor: 'rgba(66,133,244,0.05)',
+    borderRadius: '4px',
+    margin: '30px 0px 30px 0px'
+  },
+  instructionTitile: {
+    color: '#333333',
+    fontSize: '14px',
+    fontWeight: '500'
+  },
+  instructionText: {
+    fontSize: '12px',
+    color: '#666666'
+  },
+  reviewSection: {
+    maxWidth: '360px'
   }
 })
 
