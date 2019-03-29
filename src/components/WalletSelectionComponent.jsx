@@ -69,6 +69,7 @@ class WalletSelectionComponent extends Component<Props> {
 
   renderBalance = () => {
     const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onUpdate } = this.props
+
     if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
@@ -176,6 +177,18 @@ class WalletSelectionComponent extends Component<Props> {
 
   render () {
     const { classes, walletType, cryptoType, actionsPending, wallet } = this.props
+
+    if (actionsPending.checkCloudWalletConnection) {
+      // special case, only show progress indicator while loading the cloud wallet
+      return (
+        <Grid container direction='row' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress color='primary' />
+          </Grid>
+        </Grid>
+      )
+    }
+
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <Grid item>

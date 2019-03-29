@@ -18,6 +18,8 @@ import { getCryptoSymbol, getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
 import Paths from '../Paths'
 
+const WALLET_TYPE = 'drive'
+
 class WalletComponent extends Component {
   constructor (props) {
     super(props)
@@ -49,7 +51,12 @@ class WalletComponent extends Component {
             <Grid item lg={2} md={3} sm={5} xs={5}>
               <Grid container direction='row' justify='flex-end'>
                 <Grid item>
-                  <IconButton className={classes.button} aria-label='Send'>
+                  <IconButton
+                    className={classes.button}
+                    aria-label='Send'
+                    component={Link}
+                    to={`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${walletByCryptoType.cryptoType}`}
+                  >
                     <SendIcon />
                   </IconButton>
                 </Grid>
@@ -77,7 +84,7 @@ class WalletComponent extends Component {
 
     let walletList = []
     if (wallet.connected) {
-      walletList = walletCryptoSupports.basic.map(crypto => {
+      walletList = walletCryptoSupports[WALLET_TYPE].map(crypto => {
         return {
           cryptoType: crypto.cryptoType,
           balance: wallet.crypto[crypto.cryptoType][0].balance,

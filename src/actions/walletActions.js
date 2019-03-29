@@ -252,6 +252,17 @@ function getCloudWallet () {
   }
 }
 
+async function _checkCloudWalletConnection (cryptoType) {
+  return _getCloudWallet()
+}
+
+function checkCloudWalletConnection (cryptoType) {
+  return {
+    type: 'CHECK_CLOUD_WALLET_CONNECTION',
+    payload: _checkCloudWalletConnection(cryptoType)
+  }
+}
+
 export {
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
@@ -262,5 +273,6 @@ export {
   createCloudWallet,
   syncLedgerAccountInfo,
   updateBtcAccountInfo,
-  getUtxoForEscrowWallet
+  getUtxoForEscrowWallet,
+  checkCloudWalletConnection
 }

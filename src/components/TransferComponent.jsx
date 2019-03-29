@@ -8,6 +8,7 @@ import WalletSelection from '../containers/WalletSelectionContainer'
 import Recipient from '../containers/RecipientContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
+import queryString from 'query-string'
 
 type Props = {
   classes:Object,
@@ -17,7 +18,8 @@ type Props = {
 
 class TransferComponent extends React.Component<Props> {
   render () {
-    const { classes, step } = this.props
+    const { classes, step, history } = this.props
+    const urlParams = queryString.parse(history.location.search)
     return (
       <Grid
         container
@@ -35,7 +37,10 @@ class TransferComponent extends React.Component<Props> {
             alignItems='center'
           >
             <Grid item className={classes.subComponent}>
-              {step === 0 && <WalletSelection />}
+              {step === 0 && <WalletSelection
+                walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+                cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
+              />}
               {step === 1 && <Recipient />}
               {step === 2 && <Review />}
               {step === 3 && <Receipt />}
