@@ -14,10 +14,12 @@ import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { getCryptoSymbol, getCryptoTitle } from '../tokens'
+import { getCryptoSymbol, getCryptoTitle, getCryptoDecimals } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
 import Paths from '../Paths'
 import env from '../typedEnv'
+import numeral from 'numeral'
+import utils from '../utils'
 
 const WALLET_TYPE = 'drive'
 
@@ -58,7 +60,7 @@ class WalletComponent extends Component {
             </Grid>
             <Grid item lg={1} md={1} sm={1} xs={4}>
               <Typography align='right' className={classes.walletCryptoBalance}>
-                {walletByCryptoType.balance}
+                {numeral(utils.toHumanReadableUnit(walletByCryptoType.balance, getCryptoDecimals(walletByCryptoType.cryptoType))).format('0.000a')}
               </Typography>
             </Grid>
             <Grid item lg={2} md={3} sm={5} xs={5}>
