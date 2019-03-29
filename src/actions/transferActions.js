@@ -273,7 +273,43 @@ async function _submitTx (
       const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
       sendTxHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
     }
+  } else if (walletType === 'drive') {
+    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    if (cryptoType === 'ethereum') {
+      // add privateKey to web3
+      _web3.eth.accounts.wallet.add(fromWallet.crypto[cryptoType][0].privateKey)
+
+      let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      txObj = {
+        from: fromWallet.crypto[cryptoType][0].address,
+        to: escrow.address,
+        value: wei,
+        gas: txCost.gas,
+        gasPrice: txCost.price
+      }
+    } else if (cryptoType === 'dai') {
+      // we need to transfer a small amount of eth to escrow to pay for
+      // the next transfer's tx fees
+      sendTxFeeTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, {
+        from: fromWallet.crypto[cryptoType][0].address,
+        to: escrow.address,
+        value: txCost.costByType.ethTransfer, // estimated gas cost for the next tx
+        gas: txCost.costByType.txCostEth.gas,
+        gasPrice: txCost.costByType.txCostEth.price
+      })
+
+      // next, we send tokens to the escrow address
+      let amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      txObj = await ERC20.getTransferTxObj(fromWallet.crypto[cryptoType][0].address, escrow.address, amountInBasicUnit, cryptoType)
+
+      // update tx fees
+      txObj.gas = txCost.costByType.txCostERC20.gas
+      txObj.gasPrice = txCost.costByType.txCostERC20.price
+    }
+
+    sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
   }
+
   // step 5: clear wallet
   window._web3.eth.accounts.wallet.clear()
 
