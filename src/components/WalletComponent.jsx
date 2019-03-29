@@ -17,6 +17,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
 import Paths from '../Paths'
+import env from '../typedEnv'
 
 const WALLET_TYPE = 'drive'
 
@@ -30,6 +31,18 @@ class WalletComponent extends Component {
 
   renderItem = (walletByCryptoType) => {
     let { classes } = this.props
+    var explorerLink = null
+    if (walletByCryptoType.cryptoType === 'ethereum') {
+      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
+      explorerLink = `https://${network}.etherscan.io/address/${walletByCryptoType.address}`
+    } else if (walletByCryptoType.cryptoType === 'dai') {
+      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
+      explorerLink = `https://${network}.etherscan.io/token/${env.REACT_APP_DAI_ADDRESS}?a=${walletByCryptoType.address}`
+    } else if (walletByCryptoType.cryptoType === 'bitcoin') {
+      let network = env.REACT_APP_BTC_NETWORK !== 'mainnet' ? 'btc-testnet' : 'btc'
+      explorerLink = `https://live.blockcypher.com/${network}/address/${walletByCryptoType.address}`
+    }
+
     return (
       /* add key to fragment to supress non-unique key warnings */
       <React.Fragment key={walletByCryptoType.cryptoType}>
@@ -61,7 +74,11 @@ class WalletComponent extends Component {
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton className={classes.button} aria-label='Explorer'>
+                  <IconButton
+                    className={classes.button}
+                    aria-label='Explorer'
+                    target='_blank' href={explorerLink}
+                  >
                     <OpenInNewIcon />
                   </IconButton>
                 </Grid>
