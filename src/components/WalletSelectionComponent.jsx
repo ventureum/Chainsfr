@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
+import HelpIcon from '@material-ui/icons/Help'
 import CheckIcon from '@material-ui/icons/CheckCircle'
 import RefreshIcon from '@material-ui/icons/Refresh'
 import IconButton from '@material-ui/core/IconButton'
@@ -186,7 +187,7 @@ class WalletSelectionComponent extends Component<Props> {
             </Grid>
             <Grid item>
               <Button color='primary'>
-                <ErrorIcon fontSize='small' color='primary' className={classes.faqIcon} />
+                <HelpIcon fontSize='small' color='primary' className={classes.faqIcon} />
                 FAQ
               </Button>
             </Grid>
