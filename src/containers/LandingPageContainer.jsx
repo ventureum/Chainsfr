@@ -33,12 +33,12 @@ const mapStateToProps = state => {
   return {
     transferHistory: state.transferReducer.transferHistory,
     profile: state.userReducer.profile,
-    cloudWalletConnected: state.walletReducer.wallet.cloudWallet.connected,
+    cloudWalletConnected: state.walletReducer.wallet.drive.connected,
     actionsPending: {
       getTransferHistory: getTransferHistorySelector(state),
       getCloudWallet: getCloudWalletSelector(state)
     },
-    cloudWallet: state.walletReducer.wallet.cloudWallet,
+    cloudWallet: state.walletReducer.wallet.drive,
     error: errorSelector(state)
   }
 }
