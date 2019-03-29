@@ -22,44 +22,14 @@ type Props = {
   classes: Object
 }
 
-type State = {
-  formError: {
-    sender: ?string,
-    destination: ?string,
-    transferAmount:?string,
-    password: ?string,
-  }
-}
-
-class RecipientComponent extends Component<Props, State> {
-  state = {
-    formError: {
-      sender: null,
-      destination: null,
-      transferAmount: null,
-      password: null
-    }
-  }
-
+class RecipientComponent extends Component<Props> {
   componentDidMount () {
     this.props.clearSecurityAnswer()
   }
 
-  componentDidUpdate (prevProps) {
-    let { password } = this.props.transferForm
-    if (prevProps.transferForm.password !== password) {
-      // need to re-validate password
-      if (password && !validator.isLength(password, { min: 6, max: undefined })) {
-        this.setState(update(this.state, { formError: { password: { $set: 'Length must be greater or equal than 6' } } }))
-      } else {
-        this.setState(update(this.state, { formError: { password: { $set: null } } }))
-      }
-    }
-  }
-
   validateForm = () => {
-    const { formError } = this.state
     const { transferForm } = this.props
+    const { formError } = transferForm
 
     // form must be filled without errors
     return (transferForm.sender &&
@@ -73,39 +43,37 @@ class RecipientComponent extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, wallet, cryptoSelection } = this.props
+    const { transferForm } = this.props
 
     this.props.updateTransferForm(update(transferForm, {
-      [name]: { $set: event.target.value }
+      [name]: { $set: event.target.value },
+      formError: { [name]: { $set: this.validate(name, event.target.value) } }
     }))
+  }
 
+  validate = (name, value) => {
+    const { wallet, cryptoSelection } = this.props
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
-    // validation
     if (name === 'transferAmount') {
       if (wallet && balance &&
-          !validator.isFloat(event.target.value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
-        if (event.target.value === '-' || parseFloat(event.target.value) < 0.0001) {
-          this.setState(update(this.state, { formError: { [name]: { $set: 'The amount must be greater than 0.0001' } } }))
+          !validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
+        if (value === '-' || parseFloat(value) < 0.0001) {
+          return 'The amount must be greater than 0.0001'
         } else {
-          this.setState(update(this.state, { formError: { [name]: { $set: `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}` } } }))
+          return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
         }
-      } else {
-        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
       }
     } else if (name === 'sender' || name === 'destination') {
-      if (!validator.isEmail(event.target.value)) {
-        this.setState(update(this.state, { formError: { [name]: { $set: 'Invalid email' } } }))
-      } else {
-        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
+      if (!validator.isEmail(value)) {
+        return 'Invalid email'
       }
     } else if (name === 'password') {
-      if (!validator.isLength(event.target.value, { min: 6, max: undefined })) {
-        this.setState(update(this.state, { formError: { [name]: { $set: 'Length must be greater or equal than 6' } } }))
-      } else {
-        this.setState(update(this.state, { formError: { [name]: { $set: null } } }))
+      if (!validator.isLength(value, { min: 6, max: undefined })) {
+        return 'Length must be greater or equal than 6'
       }
     }
+    return null
   }
 
   securityAnswerHelperText = (validationErrMsg) => {
@@ -137,12 +105,10 @@ class RecipientComponent extends Component<Props, State> {
   }
 
   render () {
-    const { formError } = this.state
     const { classes, transferForm, wallet, cryptoSelection } = this.props
-    const { transferAmount, destination, password, sender } = transferForm
+    const { transferAmount, destination, password, sender, formError } = transferForm
 
     let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
-
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
