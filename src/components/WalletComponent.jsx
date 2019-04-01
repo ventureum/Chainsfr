@@ -14,9 +14,15 @@ import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { getCryptoSymbol, getCryptoTitle } from '../tokens'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import { getCryptoSymbol, getCryptoTitle, getCryptoDecimals } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
 import Paths from '../Paths'
+import env from '../typedEnv'
+import numeral from 'numeral'
+import utils from '../utils'
+import update from 'immutability-helper'
 
 const WALLET_TYPE = 'drive'
 
@@ -24,12 +30,35 @@ class WalletComponent extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      addAddressModalOpen: false
+      addAddressModalOpen: false,
+      moreMenu: {}
     }
+  }
+
+  handleMoreBtnOnOpen = cryptoType => event => {
+    this.setState(update(this.state, { moreMenu: { [cryptoType]: _cryptoType => update(_cryptoType || {}, { anchorEl: { $set: event.currentTarget } }) } }))
+  }
+
+  handleMoreBtnOnClose = cryptoType => event => {
+    this.setState(update(this.state, { moreMenu: { [cryptoType]: { anchorEl: { $set: null } } } }))
   }
 
   renderItem = (walletByCryptoType) => {
     let { classes } = this.props
+    var explorerLink = null
+    if (walletByCryptoType.cryptoType === 'ethereum') {
+      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
+      explorerLink = `https://${network}.etherscan.io/address/${walletByCryptoType.address}`
+    } else if (walletByCryptoType.cryptoType === 'dai') {
+      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
+      explorerLink = `https://${network}.etherscan.io/token/${env.REACT_APP_DAI_ADDRESS}?a=${walletByCryptoType.address}`
+    } else if (walletByCryptoType.cryptoType === 'bitcoin') {
+      let network = env.REACT_APP_BTC_NETWORK !== 'mainnet' ? 'btc-testnet' : 'btc'
+      explorerLink = `https://live.blockcypher.com/${network}/address/${walletByCryptoType.address}`
+    }
+
+    let moreMenu = this.state.moreMenu[walletByCryptoType.cryptoType]
+
     return (
       /* add key to fragment to supress non-unique key warnings */
       <React.Fragment key={walletByCryptoType.cryptoType}>
@@ -45,7 +74,7 @@ class WalletComponent extends Component {
             </Grid>
             <Grid item lg={1} md={1} sm={1} xs={4}>
               <Typography align='right' className={classes.walletCryptoBalance}>
-                {walletByCryptoType.balance}
+                {numeral(utils.toHumanReadableUnit(walletByCryptoType.balance, getCryptoDecimals(walletByCryptoType.cryptoType))).format('0.000a')}
               </Typography>
             </Grid>
             <Grid item lg={2} md={3} sm={5} xs={5}>
@@ -61,14 +90,31 @@ class WalletComponent extends Component {
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton className={classes.button} aria-label='Explorer'>
+                  <IconButton
+                    className={classes.button}
+                    aria-label='Explorer'
+                    target='_blank' href={explorerLink}
+                  >
                     <OpenInNewIcon />
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton className={classes.button} aria-label='Explorer'>
+                  <IconButton
+                    className={classes.button}
+                    aria-label='Explorer'
+                    onClick={this.handleMoreBtnOnOpen(walletByCryptoType.cryptoType)}
+                  >
                     <MoreVertIcon />
                   </IconButton>
+                  <Menu
+                    anchorEl={moreMenu && moreMenu.anchorEl}
+                    open={Boolean(moreMenu && moreMenu.anchorEl)}
+                    onClose={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}
+                  >
+                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>Direct Transfer</MenuItem>
+                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Address</MenuItem>
+                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Private Key</MenuItem>
+                  </Menu>
                 </Grid>
               </Grid>
             </Grid>
