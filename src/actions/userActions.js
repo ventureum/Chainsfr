@@ -1,4 +1,6 @@
-function onLogin (loginData) {
+// @flow
+
+function onLogin (loginData: any) {
   return {
     type: 'LOGIN',
     payload: loginData
@@ -19,7 +21,7 @@ function onLogout () {
   }
 }
 
-function setNewUserTag (isNewUser) {
+function setNewUserTag (isNewUser: boolean) {
   return {
     type: 'SET_NEW_USER_TAG',
     payload: isNewUser
