@@ -57,3 +57,10 @@ export function walletDisabledByCrypto (walletType: string, cryptoType: string):
     return element.cryptoType === cryptoType
   })
 }
+
+export function getWalletTitle (walletType: string): string {
+  const w: Object = walletSelections.find(wallet => {
+    return walletType === wallet.walletType
+  })
+  return w.title
+}
