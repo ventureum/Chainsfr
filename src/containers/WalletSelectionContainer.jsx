@@ -12,6 +12,7 @@ import {
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
+import { getBtcLastBlockHeight } from '../utils'
 
 type Props = {
   checkMetamaskConnection: Function,
@@ -104,10 +105,17 @@ class WalletSelectionContainer extends Component<Props, State> {
     if (wallet &&
         wallet.connected &&
         (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
-        !wallet.crypto[cryptoSelection] &&
         walletSelection === 'ledger' &&
         !error) {
-      this.onSync(cryptoSelection)
+      if (!wallet.crypto[cryptoSelection] || cryptoSelection !== 'bitcoin') {
+        this.onSync(cryptoSelection)
+      } else if (cryptoSelection === 'bitcoin') {
+        getBtcLastBlockHeight().then((currentBlock) => {
+          if (wallet.crypto[cryptoSelection][0].lastBlockHeight !== currentBlock) {
+            this.props.updateBtcAccountInfo()
+          }
+        })
+      }
     }
 
     if (walletSelectionPrefilled && cryptoSelectionPrefilled) {
@@ -131,14 +139,6 @@ class WalletSelectionContainer extends Component<Props, State> {
     syncLedgerAccountInfo(cryptoSelection, 0, (index, change) => { this.setState({ syncProgress: { index, change } }) })
   }
 
-  onUpdate = (cryptoSelection: string) => {
-    if (cryptoSelection === 'bitcoin') {
-      this.props.updateBtcAccountInfo((index, change) => { this.setState({ syncProgress: { index, change } }) })
-    } else {
-      this.onSync(cryptoSelection)
-    }
-  }
-
   render () {
     const {
       selectCrypto,
@@ -154,7 +154,6 @@ class WalletSelectionContainer extends Component<Props, State> {
         onCryptoSelected={this.onCryptoSelected}
         onWalletSelected={selectWallet}
         syncProgress={this.state.syncProgress}
-        onUpdate={this.onUpdate}
         {...other}
       />
     )

@@ -9,8 +9,6 @@ import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
 import HelpIcon from '@material-ui/icons/Help'
 import CheckIcon from '@material-ui/icons/CheckCircle'
-import RefreshIcon from '@material-ui/icons/Refresh'
-import IconButton from '@material-ui/core/IconButton'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -69,7 +67,7 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderBalance = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onUpdate } = this.props
+    const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
 
     if (actionsPending.checkWalletConnection) {
       return (
@@ -100,7 +98,7 @@ class WalletSelectionComponent extends Component<Props> {
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} address: {syncProgress.index}
+            Synchronizing Account Info
             </Typography>
             <Grid item>
               <LinearProgress className={classes.linearProgress} />
@@ -113,11 +111,7 @@ class WalletSelectionComponent extends Component<Props> {
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-            Update Acoount Info: {
-                syncProgress.index === 0
-                  ? 'checking used addresses'
-                  : `discovering new ${syncProgress.change !== 0 ? 'internal' : 'external'} address: ${syncProgress.index}`
-              }
+            Updating Acoount Info
             </Typography>
           </Grid>
           <Grid item>
@@ -144,13 +138,6 @@ class WalletSelectionComponent extends Component<Props> {
               }
             </Grid>
           </Grid>
-          {walletType === 'ledger' &&
-          <Grid item>
-            <IconButton onClick={() => { onUpdate(cryptoType) }}>
-              <RefreshIcon />
-            </IconButton>
-          </Grid>
-          }
           <Grid item>
             <CheckIcon className={classes.connectedIcon} />
           </Grid>
@@ -195,7 +182,7 @@ class WalletSelectionComponent extends Component<Props> {
                   !actionsPending.syncAccountInfo &&
                   <Grid item >
                     <Typography className={classes.balanceText}>
-                      {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')}
+                      {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
                     </Typography>
                   </Grid>
                 }
