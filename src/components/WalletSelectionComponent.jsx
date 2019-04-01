@@ -9,8 +9,6 @@ import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
 import HelpIcon from '@material-ui/icons/Help'
 import CheckIcon from '@material-ui/icons/CheckCircle'
-import RefreshIcon from '@material-ui/icons/Refresh'
-import IconButton from '@material-ui/core/IconButton'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -19,11 +17,12 @@ import Divider from '@material-ui/core/Divider'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import utils from '../utils'
 import numeral from 'numeral'
-import { walletSelections, cryptoDisabled, cryptoInWallet } from '../wallet'
+import { walletSelections, cryptoDisabled, cryptoInWallet, getWalletTitle } from '../wallet'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
 import { Link } from 'react-router-dom'
 import BN from 'bn.js'
+import LinearProgress from '@material-ui/core/LinearProgress'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -68,82 +67,87 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderBalance = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType, syncProgress, onUpdate } = this.props
+    const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
 
     if (actionsPending.checkWalletConnection) {
       return (
-        <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
-            <CircularProgress className={classes.circularProgress} />
+            <Typography className={classes.connectedtext}>
+              Please connect and unlock your wallet with the selected coin.
+            </Typography>
+          </Grid>
+          <Grid item>
+            <LinearProgress className={classes.linearProgress} />
           </Grid>
         </Grid>
       )
     } else if (!wallet.connected) {
       return (
-        <Grid container direction='row' alignItems='center'>
-          <Grid item>
-            <ErrorIcon className={classes.notConnectIcon} />
-          </Grid>
+        <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
           <Grid item>
             <Typography className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
+          </Grid>
+          <Grid item>
+            <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
         </Grid>
       )
     } else if (actionsPending.syncAccountInfo) {
       return (
-        <Grid container direction='column' justify='center' alignItems='center'>
-          <Grid item>
-            <CircularProgress className={classes.circularProgress} />
-          </Grid>
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-            Synchronizing {syncProgress.change !== 0 ? 'internal' : 'external'} address: {syncProgress.index}
+            Synchronizing Account Info
             </Typography>
+            <Grid item>
+              <LinearProgress className={classes.linearProgress} />
+            </Grid>
           </Grid>
         </Grid>
       )
     } else if (actionsPending.updateBtcAccountInfo) {
       return (
-        <Grid container direction='column' justify='center' alignItems='center'>
-          <Grid item>
-            <CircularProgress className={classes.circularProgress} />
-          </Grid>
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-            Update Acoount Info: {
-                syncProgress.index === 0
-                  ? 'checking used addresses'
-                  : `discovering new ${syncProgress.change !== 0 ? 'internal' : 'external'} address: ${syncProgress.index}`
-              }
+            Updating Acoount Info
             </Typography>
+          </Grid>
+          <Grid item>
+            <LinearProgress className={classes.linearProgress} />
           </Grid>
         </Grid>
       )
     } else if (wallet && wallet.crypto[cryptoType] && wallet.crypto[cryptoType][0] && !actionsPending.syncAccountInfo) {
       return (
-        <Grid container direction='row' alignItems='center'>
+        <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
+          <Grid item>
+            <Grid container direction='column'>
+              <Grid item>
+                <Typography className={classes.connectedtext}>
+                  {getWalletTitle(walletType)} wallet connected
+                </Typography>
+              </Grid>
+              { cryptoType !== 'bitcoin' &&
+                <Grid item>
+                  <Typography className={classes.addressInfoText}>
+                  Wallet address: {wallet.crypto[cryptoType][0].address}
+                  </Typography>
+                </Grid>
+              }
+            </Grid>
+          </Grid>
           <Grid item>
             <CheckIcon className={classes.connectedIcon} />
           </Grid>
-          <Grid item>
-            <Typography className={classes.connectedtext}>Account retrieved, your balance: {
-              numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
-            </Typography>
-          </Grid>
-          {walletType === 'ledger' &&
-          <Grid item>
-            <IconButton onClick={() => { onUpdate(cryptoType) }}>
-              <RefreshIcon />
-            </IconButton>
-          </Grid>
-          }
         </Grid>
       )
     }
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending } = this.props
+    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending, wallet } = this.props
 
     return (
       <List className={classes.cryptoList}>
@@ -161,13 +165,28 @@ class WalletSelectionComponent extends Component<Props> {
               }
               className={classes.cryptoListItem}
             >
-              <Radio
-                color='primary'
-                checked={c.cryptoType === cryptoType}
-                tabIndex={-1}
-                disableRipple
-              />
-              <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
+              <Grid container direction='row' justify='space-between' alignItems='center'>
+                <Radio
+                  color='primary'
+                  checked={c.cryptoType === cryptoType}
+                  tabIndex={-1}
+                  disableRipple
+                />
+                <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
+                {
+                  wallet &&
+                  c.cryptoType === cryptoType &&
+                  wallet.connected &&
+                  wallet.crypto[c.cryptoType] &&
+                  wallet.crypto[c.cryptoType][0] &&
+                  !actionsPending.syncAccountInfo &&
+                  <Grid item >
+                    <Typography className={classes.balanceText}>
+                      {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                  </Grid>
+                }
+              </Grid>
             </ListItem>
           </div>))}
         <Divider />
@@ -283,12 +302,28 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '14px',
     fontWeight: 600
-
   },
   connectedtext: {
     color: '#333333',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: 600
+  },
+  balanceSection: {
+    backgroundColor: 'rgba(66,133,244,0.05)',
+    padding: '20px',
+    margin: '30px 0px 30px 0px',
+    borderRadius: '4px'
+  },
+  linearProgress: {
+    marginTop: '20px'
+  },
+  addressInfoText: {
+    color: '#666666',
+    fontSize: '12px'
+  },
+  balanceText: {
+    fontSize: '18px',
+    color: '#333333'
   }
 })
 

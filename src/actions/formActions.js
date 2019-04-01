@@ -1,20 +1,34 @@
+// @flow
 import utils from '../utils'
 
-function selectWallet (walletSelected) {
+function selectWallet (walletSelected: string) {
   return {
     type: 'SELECT_WALLET',
     payload: walletSelected
   }
 }
 
-function selectCrypto (cryptoSelected) {
+function selectCrypto (cryptoSelected: string) {
   return {
     type: 'SELECT_CRYPTO',
     payload: cryptoSelected
   }
 }
 
-function updateTransferForm (form) {
+function updateTransferForm (
+  form: {
+    transferAmount: string,
+    password: string,
+    destination: string,
+    sender: string,
+    formError: {
+      sender: ?string,
+      destination: ?string,
+      transferAmount: ?string,
+      password: ?string
+    }
+  }
+) {
   return {
     type: 'UPDATE_TRANSFER_FORM',
     payload: form
