@@ -207,7 +207,7 @@ async function _submitTx (
   if (walletType === 'metamask') {
     var txObj = null
     if (cryptoType === 'ethereum') {
-      let wei = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+      let wei = window._web3.utils.toWei(transferAmount, 'ether')
       txObj = {
         from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
@@ -225,7 +225,7 @@ async function _submitTx (
       })
 
       // next, we send tokens to the escrow address
-      let amountInBasicUnit = window._web3.utils.toWei(transferAmount.toString(), 'ether')
+      let amountInBasicUnit = window._web3.utils.toWei(transferAmount, 'ether')
       txObj = await ERC20.getTransferTxObj(fromWallet.crypto[cryptoType][0].address, escrow.address, amountInBasicUnit, cryptoType)
 
       // update tx fees
@@ -237,7 +237,7 @@ async function _submitTx (
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-      const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const amountInWei = _web3.utils.toWei(transferAmount, 'ether')
       const signedTransactionObject = await ledgerNanoS.signSendEther(
         0,
         escrow.address,
@@ -261,7 +261,7 @@ async function _submitTx (
         })
       sendTxFeeTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTxFee.rawTransaction)
 
-      const amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      const amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
       const signedTransactionObject = await ledgerNanoS.signSendTrasaction(
         0,
         getCrypto('dai').address, ERC20_ABI,
@@ -287,7 +287,7 @@ async function _submitTx (
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(fromWallet.crypto[cryptoType][0].privateKey)
 
-      let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      let wei = _web3.utils.toWei(transferAmount, 'ether')
       txObj = {
         from: fromWallet.crypto[cryptoType][0].address,
         to: escrow.address,
@@ -307,7 +307,7 @@ async function _submitTx (
       })
 
       // next, we send tokens to the escrow address
-      let amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      let amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
       txObj = await ERC20.getTransferTxObj(fromWallet.crypto[cryptoType][0].address, escrow.address, amountInBasicUnit, cryptoType)
 
       // update tx fees
@@ -413,7 +413,7 @@ async function _acceptTransfer (
 
     if (cryptoType === 'ethereum') {
       // calculate amount in wei to be sent
-      let wei = (new BN(_web3.utils.toWei(transferAmount.toString(), 'ether'))).toString()
+      let wei = (new BN(_web3.utils.toWei(transferAmount, 'ether'))).toString()
 
       // actual amount to receive = escrow balance - tx fees
       let amountExcludeGasInWei = (new BN(wei).sub(new BN(txCost.costInBasicUnit))).toString()
@@ -428,7 +428,7 @@ async function _acceptTransfer (
       }
     } else if (cryptoType === 'dai') {
       // calculate amount in basic token unit to be sent
-      let amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      let amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
 
       txObj = await ERC20.getTransferTxObj(escrowWallet.address, destinationAddress, amountInBasicUnit, cryptoType)
 
@@ -512,7 +512,7 @@ async function _cancelTransfer (
 
     if (cryptoType === 'ethereum') {
       // calculate amount in wei to be sent
-      let wei = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      let wei = _web3.utils.toWei(transferAmount, 'ether')
 
       // actual amount to receive = escrow balance - tx fees
       let amountExcludeGasInWei = (new BN(wei).sub(new BN(txCost.costInBasicUnit))).toString()
@@ -522,13 +522,13 @@ async function _cancelTransfer (
       txObj = {
         from: escrowWallet.address,
         to: txReceipt.from, // sender address
-        value: amountExcludeGasInWei.toString(), // actual receiving amount
+        value: amountExcludeGasInWei, // actual receiving amount
         gas: txCost.gas,
         gasPrice: txCost.price
       }
     } else if (cryptoType === 'dai') {
       // calculate amount in basic token unit to be sent
-      let amountInBasicUnit = _web3.utils.toWei(transferAmount.toString(), 'ether')
+      let amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
 
       let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
       txObj = await ERC20.getTransferTxObj(escrowWallet.address, txReceipt.from, amountInBasicUnit, cryptoType)
