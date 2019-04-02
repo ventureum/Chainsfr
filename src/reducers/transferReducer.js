@@ -33,6 +33,11 @@ export default function (state = initialState, action) {
         ...state,
         receipt: action.payload
       }
+    case 'DIRECT_TRANSFER_FULFILLED':
+      return {
+        ...state,
+        receipt: action.payload
+      }
     case 'ACCEPT_TRANSFER_FULFILLED':
       return {
         ...state,

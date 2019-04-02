@@ -16,13 +16,23 @@ import { Link } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import { getCryptoSymbol, getCryptoTitle, getCryptoDecimals } from '../tokens'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import TextField from '@material-ui/core/TextField'
+import MuiLink from '@material-ui/core/Link'
+import { getCryptoSymbol, getCryptoTitle, getCryptoDecimals, getTxFeesCryptoType } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
 import Paths from '../Paths'
 import env from '../typedEnv'
 import numeral from 'numeral'
 import utils from '../utils'
 import update from 'immutability-helper'
+import classNames from 'classnames'
+import validator from 'validator'
+import Web3 from 'web3'
+import BN from 'bn.js'
 
 const WALLET_TYPE = 'drive'
 
@@ -31,7 +41,27 @@ class WalletComponent extends Component {
     super(props)
     this.state = {
       addAddressModalOpen: false,
+      directTransferDialogOpen: false,
+      directTransferDialogStep: '', // one of ['RECIPIANT, REVIEW, RECEIPT']
+      directTransferDialogCryptoType: '',
+      directTransferDialogForm: {
+        destinationAddress: '',
+        transferAmount: ''
+      },
+      directTransferDialogFormError: {},
       moreMenu: {}
+    }
+  }
+
+  componentDidUpdate (prevProps) {
+    let { actionsPending, receipt } = this.props
+    if (prevProps.actionsPending.directTransfer &&
+        !actionsPending.directTransfer &&
+        receipt) {
+      // direct transfer action is completed
+      // sucessfully retrieved the receipt
+      // jump to receipt step
+      this.setState({ directTransferDialogStep: 'RECEIPT' })
     }
   }
 
@@ -41,6 +71,236 @@ class WalletComponent extends Component {
 
   handleMoreBtnOnClose = cryptoType => event => {
     this.setState(update(this.state, { moreMenu: { [cryptoType]: { anchorEl: { $set: null } } } }))
+  }
+
+  toggleDirectTransferDialog = (open, cryptoType) => {
+    let _state = update(this.state, { directTransferDialogOpen: { $set: open },
+      directTransferDialogCryptoType: { $set: cryptoType },
+      directTransferDialogStep: { $set: 'RECIPIANT' }
+    })
+    if (open) {
+      this.props.getTxCost({ cryptoType: cryptoType })
+    } else {
+      // close dropdown menu as well
+      _state = update(_state, { moreMenu: { [this.state.directTransferDialogCryptoType]: { anchorEl: { $set: null } } } })
+    }
+    this.setState(_state)
+  }
+
+  validate = (name, value) => {
+    const { wallet, txCost } = this.props
+    const { directTransferDialogCryptoType } = this.state
+    let balance = wallet ? wallet.crypto[directTransferDialogCryptoType][0].balance : null
+    const decimals = getCryptoDecimals(directTransferDialogCryptoType)
+    if (name === 'transferAmount' && wallet && balance) {
+      if (!validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals, 8) })) {
+        if (value === '-' || parseFloat(value) < 0.0001) {
+          return 'The amount must be greater than 0.0001'
+        } else {
+          return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
+        }
+      } else {
+        // balance check passed
+        if (['ethereum', 'dai'].includes(directTransferDialogCryptoType)) {
+          // ethereum based coins
+          // now check if ETH balance is sufficient for paying tx fees
+          if (directTransferDialogCryptoType === 'ethereum' &&
+              new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))) {
+            return 'Insufficent funds for paying transaction fees'
+          }
+          if (directTransferDialogCryptoType === 'dai' &&
+              new BN(balance).lt(new BN(txCost.costInBasicUnit))
+          ) {
+            return 'Insufficent funds for paying transaction fees'
+          }
+        }
+      }
+    } else if (name === 'destinationAddress') {
+      if (!Web3.utils.isAddress(value)) {
+        return 'Invalid address'
+      }
+    }
+    return null
+  }
+
+  handleDirectTransferDialogFormChange = name => event => {
+    this.setState(update(this.state, { directTransferDialogForm: { [name]: { $set: event.target.value } },
+      directTransferDialogFormError: { [name]: { $set: this.validate(name, event.target.value) } } }))
+  }
+
+  validateForm = () => {
+    const { directTransferDialogForm, directTransferDialogFormError } = this.state
+
+    // form must be filled without errors
+    return (
+      directTransferDialogForm.destinationAddress &&
+      directTransferDialogForm.transferAmount &&
+      !directTransferDialogFormError.destinationAddress &&
+      !directTransferDialogFormError.transferAmount)
+  }
+
+  directTransferDialogOnSubmit = () => {
+    const {
+      directTransferDialogForm,
+      directTransferDialogCryptoType
+    } = this.state
+    const { wallet, directTransfer, txCost } = this.props
+
+    if (directTransferDialogCryptoType &&
+        directTransferDialogForm.transferAmount &&
+        directTransferDialogForm.destinationAddress
+    ) {
+      // submit direct transfer request
+      directTransfer({
+        fromWallet: wallet,
+        cryptoType: directTransferDialogCryptoType,
+        destinationAddress: directTransferDialogForm.destinationAddress,
+        transferAmount: directTransferDialogForm.transferAmount,
+        txCost: txCost
+      })
+    }
+  }
+
+  renderDirectTransferDialogRecipiantStep = () => {
+    let { classes, wallet, txCost, actionsPending } = this.props
+    let {
+      directTransferDialogOpen,
+      directTransferDialogForm,
+      directTransferDialogFormError,
+      directTransferDialogCryptoType
+    } = this.state
+
+    if (directTransferDialogOpen) {
+      let _balance = wallet.crypto[directTransferDialogCryptoType][0].balance
+      let _decimals = getCryptoDecimals(directTransferDialogCryptoType)
+      var balance = _balance ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.000a') : '0'
+    }
+
+    return (
+      <>
+        <DialogTitle>Direct Transfer</DialogTitle>
+        <DialogContent>
+          <TextField
+            className={classes.directTransferToAddressTextField}
+            variant='outlined'
+            autoFocus
+            id='destinationAddress'
+            label='To Address'
+            fullWidth
+            value={directTransferDialogForm.destinationAddress}
+            onChange={this.handleDirectTransferDialogFormChange('destinationAddress')}
+            error={!!directTransferDialogFormError.destinationAddress}
+            helperText={directTransferDialogFormError.destinationAddress}
+          />
+          <TextField
+            variant='outlined'
+            id='amount'
+            label='Amount'
+            fullWidth
+            value={directTransferDialogForm.transferAmount}
+            onChange={this.handleDirectTransferDialogFormChange('transferAmount')}
+            helperText={directTransferDialogFormError.transferAmount || `Balance: ${balance}`}
+            error={!!directTransferDialogFormError.transferAmount}
+          />
+          <Grid item className={classes.txFeeSection}>
+            <Typography className={classes.txFeeSectionTitle} align='left'>
+              Transaction Fee
+            </Typography>
+            {!actionsPending.getTxCost && txCost
+              ? <Typography className={classes.txFeeSectionFee} align='left'>
+                {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(directTransferDialogCryptoType))}
+              </Typography>
+              : <CircularProgress size={18} color='primary' />}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => this.toggleDirectTransferDialog(false)} color='primary'>
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => this.setState({ directTransferDialogStep: 'REVIEW' })}
+            color='primary'
+            disabled={!this.validateForm()}
+          >
+            Continue to Review
+          </Button>
+        </DialogActions>
+      </>
+    )
+  }
+
+  renderDirectTransferDialogReviewStep = () => {
+    let { classes } = this.props
+    let {
+      directTransferDialogForm,
+      directTransferDialogCryptoType
+    } = this.state
+
+    return (
+      <>
+        <DialogTitle>Direct Transfer</DialogTitle>
+        <DialogContent>
+          <Typography align='left' className={classes.directTransferReviewText}>
+            You are about to send {directTransferDialogForm.transferAmount} {getCryptoSymbol(directTransferDialogCryptoType)} to the following address:
+          </Typography>
+          <Typography align='left' className={classNames(classes.directTransferReviewText, classes.marginBottom20px)}>
+            {directTransferDialogForm.destinationAddress}
+          </Typography>
+          <Typography align='left' className={classes.directTransferReviewText}>
+            Please double check on the amount and address.
+            The transfser is irreversible.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => this.setState({ directTransferDialogStep: 'RECIPIANT' })} color='primary'>
+            Back
+          </Button>
+          <Button
+            variant='contained'
+            onClick={this.directTransferDialogOnSubmit}
+            color='primary'
+          >
+            Confirm to Transfer
+          </Button>
+        </DialogActions>
+      </>
+    )
+  }
+
+  renderDirectTransferDialogReceiptStep = () => {
+    let { classes, receipt } = this.props
+
+    return (
+      <>
+        <DialogTitle>Direct Transfer</DialogTitle>
+        <DialogContent>
+          <Typography variant='body2' className={classes.informReceiverText} align='left'>
+            Succeed! It may take a few minutes to complete the transaction. You can track the transaction
+            <MuiLink target='_blank' rel='noopener' href={`https://rinkeby.etherscan.io/tx/${receipt.sendTxHash}`}>
+              {' here'}
+            </MuiLink>
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => this.toggleDirectTransferDialog(false)} color='primary'>
+            Close
+          </Button>
+        </DialogActions>
+      </>
+    )
+  }
+
+  renderDirectTransferDialog = () => {
+    let { directTransferDialogOpen, directTransferDialogStep } = this.state
+
+    return (
+      <Dialog open={directTransferDialogOpen}>
+        {directTransferDialogStep === 'RECIPIANT' && this.renderDirectTransferDialogRecipiantStep()}
+        {directTransferDialogStep === 'REVIEW' && this.renderDirectTransferDialogReviewStep()}
+        {directTransferDialogStep === 'RECEIPT' && this.renderDirectTransferDialogReceiptStep()}
+      </Dialog>
+    )
   }
 
   renderItem = (walletByCryptoType) => {
@@ -111,7 +371,7 @@ class WalletComponent extends Component {
                     open={Boolean(moreMenu && moreMenu.anchorEl)}
                     onClose={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}
                   >
-                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>Direct Transfer</MenuItem>
+                    <MenuItem onClick={() => this.toggleDirectTransferDialog(true, walletByCryptoType.cryptoType)}>Direct Transfer</MenuItem>
                     <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Address</MenuItem>
                     <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Private Key</MenuItem>
                   </Menu>
@@ -127,6 +387,7 @@ class WalletComponent extends Component {
 
   render () {
     const { classes, wallet, actionsPending } = this.props
+    const { directTransferDialogOpen } = this.state
 
     let walletList = []
     if (wallet.connected) {
@@ -188,6 +449,7 @@ class WalletComponent extends Component {
                 />
               </Grid>
               }
+              {directTransferDialogOpen && this.renderDirectTransferDialog()}
             </Grid>
           </Grid>
         </Grid>
@@ -256,6 +518,28 @@ const styles = theme => ({
     fontWeight: 500,
     padding: '0px',
     marginBottom: '30px'
+  },
+  directTransferToAddressTextField: {
+    marginTop: '10px',
+    marginBottom: '30px'
+  },
+  directTransferReviewText: {
+    color: '#333333',
+    fontSize: '14px'
+  },
+  marginBottom20px: {
+    marginBottom: '20px'
+  },
+  txFeeSection: {
+    marginTop: '30px'
+  },
+  txFeeSectionFee: {
+    color: '#777777',
+    fontSize: '12px'
+  },
+  txFeeSectionTitle: {
+    color: '#333333',
+    fontSize: '18px'
   }
 })
 

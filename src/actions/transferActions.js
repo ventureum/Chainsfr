@@ -155,6 +155,50 @@ function collectUtxos (
   throw new Error('Transfer amount greater and fee than utxo values.')
 }
 
+async function _directTransfer (txRequest: {
+  fromWallet: Object,
+  cryptoType: string,
+  transferAmount: string,
+  destinationAddress: string,
+  txCost: Object
+}) {
+  let { fromWallet, cryptoType, transferAmount, destinationAddress, txCost } = txRequest
+  if (['ethereum', 'dai'].includes(cryptoType)) {
+    var _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    var txObj = null
+
+    // eth and dai have the same decimals
+    let amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
+
+    // add account to web3
+    _web3.eth.accounts.wallet.add(fromWallet.crypto[cryptoType][0].privateKey)
+
+    let fromAddress = fromWallet.crypto[cryptoType][0].address
+    if (cryptoType === 'ethereum') {
+      txObj = {
+        from: fromAddress,
+        to: destinationAddress,
+        value: amountInBasicUnit,
+        gas: txCost.gas,
+        gasPrice: txCost.price
+      }
+    } else if (cryptoType === 'dai') {
+      txObj = await ERC20.getTransferTxObj(fromAddress, destinationAddress, amountInBasicUnit, cryptoType)
+      // update tx fees
+      txObj.gas = txCost.gas
+      txObj.gasPrice = txCost.price
+    }
+    let sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
+    return {
+      sendTxHash: sendTxHash,
+      transferAmount: transferAmount,
+      destinationAddress: destinationAddress,
+      txCost: txCost,
+      cryptoType: cryptoType
+    }
+  }
+}
+
 async function _submitTx (
   txRequest: {
     fromWallet: Object,
@@ -630,6 +674,19 @@ function submitTx (txRequest: {
   }
 }
 
+function directTransfer (txRequest: {
+  fromWallet: Object,
+  cryptoType: string,
+  transferAmount: string,
+  destinationAddress: string,
+  txCost: Object
+}) {
+  return {
+    type: 'DIRECT_TRANSFER',
+    payload: _directTransfer(txRequest)
+  }
+}
+
 function acceptTransfer (
   txRequest: {
     escrowWallet: Object,
@@ -714,6 +771,7 @@ function getTransferHistory () {
 
 export {
   submitTx,
+  directTransfer,
   acceptTransfer,
   cancelTransfer,
   getTxCost,
