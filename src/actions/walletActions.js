@@ -1,3 +1,4 @@
+// @flow
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
@@ -8,26 +9,22 @@ import ERC20 from '../ERC20'
 import axios from 'axios'
 import bitcore from 'bitcore-lib'
 import BN from 'bn.js'
+import env from '../typedEnv'
 
-let ledgerApiUrl: string = ''
-if (process.env.REACT_APP_LEDGER_API_URL) {
-  ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
-}
+const ledgerApiUrl = env.REACT_APP_LEDGER_API_URL
+const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
+
 const ledgerNanoS = new LedgerNanoS()
 
-if (process.env.REACT_APP_NETWORK_NAME && process.env.REACT_APP_INFURA_API_KEY) {
-  var infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
-}
-
-function syncLedgerAccountInfo (cryptoType, accountIndex = 0, progress) {
+function syncLedgerAccountInfo (cryptoType: string, accountIndex: number = 0, progress: ?Function) {
   return {
     type: 'SYNC_LEDGER_ACCOUNT_INFO',
     payload: ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex, progress)
   }
 }
 
-function updateBtcAccountInfo (progress) {
-  return (dispatch, getState) => {
+function updateBtcAccountInfo (progress: ?Function) {
+  return (dispatch: Function, getState: Function) => {
     const accountInfo = getState().walletReducer.wallet.ledger.crypto.bitcoin
     return dispatch({
       type: 'UPDATE_BTC_ACCOUNT_INFO',
@@ -36,8 +33,15 @@ function updateBtcAccountInfo (progress) {
   }
 }
 
-async function _checkMetamaskConnection (cryptoType, dispatch) {
-  let rv = {
+async function _checkMetamaskConnection (
+  cryptoType: string,
+  dispatch: Function
+) : Promise<{
+  connected: boolean,
+  network: ?string,
+  crypto: ?Array<Object>
+}> {
+  let rv: Object = {
     connected: false,
     network: null,
     crypto: null
@@ -74,7 +78,7 @@ async function _checkMetamaskConnection (cryptoType, dispatch) {
   return rv
 }
 
-async function _checkLedgerNanoSConnection (cryptoType) {
+async function _checkLedgerNanoSConnection (cryptoType: string) {
   const deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
   if (deviceConnected === null) {
     const msg = 'Ledger not connected'
@@ -83,14 +87,23 @@ async function _checkLedgerNanoSConnection (cryptoType) {
   return deviceConnected
 }
 
-async function _verifyPassword ({ sendingId, encriptedWallet, password, cryptoType }) {
+async function _verifyPassword (
+  transferInfo: {
+    sendingId: ?string,
+    encryptedWallet: string,
+    password: string,
+    cryptoType: string
+  }
+) {
+  let { sendingId, encryptedWallet, password, cryptoType } = transferInfo
+
   if (sendingId) {
     // retrieve password from drive
     let transferData = await getTransferData(sendingId)
     password = Base64.decode(transferData.password) + transferData.destination
   }
 
-  let decryptedWallet = utils.decryptWallet(encriptedWallet, password, cryptoType)
+  let decryptedWallet = utils.decryptWallet(encryptedWallet, password, cryptoType)
   if (!decryptedWallet) {
     // wrong password
     throw new Error('WALLET_DECRYPTION_FAILED')
@@ -98,8 +111,8 @@ async function _verifyPassword ({ sendingId, encriptedWallet, password, cryptoTy
   return decryptedWallet
 }
 
-function checkMetamaskConnection (crypoType) {
-  return (dispatch, getState) => {
+function checkMetamaskConnection (crypoType: string) {
+  return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'CHECK_METAMASK_CONNECTION',
       payload: _checkMetamaskConnection(crypoType, dispatch)
@@ -107,22 +120,33 @@ function checkMetamaskConnection (crypoType) {
   }
 }
 
-function onMetamaskAccountsChanged (accounts) {
+function onMetamaskAccountsChanged (accounts: any) {
   return {
     type: 'UPDATE_METAMASK_ACCOUNTS',
     payload: accounts
   }
 }
 
-function checkLedgerNanoSConnection (cryptoType) {
+function checkLedgerNanoSConnection (cryptoType: string) {
   return {
     type: 'CHECK_LEDGER_NANOS_CONNECTION',
     payload: _checkLedgerNanoSConnection(cryptoType)
   }
 }
 
-function verifyPassword (transferInfo, nextStep) {
-  return (dispatch, getState) => {
+function verifyPassword (
+  transferInfo: {
+    sendingId: ?string,
+    encryptedWallet: string,
+    password: string,
+    cryptoType: string
+  },
+  nextStep: ?{
+    transferAction: string,
+    n: number
+  }
+) {
+  return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'VERIFY_PASSWORD',
       payload: _verifyPassword(transferInfo)
@@ -141,14 +165,25 @@ function clearDecryptedWallet () {
     type: 'CLEAR_DECRYPTED_WALLET'
   }
 }
-async function _getUtxoForEscrowWallet (address) {
+
+async function _getUtxoForEscrowWallet (
+  address: string
+):
+  Promise<{
+    utxos: Array<{
+      value: number,
+      script: string,
+      outputIndex: number,
+      txHash: string
+    }>
+  }> {
   const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${address}/transactions?noToken=true&truncated=true`)).data
   const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, address)
   return { utxos }
 }
 
 function getUtxoForEscrowWallet () {
-  return (dispatch, getState) => {
+  return (dispatch: Function, getState: Function) => {
     const { address } = getState().walletReducer.escrowWallet.decryptedWallet
     return dispatch({
       type: 'GET_UTXO_FOR_ESCROW_WALLET',
@@ -158,7 +193,7 @@ function getUtxoForEscrowWallet () {
 }
 
 // cloud wallet actions
-async function _createCloudWallet (password) {
+async function _createCloudWallet (password: string) {
   // ethereum based wallet
   // ETH and erc20 tokens will use the same address
   let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
@@ -181,7 +216,7 @@ async function _createCloudWallet (password) {
   return _getCloudWallet()
 }
 
-function createCloudWallet (password) {
+function createCloudWallet (password: string) {
   return {
     type: 'CREATE_CLOUD_WALLET',
     payload: _createCloudWallet(password)
@@ -237,7 +272,7 @@ async function _getCloudWallet () {
 }
 
 function getCloudWallet () {
-  return (dispatch, getState) => {
+  return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'GET_CLOUD_WALLET',
       payload: _getCloudWallet(),
@@ -252,11 +287,11 @@ function getCloudWallet () {
   }
 }
 
-async function _checkCloudWalletConnection (cryptoType) {
+async function _checkCloudWalletConnection (cryptoType: string) {
   return _getCloudWallet()
 }
 
-function checkCloudWalletConnection (cryptoType) {
+function checkCloudWalletConnection (cryptoType: string) {
   return {
     type: 'CHECK_CLOUD_WALLET_CONNECTION',
     payload: _checkCloudWalletConnection(cryptoType)

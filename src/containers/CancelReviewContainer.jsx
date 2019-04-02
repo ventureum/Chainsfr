@@ -23,7 +23,7 @@ class CancelReviewContainer extends Component {
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
         this.props.verifyPassword({
           sendingId: transfer.sendingId,
-          encriptedWallet: transfer.data,
+          encryptedWallet: transfer.data,
           cryptoType: transfer.cryptoType
         })
       } else if (
