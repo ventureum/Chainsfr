@@ -238,7 +238,15 @@ async function _submitTx (
     if (cryptoType === 'ethereum') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
       const amountInWei = _web3.utils.toWei(transferAmount.toString(), 'ether')
-      const signedTransactionObject = await ledgerNanoS.signSendEther(0, escrow.address, amountInWei)
+      const signedTransactionObject = await ledgerNanoS.signSendEther(
+        0,
+        escrow.address,
+        amountInWei,
+        {
+          gasLimit: txCost.gas,
+          gasPrice: txCost.price
+        }
+      )
       sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
     } else if (cryptoType === 'dai') {
       const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
