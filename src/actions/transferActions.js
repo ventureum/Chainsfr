@@ -20,7 +20,6 @@ import env from '../typedEnv'
 type Utxos = Array<{
   value: number,
   script: string,
-  txid: string,
   outputIndex: number,
   txHash: string
 }>
