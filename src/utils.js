@@ -6,13 +6,15 @@ import wif from 'wif'
 import bip38 from 'bip38'
 import bitcore from 'bitcore-lib'
 import axios from 'axios'
+import env from './typedEnv'
 
 const WIF_VERSION = {
   'testnet': 0xEF,
   'mainnet': 0x80
 }
-const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
-const blockcypherBaseUrl = process.env.REACT_APP_BLOCKCYPHER_API_URL
+const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
+const blockcypherBaseUrl = env.REACT_APP_BLOCKCYPHER_API_URL
+const btcFeeEndPoint = env.REACT_APP_BTC_FEE_ENDPOINT
 
 /*
  * @param val BN instance, assuming smallest token unit
@@ -160,4 +162,14 @@ export async function getBtcLastBlockHeight () {
   return rv.height
 }
 
-export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet, encryptWallet }
+async function getBtcTxFeePerByte () {
+  const rv = (await axios.get(btcFeeEndPoint)).data
+  // safety check
+  if (new BN(rv.hourFee).gt(new BN(200))) {
+    console.warn(new Error('Abnormal btc fee per byte'))
+    return 200
+  }
+  return rv.hourFee
+}
+
+export default { toHumanReadableUnit, toBasicTokenUnit, getGasCost, generatePassphrase, decryptWallet, encryptWallet, getBtcTxFeePerByte }

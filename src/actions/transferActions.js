@@ -59,7 +59,7 @@ async function _getTxCost (
   },
   addressPool: Array<Object>
 ) {
-  let { cryptoType, transferAmount, txFeePerByte = 15 } = txRequest
+  let { cryptoType, transferAmount, txFeePerByte } = txRequest
 
   const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
   const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
@@ -109,6 +109,7 @@ async function _getTxCost (
       costByType: { txCostEth, txCostERC20, ethTransfer }
     }
   } else if (cryptoType === 'bitcoin') {
+    if (!txFeePerByte) txFeePerByte = await utils.getBtcTxFeePerByte()
     const { size, fee } = collectUtxos(addressPool, transferAmount, txFeePerByte)
     let price = txFeePerByte.toString()
     let gas = size.toString()
@@ -168,7 +169,7 @@ async function _submitTx (
   },
   accountInfo: Object
 ) {
-  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost, txFeePerByte } = txRequest
+  let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost } = txRequest
   let escrow: Object = {}
   let encryptedEscrow: string
   let sendTxHash: string = ''
@@ -275,8 +276,7 @@ async function _submitTx (
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
       const addressPool = accountInfo.addresses
-      if (!txFeePerByte) txFeePerByte = 15
-      const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue.toString(), txFeePerByte)
+      const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue.toString(), txCost.price)
       const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
       sendTxHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
     }
