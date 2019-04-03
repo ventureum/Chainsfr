@@ -205,12 +205,16 @@ async function _createCloudWallet (password: string) {
   // bitcoin wallet
   let btcWallet = new bitcore.PrivateKey(undefined, process.env.REACT_APP_BTC_NETWORK)
   let btcWalletEncrypted = utils.encryptWallet({ wif: btcWallet.toWIF() }, password, 'bitcoin')
+  let btcWalletEncryptedObj = {
+    address: btcWallet.toAddress().toString(),
+    ciphertext: btcWalletEncrypted
+  }
 
   // save the encrypted wallet into drive
   await saveWallet({
     'password': Base64.encode(password),
     'ethereum': Base64.encode(JSON.stringify(ethWalletEncrypted)),
-    'bitcoin': Base64.encode(JSON.stringify(btcWalletEncrypted))
+    'bitcoin': Base64.encode(JSON.stringify(btcWalletEncryptedObj))
   })
 
   return _getCloudWallet()
@@ -234,27 +238,18 @@ async function _getCloudWallet () {
   }
 
   let password = Base64.decode(wallet.password)
-
-  // decrypt wallet
-  let ethWalletDecrypted = utils.decryptWallet(
-    (JSON.parse(Base64.decode(wallet.ethereum))),
-    password,
-    'ethereum')
-
-  let btcWalletDecrypted = utils.decryptWallet(
-    (JSON.parse(Base64.decode(wallet.bitcoin))),
-    password,
-    'bitcoin')
+  const ethWalletEncrypted = JSON.parse(Base64.decode(wallet.ethereum))
+  const btcWalletEncrypted = JSON.parse(Base64.decode(wallet.bitcoin))
 
   // fetch balance
   // 1. fetch ETH balance in string
   let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-  let ethBalance = await _web3.eth.getBalance(ethWalletDecrypted.address)
+  let ethBalance = await _web3.eth.getBalance(ethWalletEncrypted.address)
   // 2. fetch DAI balance in string
-  let daiBalance = (await ERC20.getBalance(ethWalletDecrypted.address, 'dai')).toString()
+  let daiBalance = (await ERC20.getBalance(ethWalletEncrypted.address, 'dai')).toString()
   // 3. fetch BTC balance in string
-  const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${btcWalletDecrypted.address}/transactions?noToken=true&truncated=true`)).data
-  const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, btcWalletDecrypted.address)
+  const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${btcWalletEncrypted.address}/transactions?noToken=true&truncated=true`)).data
+  const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, btcWalletEncrypted.address)
   let btcBalance = (utxos.reduce((accu, utxo) => {
     return new BN(utxo.value).add(accu)
   }, new BN(0))).toString()
@@ -264,9 +259,9 @@ async function _getCloudWallet () {
     connected: true,
     password: password,
     crypto: {
-      'ethereum': [{ ...ethWalletDecrypted, balance: ethBalance }],
-      'dai': [{ ...ethWalletDecrypted, balance: daiBalance }],
-      'bitcoin': [{ ...btcWalletDecrypted, balance: btcBalance }]
+      'ethereum': [{ ...ethWalletEncrypted, balance: ethBalance }],
+      'dai': [{ ...ethWalletEncrypted, balance: daiBalance }],
+      'bitcoin': [{ ...btcWalletEncrypted, balance: btcBalance }]
     }
   }
 }
