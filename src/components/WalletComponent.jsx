@@ -41,9 +41,11 @@ class WalletComponent extends Component {
     super(props)
     this.state = {
       addAddressModalOpen: false,
+      viewAddressDialogOpen: false,
+      viewPrivateKeyDialogOpen: false,
       directTransferDialogOpen: false,
       directTransferDialogStep: '', // one of ['RECIPIANT, REVIEW, RECEIPT']
-      directTransferDialogCryptoType: '',
+      selectedCryptoType: '',
       directTransferDialogForm: {
         destinationAddress: '',
         transferAmount: ''
@@ -75,23 +77,45 @@ class WalletComponent extends Component {
 
   toggleDirectTransferDialog = (open, cryptoType) => {
     let _state = update(this.state, { directTransferDialogOpen: { $set: open },
-      directTransferDialogCryptoType: { $set: cryptoType },
+      selectedCryptoType: { $set: cryptoType },
       directTransferDialogStep: { $set: 'RECIPIANT' }
     })
     if (open) {
       this.props.getTxCost({ cryptoType: cryptoType })
     } else {
       // close dropdown menu as well
-      _state = update(_state, { moreMenu: { [this.state.directTransferDialogCryptoType]: { anchorEl: { $set: null } } } })
+      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+    }
+    this.setState(_state)
+  }
+
+  toggleViewAddressDialog = (open, cryptoType) => {
+    let _state = update(this.state, { viewAddressDialogOpen: { $set: open },
+      selectedCryptoType: { $set: cryptoType }
+    })
+    if (!open) {
+      // close dropdown menu as well
+      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+    }
+    this.setState(_state)
+  }
+
+  toggleViewPrivateKeyDialog = (open, cryptoType) => {
+    let _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open },
+      selectedCryptoType: { $set: cryptoType }
+    })
+    if (!open) {
+      // close dropdown menu as well
+      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
     }
     this.setState(_state)
   }
 
   validate = (name, value) => {
     const { wallet, txCost } = this.props
-    const { directTransferDialogCryptoType } = this.state
-    let balance = wallet ? wallet.crypto[directTransferDialogCryptoType][0].balance : null
-    const decimals = getCryptoDecimals(directTransferDialogCryptoType)
+    const { selectedCryptoType } = this.state
+    let balance = wallet ? wallet.crypto[selectedCryptoType][0].balance : null
+    const decimals = getCryptoDecimals(selectedCryptoType)
     if (name === 'transferAmount' && wallet && balance) {
       if (!validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals, 8) })) {
         if (value === '-' || parseFloat(value) < 0.0001) {
@@ -101,14 +125,14 @@ class WalletComponent extends Component {
         }
       } else {
         // balance check passed
-        if (['ethereum', 'dai'].includes(directTransferDialogCryptoType)) {
+        if (['ethereum', 'dai'].includes(selectedCryptoType)) {
           // ethereum based coins
           // now check if ETH balance is sufficient for paying tx fees
-          if (directTransferDialogCryptoType === 'ethereum' &&
+          if (selectedCryptoType === 'ethereum' &&
               new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))) {
             return 'Insufficent funds for paying transaction fees'
           }
-          if (directTransferDialogCryptoType === 'dai' &&
+          if (selectedCryptoType === 'dai' &&
               new BN(balance).lt(new BN(txCost.costInBasicUnit))
           ) {
             return 'Insufficent funds for paying transaction fees'
@@ -142,18 +166,18 @@ class WalletComponent extends Component {
   directTransferDialogOnSubmit = () => {
     const {
       directTransferDialogForm,
-      directTransferDialogCryptoType
+      selectedCryptoType
     } = this.state
     const { wallet, directTransfer, txCost } = this.props
 
-    if (directTransferDialogCryptoType &&
+    if (selectedCryptoType &&
         directTransferDialogForm.transferAmount &&
         directTransferDialogForm.destinationAddress
     ) {
       // submit direct transfer request
       directTransfer({
         fromWallet: wallet,
-        cryptoType: directTransferDialogCryptoType,
+        cryptoType: selectedCryptoType,
         destinationAddress: directTransferDialogForm.destinationAddress,
         transferAmount: directTransferDialogForm.transferAmount,
         txCost: txCost
@@ -167,12 +191,12 @@ class WalletComponent extends Component {
       directTransferDialogOpen,
       directTransferDialogForm,
       directTransferDialogFormError,
-      directTransferDialogCryptoType
+      selectedCryptoType
     } = this.state
 
     if (directTransferDialogOpen) {
-      let _balance = wallet.crypto[directTransferDialogCryptoType][0].balance
-      let _decimals = getCryptoDecimals(directTransferDialogCryptoType)
+      let _balance = wallet.crypto[selectedCryptoType][0].balance
+      let _decimals = getCryptoDecimals(selectedCryptoType)
       var balance = _balance ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.000a') : '0'
     }
 
@@ -208,7 +232,7 @@ class WalletComponent extends Component {
             </Typography>
             {!actionsPending.getTxCost && txCost
               ? <Typography className={classes.txFeeSectionFee} align='left'>
-                {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(directTransferDialogCryptoType))}
+                {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
               </Typography>
               : <CircularProgress size={18} color='primary' />}
           </Grid>
@@ -234,7 +258,7 @@ class WalletComponent extends Component {
     let { classes } = this.props
     let {
       directTransferDialogForm,
-      directTransferDialogCryptoType
+      selectedCryptoType
     } = this.state
 
     return (
@@ -242,7 +266,7 @@ class WalletComponent extends Component {
         <DialogTitle>Direct Transfer</DialogTitle>
         <DialogContent>
           <Typography align='left' className={classes.directTransferReviewText}>
-            You are about to send {directTransferDialogForm.transferAmount} {getCryptoSymbol(directTransferDialogCryptoType)} to the following address:
+            You are about to send {directTransferDialogForm.transferAmount} {getCryptoSymbol(selectedCryptoType)} to the following address:
           </Typography>
           <Typography align='left' className={classNames(classes.directTransferReviewText, classes.marginBottom20px)}>
             {directTransferDialogForm.destinationAddress}
@@ -299,6 +323,51 @@ class WalletComponent extends Component {
         {directTransferDialogStep === 'RECIPIANT' && this.renderDirectTransferDialogRecipiantStep()}
         {directTransferDialogStep === 'REVIEW' && this.renderDirectTransferDialogReviewStep()}
         {directTransferDialogStep === 'RECEIPT' && this.renderDirectTransferDialogReceiptStep()}
+      </Dialog>
+    )
+  }
+
+  renderViewAddressDialog = () => {
+    const { viewAddressDialogOpen, selectedCryptoType } = this.state
+    const { classes, wallet } = this.props
+
+    return (
+      <Dialog open={viewAddressDialogOpen}>
+        <DialogTitle>Address</DialogTitle>
+        <DialogContent>
+          <Typography className={classes.addressDialog} align='left'>
+            {wallet.crypto[selectedCryptoType][0].address}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => this.toggleViewAddressDialog(false)} color='primary'>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
+  renderViewPrivateKeyDialog = () => {
+    const { viewPrivateKeyDialogOpen, selectedCryptoType } = this.state
+    const { classes, wallet } = this.props
+
+    return (
+      <Dialog open={viewPrivateKeyDialogOpen}>
+        <DialogTitle>Private Key</DialogTitle>
+        <DialogContent>
+          <Typography className={classes.addressDialog} align='left'>
+            {
+              selectedCryptoType === 'bitcoin' ? wallet.crypto[selectedCryptoType][0].WIF
+                : wallet.crypto[selectedCryptoType][0].privateKey
+            }
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => this.toggleViewPrivateKeyDialog(false)} color='primary'>
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     )
   }
@@ -372,8 +441,8 @@ class WalletComponent extends Component {
                     onClose={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}
                   >
                     <MenuItem onClick={() => this.toggleDirectTransferDialog(true, walletByCryptoType.cryptoType)}>Direct Transfer</MenuItem>
-                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Address</MenuItem>
-                    <MenuItem onClick={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}>View Private Key</MenuItem>
+                    <MenuItem onClick={() => this.toggleViewAddressDialog(true, walletByCryptoType.cryptoType)}>View Address</MenuItem>
+                    <MenuItem onClick={() => this.toggleViewPrivateKeyDialog(true, walletByCryptoType.cryptoType)}>View Private Key</MenuItem>
                   </Menu>
                 </Grid>
               </Grid>
@@ -387,7 +456,11 @@ class WalletComponent extends Component {
 
   render () {
     const { classes, wallet, actionsPending } = this.props
-    const { directTransferDialogOpen } = this.state
+    const {
+      directTransferDialogOpen,
+      viewAddressDialogOpen,
+      viewPrivateKeyDialogOpen
+    } = this.state
 
     let walletList = []
     if (wallet.connected) {
@@ -450,6 +523,8 @@ class WalletComponent extends Component {
               </Grid>
               }
               {directTransferDialogOpen && this.renderDirectTransferDialog()}
+              {viewAddressDialogOpen && this.renderViewAddressDialog()}
+              {viewPrivateKeyDialogOpen && this.renderViewPrivateKeyDialog()}
             </Grid>
           </Grid>
         </Grid>
@@ -540,6 +615,9 @@ const styles = theme => ({
   txFeeSectionTitle: {
     color: '#333333',
     fontSize: '18px'
+  },
+  addressDialog: {
+    fontSize: '12px'
   }
 })
 
