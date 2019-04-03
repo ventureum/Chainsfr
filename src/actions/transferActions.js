@@ -283,8 +283,9 @@ async function _submitTx (
   } else if (walletType === 'drive') {
     const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
     if (cryptoType === 'ethereum') {
+      let ethWalletDecrypted = utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
       // add privateKey to web3
-      _web3.eth.accounts.wallet.add(fromWallet.crypto[cryptoType][0].privateKey)
+      _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
 
       let wei = _web3.utils.toWei(transferAmount, 'ether')
       txObj = {
@@ -295,6 +296,9 @@ async function _submitTx (
         gasPrice: txCost.price
       }
     } else if (cryptoType === 'dai') {
+      let ethWalletDecrypted = utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
+      _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
+
       // we need to transfer a small amount of eth to escrow to pay for
       // the next transfer's tx fees
       sendTxFeeTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, {
