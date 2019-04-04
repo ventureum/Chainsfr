@@ -35,7 +35,7 @@ function toBasicTokenUnit (val, decimals = 18, precision = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = parseInt(val * precisionBase.toNumber())
-  return (new BN(rv).pow(base)).toString()
+  return new BN(rv).mul(base)
 }
 
 async function getGasCost (txObj) {
