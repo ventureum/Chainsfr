@@ -38,16 +38,21 @@ if (process.env.REACT_APP_LEDGER_API_URL) {
 }
 
 class LedgerNanoS {
-  webUsbTransport: any
+  static webUsbTransport: any
   ethLedger: any
   web3: any
   btcLedger: any
 
   getWebUsbTransport = async (): Promise<any> => {
-    if (!this.webUsbTransport || !this.webUsbTransport.device || !this.webUsbTransport.device.opened) {
-      this.webUsbTransport = await WebUsbTransport.create()
+    if (!LedgerNanoS.webUsbTransport || !LedgerNanoS.webUsbTransport.device || !LedgerNanoS.webUsbTransport.device.opened) {
+      LedgerNanoS.webUsbTransport = await WebUsbTransport.create()
+      LedgerNanoS.webUsbTransport.setExchangeTimeout(300000) // 5 mins
+      setTimeout(async () => {
+        await LedgerNanoS.webUsbTransport.close()
+        LedgerNanoS.webUsbTransport = null
+      }, 300000)
     }
-    return this.webUsbTransport
+    return LedgerNanoS.webUsbTransport
   }
 
   getEtherLedger = async (): Promise<any> => {
