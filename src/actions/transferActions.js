@@ -12,8 +12,6 @@ import { Base64 } from 'js-base64'
 import ERC20 from '../ERC20'
 import { getCrypto, getCryptoDecimals } from '../tokens'
 import bitcore from 'bitcore-lib'
-import wif from 'wif'
-import bip38 from 'bip38'
 import axios from 'axios'
 import env from '../typedEnv'
 
@@ -29,10 +27,6 @@ type AddressPool = Array<{
   utxos: Utxos
 }>
 
-const WIF_VERSION = {
-  'testnet': 0xEF,
-  'mainnet': 0x80
-}
 const ledgerNanoS = new LedgerNanoS()
 const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
 const ledgerApiUrl = env.REACT_APP_LEDGER_API_URL
@@ -231,9 +225,8 @@ async function _submitTx (
   } else if (cryptoType === 'bitcoin') {
     escrow = new bitcore.PrivateKey(undefined, env.REACT_APP_BTC_NETWORK)
     let privateKeyWif = escrow.toWIF()
-    let decoded = wif.decode(privateKeyWif, WIF_VERSION[env.REACT_APP_BTC_NETWORK])
 
-    encryptedEscrow = bip38.encrypt(decoded.privateKey, decoded.compressed, password + destination)
+    encryptedEscrow = await utils.encryptWallet({ wif: privateKeyWif }, password + destination, 'bitcoin')
   }
 
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
@@ -327,7 +320,7 @@ async function _submitTx (
   } else if (walletType === 'drive') {
     const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
     if (cryptoType === 'ethereum') {
-      let ethWalletDecrypted = utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
+      let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
 
@@ -340,7 +333,7 @@ async function _submitTx (
         gasPrice: txCost.price
       }
     } else if (cryptoType === 'dai') {
-      let ethWalletDecrypted = utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
+      let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
       _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
 
       // we need to transfer a small amount of eth to escrow to pay for
