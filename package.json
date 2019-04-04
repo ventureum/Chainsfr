@@ -60,11 +60,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "npm run standard && react-scripts test",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
-    "standard": "standard"
+    "eslint": "eslint \"./src/**/*.js\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -75,20 +75,18 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "standard": {
-    "parser": "babel-eslint",
-    "plugins": [
-      "flowtype"
-    ],
-    "globals": [
-      "it",
-      "fetch"
-    ]
-  },
   "devDependencies": {
+    "eslint": "^5.6.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-config-standard-jsx": "^6.0.2",
+    "eslint-config-standard-react": "^7.0.2",
     "eslint-plugin-flowtype": "^3.4.2",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-react": "^7.12.4",
+    "eslint-plugin-standard": "^4.0.0",
     "flow-bin": "^0.95.1",
-    "flow-typed": "^2.5.1",
-    "standard": "^12.0.1"
+    "flow-typed": "^2.5.1"
   }
 }

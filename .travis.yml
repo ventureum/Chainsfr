@@ -6,6 +6,7 @@ node_js:
 - 8
 fail_fast: true
 script:
+- npm run eslint
 - npm run flow
 - npm test
 - wget https://s3.amazonaws.com/chainsfer-config/dev/.env
