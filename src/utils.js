@@ -3,10 +3,10 @@ import BN from 'bn.js'
 import randomBytes from 'randombytes'
 import wordlist from './wordlist.js'
 import wif from 'wif'
-import bip38 from 'bip38'
 import bitcore from 'bitcore-lib'
 import axios from 'axios'
 import env from './typedEnv'
+import CryptoWorker from './crypto.worker.js'
 
 const WIF_VERSION = {
   'testnet': 0xEF,
@@ -120,41 +120,52 @@ function generatePassphrase (size) {
  * @returns keystore object for ethereum, base58 encoded string for bitcoin
  */
 function encryptWallet (wallet, password, cryptoType) {
-  if (cryptoType === 'ethereum') {
-    let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-    return _web3.eth.accounts.encrypt(wallet.privateKey, password)
-  } else if (cryptoType === 'bitcoin') {
-    let btcWalletWifDecoded = wif.decode(wallet.wif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
-    return bip38.encrypt(btcWalletWifDecoded.privateKey, btcWalletWifDecoded.compressed, password)
-  } else {
-    throw new Error(`Unsupported cryptoType: ${cryptoType}`)
-  }
+  return new Promise((resolve, reject) => {
+    if (cryptoType === 'ethereum') {
+      let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      resolve(_web3.eth.accounts.encrypt(wallet.privateKey, password))
+    } else if (cryptoType === 'bitcoin') {
+      let btcWalletWifDecoded = wif.decode(wallet.wif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
+      let myWorker = new CryptoWorker()
+      myWorker.postMessage({ action: 'encrypt', payload: { btcWalletWifDecoded, password } })
+      myWorker.onmessage = (m) => {
+        resolve(m.data)
+      }
+    } else {
+      throw new Error(`Unsupported cryptoType: ${cryptoType}`)
+    }
+  })
 }
 
 function decryptWallet (encryptedWallet, password, cryptoType) {
-  try {
-    if (cryptoType === 'bitcoin') {
-      let decryptedKey = bip38.decrypt(encryptedWallet, password)
-
-      const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], decryptedKey.privateKey, decryptedKey.compressed)
-      const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
-      const publicKey = privateKey.toPublicKey()
-      const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
-      return {
-        WIF: walletWIF,
-        privateKey: privateKey,
-        publicKey: publicKey.compressed,
-        address: escrowWalletAddress
+  return new Promise((resolve, reject) => {
+    try {
+      if (cryptoType === 'bitcoin') {
+        let myWorker = new CryptoWorker()
+        myWorker.postMessage({ action: 'decrypt', payload: { encryptedWallet, password } })
+        myWorker.onmessage = (m) => {
+          let decryptedKey = m.data
+          const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], decryptedKey.privateKey, decryptedKey.compressed)
+          const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
+          const publicKey = privateKey.toPublicKey()
+          const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
+          resolve({
+            WIF: walletWIF,
+            privateKey: privateKey,
+            publicKey: publicKey.compressed,
+            address: escrowWalletAddress
+          })
+        }
+      } else if (cryptoType === 'ethereum') {
+        const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+        resolve(_web3.eth.accounts.decrypt(encryptedWallet, password))
       }
-    } else if (cryptoType === 'ethereum') {
-      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-      return _web3.eth.accounts.decrypt(encryptedWallet, password)
+    } catch (error) {
+      console.warn(error)
+      // derivation error, possibly wrong password
+      return null
     }
-  } catch (error) {
-    console.warn(error)
-    // derivation error, possibly wrong password
-    return null
-  }
+  })
 }
 
 export async function getBtcLastBlockHeight () {

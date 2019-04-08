@@ -58,9 +58,9 @@
     "wif": "^2.0.6"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
@@ -87,6 +87,8 @@
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-standard": "^4.0.0",
     "flow-bin": "^0.95.1",
-    "flow-typed": "^2.5.1"
+    "flow-typed": "^2.5.1",
+    "react-app-rewired": "^2.1.1",
+    "worker-loader": "^2.0.0"
   }
 }

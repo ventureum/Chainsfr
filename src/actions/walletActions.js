@@ -103,7 +103,7 @@ async function _verifyPassword (
     password = Base64.decode(transferData.password) + transferData.destination
   }
 
-  let decryptedWallet = utils.decryptWallet(encryptedWallet, password, cryptoType)
+  let decryptedWallet = await utils.decryptWallet(encryptedWallet, password, cryptoType)
   if (!decryptedWallet) {
     // wrong password
     throw new Error('WALLET_DECRYPTION_FAILED')
@@ -200,11 +200,11 @@ async function _createCloudWallet (password: string) {
   let ethWallet = _web3.eth.accounts.create()
 
   // wallet encryption with user-provided password
-  let ethWalletEncrypted = utils.encryptWallet(ethWallet, password, 'ethereum')
+  let ethWalletEncrypted = await utils.encryptWallet(ethWallet, password, 'ethereum')
 
   // bitcoin wallet
   let btcWallet = new bitcore.PrivateKey(undefined, process.env.REACT_APP_BTC_NETWORK)
-  let btcWalletEncrypted = utils.encryptWallet({ wif: btcWallet.toWIF() }, password, 'bitcoin')
+  let btcWalletEncrypted = await utils.encryptWallet({ wif: btcWallet.toWIF() }, password, 'bitcoin')
   let btcWalletEncryptedObj = {
     address: btcWallet.toAddress().toString(),
     ciphertext: btcWalletEncrypted
