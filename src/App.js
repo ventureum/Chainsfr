@@ -19,6 +19,10 @@ import { SnackbarProvider } from 'notistack'
 import NotifierComponent from './components/NotifierComponent'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
+import BrowserNotSupportedComponent from './components/BrowserNotSupportedComponent'
+import { detect } from 'detect-browser'
+
+const browser = detect()
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -55,13 +59,26 @@ const componentStyle = {
   flexDirection: 'column'
 }
 
+function browserSupported () {
+  if (browser && browser.name === 'chrome') {
+    let v = browser.version.split('.')[0]
+    if (parseInt(v) >= 73) {
+      return true
+    }
+  }
+  return false
+}
+
 const DefaultLayout = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={matchProps => (
       <div style={defaultLayoutStyle}>
         <NaviBar {...matchProps} />
         <div style={componentStyle}>
-          <Component {...matchProps} />
+          {browserSupported()
+            ? <Component {...matchProps} />
+            : <BrowserNotSupportedComponent />
+          }
         </div>
         <NotifierComponent />
         <Footer />
