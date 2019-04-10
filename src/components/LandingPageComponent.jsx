@@ -129,7 +129,7 @@ class LandingPageComponent extends Component {
           <Grid container direction='row' alignItems='center'>
             {cryptoSelections.map((c, i) => {
               return (
-                <Grid item xs={4}>
+                <Grid item xs={4} key={i}>
                   <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
                     <Grid item >
                       {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
