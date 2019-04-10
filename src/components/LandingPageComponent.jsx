@@ -129,7 +129,7 @@ class LandingPageComponent extends Component {
           <Grid container direction='row' alignItems='center'>
             {cryptoSelections.map((c, i) => {
               return (
-                <Grid item xs={4}>
+                <Grid item xs={4} key={i}>
                   <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
                     <Grid item >
                       {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
@@ -183,23 +183,31 @@ class LandingPageComponent extends Component {
                         </Typography>
                       </Grid>
                       <Grid item className={classes.step}>
-                        <Grid container direction='row'>
-                          <Avatar className={classes.stepIcon}> 1 </Avatar>
-                          <Typography align='left' className={classes.stepText}>
+                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
+                          <Grid item>
+                            <Avatar className={classes.stepIcon}> 1 </Avatar>
+                          </Grid>
+                          <Grid item xs>
+                            <Typography align='left' className={classes.stepText}>
                             Connect to your wallet
-                          </Typography>
+                            </Typography>
+                          </Grid>
                         </Grid>
                       </Grid>
                       <Grid item className={classes.step}>
-                        <Grid container direction='row'>
-                          <Avatar className={classes.stepIcon}> 2 </Avatar>
-                          <Typography align='left' className={classes.stepText}>
+                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
+                          <Grid item>
+                            <Avatar className={classes.stepIcon}> 2 </Avatar>
+                          </Grid>
+                          <Grid item xs>
+                            <Typography align='left' className={classes.stepText}>
                             Set the amount, recipient email and security answer
-                          </Typography>
+                            </Typography>
+                          </Grid>
                         </Grid>
                       </Grid>
                       <Grid item className={classes.step}>
-                        <Grid container direction='row'>
+                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
                           <Avatar className={classes.stepIcon}> 3 </Avatar>
                           <Typography align='left' className={classes.stepText}>
                             Review and transfer
