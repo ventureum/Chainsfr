@@ -336,7 +336,7 @@ class WalletComponent extends Component {
         <DialogTitle>Address</DialogTitle>
         <DialogContent>
           <Typography className={classes.addressDialog} align='left'>
-            {wallet.crypto[selectedCryptoType][0].address}
+            {selectedCryptoType !== 'bitcoin' ? '0x' : ''}{wallet.crypto[selectedCryptoType][0].address}
           </Typography>
         </DialogContent>
         <DialogActions>
