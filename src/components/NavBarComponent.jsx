@@ -8,89 +8,92 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import path from '../Paths.js'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import Popper from '@material-ui/core/Popper'
+import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import MenuList from '@material-ui/core/MenuList'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 
 class NavBarComponent extends Component {
   state = {
-    open: false
+    anchorEl: null
   }
 
-  handleToggle = () => {
-    const { profile } = this.props
-    this.setState(state => ({ open: profile.isAuthenticated && !state.open }))
-  };
+  handleToggle = event => {
+    this.setState({ anchorEl: event.currentTarget })
+  }
 
-  handleClose = async (event, action) => {
-    if (this.anchorEl.contains(event.target)) {
-      return
-    }
-
+  handleClose = action => event => {
     if (action === 'logout') {
       this.props.onLogout()
     }
 
-    this.setState({ open: false })
+    this.setState({ anchorEl: null })
   }
 
   render () {
     const { classes, backToHome, profile } = this.props
-    const { open } = this.state
+    const { anchorEl } = this.state
     return (
       <AppBar position='static'>
         <Toolbar>
-          <Grid container direction='row' justify='space-between' alignItems='center'>
+          <Grid
+            container
+            direction='row'
+            justify='space-between'
+            alignItems='center'
+          >
             <Grid item>
-              <Button classes={{ root: classes.homeButton }} component={Link} to={path.home} onClick={() => { backToHome() }}>
-                <Typography className={classes.appNameText} >
+              <Button
+                classes={{ root: classes.homeButton }}
+                component={Link}
+                to={path.home}
+                onClick={() => {
+                  backToHome()
+                }}
+              >
+                <Typography className={classes.appNameText}>
                   Chainsfer
                 </Typography>
               </Button>
             </Grid>
-            {profile.isAuthenticated &&
-            <Grid item>
-              <IconButton
-                buttonRef={node => {
-                  this.anchorEl = node
-                }}
-                aria-owns={open ? 'menu-list-grow' : undefined}
-                aria-haspopup='true'
-                onClick={this.handleToggle}
-              >
-                {profile && profile.profileObj && profile.profileObj.imageUrl
-                  ? <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
-                  : <AccountCircle className={classes.userIcon} />
-                }
-              </IconButton>
-              <Popper open={open} anchorEl={this.anchorEl} transition disablePortal>
-                {({ TransitionProps, placement }) => (
-                  <Grow
-                    {...TransitionProps}
-                    id='menu-list-grow'
-                    style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-                  >
-                    <Paper>
-                      <ClickAwayListener onClickAway={this.handleClose}>
-                        <MenuList>
-                          <MenuItem onClick={(event) => { this.handleClose(event, 'logout') }}>Logout</MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-
-            </Grid>}
+            {profile.isAuthenticated && (
+              <Grid item>
+                <IconButton
+                  buttonRef={node => {
+                    this.anchorEl = node
+                  }}
+                  aria-owns={anchorEl ? 'simple-menu' : undefined}
+                  aria-haspopup='true'
+                  onClick={this.handleToggle}
+                >
+                  {profile &&
+                  profile.profileObj &&
+                  profile.profileObj.imageUrl ? (
+                    <Avatar
+                        alt=''
+                        src={profile.profileObj.imageUrl}
+                        className={classes.avatar}
+                      />
+                    ) : (
+                      <AccountCircle className={classes.userIcon} />
+                    )}
+                </IconButton>
+                <Menu
+                  id='simple-menu'
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={this.handleClose()}
+                >
+                  <MenuItem disabled > {profile.profileObj.email} </MenuItem>
+                  <MenuItem onClick={this.handleClose('logout')}>
+                      Logout
+                  </MenuItem>
+                </Menu>
+              </Grid>
+            )}
           </Grid>
         </Toolbar>
-
       </AppBar>
     )
   }
