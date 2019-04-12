@@ -22,7 +22,7 @@ class ReceivePasswordComponent extends Component {
     let { verifyPassword, transfer } = this.props
     let { password } = this.state
     verifyPassword({
-      encriptedWallet: transfer.data,
+      encryptedWallet: transfer.data,
       password: password + transfer.destination,
       cryptoType: transfer.cryptoType
     })
