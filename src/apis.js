@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { Base64 } from 'js-base64'
+import env from './typedEnv'
 
 const apiTransfer = axios.create({
-  baseURL: 'https://cr7j581ggh.execute-api.us-east-1.amazonaws.com/Prod',
+  baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
   headers: {
     'Content-Type': 'application/json'
   }

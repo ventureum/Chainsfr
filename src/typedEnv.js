@@ -1,6 +1,15 @@
 // @flow
 const env = ((process.env: any): {[string]: string}) // if you're sure that everything will be defined
 
+function getChainsferAPIEndpoint () {
+  if (env.NODE_ENV === 'development') {
+    return env.REACT_APP_CHAINSFER_API_ENDPOINT_TEST
+  }
+  if (env.NODE_ENV === 'production') {
+    return env.REACT_APP_CHAINSFER_API_ENDPOINT_PROD
+  }
+}
+
 export default {
   REACT_APP_GOOGLE_CLIENT_ID: env.REACT_APP_GOOGLE_CLIENT_ID,
   REACT_APP_GOOGLE_API_SCOPE: env.REACT_APP_GOOGLE_API_SCOPE,
@@ -11,6 +20,7 @@ export default {
   REACT_APP_LEDGER_API_URL: env.REACT_APP_LEDGER_API_URL,
   REACT_APP_BLOCKCYPHER_API_URL: env.REACT_APP_BLOCKCYPHER_API_URL,
   REACT_APP_DAI_ADDRESS: env.REACT_APP_DAI_ADDRESS,
-  REACT_APP_BTC_FEE_ENDPOINT: env.REACT_APP_BTC_FEE_ENDPOINT
+  REACT_APP_BTC_FEE_ENDPOINT: env.REACT_APP_BTC_FEE_ENDPOINT,
+  REACT_APP_CHAINSFER_API_ENDPOINT: getChainsferAPIEndpoint()
   // ...
 }
