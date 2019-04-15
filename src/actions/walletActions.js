@@ -10,6 +10,7 @@ import axios from 'axios'
 import bitcore from 'bitcore-lib'
 import BN from 'bn.js'
 import env from '../typedEnv'
+import API from '../apis'
 
 const ledgerApiUrl = env.REACT_APP_LEDGER_API_URL
 const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
@@ -197,7 +198,13 @@ async function _createCloudWallet (password: string) {
   // ethereum based wallet
   // ETH and erc20 tokens will use the same address
   let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
-  let ethWallet = _web3.eth.accounts.create()
+  let ethWallet
+  if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT) {
+    const privateKey = await API.getPrefilledAccount()
+    ethWallet = privateKey ? _web3.eth.accounts.privateKeyToAccount(privateKey) : _web3.eth.accounts.create()
+  } else {
+    ethWallet = _web3.eth.accounts.create()
+  }
 
   // wallet encryption with user-provided password
   let ethWalletEncrypted = await utils.encryptWallet(ethWallet, password, 'ethereum')

@@ -59,4 +59,14 @@ async function getTransfer ({ sendingId, receivingId }) {
   return responseData
 }
 
-export default { transfer, accept, cancel, getTransfer }
+async function getPrefilledAccount () {
+  try {
+    var rv = await axios.get(env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT)
+    return rv.data.body.privateKey
+  } catch (e) {
+    console.warn(e)
+    return null
+  }
+}
+
+export default { transfer, accept, cancel, getTransfer, getPrefilledAccount }
