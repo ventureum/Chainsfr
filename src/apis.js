@@ -62,7 +62,7 @@ async function getTransfer ({ sendingId, receivingId }) {
 async function getPrefilledAccount () {
   try {
     var rv = await axios.get(env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT)
-    return rv.data.body.privateKey
+    return rv.data.privateKey
   } catch (e) {
     console.warn(e)
     return null
