@@ -33,6 +33,7 @@ import classNames from 'classnames'
 import validator from 'validator'
 import Web3 from 'web3'
 import BN from 'bn.js'
+import bitcore from 'bitcore-lib'
 
 const WALLET_TYPE = 'drive'
 
@@ -55,15 +56,35 @@ class WalletComponent extends Component {
     }
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps, prevState) {
     let { actionsPending, receipt } = this.props
+    const { directTransferDialogForm, selectedCryptoType, directTransferDialogOpen, directTransferDialogFormError } = this.state
+    const { transferAmount } = directTransferDialogForm
     if (prevProps.actionsPending.directTransfer &&
         !actionsPending.directTransfer &&
         receipt) {
       // direct transfer action is completed
       // sucessfully retrieved the receipt
       // jump to receipt step
-      this.setState({ directTransferDialogStep: 'RECEIPT' })
+      this.setState({ directTransferDialogStep: 'RECEIPT' }) // eslint-disable-line
+    } else if (
+      prevState.directTransferDialogForm.transferAmount !== transferAmount &&
+      directTransferDialogOpen &&
+      !directTransferDialogFormError.transferAmount
+    ) {
+      this.props.getTxCost({
+        cryptoType: selectedCryptoType,
+        transferAmount: directTransferDialogForm.transferAmount,
+        walletType: 'drive'
+      })
+    } else if (
+      directTransferDialogOpen &&
+      !actionsPending.getTxCost &&
+      prevProps.actionsPending.getTxCost
+    ) {
+      this.setState(update(this.state, { // eslint-disable-line
+        directTransferDialogFormError: { transferAmount: { $set: this.validate('transferAmount', directTransferDialogForm.transferAmount) } }
+      }))
     }
   }
 
@@ -80,11 +101,14 @@ class WalletComponent extends Component {
       selectedCryptoType: { $set: cryptoType },
       directTransferDialogStep: { $set: 'RECIPIANT' }
     })
-    if (open) {
-      this.props.getTxCost({ cryptoType: cryptoType })
-    } else {
+
+    if (!open) {
       // close dropdown menu as well
       _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+      _state = update(_state, { directTransferDialogForm: { $set: {
+        destinationAddress: '',
+        transferAmount: ''
+      } } })
     }
     this.setState(_state)
   }
@@ -128,23 +152,38 @@ class WalletComponent extends Component {
         if (['ethereum', 'dai'].includes(selectedCryptoType)) {
           // ethereum based coins
           // now check if ETH balance is sufficient for paying tx fees
-          if (selectedCryptoType === 'ethereum' &&
-              new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))) {
-            return 'Insufficent funds for paying transaction fees'
-          }
-          if (selectedCryptoType === 'dai' &&
-              new BN(balance).lt(new BN(txCost.costInBasicUnit))
+          if (
+            selectedCryptoType === 'ethereum' &&
+            txCost &&
+            new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
           ) {
             return 'Insufficent funds for paying transaction fees'
           }
+          if (
+            selectedCryptoType === 'dai' &&
+            txCost &&
+            new BN(balance).lt(new BN(txCost.costInBasicUnit))
+          ) {
+            return 'Insufficent funds for paying transaction fees'
+          }
+        } else if (
+          selectedCryptoType === 'bitcoin' &&
+          txCost &&
+          new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+        ) {
+          return 'Insufficent funds for paying transaction fees'
         }
       }
     } else if (name === 'destinationAddress') {
-      if (!Web3.utils.isAddress(value)) {
+      if (selectedCryptoType === 'bitcoin') {
+        if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BTC_NETWORK])) {
+          return 'Invalid address'
+        }
+      } else if (!Web3.utils.isAddress(value)) {
         return 'Invalid address'
       }
+      return null
     }
-    return null
   }
 
   handleDirectTransferDialogFormChange = name => event => {
@@ -230,9 +269,9 @@ class WalletComponent extends Component {
             <Typography className={classes.txFeeSectionTitle} align='left'>
               Transaction Fee
             </Typography>
-            {!actionsPending.getTxCost && txCost
+            {!actionsPending.getTxCost
               ? <Typography className={classes.txFeeSectionFee} align='left'>
-                {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
+                {txCost ? txCost.costInStandardUnit : 0} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
               </Typography>
               : <CircularProgress size={18} color='primary' />}
           </Grid>
@@ -301,7 +340,15 @@ class WalletComponent extends Component {
         <DialogContent>
           <Typography variant='body2' className={classes.informReceiverText} align='left'>
             Succeed! It may take a few minutes to complete the transaction. You can track the transaction
-            <MuiLink target='_blank' rel='noopener' href={`https://rinkeby.etherscan.io/tx/${receipt.sendTxHash}`}>
+            <MuiLink
+              target='_blank'
+              rel='noopener'
+              href={
+                receipt.cryptoType === 'bitcoin'
+                  ? `https://live.blockcypher.com/btc-testnet/tx/${receipt.sendTxHash}`
+                  : `https://rinkeby.etherscan.io/tx/${receipt.sendTxHash}`
+              }
+            >
               {' here'}
             </MuiLink>
           </Typography>

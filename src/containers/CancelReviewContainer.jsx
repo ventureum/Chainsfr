@@ -17,7 +17,7 @@ class CancelReviewContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    let { transfer, actionsPending, error, getUtxoForEscrowWallet } = this.props
+    let { transfer, actionsPending, error, getUtxoForEscrowWallet, escrowWallet } = this.props
     let prevActionPending = prevProps.actionsPending
     if (!error && transfer) {
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
@@ -34,7 +34,11 @@ class CancelReviewContainer extends Component {
           getUtxoForEscrowWallet()
         } else if (transfer.cryptoType !== 'bitcoin' || prevActionPending.getUtxoForEscrowWallet) {
           // get gas cost
-          this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
+          this.props.getTxCost({
+            cryptoType: transfer.cryptoType,
+            transferAmount: transfer.transferAmount,
+            escrowWallet: escrowWallet
+          })
         }
       }
     }

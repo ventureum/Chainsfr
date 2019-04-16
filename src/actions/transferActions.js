@@ -49,7 +49,7 @@ async function _getTxCost (
   txRequest: {
     cryptoType: string,
     transferAmount: string,
-    txFeePerByte: number
+    txFeePerByte: ?number
   },
   addressPool: Array<Object>
 ) {
@@ -125,6 +125,8 @@ function collectUtxos (
   let valueCollected = new BN(0)
   let i = 0
   let size = 0
+  let fee = new BN(0)
+  const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
   while (i < addressPool.length) {
     let utxos = addressPool[i].utxos
     for (let j = 0; j < utxos.length; j++) {
@@ -134,9 +136,9 @@ function collectUtxos (
         keyPath: addressPool[i].path
       })
       size = ledgerNanoS.estimateTransactionSize(utxosCollected.length, 2, true).max
-      let fee = (new BN(size)).mul(new BN(txFeePerByte))
+      fee = (new BN(size)).mul(new BN(txFeePerByte))
       valueCollected = valueCollected.add(new BN(utxo.value))
-      if (valueCollected.gte(new BN(transferAmount).add(fee))) {
+      if (valueCollected.gte(new BN(satoshiValue).add(fee))) {
         return {
           fee: fee.toString(),
           size,
@@ -146,16 +148,24 @@ function collectUtxos (
     }
     i += 1
   }
-  throw new Error('Transfer amount greater and fee than utxo values.')
+  console.warn('Transfer amount greater and fee than utxo values.')
+  return {
+    fee: fee.toString(),
+    size,
+    utxosCollected
+  }
 }
 
-async function _directTransfer (txRequest: {
-  fromWallet: Object,
-  cryptoType: string,
-  transferAmount: string,
-  destinationAddress: string,
-  txCost: Object
-}) {
+async function _directTransfer (
+  txRequest: {
+    fromWallet: Object,
+    cryptoType: string,
+    transferAmount: string,
+    destinationAddress: string,
+    txCost: Object
+  },
+  utxos: Utxos
+) {
   let { fromWallet, cryptoType, transferAmount, destinationAddress, txCost } = txRequest
   if (['ethereum', 'dai'].includes(cryptoType)) {
     var _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
@@ -183,6 +193,35 @@ async function _directTransfer (txRequest: {
       txObj.gasPrice = txCost.price
     }
     let sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
+    return {
+      sendTxHash: sendTxHash,
+      transferAmount: transferAmount,
+      destinationAddress: destinationAddress,
+      txCost: txCost,
+      cryptoType: cryptoType
+    }
+  } else if (cryptoType === 'bitcoin') {
+    let bitcoreUtxoFormat = utxos.map(utxo => {
+      return {
+        txid: utxo.txHash,
+        vout: utxo.outputIndex,
+        address: fromWallet.crypto[cryptoType][0].address,
+        script: utxo.script,
+        satoshis: utxo.value
+      }
+    })
+    const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
+    const fee = parseInt(txCost.costInBasicUnit)
+    // get privateKey
+    const decryptedWallet = await utils.decryptWallet(fromWallet.crypto[cryptoType][0].ciphertext, fromWallet.password, cryptoType)
+    let transaction = new bitcore.Transaction()
+      .from(bitcoreUtxoFormat)
+      .to(destinationAddress, satoshiValue)
+      .change(fromWallet.crypto[cryptoType][0].address)
+      .fee(fee)
+      .sign(decryptedWallet.privateKey)
+    const txHex = transaction.serialize()
+    const sendTxHash = await ledgerNanoS.broadcastBtcRawTx(txHex)
     return {
       sendTxHash: sendTxHash,
       transferAmount: transferAmount,
@@ -313,7 +352,7 @@ async function _submitTx (
     } else if (cryptoType === 'bitcoin') {
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
       const addressPool = accountInfo.addresses
-      const { fee, utxosCollected } = collectUtxos(addressPool, satoshiValue.toString(), txCost.price)
+      const { fee, utxosCollected } = collectUtxos(addressPool, transferAmount, txCost.price)
       const signedTxRaw = await ledgerNanoS.createNewBtcPaymentTransaction(utxosCollected, escrow.toAddress().toString(), satoshiValue, fee, accountInfo.nextChangeIndex)
       sendTxHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
     }
@@ -674,9 +713,15 @@ function directTransfer (txRequest: {
   destinationAddress: string,
   txCost: Object
 }) {
-  return {
-    type: 'DIRECT_TRANSFER',
-    payload: _directTransfer(txRequest)
+  return (dispatch: Function, getState: Function) => {
+    let utxos = []
+    if (txRequest.cryptoType === 'bitcoin') {
+      utxos = getState().walletReducer.wallet.drive.crypto[txRequest.cryptoType][0].addresses[0].utxos
+    }
+    return dispatch({
+      type: 'DIRECT_TRANSFER',
+      payload: _directTransfer(txRequest, utxos)
+    })
   }
 }
 
@@ -728,17 +773,18 @@ function getTxCost (
   txRequest: {
     cryptoType: string,
     transferAmount: string,
-    txFeePerByte: number,
-    escrowWallet: ?Object
+    txFeePerByte: ?number,
+    escrowWallet: ?Object,
+    walletType: string
   }
 ) {
   return (dispatch: Function, getState: Function) => {
     let addressPool = []
     if (txRequest.cryptoType === 'bitcoin') {
       if (txRequest.escrowWallet) {
-        addressPool.push({ utxos: getState().walletReducer.escrowWallet.decryptedWallet.utxos })
+        addressPool.push({ utxos: txRequest.escrowWallet.decryptedWallet.utxos })
       } else {
-        addressPool = getState().walletReducer.wallet.ledger.crypto[txRequest.cryptoType][0].addresses
+        addressPool = getState().walletReducer.wallet[txRequest.walletType].crypto[txRequest.cryptoType][0].addresses
       }
     }
     return dispatch({
