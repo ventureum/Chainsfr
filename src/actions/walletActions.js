@@ -257,6 +257,7 @@ async function _getCloudWallet () {
   // 3. fetch BTC balance in string
   const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${btcWalletEncrypted.address}/transactions?noToken=true&truncated=true`)).data
   const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, btcWalletEncrypted.address)
+  let addresses = [{ utxos }]
   let btcBalance = (utxos.reduce((accu, utxo) => {
     return new BN(utxo.value).add(accu)
   }, new BN(0))).toString()
@@ -268,7 +269,7 @@ async function _getCloudWallet () {
     crypto: {
       'ethereum': [{ ...ethWalletEncrypted, balance: ethBalance }],
       'dai': [{ ...ethWalletEncrypted, balance: daiBalance }],
-      'bitcoin': [{ ...btcWalletEncrypted, balance: btcBalance }]
+      'bitcoin': [{ ...btcWalletEncrypted, balance: btcBalance, addresses: addresses }]
     }
   }
 }

@@ -145,7 +145,7 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
         myWorker.postMessage({ action: 'decrypt', payload: { encryptedWallet, password } })
         myWorker.onmessage = (m) => {
           let decryptedKey = m.data
-          const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], decryptedKey.privateKey, decryptedKey.compressed)
+          const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], Buffer.from(decryptedKey.privateKey), decryptedKey.compressed)
           const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
           const publicKey = privateKey.toPublicKey()
           const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
