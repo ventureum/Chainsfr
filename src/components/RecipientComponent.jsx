@@ -10,21 +10,49 @@ import utils from '../utils'
 import numeral from 'numeral'
 import validator from 'validator'
 import { getCryptoDecimals } from '../tokens'
+import BN from 'bn.js'
 
 type Props = {
   updateTransferForm: Function,
   generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
+  getTxCost: Function,
   cryptoSelection: string,
+  walletSelection: string,
   transferForm: Object,
   wallet: Object,
-  classes: Object
+  classes: Object,
+  txCost: any,
+  actionsPending: Object
 }
+
+const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
 class RecipientComponent extends Component<Props> {
   componentDidMount () {
     this.props.clearSecurityAnswer()
+  }
+
+  componentDidUpdate (prevProps) {
+    const { walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
+    if (
+      prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount &&
+      !transferForm.formError.transferAmount
+    ) {
+      this.props.getTxCost({
+        cryptoType: cryptoSelection,
+        transferAmount: transferForm.transferAmount,
+        walletType: walletSelection
+      })
+    } else if (
+      !actionsPending.getTxCost &&
+      prevProps.actionsPending.getTxCost
+    ) {
+      this.props.updateTransferForm(update(transferForm, {
+        formError: { transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) } }
+      }))
+    }
   }
 
   validateForm = () => {
@@ -52,16 +80,38 @@ class RecipientComponent extends Component<Props> {
   }
 
   validate = (name, value) => {
-    const { wallet, cryptoSelection } = this.props
+    const { wallet, cryptoSelection, txCost } = this.props
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
     if (name === 'transferAmount') {
-      if (wallet && balance &&
-          !validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
+      if (!validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
         if (value === '-' || parseFloat(value) < 0.0001) {
           return 'The amount must be greater than 0.0001'
         } else {
           return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
+        }
+      } else if (txCost) {
+        // balance check passed
+        if (['ethereum', 'dai'].includes(cryptoSelection)) {
+          // ethereum based coins
+          // now check if ETH balance is sufficient for paying tx fees
+          if (
+            cryptoSelection === 'ethereum' &&
+            new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+          ) {
+            return INSUFFICIENT_FUNDS_FOR_TX_FEES
+          }
+          if (cryptoSelection === 'dai') {
+            let ethBalance = wallet.crypto.ethereum[0].balance
+            if (new BN(ethBalance).lt(new BN(txCost.costInBasicUnit))) {
+              return INSUFFICIENT_FUNDS_FOR_TX_FEES
+            }
+          }
+        } else if (
+          cryptoSelection === 'bitcoin' &&
+          new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+        ) {
+          return INSUFFICIENT_FUNDS_FOR_TX_FEES
         }
       }
     } else if (name === 'sender' || name === 'destination') {
