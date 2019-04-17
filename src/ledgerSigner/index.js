@@ -105,11 +105,19 @@ class LedgerNanoS {
         }
       case 'dai':
         address = await this.getEthAddress(accountIndex)
+        web3 = this.getWeb3()
+        balance = await web3.eth.getBalance(address)
         return {
           [cryptoType]: {
             [accountIndex]: {
               address: address,
               balance: await ERC20.getBalance(address, cryptoType)
+            }
+          },
+          ethereum: {
+            [accountIndex]: {
+              address: address,
+              balance: balance
             }
           }
         }
