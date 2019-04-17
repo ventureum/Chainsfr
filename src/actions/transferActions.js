@@ -371,6 +371,7 @@ async function _submitTx (
         gas: txCost.gas,
         gasPrice: txCost.price
       }
+      sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
     } else if (cryptoType === 'dai') {
       let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
       _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
@@ -392,9 +393,30 @@ async function _submitTx (
       // update tx fees
       txObj.gas = txCost.costByType.txCostERC20.gas
       txObj.gasPrice = txCost.costByType.txCostERC20.price
+      sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
+    } else if (cryptoType === 'bitcoin') {
+      let bitcoreUtxoFormat = accountInfo.addresses[0].utxos.map(utxo => {
+        return {
+          txid: utxo.txHash,
+          vout: utxo.outputIndex,
+          address: fromWallet.crypto[cryptoType][0].address,
+          script: utxo.script,
+          satoshis: utxo.value
+        }
+      })
+      const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
+      const fee = parseInt(txCost.costInBasicUnit)
+      // get privateKey
+      const decryptedWallet = await utils.decryptWallet(fromWallet.crypto[cryptoType][0].ciphertext, fromWallet.password, cryptoType)
+      let transaction = new bitcore.Transaction()
+        .from(bitcoreUtxoFormat)
+        .to(escrow.toAddress().toString(), satoshiValue)
+        .change(fromWallet.crypto[cryptoType][0].address)
+        .fee(fee)
+        .sign(decryptedWallet.privateKey)
+      const txHex = transaction.serialize()
+      sendTxHash = await ledgerNanoS.broadcastBtcRawTx(txHex)
     }
-
-    sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
   }
 
   // step 5: clear wallet
@@ -698,7 +720,10 @@ function submitTx (txRequest: {
   txFeePerByte: ?number,
 }) {
   return (dispatch: Function, getState: Function) => {
-    const accountInfo = txRequest.cryptoType === 'bitcoin' ? getState().walletReducer.wallet.ledger.crypto[txRequest.cryptoType][0] : {}
+    let accountInfo = {}
+    if (txRequest.cryptoType === 'bitcoin') {
+      accountInfo = getState().walletReducer.wallet[txRequest.walletType].crypto[txRequest.cryptoType][0]
+    }
     return dispatch({
       type: 'SUBMIT_TX',
       payload: _submitTx(txRequest, accountInfo)

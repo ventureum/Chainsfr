@@ -10,7 +10,6 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 type Props = {
   submitTx: Function,
-  getTxCost: Function,
   goToStep: Function,
   classes: Object,
   transferForm: Object,
@@ -41,12 +40,6 @@ class ReviewComponent extends Component<Props> {
       password: password,
       txCost: txCost
     })
-  }
-
-  componentDidMount () {
-    // refresh gas cost
-    const { cryptoSelection, getTxCost, transferForm, walletSelection } = this.props
-    getTxCost({ cryptoType: cryptoSelection, transferAmount: transferForm.transferAmount, walletType: walletSelection })
   }
 
   render () {
