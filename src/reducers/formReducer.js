@@ -26,7 +26,8 @@ export default function (state = initialState, action) {
     case 'SELECT_CRYPTO':
       return {
         ...state,
-        cryptoSelection: state.cryptoSelection === action.payload ? null : action.payload
+        cryptoSelection: state.cryptoSelection === action.payload ? null : action.payload,
+        transferForm: initialState.transferForm
       }
     case 'SELECT_WALLET':
       return {
