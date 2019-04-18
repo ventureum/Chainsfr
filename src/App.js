@@ -20,6 +20,7 @@ import NotifierComponent from './components/NotifierComponent'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import BrowserNotSupportedComponent from './components/BrowserNotSupportedComponent'
+import FAQContainer from './containers/FAQContainer'
 import { detect } from 'detect-browser'
 
 const browser = detect()
@@ -81,6 +82,7 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
           }
         </div>
         <NotifierComponent />
+        <FAQContainer />
         <Footer />
       </div>
     )} />
