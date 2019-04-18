@@ -1,68 +1,50 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## General
 
-## Available Scripts
+### What is Chainsfer?
 
-In the project directory, you can run:
+Chainsfer is a cryptocurrency transfer service, powered by Google Drive APIs. 
+Chainsfer is a service developed and maintained by Ventureum Inc.
+Ventureum Inc. is a registered Canadian company based in Toronto, Ontario.
 
-### `npm start`
+### Why choose Chainsfer?
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Chainsfer aims to make cryptocurrency transaction more friendly and fault-tolerant, easy to use.
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+### How does Chainsfer work and how safe is Chainsfer?
 
-### `npm test`
+As a financial and cryptocurrency service, we try our best to build Chainsfer as secure as possible.
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Chainsfer service use your Google account to store your crypto wallet information. 
+Learn more about the Google third-party, please check the links below: 
+Allow 3rd-party apps for Drive files
+Sharing your Google data with Apps
 
-### `npm run build`
+### Is Chainsfer free?
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Yes. The Chainsfer service itself does not charge any service fee. However you still have to pay gas fee on the blockchain.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+### Do I need to register for an Chainsfer account to send or receive?
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+No. 
+You only need a Google account. You can track the update of your transaction through the link in your email.
+However, we high recommend you to register a Chainfer account, which will give you better user experience.
 
-### `npm run eject`
+### Is Chainsfer related to Google?
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+No. Chainsfer is registered as a third party apps using Google Drive APIs.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Is Chainsfer open sourced?
+Yes. 
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### What cryptocurrency does Chainsfer support?
+### What wallet does Chainsfer support?
+### What is Chainsfer Cloud wallet?
+### What is Chainsfer bounty program?
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Sending
 
-## Learn More
+## Receiving
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Cancelling
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## Drive Wallet
