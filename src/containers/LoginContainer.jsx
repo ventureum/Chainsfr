@@ -26,10 +26,6 @@ class LoginContainer extends Component {
         if (!cloudWalletConnected && !actionsPending.getCloudWallet) {
           // try to fetch wallet from drive
           this.props.getCloudWallet()
-        } else if (cloudWalletConnected) {
-          // we have retrieved wallet from drive sucessfully
-          // the user is an existing user
-          this.props.setNewUserTag(false)
         }
       }
     } else if (error === 'WALLET_NOT_EXIST') {

@@ -6,6 +6,7 @@ import { goToStep } from '../actions/navigationActions'
 import { getTransferHistory } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getCloudWallet } from '../actions/walletActions'
+import { setNewUserTag } from '../actions/userActions'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
@@ -47,7 +48,9 @@ const mapDispatchToProps = dispatch => {
   return {
     goToStep: (n) => dispatch(goToStep('send', n)),
     getCloudWallet: () => dispatch(getCloudWallet()),
-    getTransferHistory: () => dispatch(getTransferHistory())
+    getTransferHistory: () => dispatch(getTransferHistory()),
+    setNewUserTag: (isNewUser) => dispatch(setNewUserTag(isNewUser))
+
   }
 }
 
