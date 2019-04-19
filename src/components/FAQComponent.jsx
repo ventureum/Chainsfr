@@ -8,6 +8,8 @@ import Fab from '@material-ui/core/Fab'
 import Icon from '@material-ui/core/Icon'
 import classNames from 'classnames'
 
+const DOC_URL = 'https://ventureum.github.io/Chainsfer/#/#'
+
 class FAQComponent extends Component {
   state = {
     open: false
@@ -22,7 +24,7 @@ class FAQComponent extends Component {
   }
 
   render () {
-    let { classes } = this.props
+    let { classes, docId } = this.props
     return (
       <div>
         <Fab
@@ -51,7 +53,7 @@ class FAQComponent extends Component {
               <iframe
                 title='faq-iframe'
                 className={classes.iframe}
-                src='https://timothywangdev.github.io/Chainsfer/#/'
+                src={DOC_URL + docId}
                 allowFullScreen
                 frameBorder='0'
               />
