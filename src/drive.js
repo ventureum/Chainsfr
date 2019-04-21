@@ -2,6 +2,8 @@
  * Google Drive APIs
  */
 
+import env from './typedEnv'
+
 const ROOT_FOLDER_NAME = '__ChainsferData__'
 
 /*
@@ -29,7 +31,7 @@ const ROOT_FOLDER_NAME = '__ChainsferData__'
  *   tempTimestamp: [int], // unix timestamp of the saving action
  *  } ...]
  */
-const TEMP_SEND_FILE_NAME = '__chainsfer_temp_send__.json'
+const TEMP_SEND_FILE_NAME = `__chainsfer_temp_send_${env.NODE_ENV}__.json`
 
 /*
  * A single file storing past transfer data
@@ -49,7 +51,7 @@ const TEMP_SEND_FILE_NAME = '__chainsfer_temp_send__.json'
  *   }
  *  }
  */
-const SEND_FILE_NAME = '__chainsfer_send__.json'
+const SEND_FILE_NAME = `__chainsfer_send_${env.NODE_ENV}__.json`
 
 /*
  * A single file storing encrypted wallet data
@@ -60,7 +62,7 @@ const SEND_FILE_NAME = '__chainsfer_send__.json'
  *   bitcoin: Base58 encoded BIP38 encrypted privateKey
  * }
  */
-const WALLET_FILE_NAME = '__chainsfer_wallet__.json'
+const WALLET_FILE_NAME = `__chainsfer_wallet_${env.NODE_ENV}__.json`
 
 // gapi.load does not support promise
 // convert it into a promise
