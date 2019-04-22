@@ -301,6 +301,35 @@ function checkCloudWalletConnection (cryptoType: string) {
   }
 }
 
+async function _decryptCloudWallet (
+  wallet: {
+    encryptedWallet: {},
+    password: string,
+    cryptoType: string
+  }
+) {
+  let { encryptedWallet, password, cryptoType } = wallet
+  let decryptedWallet = await utils.decryptWallet(encryptedWallet, password, cryptoType)
+  if (!decryptedWallet) {
+    // wrong password
+    throw new Error('WALLET_DECRYPTION_FAILED')
+  }
+  return { cryptoType, decryptedWallet }
+}
+
+function decryptCloudWallet (
+  wallet: {
+    encryptedWallet: {},
+    password: string,
+    cryptoType: string
+  }
+) {
+  return {
+    type: 'DECRYPT_CLOUD_WALLET',
+    payload: _decryptCloudWallet(wallet)
+  }
+}
+
 export {
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
@@ -312,5 +341,6 @@ export {
   syncLedgerAccountInfo,
   updateBtcAccountInfo,
   getUtxoForEscrowWallet,
-  checkCloudWalletConnection
+  checkCloudWalletConnection,
+  decryptCloudWallet
 }

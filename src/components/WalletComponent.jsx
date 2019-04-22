@@ -14,6 +14,7 @@ import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -131,6 +132,21 @@ class WalletComponent extends Component {
     if (!open) {
       // close dropdown menu as well
       _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+    } else {
+      let { wallet, actionsPending } = this.props
+      let _selectedWallet = wallet.crypto[cryptoType][0]
+
+      if (!_selectedWallet.privateKey && !actionsPending.decryptCloudWallet) {
+        // decrypt wallet to get privateKey
+        // encryptedWallet for bitcoin is simply a ciphertext string
+        // encryptedWallet for eth/erc20 is a standard keystore object
+        let encryptedWallet = cryptoType === 'bitcoin' ? _selectedWallet.ciphertext : _selectedWallet
+        this.props.decryptCloudWallet({
+          encryptedWallet: encryptedWallet,
+          password: wallet.password,
+          cryptoType: cryptoType
+        })
+      }
     }
     this.setState(_state)
   }
@@ -397,18 +413,20 @@ class WalletComponent extends Component {
 
   renderViewPrivateKeyDialog = () => {
     const { viewPrivateKeyDialogOpen, selectedCryptoType } = this.state
-    const { classes, wallet } = this.props
+    const { classes, wallet, actionsPending } = this.props
 
     return (
       <Dialog open={viewPrivateKeyDialogOpen}>
         <DialogTitle>Private Key</DialogTitle>
-        <DialogContent>
-          <Typography className={classes.addressDialog} align='left'>
-            {
-              selectedCryptoType === 'bitcoin' ? wallet.crypto[selectedCryptoType][0].WIF
-                : wallet.crypto[selectedCryptoType][0].privateKey
-            }
-          </Typography>
+        <DialogContent className={classes.minWidth200px}>
+          { (wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet) ? 
+            <Typography className={classes.addressDialog} align='left'>
+              {
+                selectedCryptoType === 'bitcoin' ? wallet.crypto[selectedCryptoType][0].privateKey.toWIF()
+                  : wallet.crypto[selectedCryptoType][0].privateKey
+              }
+            </Typography> : <LinearProgress />
+          }
         </DialogContent>
         <DialogActions>
           <Button onClick={() => this.toggleViewPrivateKeyDialog(false)} color='primary'>
@@ -665,6 +683,9 @@ const styles = theme => ({
   },
   addressDialog: {
     fontSize: '12px'
+  },
+  minWidth200px: {
+    minWidth: '300px'
   }
 })
 
