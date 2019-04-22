@@ -34,6 +34,7 @@ import validator from 'validator'
 import Web3 from 'web3'
 import BN from 'bn.js'
 import bitcore from 'bitcore-lib'
+import Tooltip from '@material-ui/core/Tooltip'
 
 const WALLET_TYPE = 'drive'
 
@@ -456,32 +457,38 @@ class WalletComponent extends Component {
             <Grid item lg={2} md={3} sm={5} xs={5}>
               <Grid container direction='row' justify='flex-end'>
                 <Grid item>
-                  <IconButton
-                    className={classes.button}
-                    aria-label='Send'
-                    component={Link}
-                    to={`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${walletByCryptoType.cryptoType}`}
-                  >
-                    <SendIcon />
-                  </IconButton>
+                  <Tooltip title='Transfer'>
+                    <IconButton
+                      className={classes.button}
+                      aria-label='Send'
+                      component={Link}
+                      to={`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${walletByCryptoType.cryptoType}`}
+                    >
+                      <SendIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <IconButton
-                    className={classes.button}
-                    aria-label='Explorer'
-                    target='_blank' href={explorerLink}
-                  >
-                    <OpenInNewIcon />
-                  </IconButton>
+                  <Tooltip title='Show in Explorer'>
+                    <IconButton
+                      className={classes.button}
+                      aria-label='Explorer'
+                      target='_blank' href={explorerLink}
+                    >
+                      <OpenInNewIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <IconButton
-                    className={classes.button}
-                    aria-label='Explorer'
-                    onClick={this.handleMoreBtnOnOpen(walletByCryptoType.cryptoType)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
+                  <Tooltip title='More'>
+                    <IconButton
+                      className={classes.button}
+                      aria-label='Explorer'
+                      onClick={this.handleMoreBtnOnOpen(walletByCryptoType.cryptoType)}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </Tooltip>
                   <Menu
                     anchorEl={moreMenu && moreMenu.anchorEl}
                     open={Boolean(moreMenu && moreMenu.anchorEl)}

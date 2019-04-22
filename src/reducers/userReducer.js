@@ -18,9 +18,9 @@ export default function (state = initState, action) {
       return {
         ...state,
         profile: {
+          ...state.profile,
           ...action.payload,
-          isAuthenticated: true,
-          newUser: false
+          isAuthenticated: true
         }
       }
     case 'LOGOUT_FULFILLED':

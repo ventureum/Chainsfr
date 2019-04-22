@@ -7,6 +7,8 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import { getWalletTitle } from '../wallet'
 
 type Props = {
   submitTx: Function,
@@ -22,6 +24,14 @@ type Props = {
     getTxCost: boolean
   },
   error: any
+}
+
+const walletInstruction = {
+  ledger: 'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
+          'Press the right button to confirm and sign the transaction if everything is correct. ' +
+          'The transaction is then signed and sent to the network for confirmation.',
+  metamask: 'Please confirm transaction in the Metamask popup window.',
+  drive: 'Please wait while we are broadcasting your transaction to the network.'
 }
 
 class ReviewComponent extends Component<Props> {
@@ -100,20 +110,21 @@ class ReviewComponent extends Component<Props> {
                     : <CircularProgress size={18} color='primary' />}
                 </Grid>
               </Paper>
-              { actionsPending.submitTx && walletSelection === 'ledger' &&
+              { actionsPending.submitTx &&
                 <Grid item>
                   <Grid container direction='column' className={classes.instructionContainer}>
                     <Grid item>
                       <Typography className={classes.instructionTitile}>
-                        Ledger Transfer Instructions
+                        {getWalletTitle(walletSelection)} Transfer Instructions
                       </Typography>
                     </Grid>
                     <Grid>
                       <Typography className={classes.instructionText}>
-                        {'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
-                        'Press the right button to confirm and sign the transaction if everything is correct. ' +
-                        'The transaction is then signed and sent to the network for confirmation.  '}
+                        {walletInstruction[walletSelection]}
                       </Typography>
+                    </Grid>
+                    <Grid>
+                      <LinearProgress className={classes.linearProgress} />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -132,6 +143,7 @@ class ReviewComponent extends Component<Props> {
                 Back to previous
               </Button>
             </Grid>
+            {!actionsPending.submitTx &&
             <Grid item>
               <div className={classes.wrapper}>
                 <Button
@@ -144,9 +156,9 @@ class ReviewComponent extends Component<Props> {
                 >
                   Confirm and transfer
                 </Button>
-                {actionsPending.submitTx && <CircularProgress size={24} color='primary' className={classes.buttonProgress} />}
               </div>
             </Grid>
+            }
           </Grid>
         </Grid>
       </Grid>
@@ -191,7 +203,8 @@ const styles = theme => ({
   btnSection: {
     marginTop: '60px',
     width: '100%',
-    maxWidth: '470px'
+    maxWidth: '470px',
+    marginBottom: '150px'
   },
   buttonProgress: {
     position: 'absolute',
@@ -219,7 +232,11 @@ const styles = theme => ({
     color: '#666666'
   },
   reviewSection: {
-    maxWidth: '360px'
+    maxWidth: '360px',
+    width: '100%'
+  },
+  linearProgress: {
+    marginTop: '20px'
   }
 })
 

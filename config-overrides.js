@@ -1,8 +1,11 @@
 /* eslint-disable */
 var path = require('path')
 
-module.exports = function override(config, env) {
-  config.module.rules.push({
+module.exports = {
+  // The Webpack config to use when compiling your react app for development or production.
+  webpack: function(config, env) {
+    // ...add your webpack config
+    config.module.rules.push({
       test: /\.worker\.js$/,
       use: { loader: 'worker-loader' }
     })
@@ -13,4 +16,11 @@ module.exports = function override(config, env) {
       globalObject: 'this'
 }
   return config;
+  },
+  // The Jest config to use when running your jest tests - note that the normal rewires do not
+  // work here.
+  jest: function(config) {
+    config.transformIgnorePatterns = ["node_modules/(?!(@atlaskit)/)"]
+    return config;
+  }
 }
