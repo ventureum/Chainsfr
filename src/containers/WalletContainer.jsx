@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletComponent from '../components/WalletComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getCloudWallet } from '../actions/walletActions'
+import { getCloudWallet, decryptCloudWallet } from '../actions/walletActions'
 import { directTransfer, getTxCost } from '../actions/transferActions'
 
 class WalletContainer extends Component {
@@ -26,7 +26,8 @@ class WalletContainer extends Component {
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
 const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
 const directTransferSelector = createLoadingSelector(['DIRECT_TRANSFER'])
-const errorSelector = createErrorSelector(['GET_CLOUD_WALLET'])
+const decryptCloudWalletSelector = createLoadingSelector(['DECRYPT_CLOUD_WALLET'])
+const errorSelector = createErrorSelector(['GET_CLOUD_WALLET', 'DECRYPT_CLOUD_WALLET'])
 
 const mapStateToProps = state => {
   return {
@@ -36,7 +37,8 @@ const mapStateToProps = state => {
     actionsPending: {
       getCloudWallet: getCloudWalletSelector(state),
       getTxCost: getTxCostSelector(state),
-      directTransfer: directTransferSelector(state)
+      directTransfer: directTransferSelector(state),
+      decryptCloudWallet: decryptCloudWalletSelector(state)
     },
     error: errorSelector(state)
   }
@@ -46,7 +48,8 @@ const mapDispatchToProps = dispatch => {
   return {
     getCloudWallet: () => dispatch(getCloudWallet()),
     getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
-    directTransfer: (txRequest) => dispatch(directTransfer(txRequest))
+    directTransfer: (txRequest) => dispatch(directTransfer(txRequest)),
+    decryptCloudWallet: (wallet) => dispatch(decryptCloudWallet(wallet))
   }
 }
 

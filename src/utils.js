@@ -156,7 +156,7 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
             address: escrowWalletAddress
           })
         }
-      } else if (cryptoType === 'ethereum') {
+      } else if (cryptoType === 'ethereum' || cryptoType === 'dai') {
         const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
         resolve(_web3.eth.accounts.decrypt(encryptedWallet, password))
       }

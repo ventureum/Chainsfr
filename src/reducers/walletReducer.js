@@ -65,6 +65,22 @@ export default function (state = initState, action) {
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
       return update(state, { wallet: { drive: { $merge: action.payload } } })
+    case 'DECRYPT_CLOUD_WALLET_FULFILLED':
+      return update(state, {
+        wallet: {
+          drive: {
+            crypto: {
+              [action.payload.cryptoType]: {
+                0: {
+                  privateKey: {
+                    $set: action.payload.decryptedWallet.privateKey
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
     case REHYDRATE:
       if (action.payload) {
         var incoming = action.payload.walletReducer.wallet.ledger
