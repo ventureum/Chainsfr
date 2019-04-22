@@ -36,6 +36,8 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import bitcore from 'bitcore-lib'
 import Tooltip from '@material-ui/core/Tooltip'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 
 const WALLET_TYPE = 'drive'
 
@@ -54,7 +56,8 @@ class WalletComponent extends Component {
         transferAmount: ''
       },
       directTransferDialogFormError: {},
-      moreMenu: {}
+      moreMenu: {},
+      copied: false
     }
   }
 
@@ -392,16 +395,40 @@ class WalletComponent extends Component {
   }
 
   renderViewAddressDialog = () => {
-    const { viewAddressDialogOpen, selectedCryptoType } = this.state
+    const { viewAddressDialogOpen, selectedCryptoType, copied } = this.state
     const { classes, wallet } = this.props
+    const address = (selectedCryptoType !== 'bitcoin' ? '0x' : '') + wallet.crypto[selectedCryptoType][0].address
 
     return (
       <Dialog open={viewAddressDialogOpen}>
         <DialogTitle>Address</DialogTitle>
         <DialogContent>
-          <Typography className={classes.addressDialog} align='left'>
-            {selectedCryptoType !== 'bitcoin' ? '0x' : ''}{wallet.crypto[selectedCryptoType][0].address}
-          </Typography>
+          <Grid container direction='row' alignItems='center'>
+            <Grid item >
+              <Typography className={classes.addressDialog} align='left'>
+                {address}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <CopyToClipboard
+                text={address}
+                onCopy={() => {
+                  this.setState({ copied: true },
+                    () => setTimeout(() => this.setState({ copied: false }), 1500)
+                  )
+                }}
+              >
+                <Tooltip
+                  placement='top'
+                  open={copied}
+                  title='Copied'>
+                  <IconButton disableRipple className={classes.iconBtn}>
+                    <FileCopyIcon fontSize='small' />
+                  </IconButton>
+                </Tooltip>
+              </CopyToClipboard>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => this.toggleViewAddressDialog(false)} color='primary'>
@@ -413,20 +440,43 @@ class WalletComponent extends Component {
   }
 
   renderViewPrivateKeyDialog = () => {
-    const { viewPrivateKeyDialogOpen, selectedCryptoType } = this.state
+    const { viewPrivateKeyDialogOpen, selectedCryptoType, copied } = this.state
     const { classes, wallet, actionsPending } = this.props
 
+    const pKey = selectedCryptoType === 'bitcoin' && wallet.crypto[selectedCryptoType][0].privateKey ? wallet.crypto[selectedCryptoType][0].privateKey.toWIF()
+      : wallet.crypto[selectedCryptoType][0].privateKey
     return (
       <Dialog open={viewPrivateKeyDialogOpen}>
         <DialogTitle>Private Key</DialogTitle>
         <DialogContent className={classes.minWidth200px}>
-          { (wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet) ? 
-            <Typography className={classes.addressDialog} align='left'>
-              {
-                selectedCryptoType === 'bitcoin' ? wallet.crypto[selectedCryptoType][0].privateKey.toWIF()
-                  : wallet.crypto[selectedCryptoType][0].privateKey
-              }
-            </Typography> : <LinearProgress />
+          { (wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet)
+            ? <Grid container direction='row' alignItems='center'>
+              <Grid item >
+                <Typography className={classes.addressDialog} align='left'>
+                  {pKey}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <CopyToClipboard
+                  text={pKey}
+                  onCopy={() => {
+                    this.setState({ copied: true },
+                      () => setTimeout(() => this.setState({ copied: false }), 1500)
+                    )
+                  }}
+                >
+                  <Tooltip
+                    placement='top'
+                    open={copied}
+                    title='Copied'>
+                    <IconButton disableRipple className={classes.iconBtn}>
+                      <FileCopyIcon fontSize='small' />
+                    </IconButton>
+                  </Tooltip>
+                </CopyToClipboard>
+              </Grid>
+            </Grid>
+            : <LinearProgress />
           }
         </DialogContent>
         <DialogActions>
