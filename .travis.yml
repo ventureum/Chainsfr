@@ -9,7 +9,7 @@ script:
 - npm run eslint
 - npm run flow
 - npm test
-- wget https://s3.amazonaws.com/chainsfer-config/dev/.env
+- wget https://s3.amazonaws.com/chainsfer-config/staging/.env
 - npm run build
 deploy:
   provider: s3
