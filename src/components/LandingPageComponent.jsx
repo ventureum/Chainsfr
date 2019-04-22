@@ -27,6 +27,7 @@ import {
   SpotlightTarget,
   SpotlightTransition
 } from '@atlaskit/onboarding'
+import { isMobile } from 'react-device-detect'
 
 class LandingPageComponent extends Component {
   state = { active: this.props.profile.newUser ? 0 : null }
@@ -114,7 +115,8 @@ class LandingPageComponent extends Component {
     if (
       this.state.active == null ||
       this.props.actionsPending.getTransferHistory ||
-       this.props.actionsPending.getCloudWallet
+      this.props.actionsPending.getCloudWallet ||
+      isMobile
     ) return null
 
     return variants[this.state.active]
