@@ -11,9 +11,7 @@ import bitcore from 'bitcore-lib'
 import BN from 'bn.js'
 import env from '../typedEnv'
 import API from '../apis'
-
-const ledgerApiUrl = env.REACT_APP_LEDGER_API_URL
-const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
+import url from '../url'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -178,7 +176,7 @@ async function _getUtxoForEscrowWallet (
       txHash: string
     }>
   }> {
-  const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${address}/transactions?noToken=true&truncated=true`)).data
+  const addressData = (await axios.get(`${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`)).data
   const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, address)
   return { utxos }
 }
@@ -197,7 +195,7 @@ function getUtxoForEscrowWallet () {
 async function _createCloudWallet (password: string) {
   // ethereum based wallet
   // ETH and erc20 tokens will use the same address
-  let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let ethWallet
   if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT) {
     const privateKey = await API.getPrefilledAccount()
@@ -250,12 +248,12 @@ async function _getCloudWallet () {
 
   // fetch balance
   // 1. fetch ETH balance in string
-  let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let ethBalance = await _web3.eth.getBalance(ethWalletEncrypted.address)
   // 2. fetch DAI balance in string
   let daiBalance = (await ERC20.getBalance(ethWalletEncrypted.address, 'dai')).toString()
   // 3. fetch BTC balance in string
-  const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${btcWalletEncrypted.address}/transactions?noToken=true&truncated=true`)).data
+  const addressData = (await axios.get(`${url.LEDGER_API_URL}/addresses/${btcWalletEncrypted.address}/transactions?noToken=true&truncated=true`)).data
   const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, btcWalletEncrypted.address)
   let addresses = [{ utxos }]
   let btcBalance = (utxos.reduce((accu, utxo) => {

@@ -4,6 +4,7 @@ import bitcoinjs from 'bitcoinjs-lib'
 import bs58 from 'bs58'
 import padStart from 'lodash/padStart'
 import * as BIP32 from 'bip32'
+import env from '../typedEnv'
 
 const networks = bitcoinjs.networks
 
@@ -92,7 +93,7 @@ export async function getAccountXPub (btcLedger, prevPath, account, segwit) {
       childnum,
       nodeData.chainCode,
       publicKey,
-      networks.testnet.bip32.public
+      networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK].bip32.public
     )
     return encodeBase58Check(xpub)
   }
@@ -109,12 +110,12 @@ export async function getAccountXPub (btcLedger, prevPath, account, segwit) {
 
 export async function findAddress (path, segwit, xpub58) {
   let script = segwit
-    ? networks.testnet.scriptHash
-    : networks.testnet.pubKeyHash
+    ? networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK].scriptHash
+    : networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK].pubKeyHash
 
   let hdnode = BIP32.fromBase58(
     xpub58,
-    toPrefixBuffer(networks.testnet)
+    toPrefixBuffer(networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
   )
   let pubKeyToSegwitAddress = (pubKey, scriptVersion, segwit) => {
     let script = [0x00, 0x14].concat(

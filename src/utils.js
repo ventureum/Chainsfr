@@ -5,16 +5,13 @@ import wordlist from './wordlist.js'
 import wif from 'wif'
 import bitcore from 'bitcore-lib'
 import axios from 'axios'
-import env from './typedEnv'
 import CryptoWorker from './crypto.worker.js'
+import url from './url'
 
 const WIF_VERSION = {
   'testnet': 0xEF,
   'mainnet': 0x80
 }
-const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
-const blockcypherBaseUrl = env.REACT_APP_BLOCKCYPHER_API_URL
-const btcFeeEndPoint = env.REACT_APP_BTC_FEE_ENDPOINT
 
 /*
  * @param val BN instance, assuming smallest token unit
@@ -39,7 +36,7 @@ function toBasicTokenUnit (val, decimals = 18, precision = 3) {
 }
 
 async function getGasCost (txObj) {
-  const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()
   let costInBasicUnit = (new BN(price).mul(new BN(gas))).toString()
@@ -122,7 +119,7 @@ function generatePassphrase (size) {
 function encryptWallet (wallet, password, cryptoType) {
   return new Promise((resolve, reject) => {
     if (cryptoType === 'ethereum') {
-      let _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       resolve(_web3.eth.accounts.encrypt(wallet.privateKey, password))
     } else if (cryptoType === 'bitcoin') {
       let btcWalletWifDecoded = wif.decode(wallet.wif, WIF_VERSION[process.env.REACT_APP_BTC_NETWORK])
@@ -157,7 +154,7 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
           })
         }
       } else if (cryptoType === 'ethereum' || cryptoType === 'dai') {
-        const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+        const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         resolve(_web3.eth.accounts.decrypt(encryptedWallet, password))
       }
     } catch (error) {
@@ -169,12 +166,12 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
 }
 
 export async function getBtcLastBlockHeight () {
-  const rv = (await axios.get(blockcypherBaseUrl)).data
+  const rv = (await axios.get(url.BLOCKCYPHER_API_URL)).data
   return rv.height
 }
 
 async function getBtcTxFeePerByte () {
-  const rv = (await axios.get(btcFeeEndPoint)).data
+  const rv = (await axios.get(url.BTC_FEE_ENDPOINT)).data
   // safety check
   if (new BN(rv.hourFee).gt(new BN(200))) {
     console.warn(new Error('Abnormal btc fee per byte'))

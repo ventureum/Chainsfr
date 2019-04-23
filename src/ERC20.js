@@ -2,17 +2,16 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import ERC20_ABI from './contracts/ERC20.js'
 import { getCrypto } from './tokens'
-
-const infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+import url from './url'
 
 async function getBalance (address, cryptoType) {
-  let web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   const targetContract = new web3.eth.Contract(ERC20_ABI, getCrypto(cryptoType).address)
   return targetContract.methods.balanceOf(address).call()
 }
 
 async function getTransferTxObj (from, to, transferAmount, cryptoType) {
-  let web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let contractAddr = getCrypto(cryptoType).address
   const targetContract = new web3.eth.Contract(ERC20_ABI, contractAddr)
   let data = targetContract.methods.transfer(to, transferAmount).encodeABI()
@@ -25,7 +24,7 @@ async function getTransferTxObj (from, to, transferAmount, cryptoType) {
 }
 
 async function getGasPriceGivenBalance (address, gas) {
-  let web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+  let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let balance = new BN(await web3.eth.getBalance(address))
   return balance.div(new BN(gas)).toString()
 }

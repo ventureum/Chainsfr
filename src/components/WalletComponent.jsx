@@ -38,6 +38,7 @@ import bitcore from 'bitcore-lib'
 import Tooltip from '@material-ui/core/Tooltip'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
+import url from '../url'
 
 const WALLET_TYPE = 'drive'
 
@@ -196,7 +197,7 @@ class WalletComponent extends Component {
       }
     } else if (name === 'destinationAddress') {
       if (selectedCryptoType === 'bitcoin') {
-        if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BTC_NETWORK])) {
+        if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])) {
           return 'Invalid address'
         }
       } else if (!Web3.utils.isAddress(value)) {
@@ -365,9 +366,7 @@ class WalletComponent extends Component {
               rel='noopener'
               href={
                 receipt.cryptoType === 'bitcoin'
-                  ? `https://live.blockcypher.com/btc-testnet/tx/${receipt.sendTxHash}`
-                  : `https://rinkeby.etherscan.io/tx/${receipt.sendTxHash}`
-              }
+                  ? url.getBtcExplorerTx(receipt.sendTxHash) : url.getEthExplorerTx(receipt.sendTxHash)}
             >
               {' here'}
             </MuiLink>
@@ -492,14 +491,11 @@ class WalletComponent extends Component {
     let { classes } = this.props
     var explorerLink = null
     if (walletByCryptoType.cryptoType === 'ethereum') {
-      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
-      explorerLink = `https://${network}.etherscan.io/address/${walletByCryptoType.address}`
+      explorerLink = url.getEthExplorerAddress(walletByCryptoType.address)
     } else if (walletByCryptoType.cryptoType === 'dai') {
-      let network = env.REACT_APP_NETWORK_NAME !== 'mainnet' ? env.REACT_APP_NETWORK_NAME : ''
-      explorerLink = `https://${network}.etherscan.io/token/${env.REACT_APP_DAI_ADDRESS}?a=${walletByCryptoType.address}`
+      explorerLink = url.getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, walletByCryptoType.address)
     } else if (walletByCryptoType.cryptoType === 'bitcoin') {
-      let network = env.REACT_APP_BTC_NETWORK !== 'mainnet' ? 'btc-testnet' : 'btc'
-      explorerLink = `https://live.blockcypher.com/${network}/address/${walletByCryptoType.address}`
+      explorerLink = url.getBtcExplorerAddress(walletByCryptoType.address)
     }
 
     let moreMenu = this.state.moreMenu[walletByCryptoType.cryptoType]

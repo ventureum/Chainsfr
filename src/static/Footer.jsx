@@ -15,7 +15,7 @@ class FooterComponent extends React.Component {
             </Typography>
           </Grid>
           <Typography className={classes.copyright}>
-            Build {process.env.REACT_APP_VERSION}
+            Build {process.env.REACT_APP_VERSION}-{process.env.REACT_APP_ENV}
           </Typography>
         </Grid>
       </footer>

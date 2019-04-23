@@ -14,6 +14,7 @@ import { getCrypto, getCryptoDecimals } from '../tokens'
 import bitcore from 'bitcore-lib'
 import axios from 'axios'
 import env from '../typedEnv'
+import url from '../url'
 
 type Utxos = Array<{
   value: number,
@@ -28,8 +29,6 @@ type AddressPool = Array<{
 }>
 
 const ledgerNanoS = new LedgerNanoS()
-const infuraApi = `https://${env.REACT_APP_NETWORK_NAME}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
-const ledgerApiUrl = env.REACT_APP_LEDGER_API_URL
 
 function web3EthSendTransactionPromise (web3Function: Function, txObj: Object) {
   return new Promise((resolve, reject) => {
@@ -40,7 +39,7 @@ function web3EthSendTransactionPromise (web3Function: Function, txObj: Object) {
 }
 
 async function getFirstFromAddress (txHash: string) {
-  const rv = (await axios.get(`${ledgerApiUrl}/transactions/${txHash}`)).data
+  const rv = (await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}`)).data
   const address = rv[0].inputs[0].address
   return address
 }
@@ -168,7 +167,7 @@ async function _directTransfer (
 ) {
   let { fromWallet, cryptoType, transferAmount, destinationAddress, txCost } = txRequest
   if (['ethereum', 'dai'].includes(cryptoType)) {
-    var _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    var _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     var txObj = null
 
     // eth and dai have the same decimals
@@ -252,7 +251,7 @@ async function _submitTx (
   let sendTxHash: string = ''
   let sendTxFeeTxHash: string
   if (!window._web3) {
-    window._web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    window._web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   }
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
@@ -312,7 +311,7 @@ async function _submitTx (
     sendTxHash = await web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
   } else if (walletType === 'ledger') {
     if (cryptoType === 'ethereum') {
-      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       const amountInWei = _web3.utils.toWei(transferAmount, 'ether')
       const signedTransactionObject = await ledgerNanoS.signSendEther(
         0,
@@ -325,7 +324,7 @@ async function _submitTx (
       )
       sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
     } else if (cryptoType === 'dai') {
-      const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       // send out tx fee for next tx
       const signedTxFee = await ledgerNanoS.signSendEther(
         0,
@@ -357,7 +356,7 @@ async function _submitTx (
       sendTxHash = await ledgerNanoS.broadcastBtcRawTx(signedTxRaw)
     }
   } else if (walletType === 'drive') {
-    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     if (cryptoType === 'ethereum') {
       let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
       // add privateKey to web3
@@ -508,7 +507,7 @@ async function _acceptTransfer (
     receiveTxHash = await ledgerNanoS.broadcastBtcRawTx(txHex)
   } else {
     // add escrow account to web3
-    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txObj = null
     _web3.eth.accounts.wallet.add(escrowWallet.privateKey)
 
@@ -604,7 +603,7 @@ async function _cancelTransfer (
   } else if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
 
-    const _web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
     var txObj = null
 
