@@ -14,7 +14,7 @@ script:
 deploy:
   provider: s3
   skip_cleanup: true
-  cache_control: "no-cache"
+  cache_control: "max-age=0,no-cache,no-store,must-revalidate"
   access_key_id: AKIAIFWICYKK6GWUDRMA
   secret_access_key: $S3_SECRET
   bucket: www.chainsfer.io
