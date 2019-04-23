@@ -8,12 +8,15 @@ class FooterComponent extends React.Component {
     const { classes } = this.props
     return (
       <footer className={classes.root}>
-        <Grid container alignItems='center' justify='center' className={classes.copyRightContainer}>
+        <Grid container direction='column' alignItems='center' justify='center' className={classes.copyRightContainer}>
           <Grid item >
             <Typography className={classes.copyright}>
             &copy; {'2018 - '}{1900 + new Date().getYear()} All rights reserved.
             </Typography>
           </Grid>
+          <Typography className={classes.copyright}>
+            Build {process.env.REACT_APP_VERSION}
+          </Typography>
         </Grid>
       </footer>
     )
