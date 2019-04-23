@@ -62,9 +62,9 @@
     "wif": "^2.0.6"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "start": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired start",
+    "build": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired build",
+    "test": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired test",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
