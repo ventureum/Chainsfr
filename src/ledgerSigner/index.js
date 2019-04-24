@@ -18,24 +18,13 @@ import ERC20 from '../ERC20'
 import BN from 'bn.js'
 import { getBtcLastBlockHeight } from '../utils'
 import { getAccountXPub, findAddress } from './addressFinderUtils'
+import url from '../url'
+import env from '../typedEnv'
 
 const baseEtherPath = "44'/60'/0'/0"
-const baseBtcPath = "49'/1'"
+const baseBtcPath = env.REACT_APP_BTC_PATH
 
-let networkId: number = 1
-if (process.env.REACT_APP_NETWORK_NAME) {
-  networkId = networkIdMap[process.env.REACT_APP_NETWORK_NAME]
-}
-
-let infuraApi: string = ''
-if (process.env.REACT_APP_NETWORK_NAME && process.env.REACT_APP_INFURA_API_KEY) {
-  infuraApi = `https://${process.env.REACT_APP_NETWORK_NAME}.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
-}
-
-let ledgerApiUrl: string = ''
-if (process.env.REACT_APP_LEDGER_API_URL) {
-  ledgerApiUrl = process.env.REACT_APP_LEDGER_API_URL
-}
+let networkId: number = networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
 
 class LedgerNanoS {
   static webUsbTransport: any
@@ -62,7 +51,7 @@ class LedgerNanoS {
 
   getWeb3 = (): any => {
     if (!this.web3) {
-      this.web3 = new Web3(new Web3.providers.HttpProvider(infuraApi))
+      this.web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     }
     return this.web3
   }
@@ -324,7 +313,7 @@ class LedgerNanoS {
   }
 
   getUtxoDetails = async (txHash: string) => {
-    const details = await axios.get(`${ledgerApiUrl}/transactions/${txHash}/hex`)
+    const details = await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}/hex`)
     return details.data[0].hex
   }
 
@@ -350,7 +339,7 @@ class LedgerNanoS {
     amountBuffer.writeUIntLE(amount, 0, 8)
     const txOutput = {
       amount: amountBuffer,
-      script: address.toOutputScript(to, networks.testnet)
+      script: address.toOutputScript(to, networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
     }
     outputs.push(txOutput)
     const change = inputValueTotal - amount - fee // 138 bytes for 1 input, 64 bytes per additional input
@@ -360,7 +349,7 @@ class LedgerNanoS {
     const changeAddress = (await btcLedger.getWalletPublicKey(changeAddressPath, false, true)).bitcoinAddress
     const changeOutput = {
       amount: changeBuffer,
-      script: address.toOutputScript(changeAddress, networks.testnet)
+      script: address.toOutputScript(changeAddress, networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
     }
     outputs.push(changeOutput)
 
@@ -380,7 +369,7 @@ class LedgerNanoS {
 
   broadcastBtcRawTx = async (txRaw: string) => {
     const rv = await axios.post(
-      `${ledgerApiUrl}/transactions/send`,
+      `${url.LEDGER_API_URL}/transactions/send`,
       { tx: txRaw })
     return rv.data.result
   }
@@ -431,7 +420,7 @@ class LedgerNanoS {
       const addressPath = `${baseBtcPath}/${accountIndex}'/${change}/${i}`
       const bitcoinAddress = await findAddress(addressPath, true, xpub)
 
-      const addressData = (await axios.get(`${ledgerApiUrl}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)).data
+      const addressData = (await axios.get(`${url.LEDGER_API_URL}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)).data
       if (addressData.txs.length === 0) {
         if (!nextAddress) nextAddress = bitcoinAddress
         gap += 1
@@ -493,7 +482,7 @@ class LedgerNanoS {
     }
     const addressesData = await Promise.all(addresses.map(address => {
       const bitcoinAddress = address.publicKeyInfo.bitcoinAddress
-      return axios.get(`${ledgerApiUrl}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)
+      return axios.get(`${url.LEDGER_API_URL}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`)
     }))
 
     const addressesUtxos = addressesData.map((rv, i) => {

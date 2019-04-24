@@ -62,8 +62,10 @@
     "wif": "^2.0.6"
   },
   "scripts": {
-    "start": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired start",
-    "build": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired build",
+    "start": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired start",
+    "build": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired build",
+    "build:staging": "env-cmd .env.staging npm run build",
+    "build:prod": "env-cmd .env.prod npm run build",
     "test": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired test",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
@@ -80,6 +82,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "env-cmd": "^8.0.2",
     "eslint": "^5.6.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-config-standard-jsx": "^6.0.2",
