@@ -134,7 +134,9 @@ class LedgerNanoS {
       }
     } catch (e) {
       console.log(e)
-      return null
+      return {
+        connected: false
+      }
     }
   }
 
@@ -467,12 +469,13 @@ class LedgerNanoS {
       changeAddress: internalAddressData.nextAddress,
       addresses: [...externalAddressData.addresses, ...internalAddressData.addresses],
       lastBlockHeight: await getBtcLastBlockHeight(),
-      lastUpdate: moment().unix()
+      lastUpdate: moment().unix(),
+      xpub
     }
     return accountData
   }
 
-  updateBtcAccountInfo = async (accountIndex: number = 0, accountInfo: Object, progress: ?Function) => {
+  updateBtcAccountInfo = async (accountIndex: number = 0, accountInfo: Object, xpub: string, progress: ?Function) => {
     const targetAccountInfo = accountInfo[accountIndex]
     let { nextAddressIndex, nextChangeIndex, addresses } = targetAccountInfo
 
@@ -504,8 +507,6 @@ class LedgerNanoS {
       updatedAddresses.push(address)
     })
 
-    const btcLedger = await this.getBtcLedger()
-    const xpub = await getAccountXPub(btcLedger, baseBtcPath, `${accountIndex}'`, true)
     // discover new address
     const externalAddressData = await this.discoverAddress(xpub, accountIndex, 0, nextAddressIndex, progress)
     const internalAddressData = await this.discoverAddress(xpub, accountIndex, 1, nextChangeIndex, progress)
@@ -518,7 +519,8 @@ class LedgerNanoS {
       changeAddress: internalAddressData.nextAddress,
       addresses: [...updatedAddresses, ...externalAddressData.addresses, ...internalAddressData.addresses],
       lastBlockHeight: await getBtcLastBlockHeight(),
-      lastUpdate: moment().unix()
+      lastUpdate: moment().unix(),
+      xpub
     }
     return {
       bitcoin: {
