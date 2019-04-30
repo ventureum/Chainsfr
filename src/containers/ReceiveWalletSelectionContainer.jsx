@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import ReceiveWalletSelection from '../components/ReceiveWalletSelectionComponent'
 import { checkMetamaskConnection, checkLedgerNanoSConnection, syncLedgerAccountInfo, updateBtcAccountInfo } from '../actions/walletActions'
 import { selectWallet } from '../actions/formActions'
-import { getBtcLastBlockHeight } from '../utils'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 
@@ -19,12 +18,10 @@ class ReceiveWalletSelectionContainer extends Component {
     } = this.props
 
     let { cryptoType } = transfer
-
+    selectWallet(walletType)
     if (walletType === 'ledger' && walletType !== walletSelection) {
-      selectWallet(walletType)
-      checkLedgerNanoSConnection(cryptoType)
+      checkLedgerNanoSConnection(cryptoType, true)
     } else if (walletType === 'metamask' && walletType !== walletSelection) {
-      selectWallet(walletType)
       checkMetamaskConnection(cryptoType)
     }
   }
@@ -39,13 +36,14 @@ class ReceiveWalletSelectionContainer extends Component {
       !error) {
       if (!wallet.crypto[cryptoType] || cryptoType !== 'bitcoin') {
         this.onSync(cryptoType)
-      } else if (cryptoType === 'bitcoin') {
-        getBtcLastBlockHeight().then((currentBlock) => {
-          if (wallet.crypto[cryptoType][0].lastBlockHeight !== currentBlock) {
-            this.props.updateBtcAccountInfo()
-          }
-        })
       }
+    } else if (
+      wallet && cryptoType === 'bitcoin' &&
+      wallet.crypto[cryptoType] &&
+      wallet.crypto[cryptoType][0].xpub &&
+      (prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection)
+    ) {
+      this.props.updateBtcAccountInfo(wallet.crypto[cryptoType][0].xpub)
     }
   }
 
@@ -71,18 +69,18 @@ class ReceiveWalletSelectionContainer extends Component {
 
 const checkMetamaskConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION'])
 const checkLedgerNanoSConnectionSelector = createLoadingSelector(['CHECK_LEDGER_NANOS_CONNECTION'])
-const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION', 'CHECK_LEDGER_NANOS_CONNECTION', 'SYNC_LEDGER_ACCOUNT_INFO', 'UPDATE_BTC_ACCOUNT_INFO'])
+const errorSelector = createErrorSelector(['CHECK_METAMASK_CONNECTION', 'SYNC_LEDGER_ACCOUNT_INFO', 'UPDATE_BTC_ACCOUNT_INFO'])
 const syncAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO'])
 const updateBtcAccountInfoSelector = createLoadingSelector(['UPDATE_BTC_ACCOUNT_INFO'])
 
 const mapDispatchToProps = dispatch => {
   return {
     checkMetamaskConnection: (cryptoType) => dispatch(checkMetamaskConnection(cryptoType)),
-    checkLedgerNanoSConnection: (cryptoType) => dispatch(checkLedgerNanoSConnection(cryptoType)),
+    checkLedgerNanoSConnection: (cryptoType, throwError) => dispatch(checkLedgerNanoSConnection(cryptoType, throwError)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
     syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress)),
-    updateBtcAccountInfo: (progress) => dispatch(updateBtcAccountInfo(progress))
+    updateBtcAccountInfo: (xpub, progress) => dispatch(updateBtcAccountInfo(xpub, progress))
   }
 }
 

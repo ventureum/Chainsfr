@@ -24,7 +24,7 @@ class ReceiveReviewContainer extends Component {
       (prevActionsPending.getUtxoForEscrowWallet && !actionsPending.getUtxoForEscrowWallet) &&
       transfer.cryptoType === 'bitcoin' &&
       !error) {
-      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount, escrowWallet: escrowWallet.decryptedWallet })
+      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount, escrowWallet: escrowWallet })
     }
   }
 

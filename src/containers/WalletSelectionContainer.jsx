@@ -112,7 +112,7 @@ class WalletSelectionContainer extends Component<Props, State> {
       } else if (cryptoSelection === 'bitcoin') {
         getBtcLastBlockHeight().then((currentBlock) => {
           if (wallet.crypto[cryptoSelection][0].lastBlockHeight !== currentBlock) {
-            this.props.updateBtcAccountInfo()
+            this.props.updateBtcAccountInfo(wallet.crypto[cryptoSelection][0].xpub)
           }
         })
       }
@@ -175,7 +175,7 @@ const mapDispatchToProps = dispatch => {
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n)),
     syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress)),
-    updateBtcAccountInfo: (progress) => dispatch(updateBtcAccountInfo(progress))
+    updateBtcAccountInfo: (xpub, progress) => dispatch(updateBtcAccountInfo(xpub, progress))
   }
 }
 

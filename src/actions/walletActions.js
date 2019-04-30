@@ -22,12 +22,12 @@ function syncLedgerAccountInfo (cryptoType: string, accountIndex: number = 0, pr
   }
 }
 
-function updateBtcAccountInfo (progress: ?Function) {
+function updateBtcAccountInfo (xpub: string, progress: ?Function) {
   return (dispatch: Function, getState: Function) => {
     const accountInfo = getState().walletReducer.wallet.ledger.crypto.bitcoin
     return dispatch({
       type: 'UPDATE_BTC_ACCOUNT_INFO',
-      payload: ledgerNanoS.updateBtcAccountInfo(0, accountInfo, progress)
+      payload: ledgerNanoS.updateBtcAccountInfo(0, accountInfo, xpub, progress)
     })
   }
 }
@@ -77,9 +77,9 @@ async function _checkMetamaskConnection (
   return rv
 }
 
-async function _checkLedgerNanoSConnection (cryptoType: string) {
-  const deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
-  if (deviceConnected === null) {
+async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean = true) {
+  let deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
+  if (deviceConnected === null && throwError) {
     const msg = 'Ledger not connected'
     throw msg
   }
@@ -126,10 +126,10 @@ function onMetamaskAccountsChanged (accounts: any) {
   }
 }
 
-function checkLedgerNanoSConnection (cryptoType: string) {
+function checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean) {
   return {
     type: 'CHECK_LEDGER_NANOS_CONNECTION',
-    payload: _checkLedgerNanoSConnection(cryptoType)
+    payload: _checkLedgerNanoSConnection(cryptoType, throwError)
   }
 }
 
