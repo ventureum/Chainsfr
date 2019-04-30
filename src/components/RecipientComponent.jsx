@@ -81,9 +81,9 @@ class RecipientComponent extends Component<Props> {
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
     if (name === 'transferAmount') {
-      if (!validator.isFloat(value, { min: 0.0001, max: utils.toHumanReadableUnit(balance, decimals) })) {
-        if (value === '-' || parseFloat(value) < 0.0001) {
-          return 'The amount must be greater than 0.0001'
+      if (!validator.isFloat(value, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })) {
+        if (value === '-' || parseFloat(value) < 0.001) {
+          return 'The amount must be greater than 0.001'
         } else {
           return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
         }
