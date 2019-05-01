@@ -4,9 +4,9 @@ import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 
 export const walletCryptoSupports = {
-  'drive': [{ cryptoType: 'ethereum', disabled: true },
-    { cryptoType: 'dai', disabled: true },
-    { cryptoType: 'bitcoin', disabled: true }],
+  'drive': [{ cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false },
+    { cryptoType: 'bitcoin', disabled: false }],
   'metamask': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false }],
   'ledger': [{ cryptoType: 'ethereum', disabled: false },
@@ -20,7 +20,7 @@ export const walletSelections = [
     title: 'Drive',
     desc: 'Use Drive Wallet',
     logo: DriveWalletLogo,
-    disabled: true
+    disabled: false
   },
   {
     walletType: 'metamask',

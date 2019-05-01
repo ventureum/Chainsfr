@@ -2,57 +2,26 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
-import MetamaskLogo from '../images/metamask-button.svg'
-import HardwareWalletLogo from '../images/hardware-wallet-button.svg'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
-import { walletDisabledByCrypto, getWalletTitle } from '../wallet'
+import {
+  walletSelections,
+  walletCryptoSupports,
+  walletDisabledByCrypto,
+  getWalletTitle
+} from '../wallet'
 import BN from 'bn.js'
 import ErrorIcon from '@material-ui/icons/Error'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CheckIcon from '@material-ui/icons/CheckCircle'
-
-const walletCryptoSupports = {
-  'basic': [{ cryptoType: 'ethereum', disabled: true },
-    { cryptoType: 'dai', disabled: true },
-    { cryptoType: 'bitcoin', disabled: true }],
-  'metamask': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: true }],
-  'ledger': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: true }]
-}
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
   ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
 }
 
-const walletSelections = [
-  {
-    walletType: 'basic',
-    title: 'Basic',
-    desc: 'Use Basic Wallet',
-    logo: MetamaskLogo,
-    disabled: true
-  },
-  {
-    walletType: 'metamask',
-    title: 'Metamask',
-    desc: 'MetaMask Extension',
-    logo: MetamaskLogo,
-    disabled: false
-  },
-  {
-    walletType: 'ledger',
-    title: 'Ledger',
-    desc: 'Ledger Hardware Wallet',
-    logo: HardwareWalletLogo,
-    disabled: false
-  }
-]
 
 class ReceiveWalletSelectionComponent extends Component {
   static propTypes = {
@@ -100,13 +69,16 @@ class ReceiveWalletSelectionComponent extends Component {
     let { classes, actionsPending, walletType, wallet, transfer } = this.props
     const { cryptoType } = transfer
     if ((walletType === 'metamask' && actionsPending.checkMetamaskConnection) ||
-        (walletType === 'ledger' && actionsPending.checkLedgerNanoSConnection)) {
+        (walletType === 'ledger' && actionsPending.checkLedgerNanoSConnection) ||
+        (walletType === 'drive' && actionsPending.checkCloudWalletConnection)) {
       // waiting for connection
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-              Please connect and unlock your wallet with the selected coin.
+              {(walletType === 'metamask' || walletType === 'ledger') &&
+              'Please connect and unlock your wallet with the selected coin.'}
+              {walletType === 'drive' && 'Connecting to Drive wallet ...'}
             </Typography>
           </Grid>
           <Grid item>
@@ -151,7 +123,7 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && ((walletType === 'metamask') || (walletType === 'ledger')) && wallet.crypto[transfer.cryptoType]) {
+    } else if (wallet && wallet.crypto[transfer.cryptoType]) {
       return (
         <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
           <Grid item>
