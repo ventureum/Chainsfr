@@ -59,7 +59,7 @@ async function getTransfer ({ sendingId, receivingId }) {
   return responseData
 }
 
-async function batchTransfer ({ sendingId, receivingId }) {
+async function getBatchTransfers ({ sendingId, receivingId }) {
   let rv = await apiTransfer.post('/transfer', {
     action: 'BATCH_GET',
     sendingId: sendingId,
@@ -102,4 +102,4 @@ async function setLastUsedAddress ({ googleId, walletType, address }) {
   return rv.data
 }
 
-export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, batchTransfer, setLastUsedAddress }
+export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, getBatchTransfers, setLastUsedAddress }

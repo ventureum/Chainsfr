@@ -686,7 +686,7 @@ async function _getTransferHistory () {
 
   // identify transfer state
   const sendingIds = transfers.map(t => t.sendingId)
-  let transferData = await API.batchTransfer({ sendingId: sendingIds })
+  let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
   transferData = transferData.map(item => {
     let state = null
     if (!item.receiveTxHash) {
