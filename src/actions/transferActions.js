@@ -685,12 +685,11 @@ async function _getTransferHistory () {
   transfers = transfers.slice(0, Math.min(transfers.length, 20))
 
   // identify transfer state
-  const sendingIds = transfers.map(t => t.sendingId)
-  let transferData = await API.batchTransfer({ sendingId: sendingIds })
-  transferData = transferData.map(item => {
+  return Promise.all(transfers.map(async (t) => {
+    let transferData = await API.getTransfer({ sendingId: t.sendingId })
     let state = null
-    if (!item.receiveTxHash) {
-      if (!item.cancelTxHash) {
+    if (!transferData.receiveTxHash) {
+      if (!transferData.cancelTxHash) {
         // pending receive
         state = 'pending'
       } else {
@@ -702,11 +701,10 @@ async function _getTransferHistory () {
       state = 'received'
     }
     return {
-      ...item,
+      ...transferData,
       state
     }
-  })
-  return transferData
+  }))
 }
 
 function submitTx (txRequest: {

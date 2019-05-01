@@ -59,25 +59,6 @@ async function getTransfer ({ sendingId, receivingId }) {
   return responseData
 }
 
-async function batchTransfer ({ sendingId, receivingId }) {
-  let rv = await apiTransfer.post('/transfer', {
-    action: 'BATCH_GET',
-    sendingId: sendingId,
-    receivingId: receivingId
-  })
-
-  let responseData = rv.data
-  responseData = responseData.map(item => {
-    item.data = JSON.parse(Base64.decode(item.data))
-    if (item.password) {
-      item.password = Base64.decode(item.password)
-    }
-    return item
-  })
-
-  return responseData
-}
-
 async function getPrefilledAccount () {
   try {
     var rv = await axios.get(env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT)
@@ -88,4 +69,4 @@ async function getPrefilledAccount () {
   }
 }
 
-export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, batchTransfer }
+export default { transfer, accept, cancel, getTransfer, getPrefilledAccount }
