@@ -686,7 +686,7 @@ async function _getTransferHistory () {
 
   // identify transfer state
   const sendingIds = transfers.map(t => t.sendingId)
-  let transferData = await API.batchTransfer({ sendingId: sendingIds })
+  let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
   transferData = transferData.map(item => {
     let state = null
     if (!item.receiveTxHash) {
@@ -732,6 +732,13 @@ function submitTx (txRequest: {
   }
 }
 
+function setLastUsedAddress ({ googleId, walletType, address }) {
+  return {
+    type: 'SET_LAST_USED_ADDRESS',
+    payload: API.setLastUsedAddress({ googleId, walletType, address })
+  }
+}
+
 function directTransfer (txRequest: {
   fromWallet: Object,
   cryptoType: string,
@@ -758,18 +765,31 @@ function acceptTransfer (
     cryptoType: string,
     transferAmount: string,
     txCost: Object,
-    receivingId: string
+    receivingId: string,
+    walletType: string
   }
 ) {
   return (dispatch: Function, getState: Function) => {
     let utxos = []
+    const { walletType, destinationAddress, cryptoType } = txRequest
     if (txRequest.cryptoType === 'bitcoin') {
       utxos = getState().walletReducer.escrowWallet.decryptedWallet.utxos
     }
     return dispatch({
       type: 'ACCEPT_TRANSFER',
       payload: _acceptTransfer(txRequest, utxos)
-    }).then(() => dispatch(goToStep('receive', 1)))
+    }).then(() => {
+      const { profile } = getState().userReducer
+      if (profile.isAuthenticated && profile.googleId) {
+        const googleId = profile.googleId
+        const address = cryptoType === 'bitcoin' && walletType === 'ledger'
+          ? getState().walletReducer.wallet[walletType].crypto[cryptoType][0].xpub
+          : destinationAddress
+        dispatch(setLastUsedAddress({ googleId, walletType, address }))
+      }
+
+      dispatch(goToStep('receive', 1))
+    })
   }
 }
 

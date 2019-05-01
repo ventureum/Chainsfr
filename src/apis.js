@@ -59,7 +59,7 @@ async function getTransfer ({ sendingId, receivingId }) {
   return responseData
 }
 
-async function batchTransfer ({ sendingId, receivingId }) {
+async function getBatchTransfers ({ sendingId, receivingId }) {
   let rv = await apiTransfer.post('/transfer', {
     action: 'BATCH_GET',
     sendingId: sendingId,
@@ -88,4 +88,18 @@ async function getPrefilledAccount () {
   }
 }
 
-export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, batchTransfer }
+async function setLastUsedAddress ({ googleId, walletType, address }) {
+  try {
+    var rv = await apiTransfer.post('/transfer', {
+      action: 'SET_LAST_USED_ADDRESS',
+      googleId: googleId,
+      walletType: walletType,
+      address: address
+    })
+  } catch (e) {
+    console.warn(e)
+  }
+  return rv.data
+}
+
+export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, getBatchTransfers, setLastUsedAddress }
