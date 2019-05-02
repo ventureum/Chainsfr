@@ -70,7 +70,7 @@ class ReceiveLandingPageComponent extends Component {
     }
 
     return (
-      <Grid container direction='row' alignItems='stretch' className={classes.root}>
+      <Grid container direction='row' alignItems='stretch' >
         <Grid item xl={7} lg={7} md={7} className={classes.leftColumn}>
           <Grid container direction='column' justify='center' alignItems='center'>
             <Grid item className={classes.leftContainer}>
@@ -206,9 +206,6 @@ class ReceiveLandingPageComponent extends Component {
 }
 
 const styles = theme => ({
-  root: {
-    height: '100vh'
-  },
   leftColumn: {
     backgroundColor: '#F8F8F8'
   },
