@@ -14,7 +14,6 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import Divider from '@material-ui/core/Divider'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import utils from '../utils'
 import numeral from 'numeral'
 import { walletSelections, cryptoDisabled, cryptoInWallet, getWalletTitle } from '../wallet'
@@ -67,7 +66,21 @@ class WalletSelectionComponent extends Component<Props> {
   renderBalance = () => {
     const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
 
-    if (actionsPending.checkWalletConnection) {
+    if (actionsPending.checkCloudWalletConnection) {
+      // special case, only show progress indicator while loading the cloud wallet
+      return (
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+              Loading Drive Wallet...
+            </Typography>
+          </Grid>
+          <Grid item>
+            <LinearProgress className={classes.linearProgress} />
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.checkWalletConnection) {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
@@ -127,7 +140,7 @@ class WalletSelectionComponent extends Component<Props> {
                   {getWalletTitle(walletType)} wallet connected
                 </Typography>
               </Grid>
-              { cryptoType !== 'bitcoin' &&
+              { (cryptoType !== 'bitcoin' || walletType !== 'ledger') &&
                 <Grid item>
                   <Typography className={classes.addressInfoText}>
                   Wallet address: {wallet.crypto[cryptoType][0].address}
@@ -194,17 +207,6 @@ class WalletSelectionComponent extends Component<Props> {
 
   render () {
     const { classes, walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
-
-    if (actionsPending.checkCloudWalletConnection) {
-      // special case, only show progress indicator while loading the cloud wallet
-      return (
-        <Grid container direction='row' justify='center' alignItems='center'>
-          <Grid item>
-            <CircularProgress color='primary' />
-          </Grid>
-        </Grid>
-      )
-    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
