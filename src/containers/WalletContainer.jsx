@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletComponent from '../components/WalletComponent'
+import CloudWalletUnlockContainer from './CloudWalletUnlockContainer'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getCloudWallet, decryptCloudWallet } from '../actions/walletActions'
+import { getCloudWallet, unlockCloudWallet } from '../actions/walletActions'
 import { directTransfer, getTxCost } from '../actions/transferActions'
+import { push } from 'connected-react-router'
 
 class WalletContainer extends Component {
   componentDidMount () {
@@ -16,9 +18,12 @@ class WalletContainer extends Component {
   render () {
     let { ...others } = this.props
     return (
-      <WalletComponent
-        {...others}
-      />
+      <>
+        <WalletComponent
+          {...others}
+        />
+        <CloudWalletUnlockContainer />
+      </>
     )
   }
 }
@@ -26,7 +31,6 @@ class WalletContainer extends Component {
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
 const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
 const directTransferSelector = createLoadingSelector(['DIRECT_TRANSFER'])
-const decryptCloudWalletSelector = createLoadingSelector(['DECRYPT_CLOUD_WALLET'])
 const errorSelector = createErrorSelector(['GET_CLOUD_WALLET', 'DECRYPT_CLOUD_WALLET'])
 
 const mapStateToProps = state => {
@@ -37,8 +41,7 @@ const mapStateToProps = state => {
     actionsPending: {
       getCloudWallet: getCloudWalletSelector(state),
       getTxCost: getTxCostSelector(state),
-      directTransfer: directTransferSelector(state),
-      decryptCloudWallet: decryptCloudWalletSelector(state)
+      directTransfer: directTransferSelector(state)
     },
     error: errorSelector(state)
   }
@@ -49,7 +52,8 @@ const mapDispatchToProps = dispatch => {
     getCloudWallet: () => dispatch(getCloudWallet()),
     getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
     directTransfer: (txRequest) => dispatch(directTransfer(txRequest)),
-    decryptCloudWallet: (wallet) => dispatch(decryptCloudWallet(wallet))
+    unlockCloudWallet: (unlockRequestParams) => dispatch(unlockCloudWallet(unlockRequestParams)),
+    push: (path) => dispatch(push(path))
   }
 }
 

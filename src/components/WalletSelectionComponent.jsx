@@ -32,8 +32,6 @@ const WalletConnectionErrorMessage = {
 type Props = {
   onWalletSelected: Function,
   onCryptoSelected: Function,
-  onUpdate: Function,
-  goToStep: Function,
   classes: Object,
   syncProgress: {
     index: number,
@@ -42,8 +40,8 @@ type Props = {
   walletType: string,
   cryptoType: string,
   wallet: Object,
-  actionsPending: Object,
-  error: any
+  handleNext: Function,
+  actionsPending: Object
 }
 
 class WalletSelectionComponent extends Component<Props> {
@@ -195,7 +193,7 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, walletType, cryptoType, actionsPending, wallet } = this.props
+    const { classes, walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
 
     if (actionsPending.checkCloudWalletConnection) {
       // special case, only show progress indicator while loading the cloud wallet
@@ -260,7 +258,7 @@ class WalletSelectionComponent extends Component<Props> {
                 variant='contained'
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(1)}
+                onClick={handleNext}
                 disabled={
                   !walletType ||
                   !cryptoType ||

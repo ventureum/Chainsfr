@@ -15,6 +15,7 @@ const initState = {
   },
   wallet: {
     drive: {
+      unlockRequest: null,
       connected: false,
       crypto: {}
     },
@@ -77,6 +78,16 @@ export default function (state = initState, action) {
                   }
                 }
               }
+            }
+          }
+        }
+      })
+    case 'UNLOCK_CLOUD_WALLET':
+      return update(state, {
+        wallet: {
+          drive: {
+            unlockRequest: {
+              $set: action.payload
             }
           }
         }

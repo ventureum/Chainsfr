@@ -103,12 +103,28 @@ class WalletComponent extends Component {
   }
 
   toggleDirectTransferDialog = (open, cryptoType) => {
-    let _state = update(this.state, { directTransferDialogOpen: { $set: open },
-      selectedCryptoType: { $set: cryptoType },
-      directTransferDialogStep: { $set: 'RECIPIANT' }
-    })
+    var _state = this.state
+
+    if (open) {
+      var unlocked = !!this.props.wallet.crypto[cryptoType][0].privateKey
+      if (unlocked) {
+        // only show dialog when wallet is unlocked
+        _state = update(_state, {
+          directTransferDialogOpen: { $set: open },
+          selectedCryptoType: { $set: cryptoType },
+          directTransferDialogStep: { $set: 'RECIPIANT' }
+        })
+      } else {
+        this.props.unlockCloudWallet({
+          cryptoType: cryptoType,
+          onClose: () => this.toggleDirectTransferDialog(open, cryptoType)
+        })
+      }
+    }
 
     if (!open) {
+      // close the dialog
+      _state = update(_state, { directTransferDialogOpen: { $set: false } })
       // close dropdown menu as well
       _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
       _state = update(_state, { directTransferDialogForm: { $set: {
@@ -131,27 +147,25 @@ class WalletComponent extends Component {
   }
 
   toggleViewPrivateKeyDialog = (open, cryptoType) => {
-    let _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open },
-      selectedCryptoType: { $set: cryptoType }
-    })
-    if (!open) {
-      // close dropdown menu as well
-      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
-    } else {
-      let { wallet, actionsPending } = this.props
-      let _selectedWallet = wallet.crypto[cryptoType][0]
+    let _state = this.state
 
-      if (!_selectedWallet.privateKey && !actionsPending.decryptCloudWallet) {
-        // decrypt wallet to get privateKey
-        // encryptedWallet for bitcoin is simply a ciphertext string
-        // encryptedWallet for eth/erc20 is a standard keystore object
-        let encryptedWallet = cryptoType === 'bitcoin' ? _selectedWallet.ciphertext : _selectedWallet
-        this.props.decryptCloudWallet({
-          encryptedWallet: encryptedWallet,
-          password: wallet.password,
-          cryptoType: cryptoType
+    if (open) {
+      var unlocked = !!this.props.wallet.crypto[cryptoType][0].privateKey
+      if (unlocked) {
+        _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open },
+          selectedCryptoType: { $set: cryptoType }
+        })
+      } else {
+        this.props.unlockCloudWallet({
+          cryptoType: cryptoType,
+          onClose: () => this.toggleViewPrivateKeyDialog(open, cryptoType)
         })
       }
+    } else {
+      // close the dialog
+      _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open } })
+      // close dropdown menu as well
+      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
     }
     this.setState(_state)
   }
@@ -487,6 +501,18 @@ class WalletComponent extends Component {
     )
   }
 
+  goToTransfer = (cryptoType) => {
+    var unlocked = !!this.props.wallet.crypto[cryptoType][0].privateKey
+    if (!unlocked) {
+      this.props.unlockCloudWallet({
+        cryptoType: cryptoType,
+        onClose: () => this.goToTransfer(cryptoType)
+      })
+    } else {
+      this.props.push(`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${cryptoType}`)
+    }
+  }
+
   renderItem = (walletByCryptoType) => {
     let { classes } = this.props
     var explorerLink = null
@@ -525,8 +551,7 @@ class WalletComponent extends Component {
                     <IconButton
                       className={classes.button}
                       aria-label='Send'
-                      component={Link}
-                      to={`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${walletByCryptoType.cryptoType}`}
+                      onClick={() => this.goToTransfer(walletByCryptoType.cryptoType)}
                     >
                       <SendIcon />
                     </IconButton>

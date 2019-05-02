@@ -2,12 +2,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletSelection from '../components/WalletSelectionComponent'
+import CloudWalletUnlockContainer from './CloudWalletUnlockContainer'
 import {
   checkMetamaskConnection,
   checkLedgerNanoSConnection,
   checkCloudWalletConnection,
   syncLedgerAccountInfo,
-  updateBtcAccountInfo
+  updateBtcAccountInfo,
+  unlockCloudWallet
 } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -23,6 +25,7 @@ type Props = {
   goToStep: Function,
   syncLedgerAccountInfo: Function,
   updateBtcAccountInfo: Function,
+  unlockCloudWallet: Function,
   walletSelection: string,
   cryptoSelection: string,
   walletSelectionPrefilled: string,
@@ -62,6 +65,21 @@ class WalletSelectionContainer extends Component<Props, State> {
       //
       // prefill wallet selections with url parameters
       selectWallet(walletSelectionPrefilled)
+    }
+  }
+
+  handleNext = () => {
+    let { walletSelection, cryptoSelection } = this.props
+    let unlocked = !!this.props.wallet.crypto[cryptoSelection][0].privateKey
+    // if the cloud wallet is locked, do nothing and wait till it is unlcoked
+    if (walletSelection === 'drive' && !unlocked) {
+      this.props.unlockCloudWallet({
+        cryptoType: cryptoSelection,
+        onClose: () => this.handleNext()
+      })
+    } else {
+      // already unlocked, go to next step
+      this.props.goToStep(1)
     }
   }
 
@@ -148,14 +166,18 @@ class WalletSelectionContainer extends Component<Props, State> {
       ...other
     } = this.props
     return (
-      <WalletSelection
-        walletType={walletSelection}
-        cryptoType={cryptoSelection}
-        onCryptoSelected={this.onCryptoSelected}
-        onWalletSelected={selectWallet}
-        syncProgress={this.state.syncProgress}
-        {...other}
-      />
+      <>
+        <WalletSelection
+          walletType={walletSelection}
+          cryptoType={cryptoSelection}
+          onCryptoSelected={this.onCryptoSelected}
+          onWalletSelected={selectWallet}
+          syncProgress={this.state.syncProgress}
+          handleNext={this.handleNext}
+          {...other}
+        />
+        <CloudWalletUnlockContainer />
+      </>
     )
   }
 }
@@ -175,7 +197,8 @@ const mapDispatchToProps = dispatch => {
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('send', n)),
     syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress)),
-    updateBtcAccountInfo: (xpub, progress) => dispatch(updateBtcAccountInfo(xpub, progress))
+    updateBtcAccountInfo: (progress) => dispatch(updateBtcAccountInfo(progress)),
+    unlockCloudWallet: (unlockRequestParams) => dispatch(unlockCloudWallet(unlockRequestParams))
   }
 }
 
