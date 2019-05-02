@@ -22,7 +22,6 @@ const WalletConnectionErrorMessage = {
   ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
 }
 
-
 class ReceiveWalletSelectionComponent extends Component {
   static propTypes = {
     walletType: PropTypes.string,

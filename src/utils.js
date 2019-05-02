@@ -160,7 +160,7 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
     } catch (error) {
       console.warn(error)
       // derivation error, possibly wrong password
-      return null
+      resolve(null)
     }
   })
 }

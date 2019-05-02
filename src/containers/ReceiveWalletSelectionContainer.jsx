@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 import ReceiveWalletSelection from '../components/ReceiveWalletSelectionComponent'
-import { 
+import {
   checkMetamaskConnection,
   checkCloudWalletConnection,
   checkLedgerNanoSConnection,

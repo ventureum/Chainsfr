@@ -322,9 +322,25 @@ function decryptCloudWallet (
     cryptoType: string
   }
 ) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'DECRYPT_CLOUD_WALLET',
+      payload: _decryptCloudWallet(wallet)
+    }).catch(error => {
+      console.warn(error)
+    })
+  }
+}
+
+function unlockCloudWallet (
+  unlockRequestParams: ?{
+    cryptoType: string,
+    onClose: ?Function
+  }
+) {
   return {
-    type: 'DECRYPT_CLOUD_WALLET',
-    payload: _decryptCloudWallet(wallet)
+    type: 'UNLOCK_CLOUD_WALLET',
+    payload: unlockRequestParams
   }
 }
 
@@ -340,5 +356,6 @@ export {
   updateBtcAccountInfo,
   getUtxoForEscrowWallet,
   checkCloudWalletConnection,
-  decryptCloudWallet
+  decryptCloudWallet,
+  unlockCloudWallet
 }
