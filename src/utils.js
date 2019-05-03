@@ -126,7 +126,11 @@ function encryptWallet (wallet, password, cryptoType) {
       let myWorker = new CryptoWorker()
       myWorker.postMessage({ action: 'encrypt', payload: { btcWalletWifDecoded, password } })
       myWorker.onmessage = (m) => {
-        resolve(m.data)
+        if (!m.data.ok) {
+          reject(new Error('Encryption error'))
+        } else {
+          resolve(m.data.payload)
+        }
       }
     } else {
       throw new Error(`Unsupported cryptoType: ${cryptoType}`)
@@ -141,17 +145,21 @@ function decryptWallet (encryptedWallet, password, cryptoType) {
         let myWorker = new CryptoWorker()
         myWorker.postMessage({ action: 'decrypt', payload: { encryptedWallet, password } })
         myWorker.onmessage = (m) => {
-          let decryptedKey = m.data
-          const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], Buffer.from(decryptedKey.privateKey), decryptedKey.compressed)
-          const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
-          const publicKey = privateKey.toPublicKey()
-          const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
-          resolve({
-            WIF: walletWIF,
-            privateKey: privateKey,
-            publicKey: publicKey.compressed,
-            address: escrowWalletAddress
-          })
+          if (!m.data.ok) {
+            reject(new Error('Decryption error'))
+          } else {
+            let decryptedKey = m.data.payload
+            const walletWIF = wif.encode(WIF_VERSION[process.env.REACT_APP_BTC_NETWORK], Buffer.from(decryptedKey.privateKey), decryptedKey.compressed)
+            const privateKey = bitcore.PrivateKey.fromWIF(walletWIF)
+            const publicKey = privateKey.toPublicKey()
+            const escrowWalletAddress = publicKey.toAddress(process.env.REACT_APP_BTC_NETWORK).toString()
+            resolve({
+              WIF: walletWIF,
+              privateKey: privateKey,
+              publicKey: publicKey.compressed,
+              address: escrowWalletAddress
+            })
+          }
         }
       } else if (cryptoType === 'ethereum' || cryptoType === 'dai') {
         const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))

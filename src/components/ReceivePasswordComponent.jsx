@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
+import LinearProgress from '@material-ui/core/LinearProgress'
 
 class ReceivePasswordComponent extends Component {
   state = {
@@ -37,7 +38,7 @@ class ReceivePasswordComponent extends Component {
   }
 
   render () {
-    const { classes, error } = this.props
+    const { classes, error, actionsPending } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
@@ -61,6 +62,18 @@ class ReceivePasswordComponent extends Component {
               value={password || ''}
             />
           </Grid>
+          {actionsPending.verifyPassword &&
+          <Grid item>
+            <Grid container direction='column' className={classes.linearProgressContainer} spacing={8}>
+              <Grid item>
+                <Typography className={classes.checkingText}>Checking password...</Typography>
+              </Grid>
+              <Grid item>
+                <LinearProgress className={classes.linearProgress} />
+              </Grid>
+            </Grid>
+          </Grid>
+          }
           <Grid item className={classes.btnSection}>
             <Grid container direction='row' justify='center' spacing={24}>
               <Grid item>
@@ -82,6 +95,7 @@ class ReceivePasswordComponent extends Component {
                   color='primary'
                   size='large'
                   onClick={this.handleNext}
+                  disabled={actionsPending.verifyPassword}
                 >
                   Continue
                 </Button>
@@ -108,6 +122,20 @@ const styles = theme => ({
   },
   btnSection: {
     marginTop: '60px'
+  },
+  linearProgressContainer: {
+    backgroundColor: 'rgba(66,133,244,0.05)',
+    borderRadius: '4px',
+    padding: '10px 20px 10px 20px',
+    marginTop: '30px'
+  },
+  checkingText: {
+    color: '#333333',
+    fontSize: '14px',
+    fontWeight: 600
+  },
+  linearProgress: {
+    marginTop: '8px'
   }
 })
 
