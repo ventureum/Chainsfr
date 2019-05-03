@@ -217,7 +217,6 @@ async function _createCloudWallet (password: string) {
 
   // save the encrypted wallet into drive
   await saveWallet({
-    'password': Base64.encode(password),
     'ethereum': Base64.encode(JSON.stringify(ethWalletEncrypted)),
     'bitcoin': Base64.encode(JSON.stringify(btcWalletEncryptedObj))
   })
@@ -242,7 +241,6 @@ async function _getCloudWallet () {
     throw new Error('WALLET_NOT_EXIST')
   }
 
-  let password = Base64.decode(wallet.password)
   const ethWalletEncrypted = JSON.parse(Base64.decode(wallet.ethereum))
   const btcWalletEncrypted = JSON.parse(Base64.decode(wallet.bitcoin))
 
@@ -263,7 +261,6 @@ async function _getCloudWallet () {
   // wrap wallets into an array to denote the first account
   return {
     connected: true,
-    password: password,
     crypto: {
       'ethereum': [{ ...ethWalletEncrypted, balance: ethBalance }],
       'dai': [{ ...ethWalletEncrypted, balance: daiBalance }],
