@@ -442,10 +442,11 @@ async function _transactionHashRetrieved (
     cryptoType: string,
     encriptedEscrow: any,
     sendTxHash: string,
-    password: string
+    password: string,
+    sendTxFeeTxHash: ?string
   }
 ) {
-  let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, password } = txRequest
+  let { sender, destination, transferAmount, cryptoType, encriptedEscrow, sendTxHash, password, sendTxFeeTxHash } = txRequest
 
   let transferData: Object = {
     clientId: 'test-client',
@@ -457,6 +458,8 @@ async function _transactionHashRetrieved (
     data: Base64.encode(JSON.stringify(encriptedEscrow)),
     password: Base64.encode(password)
   }
+
+  if (sendTxFeeTxHash) transferData.sendTxHash = [sendTxHash, sendTxFeeTxHash]
 
   let data = await API.transfer(transferData)
 
