@@ -67,7 +67,7 @@ class OnboardingComponent extends Component {
                 <Grid item>
                   <Typography align='left' className={classes.onBoardingSubtitle}>
                     We are going to create a Chainsfer wallet for you.
-                    Please set a recovery password to protect your
+                    Please set an independent password to protect your
                     Chainsfer wallet and your future transfers.
                   </Typography>
                 </Grid>
