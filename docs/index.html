@@ -1,18 +1,74 @@
-<!DOCTYPE>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>My Docs</title>
-    <link rel="stylesheet" href="https://unpkg.com/docute@4/dist/docute.css">
-  </head>
-  <body>
-    <div id="docute"></div>
-    <script src="https://unpkg.com/docute@4/dist/docute.js"></script>
-    <script>
-      new Docute({
-        target: '#docute'
-      })
-    </script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAQ</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/docute@4/dist/docute.css"> 
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto');
+    body {
+      font-family: Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="docute"></div>
+  <!-- Load mermaid -->
+  <script src="https://unpkg.com/mermaid@8.0.0-rc.8/dist/mermaid.min.js"></script>
+  <!-- Load the mermaid plugin -->
+  <script src="https://unpkg.com/docute-mermaid@1/dist/index.min.js"></script>
+  <script src="https://unpkg.com/docute@4/dist/docute.js"></script>
+  <script>
+    new Docute({
+      target: '#docute',
+      layout: 'wide',
+      cssVariables: {
+        accentColor: '#4285F4',
+        textColor: '#333333',
+        borderColor: '#e9e9e9'
+      },
+      sidebar: [
+        {
+          title: 'Guide', // Optional
+          links: [
+            {
+              title: 'General',
+              link: '/'
+            },
+            {
+              title: 'Sending',
+              link: '/sending'
+            },
+            {
+              title: 'Receiving',
+              link: '/receiving'
+            },
+            {
+              title: 'Cancelling',
+              link: '/cancelling'
+            },
+            {
+              title: 'Drive Wallet',
+              link: '/wallet'
+            },
+            {
+              title: 'Security',
+              link: '/security'
+            },
+            {
+              title: 'Contact Us',
+              link: '/contact'
+            }
+          ]
+        }
+      ],
+      plugins: [
+        docuteMermaid()
+      ],
+    })
+  </script>
+</body>
 </html>
