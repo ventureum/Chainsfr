@@ -271,7 +271,7 @@ class WalletComponent extends Component {
     if (directTransferDialogOpen) {
       let _balance = wallet.crypto[selectedCryptoType][0].balance
       let _decimals = getCryptoDecimals(selectedCryptoType)
-      var balance = _balance ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.000a') : '0'
+      var balance = _balance ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.0000a') : '0'
     }
 
     return (
@@ -541,7 +541,7 @@ class WalletComponent extends Component {
             </Grid>
             <Grid item lg={1} md={1} sm={1} xs={4}>
               <Typography align='right' className={classes.walletCryptoBalance}>
-                {numeral(utils.toHumanReadableUnit(walletByCryptoType.balance, getCryptoDecimals(walletByCryptoType.cryptoType))).format('0.000a')}
+                {numeral(utils.toHumanReadableUnit(walletByCryptoType.balance, getCryptoDecimals(walletByCryptoType.cryptoType))).format('0.0000a')}
               </Typography>
             </Grid>
             <Grid item lg={2} md={3} sm={5} xs={5}>
