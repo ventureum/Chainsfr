@@ -1,5 +1,12 @@
 const errorReducer = (state = {}, action) => {
   const { type, payload } = action
+  if (type === 'CLEAR_VERIFY_PASSWORD_ERROR') {
+    return {
+      ...state,
+      VERIFY_PASSWORD: ''
+    }
+  }
+
   const matches = /(.*)_(PENDING|REJECTED|CLEAR)/.exec(type)
 
   // not a *_REQUEST / *_FAILURE actions, so we ignore them

@@ -15,6 +15,7 @@ class ReceivePasswordComponent extends Component {
   }
 
   onChange = (event) => {
+    this.clearError()
     this.setState({ password: event.target.value })
   }
 
@@ -26,6 +27,13 @@ class ReceivePasswordComponent extends Component {
       password: password + transfer.destination,
       cryptoType: transfer.cryptoType
     })
+  }
+
+  clearError =() => {
+    const { error, clearVerifyPasswordError } = this.props
+    if (error) {
+      clearVerifyPasswordError()
+    }
   }
 
   render () {
@@ -59,7 +67,10 @@ class ReceivePasswordComponent extends Component {
                 <Button
                   color='primary'
                   size='large'
-                  onClick={() => this.props.goToStep(-1)}
+                  onClick={() => {
+                    this.clearError()
+                    this.props.goToStep(-1)
+                  }}
                 >
                   Cancel
                 </Button>

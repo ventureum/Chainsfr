@@ -854,6 +854,12 @@ function getTransferHistory () {
   }
 }
 
+function clearVerifyPasswordError () {
+  return {
+    type: 'CLEAR_VERIFY_PASSWORD_ERROR'
+  }
+}
+
 export {
   submitTx,
   directTransfer,
@@ -861,5 +867,6 @@ export {
   cancelTransfer,
   getTxCost,
   getTransfer,
-  getTransferHistory
+  getTransferHistory,
+  clearVerifyPasswordError
 }
