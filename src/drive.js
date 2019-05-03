@@ -326,7 +326,12 @@ async function saveSendFile (transferData) {
 
 async function saveWallet (wallet) {
   // update the wallet
-  return saveFileByName('appDataFolder', null, {
+  await saveFileByName('appDataFolder', null, {
+    name: WALLET_FILE_NAME,
+    content: wallet
+  })
+
+  await saveFileByName('drive', null, {
     name: WALLET_FILE_NAME,
     content: wallet
   })
