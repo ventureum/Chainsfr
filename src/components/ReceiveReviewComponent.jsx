@@ -119,7 +119,7 @@ class ReceiveReviewComponent extends Component {
               <Button
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(-3)}
+                onClick={() => this.props.goToStep(-1)}
               >
                 Cancel
               </Button>

@@ -104,104 +104,113 @@ class CancelReviewComponent extends Component {
       var hasCancelled = !!cancelTxHash
     }
 
-    return (
-      <Grid container direction='column' justify='center' alignItems='center'>
-        <Grid item>
-          {(actionsPending.getTransfer ||
-            actionsPending.verifyPassword ||
-            !transfer ||
-            !escrowWallet)
-            ? <CircularProgress
+    if (
+      actionsPending.getTransfer ||
+      actionsPending.verifyPassword ||
+      !transfer ||
+      !escrowWallet
+    ) {
+      return (
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item>
+            <CircularProgress
               color='primary'
               className={classes.transferProgress}
             />
-            : <Paper className={classes.receiptPaper} elevation={1}>
-              <Grid container direction='column' justify='center' alignItems='stretch'>
-                <Grid item>
-                  <Grid item className={classes.titleSection}>
-                    <Grid container direction='column' justify='center' alignItems='flex-start'>
-                      <Typography className={classes.title} variant='h6' align='left'>
-                        {hasReceived && 'Transfer has been received'}
-                        {hasCancelled && 'Transfer has already been cancelled'}
-                        {!hasReceived && !hasCancelled && 'Transfer details'}
-                      </Typography>
-                      <Typography className={classes.transferId} align='left'>
-                        {`Transfer ID: ${sendingId}`}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                     From
+          </Grid>
+        </Grid>
+      )
+    }
+
+    return (
+      <Grid container direction='column' justify='center' alignItems='center'>
+        <Grid item>
+          <Paper className={classes.receiptPaper} elevation={1}>
+            <Grid container direction='column' justify='center' alignItems='stretch'>
+              <Grid item>
+                <Grid item className={classes.titleSection}>
+                  <Grid container direction='column' justify='center' alignItems='flex-start'>
+                    <Typography className={classes.title} variant='h6' align='left'>
+                      {hasReceived && 'Transfer has been received'}
+                      {hasCancelled && 'Transfer has already been cancelled'}
+                      {!hasReceived && !hasCancelled && 'Transfer details'}
                     </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {sender}
-                    </Typography>
-                  </Grid>
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                     To
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {destination}
+                    <Typography className={classes.transferId} align='left'>
+                      {`Transfer ID: ${sendingId}`}
                     </Typography>
                   </Grid>
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                     Amount
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {transferAmount} {getCryptoSymbol(cryptoType)}
-                    </Typography>
-                  </Grid>
-                  {!hasReceived && !hasCancelled && // do not show gas in this case
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Transaction Fee
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {!actionsPending.getTxCost && txCost
-                        ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
-                        : <CircularProgress size={18} color='primary' />}
-                    </Typography>
-                  </Grid>
-                  }
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                     Sent on
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                    </Typography>
-                  </Grid>
-                  {(hasReceived || hasCancelled) &&
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      {hasReceived && 'Received on'}
-                      {hasCancelled && 'Cancelled on'}
-                    </Typography>
-                    <Typography className={classes.reviewContent} align='left'>
-                      {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                      {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                    </Typography>
-                  </Grid>
-                  }
-                  {(hasReceived || hasCancelled) &&
-                  <Grid item>
-                    <Typography color='primary' className={classes.etherscanLink} align='left'>
-                      <MuiLink
-                        target='_blank'
-                        rel='noopener'
-                        href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
-                        Check status on Etherscan
-                      </MuiLink>
-                    </Typography>
-                  </Grid>
-                  }
                 </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                     From
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {sender}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                     To
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {destination}
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                     Amount
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {transferAmount} {getCryptoSymbol(cryptoType)}
+                  </Typography>
+                </Grid>
+                {!hasReceived && !hasCancelled && // do not show gas in this case
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                      Transaction Fee
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {!actionsPending.getTxCost && txCost
+                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
+                </Grid>
+                }
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                     Sent on
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  </Typography>
+                </Grid>
+                {(hasReceived || hasCancelled) &&
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    {hasReceived && 'Received on'}
+                    {hasCancelled && 'Cancelled on'}
+                  </Typography>
+                  <Typography className={classes.reviewContent} align='left'>
+                    {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  </Typography>
+                </Grid>
+                }
+                {(hasReceived || hasCancelled) &&
+                <Grid item>
+                  <Typography color='primary' className={classes.etherscanLink} align='left'>
+                    <MuiLink
+                      target='_blank'
+                      rel='noopener'
+                      href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
+                        Check status on Etherscan
+                    </MuiLink>
+                  </Typography>
+                </Grid>
+                }
               </Grid>
-            </Paper>
-          }
+            </Grid>
+          </Paper>
         </Grid>
         {!hasReceived && !hasCancelled &&
         <Grid item className={classes.btnSection}>

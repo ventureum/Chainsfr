@@ -4,7 +4,7 @@ import ReceivePasswordComponent from '../components/ReceivePasswordComponent'
 import { verifyPassword, clearDecryptedWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-
+import { clearVerifyPasswordError } from '../actions/transferActions'
 class ReceivePasswordContainer extends Component {
   render () {
     return (
@@ -22,7 +22,8 @@ const mapDispatchToProps = dispatch => {
   return {
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo, { transferAction: 'receive', n: 1 })),
     clearDecryptedWallet: () => dispatch(clearDecryptedWallet()),
-    goToStep: (n) => dispatch(goToStep('receive', n))
+    goToStep: (n) => dispatch(goToStep('receive', n)),
+    clearVerifyPasswordError: () => dispatch(clearVerifyPasswordError())
   }
 }
 
