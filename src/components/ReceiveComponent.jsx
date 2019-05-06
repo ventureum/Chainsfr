@@ -24,7 +24,7 @@ class ReceiveComponent extends React.Component {
         direction='column'
         className={step === 4 && classes.rootReceipt}>
         <Grid item>
-          {step <= 3 && <Stepper actionType='receive' step={step} />}
+          {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
         </Grid>
         <Grid item>
           {/* receipt page requires a different background color */}
