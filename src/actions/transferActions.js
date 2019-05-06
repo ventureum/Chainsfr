@@ -212,7 +212,7 @@ async function _directTransfer (
     const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
     const fee = parseInt(txCost.costInBasicUnit)
     // get privateKey
-    const decryptedWallet = await utils.decryptWallet(fromWallet.crypto[cryptoType][0].ciphertext, fromWallet.password, cryptoType)
+    const decryptedWallet = fromWallet.crypto[cryptoType][0]
     let transaction = new bitcore.Transaction()
       .from(bitcoreUtxoFormat)
       .to(destinationAddress, satoshiValue)
@@ -358,7 +358,7 @@ async function _submitTx (
   } else if (walletType === 'drive') {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     if (cryptoType === 'ethereum') {
-      let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
+      let ethWalletDecrypted = fromWallet.crypto[cryptoType][0]
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
 
@@ -372,7 +372,7 @@ async function _submitTx (
       }
       sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
     } else if (cryptoType === 'dai') {
-      let ethWalletDecrypted = await utils.decryptWallet(fromWallet.crypto[cryptoType][0], fromWallet.password, 'ethereum')
+      let ethWalletDecrypted = fromWallet.crypto[cryptoType][0]
       _web3.eth.accounts.wallet.add(ethWalletDecrypted.privateKey)
 
       // we need to transfer a small amount of eth to escrow to pay for
@@ -406,7 +406,7 @@ async function _submitTx (
       const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
       const fee = parseInt(txCost.costInBasicUnit)
       // get privateKey
-      const decryptedWallet = await utils.decryptWallet(fromWallet.crypto[cryptoType][0].ciphertext, fromWallet.password, cryptoType)
+      const decryptedWallet = fromWallet.crypto[cryptoType][0]
       let transaction = new bitcore.Transaction()
         .from(bitcoreUtxoFormat)
         .to(escrow.toAddress().toString(), satoshiValue)
