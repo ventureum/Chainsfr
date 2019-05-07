@@ -12,7 +12,6 @@ import {
   walletDisabledByCrypto,
   getWalletTitle
 } from '../wallet'
-import BN from 'bn.js'
 import ErrorIcon from '@material-ui/icons/Error'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CheckIcon from '@material-ui/icons/CheckCircle'
@@ -25,8 +24,7 @@ const WalletConnectionErrorMessage = {
 class ReceiveWalletSelectionComponent extends Component {
   static propTypes = {
     walletType: PropTypes.string,
-    onWalletSelected: PropTypes.func,
-    handleNext: PropTypes.func
+    onWalletSelected: PropTypes.func
   }
 
   cryptoInWallet = (crypto, walletType) => {
@@ -44,13 +42,13 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletSelection = () => {
-    const { walletType, onWalletSelected, transfer } = this.props
+    const { walletType, onWalletSelected, transfer, actionsPending } = this.props
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
         {walletSelections.map(w =>
           (<Grid item key={w.walletType}>
             <SquareButton
-              disabled={w.disabled || walletDisabledByCrypto(w.walletType, transfer.cryptoType)}
+              disabled={w.disabled || walletDisabledByCrypto(w.walletType, transfer.cryptoType) || actionsPending.getLastUsedAddress}
               onClick={() => {
                 if (w.walletType !== walletType) { onWalletSelected(w.walletType) } else { onWalletSelected(null) }
               }}
@@ -65,9 +63,41 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletConnectionNotification = () => {
-    let { classes, actionsPending, walletType, wallet, transfer } = this.props
+    let { classes, actionsPending, walletType, wallet, transfer, lastUsedWallet, useAnotherAddress } = this.props
     const { cryptoType } = transfer
-    if ((walletType === 'metamask' && actionsPending.checkMetamaskConnection) ||
+    if (
+      walletType &&
+      lastUsedWallet[walletType].crypto[cryptoType] &&
+      lastUsedWallet[walletType].crypto[cryptoType].address &&
+      !lastUsedWallet.notUsed
+    ) {
+      return (
+        <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
+          <Grid item>
+            <Grid container direction='column'>
+              <Grid item>
+                <Typography className={classes.connectedtext}>
+                  Last used {getWalletTitle(walletType)} {walletType === 'ledger' ? 'Device' : 'Account'}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography className={classes.addressInfoText}>
+                  Wallet Address: {lastUsedWallet[walletType].crypto[cryptoType].address}
+                </Typography>
+              </Grid>
+              <Grid item onClick={() => { useAnotherAddress() }} className={classes.connectAnotherAddressContainer}>
+                <Typography className={classes.connectAnotherAddressText} >
+                  Connect with another {getWalletTitle(walletType)} account
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <CheckIcon className={classes.connectedIcon} />
+          </Grid>
+        </Grid>
+      )
+    } else if ((walletType === 'metamask' && actionsPending.checkMetamaskConnection) ||
         (walletType === 'ledger' && actionsPending.checkLedgerNanoSConnection) ||
         (walletType === 'drive' && actionsPending.checkCloudWalletConnection)) {
       // waiting for connection
@@ -137,7 +167,6 @@ class ReceiveWalletSelectionComponent extends Component {
                   Wallet address: {wallet.crypto[cryptoType][0].address}
                 </Typography>
               </Grid>
-
             </Grid>
           </Grid>
           <Grid item>
@@ -149,7 +178,7 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   render () {
-    const { classes, walletType, transfer, wallet } = this.props
+    const { classes, walletType, transfer, wallet, lastUsedWallet } = this.props
     const { cryptoType } = transfer
     return (
       <Grid container direction='column' justify='center' spacing={24}>
@@ -185,8 +214,7 @@ class ReceiveWalletSelectionComponent extends Component {
                 onClick={() => this.props.goToStep(1)}
                 disabled={
                   !walletType ||
-                  !wallet.crypto[cryptoType] ||
-                  (new BN(wallet.crypto[cryptoType][0].balance)).lte(new BN(0))
+                  (!wallet.crypto[cryptoType] && lastUsedWallet[walletType].crypto[cryptoType] && !lastUsedWallet[walletType].crypto[cryptoType].address)
                 }
               >
                 Continue
@@ -260,6 +288,17 @@ const styles = theme => ({
   connectedIcon: {
     color: '#2E7D32',
     marginRight: '8px'
+  },
+  connectAnotherAddressContainer: {
+    marginTop: '10px',
+    '&:hover': {
+      cursor: 'pointer'
+    }
+  },
+  connectAnotherAddressText: {
+    color: '#4285f4',
+    fontSize: '12px',
+    fontWeight: '500'
   }
 })
 

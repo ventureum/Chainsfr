@@ -10,15 +10,14 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, wallet, walletSelection, txCost } = this.props
+    const { transfer, escrowWallet, walletSelection, txCost, destinationAddress } = this.props
     const { receivingId, transferAmount } = transfer
 
     // accept transfer
-    // TODO handle ledger nano s and erc20 tokens
     this.props.acceptTransfer({
       receivingId: receivingId,
       escrowWallet: escrowWallet.decryptedWallet,
-      destinationAddress: wallet.crypto[transfer.cryptoType][0].address,
+      destinationAddress: destinationAddress,
       walletType: walletSelection,
       cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
@@ -27,10 +26,8 @@ class ReceiveReviewComponent extends Component {
   }
 
   render () {
-    const { classes, wallet, transfer, actionsPending, txCost } = this.props
+    const { classes, transfer, actionsPending, txCost, destinationAddress } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
-
-    var address = wallet.crypto[cryptoType][0].address
 
     if (!actionsPending.getTxCost && txCost) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
@@ -78,7 +75,7 @@ class ReceiveReviewComponent extends Component {
                     Wallet Address
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {address}
+                    {destinationAddress}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

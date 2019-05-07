@@ -735,10 +735,10 @@ function submitTx (txRequest: {
   }
 }
 
-function setLastUsedAddress ({ googleId, walletType, address }) {
+function setLastUsedAddress ({ googleId, cryptoType, walletType, address }) {
   return {
     type: 'SET_LAST_USED_ADDRESS',
-    payload: API.setLastUsedAddress({ googleId, walletType, address })
+    payload: API.setLastUsedAddress({ googleId, cryptoType, walletType, address })
   }
 }
 
@@ -785,10 +785,7 @@ function acceptTransfer (
       const { profile } = getState().userReducer
       if (profile.isAuthenticated && profile.googleId) {
         const googleId = profile.googleId
-        const address = cryptoType === 'bitcoin' && walletType === 'ledger'
-          ? getState().walletReducer.wallet[walletType].crypto[cryptoType][0].xpub
-          : destinationAddress
-        dispatch(setLastUsedAddress({ googleId, walletType, address }))
+        dispatch(setLastUsedAddress({ googleId, cryptoType, walletType, address: destinationAddress }))
       }
 
       dispatch(goToStep('receive', 1))

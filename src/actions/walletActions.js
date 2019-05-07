@@ -341,6 +341,19 @@ function unlockCloudWallet (
   }
 }
 
+function getLastUsedAddress (googleId: string) {
+  return {
+    type: 'GET_LAST_USED_ADDRESS',
+    payload: API.getLastUsedAddress(googleId)
+  }
+}
+
+function notUseLastAddress () {
+  return {
+    type: 'NOT_USED_LAST_ADDRESS'
+  }
+}
+
 export {
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
@@ -354,5 +367,7 @@ export {
   getUtxoForEscrowWallet,
   checkCloudWalletConnection,
   decryptCloudWallet,
-  unlockCloudWallet
+  unlockCloudWallet,
+  getLastUsedAddress,
+  notUseLastAddress
 }
