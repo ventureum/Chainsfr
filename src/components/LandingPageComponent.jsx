@@ -28,6 +28,7 @@ import {
   SpotlightTransition
 } from '@atlaskit/onboarding'
 import { isMobile } from 'react-device-detect'
+import env from '../typedEnv'
 
 class LandingPageComponent extends Component {
   state = { active: this.props.profile.newUser ? 0 : null }
@@ -118,6 +119,9 @@ class LandingPageComponent extends Component {
       this.props.actionsPending.getCloudWallet ||
       isMobile
     ) return null
+
+    // Skip variants[1] in prod env
+    if (env.NODE_ENV === 'prod' && this.state.active === 1) return variants[this.state.active + 1]
 
     return variants[this.state.active]
   }
