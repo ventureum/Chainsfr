@@ -15,7 +15,18 @@ import bitcore from 'bitcore-lib'
 import axios from 'axios'
 import env from '../typedEnv'
 import url from '../url'
-
+const transferStates = {
+  SEND_PENDING: 'SEND_PENDING',
+  SEND_FAILURE: 'SEND_FAILURE',
+  SEND_CONFIRMED_RECEIVE_PENDING: 'SEND_CONFIRMED_RECEIVE_PENDING',
+  SEND_CONFIRMED_RECEIVE_FAILURE: 'SEND_CONFIRMED_RECEIVE_FAILURE',
+  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
+  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
+  SEND_CONFIRMED_RECEIVE_EXPIRED: 'SEND_CONFIRMED_RECEIVE_EXPIRED',
+  SEND_CONFIRMED_CANCEL_PENDING: 'SEND_CONFIRMED_CANCEL_PENDING',
+  SEND_CONFIRMED_CANCEL_CONFIRMED: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
+  SEND_CONFIRMED_CANCEL_FAILURE: 'SEND_CONFIRMED_CANCEL_FAILURE'
+}
 type Utxos = Array<{
   value: number,
   script: string,
@@ -692,17 +703,63 @@ async function _getTransferHistory () {
   let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
   transferData = transferData.map(item => {
     let state = null
-    if (!item.receiveTxHash) {
-      if (!item.cancelTxHash) {
-        // pending receive
-        state = 'pending'
-      } else {
-        // cancelled
-        state = 'cancelled'
+    const { sendTxState, receiveTxState, cancelTxState } = item
+    switch (sendTxState) {
+      case 'Pending': {
+        // SEND_PENDING
+        state = transferStates.SEND_PENDING
+        break
       }
-    } else {
-      // received
-      state = 'received'
+      case 'Confirmed': {
+        switch (receiveTxState) {
+          // SEND_CONFIRMED_RECEIVE_PENDING
+          case 'Pending' :
+            state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+            break
+          // SEND_CONFIRMED_RECEIVE_CONFIRMED
+          case 'Confirmed' :
+            state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+            break
+          // SEND_CONFIRMED_RECEIVE_FAILURE
+          case 'Failed' :
+            state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+            break
+          case null :
+            state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+            break
+          default:
+            break
+        }
+        switch (cancelTxState) {
+          // SEND_CONFIRMED_CANCEL_PENDING
+          case 'Pending' :
+            state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+            break
+          // SEND_CONFIRMED_CANCEL_CONFIRMED
+          case 'Confirmed' :
+            state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+            break
+          // SEND_CONFIRMED_CANCEL_FAILURE
+          case 'Failed' :
+            state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+            break
+          default:
+            break
+        }
+        break
+      }
+      case 'Failed': {
+        // SEND_FAILURE
+        state = transferStates.SEND_FAILURE
+        break
+      }
+      case 'Expired': {
+        // SEND_CONFIRMED_RECEIVE_EXPIRED
+        state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+        break
+      }
+      default:
+        state = 'UNKNOW'
     }
     return {
       ...item,
@@ -868,5 +925,6 @@ export {
   getTxCost,
   getTransfer,
   getTransferHistory,
-  clearVerifyPasswordError
+  clearVerifyPasswordError,
+  transferStates
 }
