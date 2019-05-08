@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
+import { walletCryptoSupports } from './wallet.js'
 
 const apiTransfer = axios.create({
   baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
@@ -88,13 +89,14 @@ async function getPrefilledAccount () {
   }
 }
 
-async function setLastUsedAddress ({ googleId, walletType, address }) {
+async function setLastUsedAddress ({ googleId, cryptoType, walletType, address }) {
   try {
     var rv = await apiTransfer.post('/transfer', {
       action: 'SET_LAST_USED_ADDRESS',
       googleId: googleId,
       walletType: walletType,
-      address: address
+      address: address,
+      cryptoType: cryptoType
     })
   } catch (e) {
     console.warn(e)
@@ -102,4 +104,30 @@ async function setLastUsedAddress ({ googleId, walletType, address }) {
   return rv.data
 }
 
-export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, getBatchTransfers, setLastUsedAddress }
+async function getLastUsedAddress (googleId, wallet) {
+  try {
+    let rv = await apiTransfer.post('/transfer', {
+      action: 'GET_LAST_USED_ADDRESS',
+      googleId: googleId
+    })
+    const { data } = rv
+    let lastUsedAddress = ['metamask', 'ledger'].reduce((lastUsedAddressObj, walletType) => {
+      let addressByCryptoType = walletCryptoSupports[walletType]
+        .map(cryptoTypeData => cryptoTypeData.cryptoType)
+        .reduce((obj, cryptoType) => {
+          if (!!data[walletType] && !!data[walletType][cryptoType]) {
+            obj[cryptoType] = { address: data[walletType][cryptoType].address }
+          }
+          return obj
+        }, {})
+
+      lastUsedAddressObj[walletType] = { crypto: addressByCryptoType }
+      return lastUsedAddressObj
+    }, {})
+    return lastUsedAddress
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, getBatchTransfers, setLastUsedAddress, getLastUsedAddress }

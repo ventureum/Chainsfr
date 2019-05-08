@@ -29,8 +29,17 @@ class ReceiveReviewContainer extends Component {
   }
 
   render () {
+    const { wallet, lastUsedWallet, transfer, walletSelection } = this.props
+    const { cryptoType } = transfer
+
+    // if set to not used or no used address, use connected wallet
+    let destinationAddress = (lastUsedWallet.notUsed || !lastUsedWallet[walletSelection].crypto[cryptoType])
+      ? wallet.crypto[cryptoType][0].address
+      : lastUsedWallet[walletSelection].crypto[cryptoType].address
+
     return (
       <ReceiveReview
+        destinationAddress={destinationAddress}
         {...this.props}
       />
     )
@@ -56,6 +65,7 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     escrowWallet: state.walletReducer.escrowWallet,
+    lastUsedWallet: state.walletReducer.lastUsedWallet,
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txCost: state.transferReducer.txCost,

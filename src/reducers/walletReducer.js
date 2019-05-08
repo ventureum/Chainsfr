@@ -29,6 +29,18 @@ const initState = {
       network: null,
       crypto: {}
     }
+  },
+  lastUsedWallet: {
+    notUsed: false,
+    drive: {
+      crypto: {}
+    },
+    metamask: {
+      crypto: {}
+    },
+    ledger: {
+      crypto: {}
+    }
   }
 }
 
@@ -90,6 +102,18 @@ export default function (state = initState, action) {
               $set: action.payload
             }
           }
+        }
+      })
+    case 'GET_LAST_USED_ADDRESS_FULFILLED':
+      return update(state, {
+        lastUsedWallet: {
+          $merge: { ...action.payload }
+        }
+      })
+    case 'NOT_USED_LAST_ADDRESS':
+      return update(state, {
+        lastUsedWallet: {
+          notUsed: { $set: true }
         }
       })
     case REHYDRATE:

@@ -28,6 +28,21 @@ import {
   SpotlightTransition
 } from '@atlaskit/onboarding'
 import { isMobile } from 'react-device-detect'
+import env from '../typedEnv'
+import { transferStates } from '../actions/transferActions'
+
+const toUserReadableState = {
+  SEND_PENDING: 'Sending',
+  SEND_FAILURE: 'Send Failed',
+  SEND_EXPIRED: 'Expired',
+  SEND_CONFIRMED_RECEIVE_PENDING: 'Sent',
+  SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
+  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted',
+  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Sent',
+  SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
+  SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
+  SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+}
 
 class LandingPageComponent extends Component {
   state = { active: this.props.profile.newUser ? 0 : null }
@@ -119,6 +134,9 @@ class LandingPageComponent extends Component {
       isMobile
     ) return null
 
+    // Skip variants[1] in prod env
+    if (env.NODE_ENV === 'prod' && this.state.active === 1) return variants[this.state.active + 1]
+
     return variants[this.state.active]
   }
 
@@ -130,14 +148,36 @@ class LandingPageComponent extends Component {
     const { classes } = this.props
 
     let secondaryDesc = null
-
-    if (transfer.state === 'pending') {
+    if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
+      secondaryDesc = 'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    } else if (transfer.state === transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED) {
+      secondaryDesc = 'cancelled on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    } else {
       // pending receive
       secondaryDesc = 'sent on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    } else if (transfer.state === 'received') {
-      secondaryDesc = 'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    } else if (transfer.state === 'cancelled') {
-      secondaryDesc = 'cancelled on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    }
+
+    let stateClassName = 'recentTransferItemTransferStatusTextBased' // default
+    if (
+      // in progress
+      [
+        transferStates.SEND_PENDING,
+        transferStates.SEND_CONFIRMED_RECEIVE_PENDING,
+        transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED,
+        transferStates.SEND_CONFIRMED_CANCEL_PENDING
+      ].includes(transfer.state)
+    ) {
+      stateClassName = 'recentTransferItemTransferStatusPending'
+    } else if (
+      // error
+      [
+        transferStates.SEND_FAILURE,
+        transferStates.SEND_CONFIRMED_RECEIVE_FAILURE,
+        transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
+        transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+      ].includes(transfer.state)
+    ) {
+      stateClassName = 'recentTransferItemTransferStatusError'
     }
 
     return (
@@ -150,21 +190,9 @@ class LandingPageComponent extends Component {
             <Grid xs={4} item>
               <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
-                  {transfer.state === 'pending' &&
-                  <Typography className={classes.recentTransferItemTransferStatusPending}>
-                   Pending
+                  <Typography align='center' className={classes[stateClassName]}>
+                    {toUserReadableState[transfer.state]}
                   </Typography>
-                  }
-                  {transfer.state === 'received' &&
-                  <Typography className={classes.recentTransferItemTransferStatus}>
-                   Received
-                  </Typography>
-                  }
-                  {transfer.state === 'cancelled' &&
-                  <Typography className={classes.recentTransferItemTransferStatus}>
-                   Cancelled
-                  </Typography>
-                  }
                 </Grid>
                 <Grid item>
                   <Typography className={classes.recentTransferItemTransferAmount}>
@@ -444,6 +472,24 @@ const styles = theme => ({
     borderRadius: '4px',
     backgroundColor: '#F5A623',
     color: 'white',
+    padding: '5px 10px 5px 10px',
+    fontSize: '14px',
+    width: '86px',
+    fontWeight: '500'
+  },
+  recentTransferItemTransferStatusTextBased: {
+    borderRadius: '4px',
+    color: 'black',
+    padding: '5px 10px 5px 10px',
+    fontSize: '14px',
+    width: '86px',
+    fontWeight: '500'
+  },
+  recentTransferItemTransferStatusError: {
+    borderRadius: '4px',
+    backgroundColor: '#B00020',
+    color: 'white',
+    width: '86px',
     padding: '5px 10px 5px 10px',
     fontSize: '14px',
     fontWeight: '500'
