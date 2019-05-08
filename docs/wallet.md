@@ -1,3 +1,5 @@
+# Drive Wallet
+
 ## What is Drive wallet?
 
 Drive Wallet is a Google-powered cryptocurrency wallet, automatically created during registration. It abstracts out private key management to a third party system - Google Drive, 

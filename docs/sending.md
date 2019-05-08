@@ -24,11 +24,11 @@ We support the following three wallets:
 > * [Ledger](https://www.ledger.com/)
 
 Click on the wallet you want to use and proceed to the next step. 
-If you are using a hardware wallet, make sure to have your device plugged.
+If you are using a hardware wallet, make sure to keep your device plugged in.
 
 ### 2. Choose the cryptocurrency
 
-Click on the type of cryptocurrency you want to send in the coin list, and following the instruction on the page.
+Click on the type of cryptocurrency you want to send in the coin list, and follow the instruction on the page.
 
 ### 3. Enter recipient information
 
@@ -40,9 +40,9 @@ We autofill the sender email. You only need to provide the following:
 
 ### 4. Review and confirm
 
-Please double check the details with your recipient, such as recipient email address, amount and security answer, and make sure they're correct before confirming your transfer. The transaction fee is also estimated and shown on the review page.
+Please double check the details with your recipient, such as recipient's email address, amount and security answer, and make sure they're correct before confirming your transfer. The transaction fee is also estimated and shown on the review page.
 
-Click the "Confirm and Transfer" button to continue, and following the instruction at the bottom of the page.
+Click the "Confirm and Transfer" button to continue, and follow the instruction at the bottom of the page.
 
 Once it is completed, a receipt is shown. Be sure to copy the security answer and send it to your recipient.
 
@@ -54,8 +54,7 @@ The two main factors influencing the transaction time are:
     1. The amount of network activity
     2. Transaction fees
 
-We choose the median transaction fee from the last several blocks, assuming a typical daily transaction volume,
-the average time it takes to complete one transaction is
+Chainsfer automatically chooses the median of transaction fees from the last several blocks, assuming a typical daily transaction volume, the average time it takes to complete one transaction is
 
 > * 15 seconds for ETH, DAI and other ERC20 tokens (1 confirmation)
 > * 60 minutes for BTC (6 confirmations)
