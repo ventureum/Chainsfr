@@ -22,6 +22,10 @@ import path from '../Paths.js'
 import { Link } from 'react-router-dom'
 import BN from 'bn.js'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import url from '../url'
+import IconButton from '@material-ui/core/IconButton'
+import OpenInNewIcon from '@material-ui/icons/OpenInNew'
+import env from '../typedEnv'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -65,7 +69,12 @@ class WalletSelectionComponent extends Component<Props> {
 
   renderBalance = () => {
     const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
-
+    var explorerLink = null
+    if (cryptoType === 'ethereum' && wallet.crypto[cryptoType]) {
+      explorerLink = url.getEthExplorerAddress(wallet.crypto[cryptoType][0].address)
+    } else if (cryptoType === 'dai' && wallet.crypto[cryptoType]) {
+      explorerLink = url.getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, wallet.crypto[cryptoType][0].address)
+    }
     if (actionsPending.checkCloudWalletConnection) {
       // special case, only show progress indicator while loading the cloud wallet
       return (
@@ -142,9 +151,20 @@ class WalletSelectionComponent extends Component<Props> {
               </Grid>
               { (cryptoType !== 'bitcoin' || walletType !== 'ledger') &&
                 <Grid item>
-                  <Typography className={classes.addressInfoText}>
-                  Wallet address: {wallet.crypto[cryptoType][0].address}
-                  </Typography>
+                  <Grid container direction='row' alignItems='center'>
+                    <Grid item>
+                      <Typography className={classes.addressInfoText}>
+                      Wallet address: {wallet.crypto[cryptoType][0].address}
+                      </Typography>
+                    </Grid>
+                    <IconButton
+                      className={classes.explorerButton}
+                      aria-label='Explorer'
+                      target='_blank' href={explorerLink}
+                    >
+                      <OpenInNewIcon className={classes.explorerIcon} />
+                    </IconButton>
+                  </Grid>
                 </Grid>
               }
             </Grid>
@@ -324,6 +344,13 @@ const styles = theme => ({
   balanceText: {
     fontSize: '18px',
     color: '#333333'
+  },
+  explorerIcon: {
+    fontSize: '16px'
+  },
+  explorerButton: {
+    padding: '0px 0px 0px 0px',
+    marginLeft: '10px'
   }
 })
 

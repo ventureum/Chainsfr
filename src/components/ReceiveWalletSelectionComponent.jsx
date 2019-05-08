@@ -15,6 +15,10 @@ import {
 import ErrorIcon from '@material-ui/icons/Error'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CheckIcon from '@material-ui/icons/CheckCircle'
+import url from '../url'
+import IconButton from '@material-ui/core/IconButton'
+import OpenInNewIcon from '@material-ui/icons/OpenInNew'
+import env from '../typedEnv'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -65,6 +69,14 @@ class ReceiveWalletSelectionComponent extends Component {
   renderWalletConnectionNotification = () => {
     let { classes, actionsPending, walletType, wallet, transfer, lastUsedWallet, useAnotherAddress } = this.props
     const { cryptoType } = transfer
+    var getExplorerLink = null
+    if (cryptoType === 'ethereum') {
+      getExplorerLink = url.getEthExplorerAddress
+    } else if (cryptoType === 'dai') {
+      getExplorerLink = url.getEthExplorerToken
+    } else if (cryptoType === 'bitcoin') {
+      getExplorerLink = url.getBtcExplorerAddress
+    }
     if (
       walletType &&
       lastUsedWallet[walletType].crypto[cryptoType] &&
@@ -81,9 +93,20 @@ class ReceiveWalletSelectionComponent extends Component {
                 </Typography>
               </Grid>
               <Grid item>
-                <Typography className={classes.addressInfoText}>
-                  Wallet Address: {lastUsedWallet[walletType].crypto[cryptoType].address}
-                </Typography>
+                <Grid container direction='row' alignItems='center'>
+                  <Grid item>
+                    <Typography className={classes.addressInfoText}>
+                      Wallet Address: {lastUsedWallet[walletType].crypto[cryptoType].address}
+                    </Typography>
+                  </Grid>
+                  <IconButton
+                    className={classes.explorerButton}
+                    aria-label='Explorer'
+                    target='_blank' href={getExplorerLink(lastUsedWallet[walletType].crypto[cryptoType].address)}
+                  >
+                    <OpenInNewIcon className={classes.explorerIcon} />
+                  </IconButton>
+                </Grid>
               </Grid>
               <Grid item onClick={() => { useAnotherAddress() }} className={classes.connectAnotherAddressContainer}>
                 <Typography className={classes.connectAnotherAddressText} >
@@ -163,9 +186,24 @@ class ReceiveWalletSelectionComponent extends Component {
                 </Typography>
               </Grid>
               <Grid item>
-                <Typography className={classes.addressInfoText}>
-                  Wallet address: {wallet.crypto[cryptoType][0].address}
-                </Typography>
+                <Grid container direction='row' alignItems='center'>
+                  <Grid item>
+                    <Typography className={classes.addressInfoText}>
+                      Wallet address: {wallet.crypto[cryptoType][0].address}
+                    </Typography>
+                  </Grid>
+                  <IconButton
+                    aria-label='Explorer'
+                    className={classes.explorerButton}
+                    target='_blank' href={
+                      cryptoType === 'ethereum'
+                        ? getExplorerLink(wallet.crypto[cryptoType][0].address)
+                        : getExplorerLink(env.REACT_APP_DAI_ADDRESS, wallet.crypto[cryptoType][0].address)
+                    }
+                  >
+                    <OpenInNewIcon className={classes.explorerIcon} />
+                  </IconButton>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -299,6 +337,13 @@ const styles = theme => ({
     color: '#4285f4',
     fontSize: '12px',
     fontWeight: '500'
+  },
+  explorerIcon: {
+    fontSize: '16px'
+  },
+  explorerButton: {
+    padding: '0px 0px 0px 0px',
+    marginLeft: '10px'
   }
 })
 
