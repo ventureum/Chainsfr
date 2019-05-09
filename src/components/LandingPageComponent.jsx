@@ -18,7 +18,6 @@ import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
-import HelpIcon from '@material-ui/icons/Help'
 import utils from '../utils'
 import numeral from 'numeral'
 import {
@@ -247,7 +246,6 @@ class LandingPageComponent extends Component {
                     <Typography className={classes.walletLinkText}>
                     View Drive Wallet
                     </Typography>
-                    <HelpIcon className={classes.helpIcon} />
                   </SpotlightTarget>
                 </Grid>
               </Link>
@@ -520,11 +518,6 @@ const styles = theme => ({
     color: theme.palette.primary.main,
     fontSize: '12px',
     fontWeight: '500'
-  },
-  helpIcon: {
-    color: theme.palette.primary.main,
-    fontSize: '14px',
-    marginLeft: '12px'
   },
   spotlightHeaderText: {
     color: '#ffffff',

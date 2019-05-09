@@ -12,6 +12,7 @@ import BN from 'bn.js'
 import env from '../typedEnv'
 import API from '../apis'
 import url from '../url'
+import { networkIdMap } from '../ledgerSigner/utils'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -54,6 +55,9 @@ async function _checkMetamaskConnection (
 
     // request the user logs in
     rv.crypto = {}
+    if (window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()) {
+      throw 'Incorrect Metamask network' // eslint-disable-line
+    }
 
     let addresses = await window.ethereum.enable()
     if (addresses) {

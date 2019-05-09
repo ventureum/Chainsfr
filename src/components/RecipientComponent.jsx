@@ -9,7 +9,7 @@ import update from 'immutability-helper'
 import utils from '../utils'
 import numeral from 'numeral'
 import validator from 'validator'
-import { getCryptoDecimals } from '../tokens'
+import { getCryptoDecimals, getCryptoSymbol } from '../tokens'
 import BN from 'bn.js'
 
 type Props = {
@@ -198,7 +198,7 @@ class RecipientComponent extends Component<Props> {
               margin='normal'
               variant='outlined'
               error={!!formError.transferAmount}
-              helperText={formError.transferAmount || `Balance: ${balance}`}
+              helperText={formError.transferAmount || `Balance: ${balance} ${getCryptoSymbol(cryptoSelection)}`}
               onChange={this.handleTransferFormChange('transferAmount')}
               value={transferAmount}
             />

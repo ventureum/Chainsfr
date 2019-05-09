@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid'
 import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import ErrorIcon from '@material-ui/icons/Error'
-import HelpIcon from '@material-ui/icons/Help'
 import CheckIcon from '@material-ui/icons/CheckCircle'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
@@ -226,22 +225,16 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
+    const { walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
         <Grid item>
-          <Grid container direction='row' justify='space-between'>
+          <Grid container direction='row'>
             <Grid item>
               <Typography variant='h6' align='left'>
                 Choose your wallet
               </Typography>
-            </Grid>
-            <Grid item>
-              <Button color='primary'>
-                <HelpIcon fontSize='small' color='primary' className={classes.faqIcon} />
-                FAQ
-              </Button>
             </Grid>
           </Grid>
         </Grid>

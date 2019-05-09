@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-import HelpIcon from '@material-ui/icons/Help'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
@@ -125,11 +124,6 @@ class ReceiptComponent extends Component<Props, State> {
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     Please inform receiver the security answer to complete the transaction.
-                    <Tooltip title='Open FAQ'>
-                      <IconButton disableRipple className={classes.iconBtn}>
-                        <HelpIcon fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
                   </Typography>
                 </Grid>
               </Grid>
