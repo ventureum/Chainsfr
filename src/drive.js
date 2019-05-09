@@ -1,10 +1,12 @@
+// @flow
+
 /*
  * Google Drive APIs
  */
 
 import env from './typedEnv'
 
-const ROOT_FOLDER_NAME = '__ChainsferData__'
+const ROOT_FOLDER_NAME: string = '__ChainsferData__'
 
 /*
  * Stores encrypted escrow wallet and password before sending out the TX
@@ -31,7 +33,7 @@ const ROOT_FOLDER_NAME = '__ChainsferData__'
  *   tempTimestamp: [int], // unix timestamp of the saving action
  *  } ...]
  */
-const TEMP_SEND_FILE_NAME = `__chainsfer_temp_send_${env.REACT_APP_ENV}__.json`
+const TEMP_SEND_FILE_NAME: string = `__chainsfer_temp_send_${env.REACT_APP_ENV}__.json`
 
 /*
  * A single file storing past transfer data
@@ -51,7 +53,7 @@ const TEMP_SEND_FILE_NAME = `__chainsfer_temp_send_${env.REACT_APP_ENV}__.json`
  *   }
  *  }
  */
-const SEND_FILE_NAME = `__chainsfer_send_${env.REACT_APP_ENV}__.json`
+const SEND_FILE_NAME: string = `__chainsfer_send_${env.REACT_APP_ENV}__.json`
 
 /*
  * A single file storing encrypted wallet data
@@ -62,7 +64,60 @@ const SEND_FILE_NAME = `__chainsfer_send_${env.REACT_APP_ENV}__.json`
  *   bitcoin: Base58 encoded BIP38 encrypted privateKey
  * }
  */
-const WALLET_FILE_NAME = `__chainsfer_wallet_${env.NODE_ENV}__.json`
+const WALLET_FILE_NAME: string = `__chainsfer_wallet_${env.NODE_ENV}__.json`
+
+// flow type definitions
+
+type DriveSpace = string
+type FileName = string
+type FileId = string
+
+type File = {
+  name: FileName,
+  content: Object
+}
+
+type FileResource = {
+  id?: FileId,
+  name?: FileName,
+  mimeType?: string,
+  parents?: ?Array<FileId>,
+  alt?: string
+  // see https://developers.google.com/drive/api/v2/reference/files#resource
+  // for complete  definition
+}
+type FileResourceResponse = {
+  id: FileId, // response must include fileId
+  name?: FileName,
+  mimeType?: string,
+  parents?: ?Array<FileId>
+}
+
+type TempTransferData = {
+  sender: string,
+  destination: string,
+  transferAmount: string,
+  cryptoType: string,
+  data: string,
+  password: string,
+  tempTimestamp: number
+}
+
+type TransferData = {
+  sendingId: string,
+  sender: string,
+  destination: string,
+  transferAmount: string,
+  cryptoType: string,
+  data: string,
+  password: string,
+  sendTimestamp: number
+}
+
+type Wallet = {
+  ethereum: string,
+  bitcoin: string
+}
 
 // gapi.load does not support promise
 // convert it into a promise
@@ -106,11 +161,16 @@ async function loadApi () {
 }
 
 // load a single file with fileId
-async function loadFile (fileId) {
-  let rv = await window.gapi.client.drive.files.get({
+async function loadFile (fileId: FileId): Promise<Object> {
+  let fileRequest: FileResource = {
     fileId: fileId,
     alt: 'media'
-  })
+  }
+
+  let rv: {
+    result: any
+  } = await window.gapi.client.drive.files.get(fileRequest)
+
   return rv.result
 }
 
@@ -124,11 +184,16 @@ async function loadFile (fileId) {
  * @returns [array of file resource]
  * see https://developers.google.com/drive/api/v3/reference/files#resource for details
  */
-async function listFiles (space, parents, isFolder, fileName) {
+async function listFiles (
+  space: DriveSpace,
+  parents: ?Array<FileId>,
+  isFolder: boolean,
+  fileName: FileName
+): Promise< Array<FileResourceResponse> > {
   await loadApi()
 
   // build a query string
-  let query = null
+  let query = ''
 
   if (fileName) {
     query = `name = '${fileName}'`
@@ -145,13 +210,25 @@ async function listFiles (space, parents, isFolder, fileName) {
     query += `'${parents[0]}' in parents`
   }
 
-  let rv = await window.gapi.client.drive.files.list({
+  var filesListRequest: {
+    spaces: DriveSpace,
+    fields: string,
+    orderBy: string,
+    q: string,
+    pageSize: number
+  } = {
     spaces: space,
     fields: 'nextPageToken, files(id, name)',
     orderBy: 'modifiedTime',
     q: query,
     pageSize: 10
-  })
+  }
+
+  let rv: {
+    result: {
+      files: Array<FileResourceResponse>
+    }
+  } = await window.gapi.client.drive.files.list(filesListRequest)
 
   return rv.result.files
 }
@@ -164,7 +241,11 @@ async function listFiles (space, parents, isFolder, fileName) {
  * @param folder [string] name of the folder
  * @returns file id of the folder
  */
-async function createFolder (space, parents, folder) {
+async function createFolder (
+  space: DriveSpace,
+  parents: ?Array<FileId>,
+  folder: FileName
+): Promise<string> {
   await loadApi()
 
   let files = await listFiles(space, parents, true, folder)
@@ -172,12 +253,16 @@ async function createFolder (space, parents, folder) {
   if (files.length === 0) {
     // folder DNE
     // create a new one
-    let resp = await window.gapi.client.drive.files.create({
-      resource: {
-        name: folder,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: (space === 'appDataFolder' && !parents) ? ['appDataFolder'] : parents
-      }
+    let resource: FileResource = {
+      name: folder,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: (space === 'appDataFolder' && !parents) ? ['appDataFolder'] : parents
+    }
+
+    let resp: {
+      result: FileResourceResponse
+    } = await window.gapi.client.drive.files.create({
+      resource: resource
     })
     return resp.result.id
   } else {
@@ -192,7 +277,10 @@ async function createFolder (space, parents, folder) {
  * @param fileId [string] id of the file
  * @param content [object] content of the file
  */
-async function addContent (fileId, content) {
+async function addContent (
+  fileId: FileId,
+  content: any
+): Promise<FileResource> {
   return window.gapi.client.request({
     path: '/upload/drive/v3/files/' + fileId,
     method: 'PATCH',
@@ -216,13 +304,18 @@ async function addContent (fileId, content) {
  *  }
  *  @returns id [string] id of the file created/updated
  */
-async function saveFileByName (space, folder, file) {
+async function saveFileByName (
+  space: DriveSpace,
+  folder: ?FileName,
+  file: File
+): Promise<FileId> {
   await loadApi()
 
-  var metadata = {
+  var metadata: FileResource = {
     mimeType: 'application/json',
     name: file.name,
-    fields: 'id'
+    fields: 'id',
+    parents: null
   }
 
   // create a root folder
@@ -265,7 +358,7 @@ async function saveFileByName (space, folder, file) {
  * @param fileName [string] name of the file
  * @returns content of the file
  */
-async function loadFileByNameFromAppData (fileName) {
+async function loadFileByNameFromAppData (fileName: FileName): Promise<any> {
   // appDataFolder is the default location
 
   // get fileId first
@@ -279,7 +372,9 @@ async function loadFileByNameFromAppData (fileName) {
       console.warn('Multiple files with same file name found')
     }
     // now load content of the file
-    return loadFile(fileId)
+    if (fileId) {
+      return loadFile(fileId)
+    }
   } else {
     return null
   }
@@ -291,12 +386,14 @@ async function loadFileByNameFromAppData (fileName) {
  * @param transferData [object]
  * see the object definition at the top
  */
-async function saveTempSendFile (transferData) {
+async function saveTempSendFile (transferData: TempTransferData) {
   // save a new temp send file
-  await saveFileByName('drive', null, {
+  let file: File = {
     name: transferData.tempTimestamp + TEMP_SEND_FILE_NAME,
     content: transferData
-  })
+  }
+
+  await saveFileByName('drive', null, file)
 }
 
 /*
@@ -305,9 +402,8 @@ async function saveTempSendFile (transferData) {
  * @param transferData [object]
  * see the object definition at the top
  */
-async function saveSendFile (transferData) {
-  let transfers = null
-  transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
+async function saveSendFile (transferData: TransferData) {
+  let transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
 
   if (transfers) {
     transfers[transferData.sendingId] = transferData
@@ -324,7 +420,7 @@ async function saveSendFile (transferData) {
   })
 }
 
-async function saveWallet (wallet) {
+async function saveWallet (wallet: Wallet) {
   // update the wallet
   await saveFileByName('appDataFolder', null, {
     name: WALLET_FILE_NAME,
@@ -344,16 +440,20 @@ async function saveWallet (wallet) {
  * @returns transferData
  * see the object definition at the top
  */
-async function getTransferData (sendingId) {
-  let transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
-  return transfers[sendingId]
+async function getTransferData (sendingId: string): Promise<TransferData> {
+  let transfers: ?{[string]: TransferData} = await loadFileByNameFromAppData(SEND_FILE_NAME)
+  if (transfers) {
+    return transfers[sendingId]
+  } else {
+    return {}
+  }
 }
 
-async function getAllTransfers () {
+async function getAllTransfers (): Promise< {[string]: TransferData} > {
   return loadFileByNameFromAppData(SEND_FILE_NAME)
 }
 
-async function getWallet () {
+async function getWallet (): Promise<Wallet> {
   return loadFileByNameFromAppData(WALLET_FILE_NAME)
 }
 
