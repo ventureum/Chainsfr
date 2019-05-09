@@ -5,9 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-import HelpIcon from '@material-ui/icons/Help'
-import Tooltip from '@material-ui/core/Tooltip'
-import IconButton from '@material-ui/core/IconButton'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import moment from 'moment'
@@ -81,11 +78,6 @@ class CancelReceiptComponent extends Component {
                       {' here'}
                     </MuiLink>
                     . A confirmation email will be sent to you.
-                    <Tooltip title='Open FAQ'>
-                      <IconButton disableRipple className={classes.iconBtn}>
-                        <HelpIcon fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
                   </Typography>
                 </Grid>
               </Grid>
