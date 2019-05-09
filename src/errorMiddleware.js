@@ -15,7 +15,7 @@ export default function errorMiddleware (store) {
           message: (typeof error === 'string') ? error : error.message,
           options: {
             variant: 'error',
-            persist: true
+            autoHideDuration: 60000
           }
         }))
         throw error
