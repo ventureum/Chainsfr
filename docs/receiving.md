@@ -21,7 +21,7 @@ following wallets:
 > * Metamask (Using the last used receiving address)
 > * Ledger Hardware Wallet (Using the last receiving used address)
 
-Note that you can using Metamask and Ledger wallet to receive funds without installing Metamask extension or connecting
+After logging in, you can using Metamask and Ledger wallet to receive funds without installing Metamask extension or connecting
 to your hardware wallet device, provided that you choose to use the last-used receiving address.
 
 ## Does Chainsfer.io send transfer notifications via email.
@@ -53,12 +53,12 @@ If your contact sent you the wrong amount, please reach out to them directly. Th
 ## Does an incoming transfer expire?
 
 A transfer expires after 30 days if not claimed by the recipient.
-The sender can either cancel the transfer to retrieve the funds or resend another transfer.
+The sender must cancel the transfer to retrieve the funds and resend another transfer.
 
 ## How do I know that the transfer notification email I received is real?
 
 Always be careful prior to clicking on any links within a notification. 
-Only action on email notifications when you were expecting someone to send you money. 
+Only act on email notifications when you were expecting someone to send you money. 
 Make sure the email you received is from **notify@chainsfer.io**.
 
 
