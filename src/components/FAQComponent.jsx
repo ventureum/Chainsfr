@@ -4,9 +4,13 @@ import { withStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab'
 import Icon from '@material-ui/core/Icon'
+import withMobileDialog from '@material-ui/core/withMobileDialog';
 import classNames from 'classnames'
+
 
 const DOC_URL = 'https://ventureum.github.io/Chainsfer/#/#'
 
@@ -24,7 +28,7 @@ class FAQComponent extends Component {
   }
 
   render () {
-    let { classes, docId } = this.props
+    let { classes, docId, fullScreen } = this.props
     return (
       <div>
         <Fab
@@ -44,21 +48,27 @@ class FAQComponent extends Component {
           onClose={this.handleClose}
           aria-labelledby='faq-dialog'
           fullWidth
+          fullScreen={fullScreen}
           maxWidth='md'
           scroll='paper'
-          className={classes.lowerLeftFixed}
+          className={!fullScreen && classes.lowerLeftFixed}
         >
           <DialogContent className={classes.zeroPadding}>
             <DialogContentText>
               <iframe
                 title='faq-iframe'
-                className={classes.iframe}
+                className={fullScreen ? classes.iframeMobile : classes.iframe}
                 src={DOC_URL + docId}
                 allowFullScreen
                 frameBorder='0'
               />
             </DialogContentText>
           </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
         </Dialog>
       </div>
     )
@@ -84,7 +94,13 @@ const styles = theme => ({
   },
   iframe: {
     minHeight: '60vh',
-    minWidth: '20vw',
+    minWidth: '50vw',
+    width: '100%',
+    height: '100%'
+  },
+  iframeMobile: {
+    minHeight: '100vh',
+    minWidth: '100vw',
     width: '100%',
     height: '100%'
   },
@@ -94,4 +110,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(FAQComponent)
+export default withMobileDialog()(withStyles(styles)(FAQComponent));
