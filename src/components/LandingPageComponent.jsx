@@ -209,18 +209,19 @@ class LandingPageComponent extends Component {
                 Transfer ID: {transfer.sendingId}
               </Typography>
             </Grid>
-            {transfer.state === 'pending' &&
-            <Grid item>
-              <Button
-                color='primary'
-                component={Link}
-                target='_black'
-                to={`cancel?id=${transfer.sendingId}`}
-                className={classes.recentTransferItemCancelBtn}
-              >
+            {[transferStates.SEND_CONFIRMED_RECEIVE_PENDING,
+              transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
+              <Grid item>
+                <Button
+                  color='primary'
+                  component={Link}
+                  target='_black'
+                  to={`cancel?id=${transfer.sendingId}`}
+                  className={classes.recentTransferItemCancelBtn}
+                >
                  Cancel Transfer
-              </Button>
-            </Grid>
+                </Button>
+              </Grid>
             }
           </Grid>
         </ExpansionPanelDetails>
