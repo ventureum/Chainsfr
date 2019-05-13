@@ -29,6 +29,8 @@ import {
 import { isMobile } from 'react-device-detect'
 import env from '../typedEnv'
 import { transferStates } from '../actions/transferActions'
+import MuiLink from '@material-ui/core/Link'
+import url from '../url'
 
 const toUserReadableState = {
   SEND_PENDING: 'Sending',
@@ -209,6 +211,22 @@ class LandingPageComponent extends Component {
                 Transfer ID: {transfer.sendingId}
               </Typography>
             </Grid>
+            {transfer.state === transferStates.SEND_PENDING &&
+              <Grid item>
+                <Typography className={classes.recentTransferItemTransferId}>
+                  You can track the Transaction
+                  <MuiLink
+                    target='_blank'
+                    rel='noopener'
+                    href={
+                      transfer.cryptoType === 'bitcoin'
+                        ? url.getBtcExplorerTx(transfer.sendTxHash) : url.getEthExplorerTx(transfer.sendTxHash)}
+                  >
+                    {' here'}
+                  </MuiLink>
+                </Typography>
+              </Grid>
+            }
             {[transferStates.SEND_CONFIRMED_RECEIVE_PENDING,
               transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
               <Grid item>
