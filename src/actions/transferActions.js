@@ -466,8 +466,7 @@ async function _transactionHashRetrieved (
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    data: Base64.encode(JSON.stringify(encriptedEscrow)),
-    password: Base64.encode(password)
+    data: Base64.encode(JSON.stringify(encriptedEscrow))
   }
 
   if (sendTxFeeTxHash) transferData.sendTxHash = [sendTxHash, sendTxFeeTxHash]
@@ -475,6 +474,7 @@ async function _transactionHashRetrieved (
   let data = await API.transfer(transferData)
 
   // TX is now sent and server is notified, we save a copy of transfer data in drive's appDataFolder
+  transferData.password = Base64.encode(password)
   transferData.sendingId = data.sendingId
   transferData.sendTimestamp = data.sendTimestamp
   await saveSendFile(transferData)
@@ -727,6 +727,11 @@ async function _getTransferHistory () {
           case null :
             state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
             break
+          case 'Expired': {
+            // SEND_CONFIRMED_RECEIVE_EXPIRED
+            state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+            break
+          }
           default:
             break
         }
@@ -751,11 +756,6 @@ async function _getTransferHistory () {
       case 'Failed': {
         // SEND_FAILURE
         state = transferStates.SEND_FAILURE
-        break
-      }
-      case 'Expired': {
-        // SEND_CONFIRMED_RECEIVE_EXPIRED
-        state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
         break
       }
       default:

@@ -10,6 +10,7 @@ import moment from 'moment'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
@@ -90,7 +91,13 @@ class ReceiveReceiptComponent extends Component {
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     It may takes a few minutes to complete the transaction. You can track the transaction
-                    <MuiLink target='_blank' rel='noopener' href={`https://rinkeby.etherscan.io/tx/${receiveTxHash}`}>
+                    <MuiLink
+                      target='_blank'
+                      rel='noopener'
+                      href={
+                        receipt.cryptoType === 'bitcoin'
+                          ? url.getBtcExplorerTx(receiveTxHash) : url.getEthExplorerTx(receiveTxHash)}
+                    >
                       {' here'}
                     </MuiLink>
                     . A confirmation email will be sent to you.
