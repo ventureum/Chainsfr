@@ -466,8 +466,7 @@ async function _transactionHashRetrieved (
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    data: Base64.encode(JSON.stringify(encriptedEscrow)),
-    password: Base64.encode(password)
+    data: Base64.encode(JSON.stringify(encriptedEscrow))
   }
 
   if (sendTxFeeTxHash) transferData.sendTxHash = [sendTxHash, sendTxFeeTxHash]
@@ -475,6 +474,7 @@ async function _transactionHashRetrieved (
   let data = await API.transfer(transferData)
 
   // TX is now sent and server is notified, we save a copy of transfer data in drive's appDataFolder
+  transferData.password = Base64.encode(password)
   transferData.sendingId = data.sendingId
   transferData.sendTimestamp = data.sendTimestamp
   await saveSendFile(transferData)

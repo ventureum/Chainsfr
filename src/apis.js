@@ -10,7 +10,7 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash, password }) {
+async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash }) {
   let apiResponse = await apiTransfer.post('/transfer', {
     action: 'SEND',
     clientId: clientId,
@@ -19,8 +19,7 @@ async function transfer ({ clientId, sender, destination, transferAmount, crypto
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     data: data,
-    sendTxHash: sendTxHash,
-    password: password || null
+    sendTxHash: sendTxHash
   })
   return apiResponse.data
 }
@@ -54,9 +53,6 @@ async function getTransfer ({ sendingId, receivingId }) {
 
   let responseData = rv.data
   responseData.data = JSON.parse(Base64.decode(responseData.data))
-  if (responseData.password) {
-    responseData.password = Base64.decode(responseData.password)
-  }
   return responseData
 }
 
@@ -70,9 +66,6 @@ async function getBatchTransfers ({ sendingId, receivingId }) {
   let responseData = rv.data
   responseData = responseData.map(item => {
     item.data = JSON.parse(Base64.decode(item.data))
-    if (item.password) {
-      item.password = Base64.decode(item.password)
-    }
     return item
   })
 
