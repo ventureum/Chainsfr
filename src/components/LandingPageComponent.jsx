@@ -35,7 +35,7 @@ import url from '../url'
 const toUserReadableState = {
   SEND_PENDING: 'Sending',
   SEND_FAILURE: 'Send Failed',
-  SEND_EXPIRED: 'Expired',
+  SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
   SEND_CONFIRMED_RECEIVE_PENDING: 'Sent',
   SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
   SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted',

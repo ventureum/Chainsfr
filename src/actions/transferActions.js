@@ -727,6 +727,11 @@ async function _getTransferHistory () {
           case null :
             state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
             break
+          case 'Expired': {
+            // SEND_CONFIRMED_RECEIVE_EXPIRED
+            state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+            break
+          }
           default:
             break
         }
@@ -751,11 +756,6 @@ async function _getTransferHistory () {
       case 'Failed': {
         // SEND_FAILURE
         state = transferStates.SEND_FAILURE
-        break
-      }
-      case 'Expired': {
-        // SEND_CONFIRMED_RECEIVE_EXPIRED
-        state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
         break
       }
       default:
