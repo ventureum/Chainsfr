@@ -1,0 +1,184 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render Login page 1`] = `
+<div
+  className="MuiGrid-container-31 MuiGrid-direction-xs-column-34 MuiGrid-align-items-xs-center-39 MuiGrid-justify-xs-center-48"
+>
+  <div
+    className="MuiGrid-item-32 LoginComponent-centerContainer-29"
+  >
+    <div
+      className="MuiGrid-container-31 MuiGrid-direction-xs-column-34 MuiGrid-justify-xs-center-48"
+    >
+      <div
+        className="MuiGrid-item-32"
+      >
+        <div
+          className="MuiGrid-container-31 MuiGrid-align-items-xs-center-39 MuiGrid-justify-xs-space-around-51"
+        >
+          <div
+            className="MuiGrid-item-32 MuiGrid-grid-md-6-93 LoginComponent-leftContainer-7"
+          >
+            <img
+              alt="landing-illustration"
+              className="LoginComponent-landingIllustration-9"
+              src="send-landing.svg"
+            />
+          </div>
+          <div
+            className="MuiGrid-item-32 MuiGrid-grid-md-6-93"
+          >
+            <div
+              className="MuiGrid-container-31 MuiGrid-direction-xs-column-34 MuiGrid-align-items-xs-center-39 MuiGrid-justify-xs-center-48"
+            >
+              <div
+                className="MuiGrid-item-32 LoginComponent-rightContainer-8"
+              >
+                <div
+                  className="MuiGrid-item-32 LoginComponent-stepTitleContainer-11"
+                >
+                  <p
+                    className="MuiTypography-root-128 MuiTypography-body1-137 LoginComponent-stepTitle-13"
+                  >
+                    Send cryptocurrency directly to another person using email
+                  </p>
+                </div>
+                <div
+                  className="MuiGrid-item-32 LoginComponent-step-12"
+                >
+                  <div
+                    className="MuiGrid-container-31 MuiGrid-wrap-xs-nowrap-37 MuiGrid-align-items-xs-center-39"
+                  >
+                    <div
+                      className="MuiGrid-item-32"
+                    >
+                      <div
+                        className="MuiAvatar-root-164 MuiAvatar-colorDefault-165 LoginComponent-stepIcon-15"
+                      >
+                         1 
+                      </div>
+                    </div>
+                    <div
+                      className="MuiGrid-item-32 MuiGrid-grid-xs-true-59"
+                    >
+                      <p
+                        className="MuiTypography-root-128 MuiTypography-body1-137 MuiTypography-alignLeft-150 LoginComponent-stepText-14"
+                      >
+                        Connect to your wallet
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="MuiGrid-item-32 LoginComponent-step-12"
+                >
+                  <div
+                    className="MuiGrid-container-31 MuiGrid-wrap-xs-nowrap-37 MuiGrid-align-items-xs-center-39"
+                  >
+                    <div
+                      className="MuiGrid-item-32"
+                    >
+                      <div
+                        className="MuiAvatar-root-164 MuiAvatar-colorDefault-165 LoginComponent-stepIcon-15"
+                      >
+                         2 
+                      </div>
+                    </div>
+                    <div
+                      className="MuiGrid-item-32 MuiGrid-grid-xs-true-59"
+                    >
+                      <p
+                        className="MuiTypography-root-128 MuiTypography-body1-137 MuiTypography-alignLeft-150 LoginComponent-stepText-14"
+                      >
+                        Set the amount, recipient email and security answer
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="MuiGrid-item-32 LoginComponent-step-12"
+                >
+                  <div
+                    className="MuiGrid-container-31 MuiGrid-wrap-xs-nowrap-37 MuiGrid-align-items-xs-center-39"
+                  >
+                    <div
+                      className="MuiAvatar-root-164 MuiAvatar-colorDefault-165 LoginComponent-stepIcon-15"
+                    >
+                       3 
+                    </div>
+                    <p
+                      className="MuiTypography-root-128 MuiTypography-body1-137 MuiTypography-alignLeft-150 LoginComponent-stepText-14"
+                    >
+                      Review and transfer
+                    </p>
+                  </div>
+                </div>
+                <div
+                  align="center"
+                  className="MuiGrid-item-32"
+                >
+                  <div
+                    className="LoginComponent-wrapper-5"
+                  >
+                    <div
+                      className="MuiGrid-container-31 MuiGrid-align-items-xs-center-39 GoogleLoginButton-btn-167"
+                      onClick={[Function]}
+                    >
+                      <div
+                        className="MuiGrid-item-32 GoogleLoginButton-iconContainer-169"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="MuiSvgIcon-root-172 GoogleLoginButton-svg-170"
+                          focusable="false"
+                          role="presentation"
+                          viewBox="0 0 18 18"
+                        >
+                          <g
+                            fill="#000"
+                            fillRule="evenodd"
+                          >
+                            <path
+                              d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z"
+                              fill="#EA4335"
+                            />
+                            <path
+                              d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"
+                              fill="#4285F4"
+                            />
+                            <path
+                              d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z"
+                              fill="#FBBC05"
+                            />
+                            <path
+                              d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"
+                              fill="#34A853"
+                            />
+                            <path
+                              d="M0 0h18v18H0z"
+                              fill="none"
+                            />
+                          </g>
+                        </svg>
+                      </div>
+                      <div
+                        className="MuiGrid-item-32"
+                      >
+                        <p
+                          className="MuiTypography-root-128 MuiTypography-body1-137 GoogleLoginButton-text-171"
+                        >
+                          Sign in with Google
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

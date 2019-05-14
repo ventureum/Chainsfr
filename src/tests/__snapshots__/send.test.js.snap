@@ -1,0 +1,1527 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Send a transfer render walletSelection(step 0) 1`] = `
+<div
+  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6"
+>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation0-106 MuiStepper-root-100 MuiStepper-horizontal-101"
+    >
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147 MuiStepIcon-active-149"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                1
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139 MuiStepLabel-active-140"
+            >
+              Wallet
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                2
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Recipient
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                3
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Review
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11"
+    >
+      <div
+        className="MuiGrid-item-4 TransferComponent-subComponent-2"
+      >
+        <div
+          className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-direction-xs-column-6 MuiGrid-justify-xs-center-20"
+        >
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <h6
+                  className="MuiTypography-root-161 MuiTypography-h6-178 MuiTypography-alignLeft-183"
+                >
+                  Choose your wallet
+                </h6>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="drive-wallet-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Drive
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Use Drive Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="metamask-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Metamask
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      MetaMask Extension
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="ledger-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Ledger
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Ledger Hardware Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <a
+                  className="MuiButtonBase-root-256 MuiButton-root-230 MuiButton-text-232 MuiButton-textPrimary-233 MuiButton-flat-235 MuiButton-flatPrimary-236"
+                  href="/"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Cancel Transfer
+                  </span>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </a>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <button
+                  className="MuiButtonBase-root-256 MuiButtonBase-disabled-257 MuiButton-root-230 MuiButton-contained-241 MuiButton-containedPrimary-242 MuiButton-raised-244 MuiButton-raisedPrimary-245 MuiButton-sizeLarge-254 MuiButton-disabled-250 MuiButton-fullWidth-255"
+                  disabled={true}
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  tabIndex="-1"
+                  type="button"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Continue
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Send a transfer select crypto(ethereum) 1`] = `
+<div
+  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6"
+>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation0-106 MuiStepper-root-100 MuiStepper-horizontal-101"
+    >
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147 MuiStepIcon-active-149"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                1
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139 MuiStepLabel-active-140"
+            >
+              Wallet
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                2
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Recipient
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                3
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Review
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11"
+    >
+      <div
+        className="MuiGrid-item-4 TransferComponent-subComponent-2"
+      >
+        <div
+          className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-direction-xs-column-6 MuiGrid-justify-xs-center-20"
+        >
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <h6
+                  className="MuiTypography-root-161 MuiTypography-h6-178 MuiTypography-alignLeft-183"
+                >
+                  Choose your wallet
+                </h6>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="drive-wallet-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Drive
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Use Drive Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btnSelected-220"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="metamask-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitleSelected-227"
+                    >
+                      Metamask
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDescSelected-228"
+                    >
+                      MetaMask Extension
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="ledger-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Ledger
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Ledger Hardware Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <h6
+              className="MuiTypography-root-161 MuiTypography-h6-178 MuiTypography-alignLeft-183"
+            >
+              Choose the coin
+            </h6>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <ul
+              className="MuiList-root-283 MuiList-padding-284 WalletSelectionComponent-cryptoList-208"
+            >
+              <div>
+                <hr
+                  className="MuiDivider-root-287"
+                />
+                <div
+                  className="MuiButtonBase-root-256 MuiListItem-root-292 MuiListItem-default-295 MuiListItem-gutters-300 MuiListItem-button-301"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <div
+                    className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-space-between-22"
+                  >
+                    <span
+                      className="MuiButtonBase-root-256 MuiIconButton-root-313 MuiPrivateSwitchBase-root-309 MuiRadio-root-304 MuiRadio-colorPrimary-307 MuiPrivateSwitchBase-checked-310 MuiRadio-checked-305"
+                      onBlur={[Function]}
+                      onContextMenu={[Function]}
+                      onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyUp={[Function]}
+                      onMouseDown={[Function]}
+                      onMouseLeave={[Function]}
+                      onMouseUp={[Function]}
+                      onTouchEnd={[Function]}
+                      onTouchMove={[Function]}
+                      onTouchStart={[Function]}
+                      tabIndex={null}
+                    >
+                      <span
+                        className="MuiIconButton-label-318"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="MuiSvgIcon-root-152"
+                          focusable="false"
+                          role="presentation"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                          />
+                        </svg>
+                        <input
+                          checked={true}
+                          className="MuiPrivateSwitchBase-input-312"
+                          onChange={[Function]}
+                          tabIndex={-1}
+                          type="radio"
+                        />
+                      </span>
+                    </span>
+                    <div
+                      className="MuiListItemText-root-319"
+                    >
+                      <span
+                        className="MuiTypography-root-161 MuiTypography-subheading-168 MuiListItemText-primary-322"
+                      >
+                        ETH
+                      </span>
+                      <p
+                        className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-colorTextSecondary-194 MuiListItemText-secondary-323"
+                      >
+                        Ethereum
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </div>
+              </div>
+              <div>
+                <hr
+                  className="MuiDivider-root-287"
+                />
+                <div
+                  className="MuiButtonBase-root-256 MuiListItem-root-292 MuiListItem-default-295 MuiListItem-gutters-300 MuiListItem-button-301"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <div
+                    className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-space-between-22"
+                  >
+                    <span
+                      className="MuiButtonBase-root-256 MuiIconButton-root-313 MuiPrivateSwitchBase-root-309 MuiRadio-root-304 MuiRadio-colorPrimary-307"
+                      onBlur={[Function]}
+                      onContextMenu={[Function]}
+                      onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyUp={[Function]}
+                      onMouseDown={[Function]}
+                      onMouseLeave={[Function]}
+                      onMouseUp={[Function]}
+                      onTouchEnd={[Function]}
+                      onTouchMove={[Function]}
+                      onTouchStart={[Function]}
+                      tabIndex={null}
+                    >
+                      <span
+                        className="MuiIconButton-label-318"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="MuiSvgIcon-root-152"
+                          focusable="false"
+                          role="presentation"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                          />
+                        </svg>
+                        <input
+                          checked={false}
+                          className="MuiPrivateSwitchBase-input-312"
+                          onChange={[Function]}
+                          tabIndex={-1}
+                          type="radio"
+                        />
+                      </span>
+                    </span>
+                    <div
+                      className="MuiListItemText-root-319"
+                    >
+                      <span
+                        className="MuiTypography-root-161 MuiTypography-subheading-168 MuiListItemText-primary-322"
+                      >
+                        DAI
+                      </span>
+                      <p
+                        className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-colorTextSecondary-194 MuiListItemText-secondary-323"
+                      >
+                        Dai
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </div>
+              </div>
+              <hr
+                className="MuiDivider-root-287"
+              />
+            </ul>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-space-between-22 WalletSelectionComponent-balanceSection-213"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <p
+                  className="MuiTypography-root-161 MuiTypography-body1-170 WalletSelectionComponent-notConnectText-211"
+                >
+                  Please make sure MetaMask is installed and authorization is accepted
+                </p>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="MuiSvgIcon-root-152 WalletSelectionComponent-notConnectIcon-209"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M0 0h24v24H0z"
+                    fill="none"
+                  />
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <a
+                  className="MuiButtonBase-root-256 MuiButton-root-230 MuiButton-text-232 MuiButton-textPrimary-233 MuiButton-flat-235 MuiButton-flatPrimary-236"
+                  href="/"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Cancel Transfer
+                  </span>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </a>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <button
+                  className="MuiButtonBase-root-256 MuiButtonBase-disabled-257 MuiButton-root-230 MuiButton-contained-241 MuiButton-containedPrimary-242 MuiButton-raised-244 MuiButton-raisedPrimary-245 MuiButton-sizeLarge-254 MuiButton-disabled-250 MuiButton-fullWidth-255"
+                  disabled={true}
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  tabIndex="-1"
+                  type="button"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Continue
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Send a transfer select wallet(Metamask) 1`] = `
+<div
+  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6"
+>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation0-106 MuiStepper-root-100 MuiStepper-horizontal-101"
+    >
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147 MuiStepIcon-active-149"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                1
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139 MuiStepLabel-active-140"
+            >
+              Wallet
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                2
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Recipient
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        className="MuiStepConnector-root-197 MuiStepConnector-horizontal-198 MuiStepConnector-disabled-203"
+      >
+        <span
+          className="MuiStepConnector-line-204 MuiStepConnector-lineHorizontal-205"
+        />
+      </div>
+      <div
+        className="MuiStep-root-131 MuiStep-horizontal-132"
+      >
+        <span
+          className="MuiStepLabel-root-136 MuiStepLabel-horizontal-137 MuiStepLabel-disabled-143"
+        >
+          <span
+            className="MuiStepLabel-iconContainer-144"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-152 MuiStepIcon-root-147"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+              />
+              <text
+                className="MuiStepIcon-text-148"
+                textAnchor="middle"
+                x="12"
+                y="16"
+              >
+                3
+              </text>
+            </svg>
+          </span>
+          <span
+            className="MuiStepLabel-labelContainer-146"
+          >
+            <span
+              className="MuiTypography-root-161 MuiTypography-body1-170 MuiStepLabel-label-139"
+            >
+              Review
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div
+    className="MuiGrid-item-4"
+  >
+    <div
+      className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11"
+    >
+      <div
+        className="MuiGrid-item-4 TransferComponent-subComponent-2"
+      >
+        <div
+          className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-direction-xs-column-6 MuiGrid-justify-xs-center-20"
+        >
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <h6
+                  className="MuiTypography-root-161 MuiTypography-h6-178 MuiTypography-alignLeft-183"
+                >
+                  Choose your wallet
+                </h6>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="drive-wallet-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Drive
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Use Drive Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btnSelected-220"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="metamask-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitleSelected-227"
+                    >
+                      Metamask
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDescSelected-228"
+                    >
+                      MetaMask Extension
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <div
+                  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 MuiGrid-align-items-xs-center-11 SquareButtonComponent-btn-219"
+                  jutify="center"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="MuiGrid-item-4 SquareButtonComponent-imgContainer-229"
+                  >
+                    <img
+                      alt="wallet-logo"
+                      className="SquareButtonComponent-btnLogo-222"
+                      src="ledger-button.png"
+                    />
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnTitle-223"
+                    >
+                      Ledger
+                    </p>
+                  </div>
+                  <div
+                    className="MuiGrid-item-4"
+                  >
+                    <p
+                      className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-alignCenter-184 SquareButtonComponent-btnDesc-224"
+                    >
+                      Ledger Hardware Wallet
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <h6
+              className="MuiTypography-root-161 MuiTypography-h6-178 MuiTypography-alignLeft-183"
+            >
+              Choose the coin
+            </h6>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <ul
+              className="MuiList-root-283 MuiList-padding-284 WalletSelectionComponent-cryptoList-208"
+            >
+              <div>
+                <hr
+                  className="MuiDivider-root-287"
+                />
+                <div
+                  className="MuiButtonBase-root-256 MuiListItem-root-292 MuiListItem-default-295 MuiListItem-gutters-300 MuiListItem-button-301"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <div
+                    className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-space-between-22"
+                  >
+                    <span
+                      className="MuiButtonBase-root-256 MuiIconButton-root-313 MuiPrivateSwitchBase-root-309 MuiRadio-root-304 MuiRadio-colorPrimary-307"
+                      onBlur={[Function]}
+                      onContextMenu={[Function]}
+                      onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyUp={[Function]}
+                      onMouseDown={[Function]}
+                      onMouseLeave={[Function]}
+                      onMouseUp={[Function]}
+                      onTouchEnd={[Function]}
+                      onTouchMove={[Function]}
+                      onTouchStart={[Function]}
+                      tabIndex={null}
+                    >
+                      <span
+                        className="MuiIconButton-label-318"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="MuiSvgIcon-root-152"
+                          focusable="false"
+                          role="presentation"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                          />
+                        </svg>
+                        <input
+                          checked={false}
+                          className="MuiPrivateSwitchBase-input-312"
+                          onChange={[Function]}
+                          tabIndex={-1}
+                          type="radio"
+                        />
+                      </span>
+                    </span>
+                    <div
+                      className="MuiListItemText-root-319"
+                    >
+                      <span
+                        className="MuiTypography-root-161 MuiTypography-subheading-168 MuiListItemText-primary-322"
+                      >
+                        ETH
+                      </span>
+                      <p
+                        className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-colorTextSecondary-194 MuiListItemText-secondary-323"
+                      >
+                        Ethereum
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </div>
+              </div>
+              <div>
+                <hr
+                  className="MuiDivider-root-287"
+                />
+                <div
+                  className="MuiButtonBase-root-256 MuiListItem-root-292 MuiListItem-default-295 MuiListItem-gutters-300 MuiListItem-button-301"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <div
+                    className="MuiGrid-container-3 MuiGrid-align-items-xs-center-11 MuiGrid-justify-xs-space-between-22"
+                  >
+                    <span
+                      className="MuiButtonBase-root-256 MuiIconButton-root-313 MuiPrivateSwitchBase-root-309 MuiRadio-root-304 MuiRadio-colorPrimary-307"
+                      onBlur={[Function]}
+                      onContextMenu={[Function]}
+                      onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyUp={[Function]}
+                      onMouseDown={[Function]}
+                      onMouseLeave={[Function]}
+                      onMouseUp={[Function]}
+                      onTouchEnd={[Function]}
+                      onTouchMove={[Function]}
+                      onTouchStart={[Function]}
+                      tabIndex={null}
+                    >
+                      <span
+                        className="MuiIconButton-label-318"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="MuiSvgIcon-root-152"
+                          focusable="false"
+                          role="presentation"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                          />
+                        </svg>
+                        <input
+                          checked={false}
+                          className="MuiPrivateSwitchBase-input-312"
+                          onChange={[Function]}
+                          tabIndex={-1}
+                          type="radio"
+                        />
+                      </span>
+                    </span>
+                    <div
+                      className="MuiListItemText-root-319"
+                    >
+                      <span
+                        className="MuiTypography-root-161 MuiTypography-subheading-168 MuiListItemText-primary-322"
+                      >
+                        DAI
+                      </span>
+                      <p
+                        className="MuiTypography-root-161 MuiTypography-body1-170 MuiTypography-colorTextSecondary-194 MuiListItemText-secondary-323"
+                      >
+                        Dai
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </div>
+              </div>
+              <hr
+                className="MuiDivider-root-287"
+              />
+            </ul>
+          </div>
+          <div
+            className="MuiGrid-item-4"
+          >
+            <div
+              className="MuiGrid-container-3 MuiGrid-spacing-xs-24-27 MuiGrid-justify-xs-center-20"
+            >
+              <div
+                className="MuiGrid-item-4"
+              >
+                <a
+                  className="MuiButtonBase-root-256 MuiButton-root-230 MuiButton-text-232 MuiButton-textPrimary-233 MuiButton-flat-235 MuiButton-flatPrimary-236"
+                  href="/"
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  role="button"
+                  tabIndex="0"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Cancel Transfer
+                  </span>
+                  <span
+                    className="MuiTouchRipple-root-276"
+                  />
+                </a>
+              </div>
+              <div
+                className="MuiGrid-item-4"
+              >
+                <button
+                  className="MuiButtonBase-root-256 MuiButtonBase-disabled-257 MuiButton-root-230 MuiButton-contained-241 MuiButton-containedPrimary-242 MuiButton-raised-244 MuiButton-raisedPrimary-245 MuiButton-sizeLarge-254 MuiButton-disabled-250 MuiButton-fullWidth-255"
+                  disabled={true}
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  tabIndex="-1"
+                  type="button"
+                >
+                  <span
+                    className="MuiButton-label-231"
+                  >
+                    Continue
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
