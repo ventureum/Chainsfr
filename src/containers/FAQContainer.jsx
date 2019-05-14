@@ -37,7 +37,6 @@ const DOC_MAP = {
 class FAQContainer extends Component {
   render () {
     let { navigation, location } = this.props
-    console.log(this.props)
     let docId = null
     let path = location.pathname
     if (['/', '/send', '/receive', '/cancel', '/wallet'].includes(path)) {
