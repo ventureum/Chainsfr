@@ -19,6 +19,8 @@ const ETHEREUM_EXPLORER_ADDRESS_BASE_URL =
 const ETHEREUM_EXPLORER_TOKEN_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'token/'
 const ETHEREUM_EXPLORER_TX_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'tx/'
 
+const REACT_APP_BTC_NETWORK = env.REACT_APP_BTC_NETWORK
+
 const BITCOIN_EXPLORER_BASE_URL =
   env.REACT_APP_BTC_NETWORK === 'mainnet'
     ? `https://live.blockcypher.com/btc/`
@@ -55,6 +57,7 @@ function getBtcExplorerTx (txHash) {
 }
 
 export default {
+  REACT_APP_BTC_NETWORK,
   BLOCKCYPHER_API_URL,
   INFURA_API_URL,
   LEDGER_API_URL,
