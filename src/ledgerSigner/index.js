@@ -214,6 +214,42 @@ class LedgerNanoS {
     // return web3.eth.sendSignedTransaction(signedTransactionObject.rawTransaction)
   }
 
+  signSendTransaction = async (txObj: any) => {
+    const web3 = this.getWeb3()
+    const ethLedger = await this.getEtherLedger()
+    const accountIndex = 0 // default first account
+    const accountPath = baseEtherPath + `/${accountIndex}`
+
+    txObj.txCount = await web3.eth.getTransactionCount(txObj.from)
+
+    let tx = new EthTx(txObj)
+    tx.raw[6] = Buffer.from([networkId])
+    tx.raw[7] = Buffer.from([])
+    tx.raw[8] = Buffer.from([])
+
+    const rv = await ethLedger.signTransaction(
+      accountPath,
+      tx.serialize().toString('hex')
+    )
+    tx.v = getBufferFromHex(rv.v)
+    tx.r = getBufferFromHex(rv.r)
+    tx.s = getBufferFromHex(rv.s)
+
+    const signedChainId = calculateChainIdFromV(tx.v)
+    if (signedChainId !== networkId) {
+      console.error(
+        'Invalid networkId signature returned. Expected: ' +
+        networkId +
+        ', Got: ' +
+        signedChainId,
+        'InvalidNetworkId'
+      )
+    }
+
+    const signedTransactionObject = getSignTransactionObject(tx)
+    return signedTransactionObject
+  }
+
   /**
    * @param {number}                        accountIndex        Index of sender account.
    * @param {string}                        contractAddress     Target contract address.
@@ -221,7 +257,7 @@ class LedgerNanoS {
    * @param {string}                        methodName          Name of the method being called.
    * @param {[param1[, param2[, ...]]]}     params              Paramaters for the contract. The last param is a optional object contains gasPrice and gasLimit.
    */
-  signSendTrasaction = async (accountIndex: number, contractAddress: string, contractAbi: Object, methodName: string, ...params: Array<any>) => {
+  signSendTrasactionContract = async (accountIndex: number, contractAddress: string, contractAbi: Object, methodName: string, ...params: Array<any>) => {
     const accountPath = baseEtherPath + `/${accountIndex}`
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()

@@ -1,6 +1,5 @@
 // @flow
 import BN from 'bn.js'
-import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
 import axios from 'axios'
 import url from '../url'
@@ -8,6 +7,7 @@ import env from '../typedEnv'
 import API from '../apis'
 import Web3 from 'web3'
 import ERC20 from '../ERC20'
+import LedgerNanoS from '../ledgerSigner'
 
 import type {
   IWallet,
@@ -17,7 +17,8 @@ import type {
 
 import type {
   TxFee,
-  TxHash
+  TxHash,
+  BasicTokenUnit
 } from '../types/transfer.flow'
 
 export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthereum> {
@@ -121,6 +122,54 @@ export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthere
       }
     } else {
       throw new Error(`Invalid cryptoType: ${cryptoType}`)
+    }
+  }
+
+  sendTransaction = async ({
+    to,
+    value,
+    txFee
+  }: {
+    to: string,
+    value: BasicTokenUnit,
+    txFee?: TxFee
+  }): Promise<TxHash> => {
+    // helper function
+    function web3EthSendTransactionPromise (web3Function: Function, txObj: Object) {
+      return new Promise((resolve, reject) => {
+        web3Function(txObj)
+          .on('transactionHash', (hash) => resolve(hash))
+          .on('error', (error) => reject(error))
+      })
+    }
+
+    const account = this.getAccount()
+    const ledgerNanoS = new LedgerNanoS()
+    const { walletType, cryptoType } = this.walletData
+    let txObj:any = {}
+    // setup tx obj
+    if (cryptoType === 'ethereum') {
+      txObj = { from: account.address, to: to, value: value }
+    } else if (cryptoType === 'dai') {
+      txObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
+    }
+
+    if (!txFee) {
+      txFee = await this.getTxFee({ to, value })
+    }
+
+    // setup tx fees
+    txObj.gas = txFee.gas
+    txObj.gasPrice = txFee.price
+
+    if (walletType === 'metamask') {
+      return web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
+    } else if (walletType === 'ledger') {
+      let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+      const signedTransactionObject = await ledgerNanoS.signSendTransaction(txObj)
+      return web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
+    } else {
+      throw new Error(`Invalid walletType: ${walletType}`)
     }
   }
 }

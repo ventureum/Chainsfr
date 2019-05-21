@@ -88,3 +88,19 @@ export type TxFee = {
     ethTransfer: string
   }
 }
+
+/*
+ * Basic token unit
+ * 10^18 for ETH and Dai, 10^8 for BTC
+ */
+export type BasicTokenUnit = string
+
+export type TxEthereum = {
+  from: string,
+  nonce?: number,
+  gasPrice: string,
+  gas: number,
+  to: string,
+  value: BasicTokenUnit,
+  data?: string
+}

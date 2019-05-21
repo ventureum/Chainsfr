@@ -64,7 +64,12 @@ export type TxFee = {
   price: string,
   gas: string,
   costInBasicUnit: string,
-  costInStandardUnit: string
+  costInStandardUnit: string,
+  costByType?: {
+    txCostEth: TxFee,
+    txCostERC20: TxFee,
+    ethTransfer: string
+  }
 }
 
 export interface IWallet<WalletData, Account> {

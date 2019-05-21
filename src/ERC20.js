@@ -19,7 +19,8 @@ async function getTransferTxObj (from, to, transferAmount, cryptoType) {
   return {
     from: from,
     to: contractAddr,
-    data: data
+    data: data,
+    value: '0'
   }
 }
 
