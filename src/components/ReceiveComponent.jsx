@@ -22,7 +22,7 @@ class ReceiveComponent extends React.Component {
       <Grid
         container
         direction='column'
-        className={step === 4 && classes.rootReceipt}>
+        className={step === 4 ? classes.rootReceipt : undefined}>
         <Grid item>
           {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
         </Grid>
