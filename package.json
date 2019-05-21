@@ -102,5 +102,10 @@
     "react-app-rewired": "^2.1.1",
     "react-test-renderer": "^16.8.6",
     "worker-loader": "^2.0.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/src/tests/setupTests.js"
+    ]
   }
 }
