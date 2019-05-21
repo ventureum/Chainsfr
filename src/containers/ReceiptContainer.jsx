@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Receipt from '../components/ReceiptComponent'
 import { goToStep, backToHome } from '../actions/navigationActions'
+import moment from 'moment'
 
 type Props = {
   goToStep: Function,
@@ -15,9 +16,12 @@ type Props = {
 
 class ReceiptContainer extends Component<Props> {
   render () {
+    const { receipt } = this.props
+    const sendTime = moment.unix(receipt.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <Receipt
         {...this.props}
+        sendTime={sendTime}
       />
     )
   }

@@ -10,20 +10,18 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 
 type Props = {
-  goToStep: Function,
   backToHome: Function,
   cryptoSelection: string,
-  wallet: Object,
   txCost: Object,
   receipt: Object,
   classes: Object,
-  password: string
+  password: string,
+  sendTime: string
 }
 
 type State = {
@@ -37,8 +35,8 @@ class ReceiptComponent extends Component<Props, State> {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, txCost, receipt, backToHome } = this.props
-    const { sendingId, transferAmount, sender, destination, sendTimestamp } = receipt
+    const { classes, cryptoSelection, password, txCost, receipt, backToHome, sendTime } = this.props
+    const { sendingId, transferAmount, sender, destination } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -93,7 +91,7 @@ class ReceiptComponent extends Component<Props, State> {
                     Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {sendTime}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
