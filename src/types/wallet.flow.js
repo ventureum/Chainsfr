@@ -49,6 +49,8 @@ export type AccountBitcoin = {
 
 export type WalletDataEthereum = {
   walletType: string,
+  // necessary for supporting ERC20 tokens
+  cryptoType: string,
   accounts: AccountEthereum[]
 }
 
@@ -69,7 +71,7 @@ export interface IWallet<WalletData, Account> {
   walletData?: WalletData;
   ledger?: any;
   constructor(walletData?: WalletData): void;
-  createAccount(): Account;
+  createAccount(): Promise<Account>;
   getAccount(accountIdx?: number): Account;
   getPrivateKey(accountIdx?: number): ?string;
   getTxFee({ to: string, value: string }): Promise<TxFee>;

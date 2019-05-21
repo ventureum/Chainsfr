@@ -31,7 +31,7 @@ export class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin>
   }
 
   // interface functions
-  createAccount = (): AccountBitcoin => {
+  createAccount = async (): Promise<AccountBitcoin> => {
     const network =
       env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
     const seed = bip39.mnemonicToSeed(bip39.generateMnemonic())
