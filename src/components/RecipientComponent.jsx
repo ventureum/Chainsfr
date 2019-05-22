@@ -224,12 +224,14 @@ class RecipientComponent extends Component<Props> {
                   color='primary'
                   size='large'
                   onClick={() => this.props.goToStep(-1)}
+                  id='back'
                 >
                   Back to previous
                 </Button>
               </Grid>
               <Grid item>
                 <Button
+                  id='continue'
                   fullWidth
                   variant='contained'
                   color='primary'

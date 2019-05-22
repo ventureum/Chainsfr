@@ -12,3 +12,13 @@ global.shallow = shallow
 global.render = render
 global.mount = mount
 global.toJson = toJson
+if (global.document) {
+  document.createRange = () => ({
+    setStart: () => {},
+    setEnd: () => {},
+    commonAncestorContainer: {
+      nodeName: 'BODY',
+      ownerDocument: document
+    }
+  })
+}

@@ -1,8 +1,7 @@
-import React from 'react'
-import renderer from 'react-test-renderer'
-import update from 'immutability-helper'
-
 import Recipient from '../components/RecipientComponent'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import update from 'immutability-helper'
 
 const mockWallet = {
   connected: true,
@@ -38,211 +37,201 @@ const mockWallet = {
 const mockValidEmail = 'abc@gmail.com'
 const mockInvalidEmail = 'abccom'
 const mockValidAmount = '0.001'
-const mockInvalidAmountETH = '0.1'
+const mockInvalidAmountETH = '0.01'
 const mockInvalidAmountBTC = '0.344'
 const largeAmount = '100000'
 const mockInvalidAmount = '0.0001'
 const mockValidPassword = '123456'
 const mockInvalidPassword = '123'
 
-describe('RecipientComponent', () => {
-  let initialProps = {
-    updateTransferForm: () => {},
-    generateSecurityAnswer: () => {},
-    clearSecurityAnswer: () => {},
-    goToStep: () => {},
-    getTxCost: () => {},
-    cryptoSelection: 'ethereum',
-    walletSelection: 'metamask',
-    transferForm: {
-      transferAmount: '',
-      destination: '',
-      password: '',
-      sender: '',
-      formError: {
-        destination: null,
-        password: null,
-        sender: null,
-        transferAmount: null
-      }
-    },
-    wallet: mockWallet,
-    txCost: {},
-    actionsPending: {
-      getTxCost: false
-    }
+const mockTransferForm = {
+  transferAmount: '',
+  destination: '',
+  password: '',
+  sender: '',
+  formError: {
+    destination: null,
+    password: null,
+    sender: null,
+    transferAmount: null
   }
-  let createRenderTree = (props) => {
-    return renderer
-      .create(
-        <Recipient {...props} />
-      )
+}
+let initialProps = {
+  updateTransferForm: () => {},
+  generateSecurityAnswer: () => {},
+  clearSecurityAnswer: () => {},
+  goToStep: () => {},
+  getTxCost: () => {},
+  cryptoSelection: 'ethereum',
+  walletSelection: 'metamask',
+  transferForm: mockTransferForm,
+  wallet: mockWallet,
+  txCost: undefined,
+  actionsPending: {
+    getTxCost: false
   }
+}
+let wrapper
+describe('RecipientComponent render', () => {
+  beforeEach(() => {
+    wrapper = mount(
+      <Recipient {...initialProps} />
+    )
+  })
 
-  it('Ethereum', () => {
+  it('initial render', () => {
     // initial render
-    let props = initialProps
-    let tree = createRenderTree(props)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    // valid inputs
-    props = update(props, { transferForm: { sender: { $set: mockValidEmail } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(props, { transferForm: { destination: { $set: mockValidEmail } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(props, { transferForm: { transferAmount: { $set: mockValidAmount } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(props, { transferForm: { password: { $set: mockValidPassword } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    // invalid inputs:
-    props = update(
-      props,
-      { transferForm: {
-        sender: { $set: mockInvalidEmail },
-        formError: { sender: { $set: 'Invalid email' } }
-      } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        sender: { $set: mockInvalidEmail },
-        formError: { sender: { $set: 'Invalid email' } }
-      } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmountETH },
-        formError: { transferAmount: { $set: 'Insufficient funds for paying transaction fees' } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: largeAmount },
-        formError: { transferAmount: { $set: `The amount cannot exceed your current balance ${mockInvalidAmountETH}` } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmount },
-        formError: { transferAmount: { $set: 'The amount must be greater than 0.001' } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        password: { $set: mockInvalidPassword },
-        formError: { password: { $set: 'Length must be greater or equal than 6' } }
-      } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+    expect(toJson(wrapper.render())).toMatchSnapshot()
   })
 
-  // Only transferAmount need to be retested
-  it('Dai', () => {
-    let props = update(initialProps, { cryptoSelection: { $set: 'dai' } })
-    let tree = createRenderTree(props)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(props, { transferForm: { transferAmount: { $set: mockValidAmount } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    // invalid inputs:
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmountETH },
-        formError: { transferAmount: { $set: 'Insufficient funds for paying transaction fees' } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: largeAmount },
-        formError: { transferAmount: { $set: `The amount cannot exceed your current balance ${mockInvalidAmountETH}` } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
-
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmount },
-        formError: { transferAmount: { $set: 'The amount must be greater than 0.001' } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+  // valid inputs
+  it('valid input render', () => {
+    wrapper.setProps({ transferForm: {
+      ...initialProps.transferForm,
+      sender: mockValidEmail,
+      destination: mockValidEmail,
+      transferAmount: mockValidAmount,
+      password: mockValidPassword
+    } })
+    expect(toJson(wrapper)).toMatchSnapshot()
+    expect(wrapper.find(TextField).filter('#sender').prop('value')).toEqual(mockValidEmail)
+    expect(wrapper.find(TextField).filter('#destination').prop('value')).toEqual(mockValidEmail)
+    expect(wrapper.find(TextField).filter('#amount').prop('value')).toEqual(mockValidAmount)
+    expect(wrapper.find(TextField).filter('#password').prop('value')).toEqual(mockValidPassword)
+    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(false)
   })
 
-  // Only transferAmount need to be retested
-  it('Bitcoin', () => {
-    let props = update(initialProps, { cryptoSelection: { $set: 'bitcoin' } })
-    let tree = createRenderTree(props)
-    expect(tree.toJSON()).toMatchSnapshot()
+  // invalid inputs
+  it('invalid inputs', () => {
+    const errorMsg = 'error'
+    wrapper.setProps({ transferForm: {
+      sender: mockInvalidEmail,
+      destination: mockInvalidEmail,
+      transferAmount: largeAmount,
+      password: mockInvalidPassword,
+      formError: {
+        sender: errorMsg,
+        destination: errorMsg,
+        transferAmount: errorMsg,
+        password: errorMsg
+      }
+    } })
+    expect(toJson(wrapper)).toMatchSnapshot()
+    expect(wrapper.find(TextField).filter('#sender').prop('helperText')).toEqual(errorMsg)
+    expect(wrapper.find(TextField).filter('#destination').prop('helperText')).toEqual(errorMsg)
+    expect(wrapper.find(TextField).filter('#amount').prop('helperText')).toEqual(errorMsg)
+    expect(wrapper.find(TextField).filter('#password').prop('error')).toEqual(true)
+    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
+  })
 
-    // valid inputs
-    props = update(props, { transferForm: { transferAmount: { $set: mockValidAmount } } })
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+  // balance does not exist
+  it('balance undefined', () => {
+    wrapper.setProps(update(initialProps, { wallet: { crypto: { ethereum: { 0: { balance: { $set: undefined } } } } } }))
+    expect(wrapper.find(TextField).filter('#amount').prop('helperText')).toEqual('Balance: 0 ETH')
+  })
+})
 
-    // invalid inputs:
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmountBTC },
-        formError: { transferAmount: { $set: 'Insufficient funds for paying transaction fees' } }
-      } }
+describe('RecipientComponent Interactions:', () => {
+  let mockUpdateTransferForm
+  let mockGoToStep
+  beforeEach(() => {
+    mockUpdateTransferForm = jest.fn()
+    mockGoToStep = jest.fn()
+    wrapper = mount(
+      <Recipient {...{
+        ...initialProps,
+        updateTransferForm: mockUpdateTransferForm,
+        goToStep: mockGoToStep
+      }
+      } />
     )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+  })
 
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: largeAmount },
-        formError: { transferAmount: { $set: `The amount cannot exceed your current balance ${mockInvalidAmountBTC}` } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+  it('sender input field change', () => {
+    wrapper.find(TextField).filter('#sender').props().onChange({ target: { value: mockValidEmail } })
+    expect(wrapper.find(TextField).filter('#sender').prop('error')).toEqual(false)
 
-    props = update(
-      props,
-      { transferForm: {
-        transferAmount: { $set: mockInvalidAmount },
-        formError: { transferAmount: { $set: 'The amount must be greater than 0.001' } }
-      } }
-    )
-    tree.update(<Recipient {...props} />)
-    expect(tree.toJSON()).toMatchSnapshot()
+    wrapper.find(TextField).filter('#sender').props().onChange({ target: { value: mockInvalidEmail } })
+    expect(mockUpdateTransferForm.mock.calls[1][0].formError.sender).toEqual('Invalid email')
+  })
+
+  it('destination input field change', () => {
+    wrapper.find(TextField).filter('#destination').props().onChange({ target: { value: mockValidEmail } })
+    expect(wrapper.find(TextField).filter('#destination').prop('error')).toEqual(false)
+
+    wrapper.find(TextField).filter('#destination').props().onChange({ target: { value: mockInvalidEmail } })
+    expect(mockUpdateTransferForm.mock.calls[1][0].formError.destination).toEqual('Invalid email')
+  })
+
+  it('amount input field change (valid)', () => {
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockValidAmount } })
+    expect(wrapper.find(TextField).filter('#amount').prop('error')).toEqual(false)
+
+    // This is for the second check on transferAmount when getTxCost finish
+    wrapper.setProps({ actionsPending: { getTxCost: true } })
+    wrapper.setProps({
+      txCost: { costInBasicUnit: '99999999999999999' },
+      actionsPending: { getTxCost: false }
+    })
+    expect(mockUpdateTransferForm.mock.calls.length).toEqual(2)
+  })
+
+  it('amount input field change (large amount)', () => {
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: largeAmount } })
+    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('The amount cannot exceed your current balance 0.01')
+  })
+
+  it('amount input field change (<0.001)', () => {
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmount } })
+    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('The amount must be greater than 0.001')
+  })
+
+  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) ETH', () => {
+    wrapper.setProps({ txCost: { costInBasicUnit: '99999999999999999' } })
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
+    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
+  })
+
+  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) DAI', () => {
+    wrapper.setProps({
+      txCost: { costInBasicUnit: '99999999999999999' },
+      cryptoSelection: 'dai'
+    })
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
+    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
+  })
+
+  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) BTC', () => {
+    wrapper.setProps({
+      txCost: { costInBasicUnit: '99999999999999999' },
+      cryptoSelection: 'bitcoin'
+    })
+    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountBTC } })
+    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
+  })
+
+  it('password input field change', () => {
+    wrapper.find(TextField).filter('#password').props().onChange({ target: { value: mockValidPassword } })
+    expect(wrapper.find(TextField).filter('#password').prop('error')).toEqual(false)
+
+    wrapper.find(TextField).filter('#password').props().onChange({ target: { value: mockInvalidPassword } })
+    expect(mockUpdateTransferForm.mock.calls[1][0].formError.password).toEqual('Length must be greater or equal than 6')
+  })
+
+  it('back button', () => {
+    wrapper.find(Button).filter('#back').simulate('click')
+    expect(mockGoToStep.mock.calls[0][0]).toEqual(-1)
+  })
+
+  it('continue', () => {
+    wrapper.setProps({ transferForm: {
+      ...initialProps.transferForm,
+      sender: mockValidEmail,
+      destination: mockValidEmail,
+      transferAmount: mockValidAmount,
+      password: mockValidPassword
+    } })
+    wrapper.find(Button).filter('#continue').simulate('click')
+    expect(mockGoToStep.mock.calls[0][0]).toEqual(1)
   })
 })

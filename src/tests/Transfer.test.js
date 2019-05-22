@@ -1,14 +1,8 @@
-import React from 'react'
-import { configure, shallow } from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
 import until from 'enzyme-shallow-until'
 import ShallowWrapper from 'enzyme/ShallowWrapper'
-import toJson from 'enzyme-to-json'
 
 import Transfer from '../components/TransferComponent'
 import WalletSelection from '../containers/WalletSelectionContainer'
-
-configure({ adapter: new Adapter() })
 
 ShallowWrapper.prototype.until = until
 
@@ -39,6 +33,13 @@ describe('TransferComponent', () => {
   it('step = 3', () => {
     const wrapper = shallow(
       <Transfer step={3} history={history} />
+    ).until(WalletSelection)
+    expect(toJson(wrapper)).toMatchSnapshot()
+  })
+
+  it('step = 4', () => {
+    const wrapper = shallow(
+      <Transfer step={4} history={history} />
     ).until(WalletSelection)
     expect(toJson(wrapper)).toMatchSnapshot()
   })

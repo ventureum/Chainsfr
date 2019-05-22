@@ -1,30 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ReceiptComponent Receipt render: 1`] = `
+exports[`ReceiptComponent render: Receipt render: 1`] = `
 <div
-  className="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-align-items-xs-center-19 MuiGrid-justify-xs-center-28"
+  class="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-align-items-xs-center-19 MuiGrid-justify-xs-center-28"
 >
   <div
-    className="MuiGrid-item-12"
+    class="MuiGrid-item-12"
   >
     <div
-      className="MuiPaper-root-108 MuiPaper-elevation1-111 MuiPaper-rounded-109 ReceiptComponent-receiptPaper-6"
+      class="MuiPaper-root-108 MuiPaper-elevation1-111 MuiPaper-rounded-109 ReceiptComponent-receiptPaper-6"
     >
       <div
-        className="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-justify-xs-center-28"
+        class="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-justify-xs-center-28"
       >
         <div
-          className="MuiGrid-item-12"
+          class="MuiGrid-item-12"
         >
           <div
-            className="MuiGrid-item-12"
+            class="MuiGrid-item-12"
           >
             <div
-              className="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-align-items-xs-center-19 MuiGrid-justify-xs-center-28"
+              class="MuiGrid-container-11 MuiGrid-direction-xs-column-14 MuiGrid-align-items-xs-center-19 MuiGrid-justify-xs-center-28"
             >
               <svg
                 aria-hidden="true"
-                className="MuiSvgIcon-root-135 ReceiptComponent-checkCircleIcon-7"
+                class="MuiSvgIcon-root-135 ReceiptComponent-checkCircleIcon-7"
                 focusable="false"
                 role="presentation"
                 viewBox="0 0 24 24"
@@ -38,128 +38,111 @@ exports[`ReceiptComponent Receipt render: 1`] = `
                 />
               </svg>
               <h6
-                className="MuiTypography-root-144 MuiTypography-h6-161 MuiTypography-alignCenter-167 ReceiptComponent-title-1"
+                class="MuiTypography-root-144 MuiTypography-h6-161 MuiTypography-alignCenter-167 ReceiptComponent-title-1"
               >
                 Transfer Sent
               </h6>
               <p
-                className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignCenter-167 ReceiptComponent-transferId-2"
+                class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignCenter-167 ReceiptComponent-transferId-2"
               >
                 Transfer ID: e1981151-b951-467f-81e4-e9f87dfa44a8
               </p>
             </div>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               From
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
               abc@gmail.com
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               To
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
               abc@gmail.com
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               Amount
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
-              0.001
-               
-              ETH
+              0.001 ETH
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               Transaction Fee
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
               0.000021 ETH
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               Sent on
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
               May 16th 2019, 16:02:28
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewSubtitle-3"
             >
               Security Answer
             </p>
             <p
-              className="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
+              class="MuiTypography-root-144 MuiTypography-body1-153 MuiTypography-alignLeft-166 ReceiptComponent-reviewContent-4"
             >
               123456
               <button
-                aria-describedby={null}
-                className="MuiButtonBase-root-194 MuiIconButton-root-188 ReceiptComponent-iconBtn-10"
-                disabled={false}
-                onBlur={[Function]}
-                onClick={[Function]}
-                onContextMenu={[Function]}
-                onFocus={[Function]}
-                onKeyDown={[Function]}
-                onKeyUp={[Function]}
-                onMouseDown={[Function]}
-                onMouseLeave={[Function]}
-                onMouseOver={[Function]}
-                onMouseUp={[Function]}
-                onTouchEnd={[Function]}
-                onTouchMove={[Function]}
-                onTouchStart={[Function]}
-                tabIndex="0"
+                class="MuiButtonBase-root-194 MuiIconButton-root-188 ReceiptComponent-iconBtn-10"
+                tabindex="0"
                 title="Copied"
                 type="button"
               >
                 <span
-                  className="MuiIconButton-label-193"
+                  class="MuiIconButton-label-193"
                 >
                   <svg
                     aria-hidden="true"
-                    className="MuiSvgIcon-root-135 MuiSvgIcon-fontSizeSmall-142"
+                    class="MuiSvgIcon-root-135 MuiSvgIcon-fontSizeSmall-142"
                     focusable="false"
                     role="presentation"
                     viewBox="0 0 24 24"
@@ -177,10 +160,10 @@ exports[`ReceiptComponent Receipt render: 1`] = `
             </p>
           </div>
           <div
-            className="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
+            class="MuiGrid-item-12 ReceiptComponent-reviewItem-5"
           >
             <p
-              className="MuiTypography-root-144 MuiTypography-body2-152 MuiTypography-alignLeft-166 ReceiptComponent-informReceiverText-8"
+              class="MuiTypography-root-144 MuiTypography-body2-152 MuiTypography-alignLeft-166 ReceiptComponent-informReceiverText-8"
             >
               Please inform receiver the security answer to complete the transaction.
             </p>
@@ -190,41 +173,30 @@ exports[`ReceiptComponent Receipt render: 1`] = `
     </div>
   </div>
   <div
-    className="MuiGrid-item-12 ReceiptComponent-btnSection-9"
+    class="MuiGrid-item-12 ReceiptComponent-btnSection-9"
   >
     <div
-      className="MuiGrid-container-11 MuiGrid-spacing-xs-24-35 MuiGrid-justify-xs-center-28"
+      class="MuiGrid-container-11 MuiGrid-spacing-xs-24-35 MuiGrid-justify-xs-center-28"
     >
       <div
-        className="MuiGrid-item-12"
+        class="MuiGrid-item-12"
       >
-        <a
-          className="MuiButtonBase-root-194 MuiButton-root-197 MuiButton-contained-208 MuiButton-containedPrimary-209 MuiButton-raised-211 MuiButton-raisedPrimary-212 MuiButton-sizeLarge-221 MuiButton-fullWidth-222"
-          href="/"
-          onBlur={[Function]}
-          onClick={[Function]}
-          onContextMenu={[Function]}
-          onFocus={[Function]}
-          onKeyDown={[Function]}
-          onKeyUp={[Function]}
-          onMouseDown={[Function]}
-          onMouseLeave={[Function]}
-          onMouseUp={[Function]}
-          onTouchEnd={[Function]}
-          onTouchMove={[Function]}
-          onTouchStart={[Function]}
-          role="button"
-          tabIndex="0"
+        <button
+          class="MuiButtonBase-root-194 MuiButton-root-197 MuiButton-contained-208 MuiButton-containedPrimary-209 MuiButton-raised-211 MuiButton-raisedPrimary-212 MuiButton-sizeLarge-221 MuiButton-fullWidth-222"
+          id="back"
+          tabindex="0"
+          to="/"
+          type="button"
         >
           <span
-            className="MuiButton-label-198"
+            class="MuiButton-label-198"
           >
             Back to Home
           </span>
           <span
-            className="MuiTouchRipple-root-223"
+            class="MuiTouchRipple-root-223"
           />
-        </a>
+        </button>
       </div>
     </div>
   </div>

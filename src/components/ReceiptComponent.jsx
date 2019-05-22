@@ -132,6 +132,7 @@ class ReceiptComponent extends Component<Props, State> {
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
               <Button
+                id='back'
                 fullWidth
                 variant='contained'
                 color='primary'

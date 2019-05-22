@@ -123,3 +123,27 @@ exports[`TransferComponent step = 3 1`] = `
   </WithStyles(Grid)>
 </div>
 `;
+
+exports[`TransferComponent step = 4 1`] = `
+<div
+  className="MuiGrid-container-3 MuiGrid-direction-xs-column-6 TransferComponent-rootReceipt-1"
+>
+  <WithStyles(Grid)
+    item={true}
+  />
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      container={true}
+      direction="column"
+    >
+      <WithStyles(Grid)
+        className="TransferComponent-subComponent-2"
+        item={true}
+      />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</div>
+`;

@@ -1,9 +1,20 @@
-import React from 'react'
-import renderer from 'react-test-renderer'
-import { MemoryRouter } from 'react-router-dom'
 import update from 'immutability-helper'
 
 import WalletSelection from '../components/WalletSelectionComponent'
+import SquareButton from '../components/SquareButtonComponent'
+import Radio from '@material-ui/core/Radio'
+import Typography from '@material-ui/core/Typography'
+import numeral from 'numeral'
+import utils from '../utils'
+import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import ListItem from '@material-ui/core/ListItem'
+import Button from '@material-ui/core/Button'
+import ErrorIcon from '@material-ui/icons/Error'
+
+jest.mock('react-router-dom', () => () => ({
+  Link: 'Link'
+}))
 
 const mockWallet = {
   connected: true,
@@ -39,182 +50,273 @@ const emptyWallet = {
   crypto: {}
 }
 
-describe('WalletSelection', () => {
-  let initialProps = {
-    actionsPending: {
-      checkWalletConnection: false,
-      syncAccountInfo: false,
-      updateBtcAccountInfo: false,
-      checkCloudWalletConnection: false
-    },
-    cryptoSelectionPrefilled: undefined,
-    cryptoType: null,
-    error: '',
-    goToStep: () => {},
-    handleNext: () => {},
-    onCryptoSelected: () => {},
-    onWalletSelected: () => {},
-    wallet: undefined,
-    walletType: null
-  }
-  let createRenderTree = (props) => {
-    return renderer
-      .create(
-        <MemoryRouter>
-          <WalletSelection {...props} />
-        </MemoryRouter>
-      )
-  }
+let initialProps = {
+  actionsPending: {
+    checkWalletConnection: false,
+    syncAccountInfo: false,
+    updateBtcAccountInfo: false,
+    checkCloudWalletConnection: false
+  },
+  cryptoSelectionPrefilled: undefined,
+  cryptoType: null,
+  error: '',
+  goToStep: () => {},
+  handleNext: () => {},
+  onCryptoSelected: () => {},
+  onWalletSelected: () => {},
+  wallet: undefined,
+  walletType: null
+}
 
-  it('initial render', () => {
-    const props = initialProps
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+let wrapper
+
+describe('WalletSelectionComponent rendering', () => {
+  beforeEach(() => {
+    wrapper = mount(
+      <WalletSelection {...initialProps} />
+    )
   })
 
-  // drive wallet
+  it('initial render without error', () => {
+    expect(toJson(wrapper.render())).toMatchSnapshot()
+  })
+
+  // Drive wallet
   it('select drive', () => {
-    const props = update(initialProps, { walletType: { $set: 'drive' } })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
-  })
-
-  it('select drive and ETH', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'drive' },
-      cryptoType: { $set: 'ethereum' },
-      wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: 'drive' }
+    }))
+    expect(wrapper.find(SquareButton).filter('#drive').prop('selected')).toEqual(true)
   })
 
   it('select drive and DAI', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'drive' },
-      cryptoType: { $set: 'dai' },
+    const walletType = 'drive'
+    const cryptoType = 'ethereum'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
       wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }
+    ))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
   })
 
-  it('select drive and BTC', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'drive' },
-      cryptoType: { $set: 'bitcoin' },
+  it('select drive and DAI', () => {
+    const walletType = 'drive'
+    const cryptoType = 'dai'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
       wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }
+    ))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
+  })
+
+  it('select drive and DAI', () => {
+    const walletType = 'drive'
+    const cryptoType = 'bitcoin'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
+      wallet: { $set: mockWallet }
+
+    }
+    ))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
   })
 
   // Metamask
   it('select metamask', () => {
-    const props = update(initialProps, { walletType: { $set: 'metamask' } })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
-  })
-
-  it('select metamask and ETH', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'metamask' },
-      cryptoType: { $set: 'ethereum' },
-      wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: 'metamask' }
+    }))
+    expect(wrapper.find(SquareButton).filter('#metamask').prop('selected')).toEqual(true)
   })
 
   it('select metamask and DAI', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'metamask' },
-      cryptoType: { $set: 'dai' },
+    const walletType = 'metamask'
+    const cryptoType = 'ethereum'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
       wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
   })
 
-  // ledger
+  it('select metamask and DAI', () => {
+    const walletType = 'metamask'
+    const cryptoType = 'dai'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
+      wallet: { $set: mockWallet }
+    }))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
+  })
+
+  // Ledger
   it('select ledger', () => {
-    const props = update(initialProps, { walletType: { $set: 'ledger' } })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
-  })
-
-  it('select ledger and ETH', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'ethereum' },
-      wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: 'ledger' }
+    }
+    ))
+    expect(wrapper.find(SquareButton).filter('#ledger').prop('selected')).toEqual(true)
   })
 
   it('select ledger and DAI', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'dai' },
+    const walletType = 'ledger'
+    const cryptoType = 'ethereum'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
       wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
   })
 
-  it('select ledger and BTC', () => {
-    const props = update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'bitcoin' },
+  it('select ledger and DAI', () => {
+    const walletType = 'ledger'
+    const cryptoType = 'dai'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
       wallet: { $set: mockWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
   })
 
-  // actionPending
+  it('select ledger and DAI', () => {
+    const walletType = 'ledger'
+    const cryptoType = 'bitcoin'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
+      wallet: { $set: mockWallet }
+    }))
+    const balance = `${numeral(utils.toHumanReadableUnit(mockWallet.crypto[cryptoType][0].balance, getCryptoDecimals(cryptoType))).format('0.000a')} ${getCryptoSymbol(cryptoType)}`
+    expect(wrapper.find(SquareButton).filter(`#${walletType}`).prop('selected')).toEqual(true)
+    expect(wrapper.find(Radio).filter(`#${cryptoType}`).prop('checked')).toEqual(true)
+    expect(wrapper.find(Typography).filter(`#${cryptoType}Balance`).text()).toEqual(balance)
+  })
+
+  it('select ledger and DAI', () => {
+    const walletType = 'ledger'
+    const cryptoType = 'bitcoin'
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: walletType },
+      cryptoType: { $set: cryptoType },
+      wallet: { $set: { connected: true, crypto: {} } }
+    }))
+    expect(toJson(wrapper.render())).toMatchSnapshot()
+  })
+
+  //  actionPending
   it('checkWalletConnection', () => {
-    const props = update(initialProps, {
+    wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       cryptoType: { $set: 'bitcoin' },
       actionsPending: { checkWalletConnection: { $set: true } },
       wallet: { $set: emptyWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }))
+    expect(wrapper.find(LinearProgress)).toHaveLength(1)
+    expect(wrapper.find(ListItem).filter('#bitcoin').prop('disabled')).toEqual(true)
+    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
 
   it('syncAccountInfo', () => {
-    const props = update(initialProps, {
+    wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       cryptoType: { $set: 'bitcoin' },
       actionsPending: { syncAccountInfo: { $set: true } },
-      wallet: { $set: emptyWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+      wallet: { $set: mockWallet }
+    }))
+    expect(wrapper.find(LinearProgress)).toHaveLength(1)
+    expect(wrapper.find(Typography).filter('#synchronizeAccInfo').text()).toEqual('Synchronizing Account Info')
+    expect(wrapper.find(ListItem).filter('#bitcoin').prop('disabled')).toEqual(true)
+    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
 
   it('updateBtcAccountInfo', () => {
-    const props = update(initialProps, {
+    wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       cryptoType: { $set: 'bitcoin' },
       actionsPending: { updateBtcAccountInfo: { $set: true } },
-      wallet: { $set: emptyWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+      wallet: { $set: mockWallet }
+    }))
+    expect(wrapper.find(LinearProgress)).toHaveLength(1)
+    expect(wrapper.find(Typography).filter('#updateAccInfo').text()).toEqual('Updating Acoount Info')
+    expect(wrapper.find(ListItem).filter('#bitcoin').prop('disabled')).toEqual(true)
+    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
 
   it('checkCloudWalletConnection', () => {
-    const props = update(initialProps, {
+    wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       cryptoType: { $set: 'bitcoin' },
       actionsPending: { checkCloudWalletConnection: { $set: true } },
       wallet: { $set: emptyWallet }
-    })
-    const tree = createRenderTree(props).toJSON()
-    expect(tree).toMatchSnapshot()
+    }))
+    expect(wrapper.find(LinearProgress)).toHaveLength(1)
+  })
+
+  // device not connected
+  it('checkCloudWalletConnection', () => {
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: 'ledger' },
+      cryptoType: { $set: 'bitcoin' },
+      wallet: { $set: emptyWallet }
+    }))
+    expect(wrapper.find(ErrorIcon)).toHaveLength(1)
+    expect(wrapper.find(Typography).filter('#walletNotConnectedText')).toHaveLength(1)
+  })
+})
+
+describe('WalletSelectionComponent interaction', () => {
+  beforeEach(() => {
+    wrapper = mount(
+      <WalletSelection {...initialProps} />
+    )
+  })
+
+  it('onWalletSelected', () => {
+    const mockOnWalletSelect = jest.fn()
+    wrapper.setProps(update(initialProps, {
+      onWalletSelected: { $set: mockOnWalletSelect }
+    }))
+    wrapper.find(SquareButton).at(0).simulate('click')
+    expect(mockOnWalletSelect.mock.calls.length).toEqual(1)
+  })
+
+  it('onCryptoSelected', () => {
+    const mockOnCryptoSelected = jest.fn()
+    wrapper.setProps(update(initialProps, {
+      walletType: { $set: 'ledger' },
+      onCryptoSelected: { $set: mockOnCryptoSelected }
+    }))
+    wrapper.find(ListItem).at(0).simulate('click')
+    expect(mockOnCryptoSelected.mock.calls.length).toEqual(1)
   })
 })
