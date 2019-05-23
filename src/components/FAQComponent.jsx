@@ -4,13 +4,12 @@ import { withStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogActions from '@material-ui/core/DialogActions';
+import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab'
 import Icon from '@material-ui/core/Icon'
-import withMobileDialog from '@material-ui/core/withMobileDialog';
+import withMobileDialog from '@material-ui/core/withMobileDialog'
 import classNames from 'classnames'
-
 
 const DOC_URL = 'https://ventureum.github.io/Chainsfer/#/#'
 
@@ -65,7 +64,7 @@ class FAQComponent extends Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={this.handleClose} color='primary'>
               Close
             </Button>
           </DialogActions>
@@ -110,4 +109,4 @@ const styles = theme => ({
   }
 })
 
-export default withMobileDialog()(withStyles(styles)(FAQComponent));
+export default withMobileDialog()(withStyles(styles)(FAQComponent))

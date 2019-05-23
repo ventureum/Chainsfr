@@ -82,6 +82,7 @@ class ReceivePasswordComponent extends Component {
           <Grid container direction='row' justify='center'>
             <Grid item>
               <Button
+                id='cancel'
                 color='primary'
                 size='large'
                 onClick={() => {
@@ -94,6 +95,7 @@ class ReceivePasswordComponent extends Component {
             </Grid>
             <Grid item>
               <Button
+                id='continue'
                 fullWidth
                 variant='contained'
                 color='primary'

@@ -7,7 +7,12 @@ module.exports = {
   'extends': ['standard', 'standard-react', 'standard-jsx'],
   'globals': {
     'Atomics': 'readonly',
-    'SharedArrayBuffer': 'readonly'
+    'SharedArrayBuffer': 'readonly',
+    'shallow':'writable',
+    'render':'writable',
+    'mount':'writable',
+    'toJson':'writable',
+    'React':'writable'
   },
   'parser': 'babel-eslint',
   'parserOptions': {

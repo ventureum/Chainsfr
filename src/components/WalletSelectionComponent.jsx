@@ -54,6 +54,7 @@ class WalletSelectionComponent extends Component<Props> {
         {walletSelections.map(w =>
           (<Grid item key={w.walletType}>
             <SquareButton
+              id={w.walletType}
               disabled={w.disabled}
               onClick={() => onWalletSelected(w.walletType)}
               logo={w.logo}
@@ -105,7 +106,12 @@ class WalletSelectionComponent extends Component<Props> {
       return (
         <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
           <Grid item>
-            <Typography className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
+            <Typography
+              id='walletNotConnectedText'
+              className={classes.notConnectText}
+            >
+              {WalletConnectionErrorMessage[walletType]}
+            </Typography>
           </Grid>
           <Grid item>
             <ErrorIcon className={classes.notConnectIcon} />
@@ -116,7 +122,7 @@ class WalletSelectionComponent extends Component<Props> {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
-            <Typography className={classes.connectedtext}>
+            <Typography className={classes.connectedtext} id='synchronizeAccInfo'>
             Synchronizing Account Info
             </Typography>
             <Grid item>
@@ -129,7 +135,7 @@ class WalletSelectionComponent extends Component<Props> {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
-            <Typography className={classes.connectedtext}>
+            <Typography className={classes.connectedtext} id='updateAccInfo'>
             Updating Acoount Info
             </Typography>
           </Grid>
@@ -193,6 +199,7 @@ class WalletSelectionComponent extends Component<Props> {
                 actionsPending.checkWalletConnection ||
                 actionsPending.updateBtcAccountInfo
               }
+              id={c.cryptoType}
               className={classes.cryptoListItem}
             >
               <Grid container direction='row' justify='space-between' alignItems='center'>
@@ -201,6 +208,7 @@ class WalletSelectionComponent extends Component<Props> {
                   checked={c.cryptoType === cryptoType}
                   tabIndex={-1}
                   disableRipple
+                  id={c.cryptoType}
                 />
                 <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
                 {
@@ -211,7 +219,7 @@ class WalletSelectionComponent extends Component<Props> {
                   wallet.crypto[c.cryptoType][0] &&
                   !actionsPending.syncAccountInfo &&
                   <Grid item >
-                    <Typography className={classes.balanceText}>
+                    <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
                       {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
                     </Typography>
                   </Grid>
@@ -269,6 +277,7 @@ class WalletSelectionComponent extends Component<Props> {
             </Grid>
             <Grid item>
               <Button
+                id='continue'
                 fullWidth
                 variant='contained'
                 color='primary'
