@@ -17,7 +17,7 @@ import type {
   TxHash
 } from '../types/wallet.flow'
 
-export class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
+export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
   walletData: WalletDataBitcoin
 
@@ -90,7 +90,7 @@ export class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin>
     return this.walletData.accounts[accountIdx]
   }
 
-  getTxFee = async ({ to, value }: { to: string, value: string }): Promise<TxFee> => {
+  getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
     let account = this.getAccount()
     let txFeePerByte = await utils.getBtcTxFeePerByte()
     const satoshiValue = parseFloat(value) * 100000000 // 1 btc = 100,000,000 satoshi

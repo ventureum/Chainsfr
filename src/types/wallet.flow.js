@@ -56,8 +56,11 @@ export type WalletDataEthereum = {
 
 export type WalletDataBitcoin = {
   walletType: string,
+  cryptoType: string,
   accounts: AccountBitcoin[]
 }
+
+export type WalletData = WalletDataEthereum | WalletDataBitcoin
 
 export type TxHash = string
 export type TxFee = {
@@ -79,7 +82,7 @@ export interface IWallet<WalletData, Account> {
   createAccount(): Promise<Account>;
   getAccount(accountIdx?: number): Account;
   getPrivateKey(accountIdx?: number): ?string;
-  getTxFee({ to: string, value: string }): Promise<TxFee>;
+  getTxFee({ to?: string, value: string }): Promise<TxFee>;
   sendTransaction({
     to: string,
     value: string,

@@ -15,6 +15,12 @@ import bitcore from 'bitcore-lib'
 import axios from 'axios'
 import env from '../typedEnv'
 import url from '../url'
+import WalletBitcoin from '../wallets/bitcoin'
+import WalletEthereum from '../wallets/ethereum'
+import WalletFactory from '../wallets/factory'
+import type { WalletData, WalletDataEthereum } from '../types/wallet.flow.js'
+import type { TxFee } from '../types/transfer.flow.js'
+
 const transferStates = {
   SEND_PENDING: 'SEND_PENDING',
   SEND_FAILURE: 'SEND_FAILURE',
@@ -27,17 +33,6 @@ const transferStates = {
   SEND_CONFIRMED_CANCEL_CONFIRMED: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
   SEND_CONFIRMED_CANCEL_FAILURE: 'SEND_CONFIRMED_CANCEL_FAILURE'
 }
-type Utxos = Array<{
-  value: number,
-  script: string,
-  outputIndex: number,
-  txHash: string
-}>
-
-type AddressPool = Array<{
-  path: string,
-  utxos: Utxos
-}>
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -57,213 +52,81 @@ async function getFirstFromAddress (txHash: string) {
 
 async function _getTxCost (
   txRequest: {
-    cryptoType: string,
-    transferAmount: string,
-    txFeePerByte: ?number
-  },
-  addressPool: Array<Object>
+    fromWallet: WalletData,
+    transferAmount: string
+  }
 ) {
-  let { cryptoType, transferAmount, txFeePerByte } = txRequest
+  let { fromWallet, transferAmount } = txRequest
+  let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({ value: transferAmount })
 
-  const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
-  const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
-  const mockNumTokens = '1000'
-
-  const precision = (new BN(10).pow(new BN(12)))
-
-  if (cryptoType === 'ethereum') {
-    return utils.getGasCost({
-      from: mockFrom,
-      to: mockTo,
-      value: mockNumTokens
-    })
-  } else if (cryptoType === 'dai') {
-    // eth transfer cost
-    let txCostEth = await utils.getGasCost({
-      from: mockFrom,
-      to: mockTo,
-      value: mockNumTokens
-    })
-
-    // ERC20 transfer tx cost
-    let txCostERC20 = await utils.getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType))
-
+  if (['dai'].includes(fromWallet.cryptoType)) {
+    // special case for erc20 tokens
     // amount of eth to be transfered to the escrow wallet
     // this will be spent as tx fees for the next token transfer (from escrow wallet)
     // otherwise, the tokens in the escrow wallet cannot be transfered out
     // we use the current estimation to calculate amount of ETH to be transfered
-    let ethTransfer = txCostERC20.costInBasicUnit
 
-    let costInBasicUnit = new BN(txCostEth.costInBasicUnit)
-      .add(new BN(txCostERC20.costInBasicUnit))
-      .add(new BN(ethTransfer))
+    // eth to be transfered for paying erc20 token tx while receiving
+    let ethTransfer = txFee.costInBasicUnit
 
-    let base = new BN(10).pow(new BN(getCryptoDecimals(cryptoType)))
+    // standard gas limit for regular eth transactions
+    let mockEthWalletData: WalletDataEthereum = { walletType: 'metamask', cryptoType: 'ethereum', accounts: [] }
+    let txCostEth = await WalletFactory.createWallet(mockEthWalletData).getTxFee({ value: '1' })
+
+    // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
+    let totalCostInBasicUnit = new BN(txCostEth.costInBasicUnit).add(new BN(txFee.costInBasicUnit)).add(new BN(ethTransfer))
 
     return {
       // use the current estimated price
-      price: txCostERC20.price,
+      price: txFee.price,
       // eth transfer gas + erc20 transfer gas
-      gas: (new BN(txCostEth.gas).add(new BN(txCostERC20.gas))).toString(),
-      // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
-      costInBasicUnit: costInBasicUnit.toString(),
-      costInStandardUnit: ((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toNumber() / parseFloat(precision.toNumber())).toString(),
+      gas: (new BN(txCostEth.gas).add(new BN(txFee.gas))).toString(),
+      costInBasicUnit: totalCostInBasicUnit.toString(),
+      costInStandardUnit: utils.toHumanReadableUnit(totalCostInBasicUnit).toString(),
       // subtotal tx cost
       // this is used for submitTx()
-      costByType: { txCostEth, txCostERC20, ethTransfer }
+      costByType: { txCostEth, txCostERC20: txFee, ethTransfer }
     }
-  } else if (cryptoType === 'bitcoin') {
-    if (!txFeePerByte) txFeePerByte = await utils.getBtcTxFeePerByte()
-    const { size, fee } = collectUtxos(addressPool, transferAmount, txFeePerByte)
-    let price = txFeePerByte.toString()
-    let gas = size.toString()
-    let costInBasicUnit = fee
-    const base = new BN(100000000)
-    let costInStandardUnit = (parseFloat((new BN(costInBasicUnit).mul(precision).div(new BN(base))).toString()) / precision).toString()
-    return { price, gas, costInBasicUnit, costInStandardUnit }
-  } else {
-    throw new Error('Invalid walletType/cryptoType')
   }
-}
 
-function collectUtxos (
-  addressPool: AddressPool = [],
-  transferAmount: string = '0',
-  txFeePerByte: number
-) {
-  let utxosCollected = []
-  let valueCollected = new BN(0)
-  let i = 0
-  let size = 0
-  let fee = new BN(0)
-  const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
-  while (i < addressPool.length) {
-    let utxos = addressPool[i].utxos
-    for (let j = 0; j < utxos.length; j++) {
-      const utxo = utxos[j]
-      utxosCollected.push({
-        ...utxo,
-        keyPath: addressPool[i].path
-      })
-      size = ledgerNanoS.estimateTransactionSize(utxosCollected.length, 2, true).max
-      fee = (new BN(size)).mul(new BN(txFeePerByte))
-      valueCollected = valueCollected.add(new BN(utxo.value))
-      if (valueCollected.gte(new BN(satoshiValue).add(fee))) {
-        return {
-          fee: fee.toString(),
-          size,
-          utxosCollected
-        }
-      }
-    }
-    i += 1
-  }
-  console.warn('Transfer amount greater and fee than utxo values.')
-  return {
-    fee: fee.toString(),
-    size,
-    utxosCollected
-  }
+  return txFee
 }
 
 async function _directTransfer (
   txRequest: {
-    fromWallet: Object,
-    cryptoType: string,
+    fromWallet: WalletData,
     transferAmount: string,
     destinationAddress: string,
-    txCost: Object
-  },
-  utxos: Utxos
-) {
-  let { fromWallet, cryptoType, transferAmount, destinationAddress, txCost } = txRequest
-  if (['ethereum', 'dai'].includes(cryptoType)) {
-    var _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-    var txObj = null
-
-    // eth and dai have the same decimals
-    let amountInBasicUnit = _web3.utils.toWei(transferAmount, 'ether')
-
-    // add account to web3
-    _web3.eth.accounts.wallet.add(fromWallet.crypto[cryptoType][0].privateKey)
-
-    let fromAddress = fromWallet.crypto[cryptoType][0].address
-    if (cryptoType === 'ethereum') {
-      txObj = {
-        from: fromAddress,
-        to: destinationAddress,
-        value: amountInBasicUnit,
-        gas: txCost.gas,
-        gasPrice: txCost.price
-      }
-    } else if (cryptoType === 'dai') {
-      txObj = await ERC20.getTransferTxObj(fromAddress, destinationAddress, amountInBasicUnit, cryptoType)
-      // update tx fees
-      txObj.gas = txCost.gas
-      txObj.gasPrice = txCost.price
-    }
-    let sendTxHash = await web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
-    return {
-      sendTxHash: sendTxHash,
-      transferAmount: transferAmount,
-      destinationAddress: destinationAddress,
-      txCost: txCost,
-      cryptoType: cryptoType
-    }
-  } else if (cryptoType === 'bitcoin') {
-    let bitcoreUtxoFormat = utxos.map(utxo => {
-      return {
-        txid: utxo.txHash,
-        vout: utxo.outputIndex,
-        address: fromWallet.crypto[cryptoType][0].address,
-        script: utxo.script,
-        satoshis: utxo.value
-      }
-    })
-    const satoshiValue = parseFloat(transferAmount) * 100000000 // 1 btc = 100,000,000 satoshi
-    const fee = parseInt(txCost.costInBasicUnit)
-    // get privateKey
-    const decryptedWallet = fromWallet.crypto[cryptoType][0]
-    let transaction = new bitcore.Transaction()
-      .from(bitcoreUtxoFormat)
-      .to(destinationAddress, satoshiValue)
-      .change(fromWallet.crypto[cryptoType][0].address)
-      .fee(fee)
-      .sign(decryptedWallet.privateKey)
-    const txHex = transaction.serialize()
-    const sendTxHash = await ledgerNanoS.broadcastBtcRawTx(txHex)
-    return {
-      sendTxHash: sendTxHash,
-      transferAmount: transferAmount,
-      destinationAddress: destinationAddress,
-      txCost: txCost,
-      cryptoType: cryptoType
-    }
+    txFee: TxFee
   }
+) {
+  let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
+  return WalletFactory.createWallet(fromWallet).sendTransaction({ to: destinationAddress, value: transferAmount, txFee: txFee })
 }
 
 async function _submitTx (
   txRequest: {
-    fromWallet: Object,
-    walletType: string,
-    cryptoType: string,
+    fromWallet: WalletData,
     transferAmount: string,
     password: string,
     sender: string,
     destination: string,
-    txCost: Object,
-    txFeePerByte: ?number,
+    txCost: Object
   },
   accountInfo: Object
 ) {
   let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost } = txRequest
-  let escrow: Object = {}
+
+  let escrowWallet = await WalletFactory.generateWallet({ walletType: 'escrow', cryptoType: fromWallet.cryptoType })
+
+  // create a new account
+  let escrow: Account = await wallet.createAccount()
+
   let encryptedEscrow: string
   let sendTxHash: string = ''
   let sendTxFeeTxHash: string
-  if (!window._web3) {
-    window._web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-  }
+
+
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
     // step 1: create an escrow wallet

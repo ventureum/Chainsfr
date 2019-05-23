@@ -9,19 +9,11 @@ import Web3 from 'web3'
 import ERC20 from '../ERC20'
 import LedgerNanoS from '../ledgerSigner'
 
-import type {
-  IWallet,
-  WalletDataEthereum,
-  AccountEthereum
-} from '../types/wallet.flow'
+import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 
-import type {
-  TxFee,
-  TxHash,
-  BasicTokenUnit
-} from '../types/transfer.flow'
+import type { TxFee, TxHash, BasicTokenUnit } from '../types/transfer.flow'
 
-export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthereum> {
+export default class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthereum> {
   ledger: any
   walletData: WalletDataEthereum
 
@@ -72,54 +64,16 @@ export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthere
     return this.walletData.accounts[accountIdx]
   }
 
-  getTxFee = async ({ to, value }: { to: string, value: string }): Promise<TxFee> => {
+  getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
     let { cryptoType } = this.walletData
 
     const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
     const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
-    const mockNumTokens = '1000'
 
     if (cryptoType === 'ethereum') {
-      return utils.getGasCost({
-        from: mockFrom,
-        to: mockTo,
-        value: mockNumTokens
-      })
+      return utils.getGasCost({ from: mockFrom, to: mockTo, value: value })
     } else if (cryptoType === 'dai') {
-      // eth transfer cost
-      let txCostEth = await utils.getGasCost({
-        from: mockFrom,
-        to: mockTo,
-        value: mockNumTokens
-      })
-
-      // ERC20 transfer tx cost
-      let txCostERC20 = await utils.getGasCost(
-        ERC20.getTransferTxObj(mockFrom, mockTo, mockNumTokens, cryptoType)
-      )
-
-      // amount of eth to be transfered to the escrow wallet
-      // this will be spent as tx fees for the next token transfer (from escrow wallet)
-      // otherwise, the tokens in the escrow wallet cannot be transfered out
-      // we use the current estimation to calculate amount of ETH to be transfered
-      let ethTransfer = txCostERC20.costInBasicUnit
-
-      let costInBasicUnit = new BN(txCostEth.costInBasicUnit)
-        .add(new BN(txCostERC20.costInBasicUnit))
-        .add(new BN(ethTransfer))
-
-      return {
-        // use the current estimated price
-        price: txCostERC20.price,
-        // eth transfer gas + erc20 transfer gas
-        gas: new BN(txCostEth.gas).add(new BN(txCostERC20.gas)).toString(),
-        // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
-        costInBasicUnit: costInBasicUnit.toString(),
-        costInStandardUnit: utils.toHumanReadableUnit(costInBasicUnit).toString(),
-        // subtotal tx cost
-        // this is used for submitTx()
-        costByType: { txCostEth, txCostERC20, ethTransfer }
-      }
+      return utils.getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, value, cryptoType))
     } else {
       throw new Error(`Invalid cryptoType: ${cryptoType}`)
     }
@@ -138,15 +92,15 @@ export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthere
     function web3EthSendTransactionPromise (web3Function: Function, txObj: Object) {
       return new Promise((resolve, reject) => {
         web3Function(txObj)
-          .on('transactionHash', (hash) => resolve(hash))
-          .on('error', (error) => reject(error))
+          .on('transactionHash', hash => resolve(hash))
+          .on('error', error => reject(error))
       })
     }
 
     const account = this.getAccount()
     const ledgerNanoS = new LedgerNanoS()
     const { walletType, cryptoType } = this.walletData
-    let txObj:any = {}
+    let txObj: any = {}
     // setup tx obj
     if (cryptoType === 'ethereum') {
       txObj = { from: account.address, to: to, value: value }
@@ -167,7 +121,10 @@ export class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthere
     } else if (walletType === 'ledger') {
       let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       const signedTransactionObject = await ledgerNanoS.signSendTransaction(txObj)
-      return web3EthSendTransactionPromise(_web3.eth.sendSignedTransaction, signedTransactionObject.rawTransaction)
+      return web3EthSendTransactionPromise(
+        _web3.eth.sendSignedTransaction,
+        signedTransactionObject.rawTransaction
+      )
     } else {
       throw new Error(`Invalid walletType: ${walletType}`)
     }
