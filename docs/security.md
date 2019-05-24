@@ -1,6 +1,6 @@
 # Security
 
-### How to enhance the security of your transaction?
+## How to enhance the security of your transaction?
 Chainsfer is secure. 
 
 However, the following tips can make your transaction safer:
