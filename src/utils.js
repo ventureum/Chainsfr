@@ -3,10 +3,8 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import randomBytes from 'randombytes'
 import wordlist from './wordlist.js'
-import wif from 'wif'
-import bitcore from 'bitcore-lib'
 import axios from 'axios'
-import CryptoWorker from './crypto.worker.js'
+import bcrypt from 'bcrypt'
 import url from './url'
 
 const WIF_VERSION = {
@@ -178,12 +176,21 @@ function Cryptr (secret) {
 
 async function encryptMessage (message: string, password: string): Promise<string> {
   const cryptr = new Cryptr(password)
-  return cryptr.encrypt(message)
+  return JSON.stringify({
+    hash: await bcrypt.hash(message, 10),
+    encryptedMessage: cryptr.encrypt(message)
+  })
 }
 
-async function decryptMessage (encryptedMessage: string, password: string): Promise<string> {
+async function decryptMessage (encryptedMessage: string, password: string): Promise<?string> {
   const cryptr = new Cryptr(password)
-  return cryptr.decrypt(encryptedMessage)
+  let encryptedMessageObj = JSON.parse(encryptedMessage)
+  let message = cryptr.decrypt(encryptedMessageObj.encryptedMessage)
+  if (!(await bcrypt.compare(message, encryptedMessageObj.hash))) {
+    // decryption failed
+    return null
+  }
+  return message
 }
 
 export default {

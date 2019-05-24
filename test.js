@@ -40,18 +40,39 @@ function Cryptr (secret) {
   }
 }
 
+const bcrypt = require('bcrypt')
+
+async function encryptMessage (message, password) {
+  const cryptr = new Cryptr(password)
+  return JSON.stringify({
+    hash: await bcrypt.hash(message, 10),
+    encryptedMessage: cryptr.encrypt(message)
+  })
+}
+
+async function decryptMessage (encryptedMessage, password) {
+  const cryptr = new Cryptr(password)
+  let encryptedMessageObj = JSON.parse(encryptedMessage)
+  let message = cryptr.decrypt(encryptedMessageObj.encryptedMessage)
+  if (!(await bcrypt.compare(message, encryptedMessageObj.hash))) {
+    throw new Error('Decryption failed: Wrong password')
+  }
+  return message
+}
+
 async function main () {
   const seed = await bip39.mnemonicToSeed(bip39.generateMnemonic())
   const root = bip32.fromSeed(seed)
   let xpriv = root.toBase58()
   let xpub = root.neutered().toBase58()
 
-  console.log(root, xpriv)
-  const cryptr = new Cryptr('myTotalySecretKey')
-  const encryptedString = cryptr.encrypt(xpriv)
-  console.log(encryptedString)
-  const decryptedString = cryptr.decrypt(encryptedString)
-  console.log(decryptedString)
+  try {
+    let a = await encryptMessage(xpriv, 'abcde')
+    let b = await decryptMessage(a, 'abcde')
+    console.log(a, b)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 main()

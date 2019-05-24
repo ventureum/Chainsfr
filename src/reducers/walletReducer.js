@@ -6,14 +6,10 @@ import update from 'immutability-helper'
 import { REHYDRATE } from 'redux-persist/lib/constants'
 
 const initState = {
-  /*
-   * escrow wallet
-   */
-  escrowWallet: {
-    encryptedWallet: null,
-    decryptedWallet: null
-  },
   wallet: {
+    escrow: {
+      crypto: {}
+    },
     drive: {
       unlockRequest: null,
       connected: false,

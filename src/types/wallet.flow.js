@@ -1,6 +1,6 @@
 // @flow
-import WalletBitcoin from './bitcoin.js'
-import WalletEthereum from './ethereum.js'
+import WalletBitcoin from '../wallets/bitcoin.js'
+import WalletEthereum from '../wallets/ethereum.js'
 
 export type AddressEthereum = string
 
@@ -49,6 +49,8 @@ export type AccountBitcoin = {
   hdWalletVariables: HDWalletVariables
 }
 
+export type Account = AccountEthereum | AccountBitcoin
+
 export type WalletDataEthereum = {
   walletType: string,
   // necessary for supporting ERC20 tokens
@@ -70,9 +72,20 @@ export type TxFee = {
   gas: string,
   costInBasicUnit: string,
   costInStandardUnit: string,
+  // for erc20 tx
   costByType?: {
-    txCostEth: TxFee,
-    txCostERC20: TxFee,
+    txCostEth: {
+      price: string,
+      gas: string,
+      costInBasicUnit: string,
+      costInStandardUnit: string
+    },
+    txCostERC20: {
+      price: string,
+      gas: string,
+      costInBasicUnit: string,
+      costInStandardUnit: string
+    },
     ethTransfer: string
   }
 }

@@ -13,6 +13,10 @@ import env from '../typedEnv'
 import API from '../apis'
 import url from '../url'
 import { networkIdMap } from '../ledgerSigner/utils'
+import WalletFactory from '../wallets/factory'
+import type { WalletData, Account } from '../types/wallet.flow.js'
+import type { TxFee, TxHash } from '../types/transfer.flow.js'
+import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -93,25 +97,27 @@ async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boo
 async function _verifyPassword (
   transferInfo: {
     sendingId: ?string,
-    encryptedWallet: string,
-    password: string,
-    cryptoType: string
+    encryptedWallet: WalletData,
+    password: string
   }
 ) {
-  let { sendingId, encryptedWallet, password, cryptoType } = transferInfo
+  let { sendingId, encryptedWallet, password } = transferInfo
+  let account: Account = WalletFactory.createWallet(encryptedWallet).getAccount()
 
   if (sendingId) {
     // retrieve password from drive
     let transferData = await getTransferData(sendingId)
-    password = Base64.decode(transferData.password) + transferData.destination
+    password = Base64.decode(transferData.password)
   }
 
-  let decryptedWallet = await utils.decryptWallet(encryptedWallet, password, cryptoType)
-  if (!decryptedWallet) {
+  if (!account.encryptedPrivateKey) throw new Error('encryptedPrivateKey does not exist in account')
+  let privateKey = await utils.decryptMessage(account.encryptedPrivateKey, password)
+
+  if (!privateKey) {
     // wrong password
     throw new Error('WALLET_DECRYPTION_FAILED')
   }
-  return decryptedWallet
+  return privateKey
 }
 
 function checkMetamaskConnection (crypoType: string) {
