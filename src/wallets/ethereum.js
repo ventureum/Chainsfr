@@ -10,8 +10,8 @@ import ERC20 from '../ERC20'
 import LedgerNanoS from '../ledgerSigner'
 
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
-
-import type { TxFee, TxHash, BasicTokenUnit } from '../types/transfer.flow'
+import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 export default class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthereum> {
   ledger: any
@@ -64,7 +64,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     return this.walletData.accounts[accountIdx]
   }
 
-  getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
+  getTxFee = async ({ to, value }: { to?: string, value: BasicTokenUnit }): Promise<TxFee> => {
     let { cryptoType } = this.walletData
 
     const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
@@ -84,7 +84,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     value,
     txFee
   }: {
-    to: string,
+    to: Address,
     value: BasicTokenUnit,
     txFee?: TxFee
   }): Promise<TxHash> => {

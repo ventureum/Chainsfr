@@ -1,4 +1,6 @@
 // @flow
+import WalletBitcoin from './bitcoin.js'
+import WalletEthereum from './ethereum.js'
 
 export type AddressEthereum = string
 
@@ -89,3 +91,5 @@ export interface IWallet<WalletData, Account> {
     txFee?: TxFee
   }): Promise<TxHash>;
 }
+
+export type Wallet = WalletEthereum | WalletBitcoin

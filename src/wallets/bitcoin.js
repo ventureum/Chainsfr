@@ -12,10 +12,10 @@ import type {
   IWallet,
   WalletDataBitcoin,
   AccountBitcoin,
-  AddressBitcoin,
-  TxFee,
-  TxHash
+  AddressBitcoin
 } from '../types/wallet.flow'
+import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
@@ -34,7 +34,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   createAccount = async (): Promise<AccountBitcoin> => {
     const network =
       env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-    const seed = bip39.mnemonicToSeed(bip39.generateMnemonic())
+    const seed = await bip39.mnemonicToSeed(bip39.generateMnemonic())
     const root = bip32.fromSeed(seed)
     let xpriv = root.toBase58()
     let xpub = root.neutered().toBase58()
@@ -93,7 +93,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
     let account = this.getAccount()
     let txFeePerByte = await utils.getBtcTxFeePerByte()
-    const satoshiValue = parseFloat(value) * 100000000 // 1 btc = 100,000,000 satoshi
     const { size, fee } = this.collectUtxos(
       account.hdWalletVariables.addresses,
       satoshiValue,
@@ -111,8 +110,8 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     value,
     txFee
   }: {
-    to: string,
-    value: string,
+    to: Address,
+    value: BasicTokenUnit,
     txFee?: TxFee
   }): Promise<TxHash> => {
     let account = this.getAccount()

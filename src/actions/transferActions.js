@@ -18,8 +18,9 @@ import url from '../url'
 import WalletBitcoin from '../wallets/bitcoin'
 import WalletEthereum from '../wallets/ethereum'
 import WalletFactory from '../wallets/factory'
-import type { WalletData, WalletDataEthereum } from '../types/wallet.flow.js'
+import type { WalletData, WalletDataEthereum, WalletDataBitcoin, AccountEthereum, AccountBitcoin } from '../types/wallet.flow.js'
 import type { TxFee } from '../types/transfer.flow.js'
+import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 const transferStates = {
   SEND_PENDING: 'SEND_PENDING',
@@ -117,29 +118,16 @@ async function _submitTx (
 ) {
   let { fromWallet, walletType, cryptoType, transferAmount, password, sender, destination, txCost } = txRequest
 
+  // add destination to password to enhance security
+  let _password = password + destination
+
+  // generate an escrow wallet
   let escrowWallet = await WalletFactory.generateWallet({ walletType: 'escrow', cryptoType: fromWallet.cryptoType })
+  let escrowAccount = escrowWallet.getAccount()
+  let encryptedPrivateKey = utils.encryptMessage(escrowAccount.privateKey, _password)
 
-  // create a new account
-  let escrow: Account = await wallet.createAccount()
-
-  let encryptedEscrow: string
-  let sendTxHash: string = ''
-  let sendTxFeeTxHash: string
-
-
-  if (['ethereum', 'dai'].includes(cryptoType)) {
-    // ethereum based coins
-    // step 1: create an escrow wallet
-    escrow = window._web3.eth.accounts.create()
-
-    // step 2: encrypt the escrow wallet with password provided and the destination email address
-    encryptedEscrow = JSON.stringify(window._web3.eth.accounts.encrypt(escrow.privateKey, password + destination))
-  } else if (cryptoType === 'bitcoin') {
-    escrow = new bitcore.PrivateKey(undefined, env.REACT_APP_BTC_NETWORK)
-    let privateKeyWif = escrow.toWIF()
-
-    encryptedEscrow = await utils.encryptWallet({ wif: privateKeyWif }, password + destination, 'bitcoin')
-  }
+  let sendTxHash
+  let sendTxFeeTxHash
 
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
@@ -147,10 +135,35 @@ async function _submitTx (
     destination: destination,
     transferAmount: transferAmount,
     cryptoType: cryptoType,
-    data: Base64.encode(encryptedEscrow),
-    password: Base64.encode(password),
+    data: Base64.encode(encryptedPrivateKey),
+    password: Base64.encode(_password),
     tempTimestamp: moment().unix()
   })
+
+  // convert transferAmount to basic token unit
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
+
+  if (['ethereum', 'bitcoin'].includes(cryptoType)) {
+    sendTxHash = WalletFactory.createWallet(fromWallet).sendTransaction({ to: escrowAccount.address, value: value })
+  } else if (['dai'].includes(cryptoType)) {
+    // we need to transfer a small amount of eth to escrow to pay for
+    // the next transfer's tx fees
+    let accounts: Array<AccountEthereum> = fromWallet.accounts
+    let ethWalletData: WalletDataEthereum = {
+      cryptoType: 'ethereum',
+      walletType: fromWallet.walletType,
+      accounts: fromWallet.accounts
+    }
+    sendTxFeeTxHash = WalletFactory
+      .createWallet(ethWalletData)
+      .sendTransaction({ to: escrowAccount.address, value: txCost.costByType.ethTransfer })
+    
+    fromWallet.cryptoType = 'ethereum'
+    sendTxFeeTxHash = WalletFactory
+      .createWallet(fromWallet)
+      .sendTransaction({ to: escrowAccount.address, value: txCost.costByType.ethTransfer })
+
+  }
 
   // step 4: transfer funds from [fromWallet] to the newly created escrow wallet
   if (walletType === 'metamask') {
