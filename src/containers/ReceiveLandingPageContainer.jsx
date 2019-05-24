@@ -7,6 +7,7 @@ import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { onLogin } from '../actions/userActions'
+import moment from 'moment'
 
 class ReceiveLandingPageContainer extends Component {
   componentDidMount () {
@@ -16,6 +17,13 @@ class ReceiveLandingPageContainer extends Component {
   }
 
   render () {
+    const { transfer } = this.props
+    if (transfer) {
+      const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
+      transfer.sendTimestamp = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      if (receiveTimestamp) transfer.receiveTimestamp = moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      if (cancelTimestamp) transfer.cancelTimestamp = moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    }
     return (
       <ReceiveLandingPageComponent
         {...this.props}

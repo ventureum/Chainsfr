@@ -9,16 +9,13 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import MuiLink from '@material-ui/core/Link'
 import { Link } from 'react-router-dom'
-import moment from 'moment'
 import Paths from '../Paths.js'
 import { getCryptoSymbol } from '../tokens'
 
 class ReceiveLandingPageComponent extends Component {
   renderBtnSection = () => {
     let { isAuthenticated, transfer } = this.props
-    if (transfer) {
-      var { receivingId } = transfer
-    }
+    let { receivingId } = transfer
 
     if (isAuthenticated) {
       // show 'Accept' button only for authenticated users
@@ -28,6 +25,7 @@ class ReceiveLandingPageComponent extends Component {
             variant='outlined'
             color='primary'
             onClick={() => this.props.goToStep(1)}
+            id='accept'
           >
             Accept
           </Button>
@@ -42,6 +40,7 @@ class ReceiveLandingPageComponent extends Component {
               variant='outlined'
               color='primary'
               onClick={() => this.props.goToStep(1)}
+              id='guest'
             >
               Guest
             </Button>
@@ -52,6 +51,7 @@ class ReceiveLandingPageComponent extends Component {
               color='primary'
               component={Link}
               to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
+              id='loginGoogle'
             >
               Login with Google
             </Button>
@@ -64,7 +64,7 @@ class ReceiveLandingPageComponent extends Component {
   render () {
     const { actionsPending, transfer, classes } = this.props
     if (transfer) {
-      var { receivingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, sender, destination, transferAmount, cryptoType, sendTimestamp } = transfer
+      var { receivingId, receiveTxHash, cancelTxHash, sender, destination, transferAmount, cryptoType, sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
     }
@@ -158,7 +158,7 @@ class ReceiveLandingPageComponent extends Component {
                    Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {sendTimestamp}
                   </Typography>
                 </Grid>
                 {(hasReceived || hasCancelled) &&
@@ -168,8 +168,8 @@ class ReceiveLandingPageComponent extends Component {
                     {hasCancelled && 'Cancelled on'}
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                    {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {hasReceived && receiveTimestamp}
+                    {hasCancelled && cancelTimestamp}
                   </Typography>
                 </Grid>
                 }
