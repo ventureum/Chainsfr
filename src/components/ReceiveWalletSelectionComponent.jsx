@@ -8,7 +8,6 @@ import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
 import {
   walletSelections,
-  walletCryptoSupports,
   walletDisabledByCrypto,
   getWalletTitle
 } from '../wallet'
@@ -31,20 +30,6 @@ class ReceiveWalletSelectionComponent extends Component {
     onWalletSelected: PropTypes.func
   }
 
-  cryptoInWallet = (crypto, walletType) => {
-    for (let item of walletCryptoSupports[walletType]) {
-      if (item.cryptoType === crypto.cryptoType) return true
-    }
-    return false
-  }
-
-  cryptoDisabled = (crypto, walletType) => {
-    for (let item of walletCryptoSupports[walletType]) {
-      if (item.cryptoType === crypto.cryptoType && item.disabled) return true
-    }
-    return false
-  }
-
   renderWalletSelection = () => {
     const { walletType, onWalletSelected, transfer, actionsPending } = this.props
     return (
@@ -53,13 +38,12 @@ class ReceiveWalletSelectionComponent extends Component {
           (<Grid item key={w.walletType}>
             <SquareButton
               disabled={w.disabled || walletDisabledByCrypto(w.walletType, transfer.cryptoType) || actionsPending.getLastUsedAddress}
-              onClick={() => {
-                if (w.walletType !== walletType) { onWalletSelected(w.walletType) } else { onWalletSelected(null) }
-              }}
+              onClick={() => onWalletSelected(w.walletType)}
               logo={w.logo}
               title={w.title}
               desc={w.desc}
               selected={w.walletType === walletType}
+              id={w.walletType}
             />
           </Grid>))}
       </Grid>
@@ -108,7 +92,12 @@ class ReceiveWalletSelectionComponent extends Component {
                   </IconButton>
                 </Grid>
               </Grid>
-              <Grid item onClick={() => { useAnotherAddress() }} className={classes.connectAnotherAddressContainer}>
+              <Grid
+                item
+                onClick={() => { useAnotherAddress() }}
+                className={classes.connectAnotherAddressContainer}
+                id='useAnotherAddress'
+              >
                 <Typography className={classes.connectAnotherAddressText} >
                   Connect with another {getWalletTitle(walletType)} account
                 </Typography>
@@ -145,7 +134,7 @@ class ReceiveWalletSelectionComponent extends Component {
             <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
           <Grid item>
-            <Typography className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
+            <Typography id='walletNotConnectedText' className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
           </Grid>
         </Grid>
       )
@@ -240,6 +229,7 @@ class ReceiveWalletSelectionComponent extends Component {
                   this.props.onWalletSelected(null)
                   this.props.goToStep(-2)
                 }}
+                id='cancel'
               >
                 Cancel
               </Button>
@@ -254,6 +244,7 @@ class ReceiveWalletSelectionComponent extends Component {
                   !walletType ||
                   (!wallet.crypto[cryptoType] && lastUsedWallet[walletType].crypto[cryptoType] && !lastUsedWallet[walletType].crypto[cryptoType].address)
                 }
+                id='continue'
               >
                 Continue
               </Button>
