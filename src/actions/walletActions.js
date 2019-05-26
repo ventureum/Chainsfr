@@ -12,6 +12,7 @@ import BN from 'bn.js'
 import env from '../typedEnv'
 import API from '../apis'
 import url from '../url'
+import { walletCryptoSupports } from '../wallet.js'
 import { networkIdMap } from '../ledgerSigner/utils'
 import WalletFactory from '../wallets/factory'
 import type { WalletData, Account } from '../types/wallet.flow.js'
@@ -40,7 +41,7 @@ function updateBtcAccountInfo (xpub: string, progress: ?Function) {
 async function _checkMetamaskConnection (
   cryptoType: string,
   dispatch: Function
-) : Promise<{
+): Promise<{
   connected: boolean,
   network: ?string,
   crypto: ?Array<Object>
@@ -59,7 +60,9 @@ async function _checkMetamaskConnection (
 
     // request the user logs in
     rv.crypto = {}
-    if (window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()) {
+    if (
+      window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+    ) {
       throw 'Incorrect Metamask network' // eslint-disable-line
     }
 
@@ -70,7 +73,10 @@ async function _checkMetamaskConnection (
           [cryptoType]: {
             [i]: {
               address: addresses[i],
-              balance: cryptoType === 'ethereum' ? await window._web3.eth.getBalance(addresses[i]) : await ERC20.getBalance(addresses[i], cryptoType)
+              balance:
+                cryptoType === 'ethereum'
+                  ? await window._web3.eth.getBalance(addresses[i])
+                  : await ERC20.getBalance(addresses[i], cryptoType)
             }
           }
         }
@@ -94,15 +100,13 @@ async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boo
   return deviceConnected
 }
 
-async function _verifyPassword (
-  transferInfo: {
-    sendingId: ?string,
-    encryptedWallet: WalletData,
-    password: string
-  }
-) {
+async function _verifyPassword (transferInfo: {
+  sendingId: ?string,
+  encryptedWallet: WalletData,
+  password: string
+}) {
   let { sendingId, encryptedWallet, password } = transferInfo
-  let account: Account = WalletFactory.createWallet(encryptedWallet).getAccount()
+  let wallet = WalletFactory.createWallet(encryptedWallet)
 
   if (sendingId) {
     // retrieve password from drive
@@ -110,14 +114,11 @@ async function _verifyPassword (
     password = Base64.decode(transferData.password)
   }
 
-  if (!account.encryptedPrivateKey) throw new Error('encryptedPrivateKey does not exist in account')
-  let privateKey = await utils.decryptMessage(account.encryptedPrivateKey, password)
+  await wallet.decryptAccount(password)
 
-  if (!privateKey) {
-    // wrong password
-    throw new Error('WALLET_DECRYPTION_FAILED')
+  return {
+    [encryptedWallet.cryptoType]: wallet.getAccount()
   }
-  return privateKey
 }
 
 function checkMetamaskConnection (crypoType: string) {
@@ -146,9 +147,8 @@ function checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean) {
 function verifyPassword (
   transferInfo: {
     sendingId: ?string,
-    encryptedWallet: string,
-    password: string,
-    cryptoType: string
+    encryptedWallet: WalletData,
+    password: string
   },
   nextStep: ?{
     transferAction: string,
@@ -159,13 +159,15 @@ function verifyPassword (
     return dispatch({
       type: 'VERIFY_PASSWORD',
       payload: _verifyPassword(transferInfo)
-    }).then(() => {
-      if (nextStep) {
-        return dispatch(goToStep(nextStep.transferAction, nextStep.n))
-      }
-    }).catch(error => {
-      console.warn(error)
     })
+      .then(() => {
+        if (nextStep) {
+          return dispatch(goToStep(nextStep.transferAction, nextStep.n))
+        }
+      })
+      .catch(error => {
+        console.warn(error)
+      })
   }
 }
 
@@ -177,16 +179,17 @@ function clearDecryptedWallet () {
 
 async function _getUtxoForEscrowWallet (
   address: string
-):
-  Promise<{
-    utxos: Array<{
-      value: number,
-      script: string,
-      outputIndex: number,
-      txHash: string
-    }>
-  }> {
-  const addressData = (await axios.get(`${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`)).data
+): Promise<{
+  utxos: Array<{
+    value: number,
+    script: string,
+    outputIndex: number,
+    txHash: string
+  }>
+}> {
+  const addressData = (await axios.get(
+    `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+  )).data
   const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, address)
   return { utxos }
 }
@@ -203,33 +206,18 @@ function getUtxoForEscrowWallet () {
 
 // cloud wallet actions
 async function _createCloudWallet (password: string) {
-  // ethereum based wallet
-  // ETH and erc20 tokens will use the same address
-  let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-  let ethWallet
-  if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT) {
-    const privateKey = await API.getPrefilledAccount()
-    ethWallet = privateKey ? _web3.eth.accounts.privateKeyToAccount(privateKey) : _web3.eth.accounts.create()
-  } else {
-    ethWallet = _web3.eth.accounts.create()
-  }
-
-  // wallet encryption with user-provided password
-  let ethWalletEncrypted = await utils.encryptWallet(ethWallet, password, 'ethereum')
-
-  // bitcoin wallet
-  let btcWallet = new bitcore.PrivateKey(undefined, process.env.REACT_APP_BTC_NETWORK)
-  let btcWalletEncrypted = await utils.encryptWallet({ wif: btcWallet.toWIF() }, password, 'bitcoin')
-  let btcWalletEncryptedObj = {
-    address: btcWallet.toAddress().toString(),
-    ciphertext: btcWalletEncrypted
+  var walletFileData = {}
+  for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
+    let wallet = await WalletFactory.generateWallet({
+      walletType: 'drive',
+      cryptoType: cryptoType
+    })
+    await wallet.encryptAccount(password)
+    walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
   }
 
   // save the encrypted wallet into drive
-  await saveWallet({
-    'ethereum': Base64.encode(JSON.stringify(ethWalletEncrypted)),
-    'bitcoin': Base64.encode(JSON.stringify(btcWalletEncryptedObj))
-  })
+  await saveWallet(walletFileData)
 
   return _getCloudWallet()
 }
@@ -246,36 +234,22 @@ function createCloudWallet (password: string) {
  * as well as fetching wallet balance
  */
 async function _getCloudWallet () {
-  let wallet = await getWallet()
-  if (!wallet) {
+  let walletFile = await getWallet()
+  if (!walletFile) {
     throw new Error('WALLET_NOT_EXIST')
   }
 
-  const ethWalletEncrypted = JSON.parse(Base64.decode(wallet.ethereum))
-  const btcWalletEncrypted = JSON.parse(Base64.decode(wallet.bitcoin))
+  let rv = {}
 
-  // fetch balance
-  // 1. fetch ETH balance in string
-  let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-  let ethBalance = await _web3.eth.getBalance(ethWalletEncrypted.address)
-  // 2. fetch DAI balance in string
-  let daiBalance = (await ERC20.getBalance(ethWalletEncrypted.address, 'dai')).toString()
-  // 3. fetch BTC balance in string
-  const addressData = (await axios.get(`${url.LEDGER_API_URL}/addresses/${btcWalletEncrypted.address}/transactions?noToken=true&truncated=true`)).data
-  const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, btcWalletEncrypted.address)
-  let addresses = [{ utxos }]
-  let btcBalance = (utxos.reduce((accu, utxo) => {
-    return new BN(utxo.value).add(accu)
-  }, new BN(0))).toString()
+  for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
+    let wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
+    await wallet.sync()
+    rv[cryptoType] = [wallet.getAccount()]
+  }
 
-  // wrap wallets into an array to denote the first account
   return {
     connected: true,
-    crypto: {
-      'ethereum': [{ ...ethWalletEncrypted, balance: ethBalance }],
-      'dai': [{ ...ethWalletEncrypted, balance: daiBalance }],
-      'bitcoin': [{ ...btcWalletEncrypted, balance: btcBalance, addresses: addresses }]
-    }
+    crypto: rv
   }
 }
 
@@ -306,33 +280,31 @@ function checkCloudWalletConnection (cryptoType: string) {
   }
 }
 
-async function _decryptCloudWallet (
-  wallet: {
-    encryptedWallet: {},
-    password: string,
-    cryptoType: string
-  }
-) {
-  let { encryptedWallet, password, cryptoType } = wallet
-  let decryptedWallet = await utils.decryptWallet(encryptedWallet, password, cryptoType)
-  if (!decryptedWallet) {
-    // wrong password
-    throw new Error('WALLET_DECRYPTION_FAILED')
-  }
-  return { cryptoType, decryptedWallet }
+async function _decryptCloudWallet ({
+  encryptedWallet,
+  password
+}: {
+  encryptedWallet: WalletData,
+  password: string
+}) {
+
+  let wallet = WalletFactory.createWallet(encryptedWallet)
+  await wallet.decryptAccount(password)
+
+  return wallet.getWalletData()
 }
 
-function decryptCloudWallet (
-  wallet: {
-    encryptedWallet: {},
-    password: string,
-    cryptoType: string
-  }
-) {
+function decryptCloudWallet ({
+  encryptedWallet,
+  password
+}: {
+  encryptedWallet: WalletData,
+  password: string
+}) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'DECRYPT_CLOUD_WALLET',
-      payload: _decryptCloudWallet(wallet)
+      payload: _decryptCloudWallet({ encryptedWallet, password })
     }).catch(error => {
       console.warn(error)
     })

@@ -30,6 +30,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     }
   }
 
+  getWalletData = (): WalletDataBitcoin => this.walletData
   // interface functions
   createAccount = async (): Promise<AccountBitcoin> => {
     const network =
@@ -68,20 +69,11 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
           }
         ],
         lastBlockHeight: 0,
-        lastUpdate: 0,
-        xpub: xpub
+        lastUpdate: 0
       }
     }
 
     return account
-  }
-
-  getPrivateKey = (accountIdx?: number = 0): ?string => {
-    if (this.walletData.walletType === 'drive') {
-      return this.getAccount(accountIdx).privateKey
-    }
-    // no private keys avaiable
-    return null
   }
 
   // get account (default first account)
@@ -90,12 +82,42 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     return this.walletData.accounts[accountIdx]
   }
 
+  encryptAccount = async (password: string) => {
+    let accountIdx = 0
+    if (!this.walletData.accounts[accountIdx].privateKey) {
+      throw new Error('PrivateKey does not exist')
+    }
+    this.walletData.accounts[accountIdx].encryptedPrivateKey = await utils.encryptMessage(
+      this.walletData.accounts[accountIdx].privateKey,
+      password
+    )
+  }
+
+  decryptAccount = async (password: string) => {
+    let accountIdx = 0
+    if (!this.walletData.accounts[accountIdx].encryptedPrivateKey) {
+      throw new Error('EncryptedPrivateKey does not exist')
+    }
+    this.walletData.accounts[accountIdx].privateKey = await utils.decryptMessage(
+      this.walletData.accounts[accountIdx].encryptedPrivateKey,
+      password
+    )
+  }
+
+  sync = async () => {
+    let { walletType } = this.walletData
+
+    if (walletType === 'drive') {
+      // only use the first derived address
+    }
+  }
+
   getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
     let account = this.getAccount()
     let txFeePerByte = await utils.getBtcTxFeePerByte()
     const { size, fee } = this.collectUtxos(
       account.hdWalletVariables.addresses,
-      satoshiValue,
+      value,
       txFeePerByte
     )
     let price = txFeePerByte.toString()
@@ -150,6 +172,23 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   // bitcoin specific functions
+
+  getDerivedAddress = (accountIdx: number, change: number, addressIdx: number) => {
+    let xpub = this.walletData.xpub
+
+    const network =
+      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
+
+    const root = bip32.fromBase58(xpub, network)
+    const path = `m/49'/${env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'}'/${accountIdx}'/${change}/${addressIdx}`
+    const child = root.derivePath(path)
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: network }),
+      network: network
+    })
+    return address
+  }
+
   xPrivSigner = (
     inputs: Array<Object>,
     to: string,
@@ -256,6 +295,164 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     }
   }
 
+  discoverAddress = async (
+    xpub: string,
+    accountIndex: number,
+    change: number,
+    offset: number,
+    progress: ?Function
+  ): Object => {
+    let gap = 0
+    let addresses = []
+    let balance = new BN(0)
+    let nextAddress
+    let i = offset
+    let cuurentIndex = offset === 0 ? 0 : offset - 1
+    while (gap < 5) {
+      let address
+      const addressPath = `${baseBtcPath}/${accountIndex}'/${change}/${i}`
+      const bitcoinAddress = await findAddress(addressPath, true, xpub)
+
+      const addressData = (await axios.get(
+        `${url.LEDGER_API_URL}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`
+      )).data
+      if (addressData.txs.length === 0) {
+        if (!nextAddress) nextAddress = bitcoinAddress
+        gap += 1
+      } else {
+        cuurentIndex = i
+        gap = 0
+        let utxos = this.getUtxosFromTxs(addressData.txs, bitcoinAddress)
+        let value = utxos.reduce((accu, utxo) => {
+          return new BN(utxo.value).add(accu)
+        }, new BN(0))
+        balance = balance.add(value)
+        address = {
+          path: addressPath,
+          publicKeyInfo: { bitcoinAddress },
+          utxos: utxos
+        }
+        addresses.push(address)
+      }
+      if (progress) {
+        progress(i, change)
+      }
+      i += 1
+    }
+    return {
+      balance: balance.toString(),
+      nextIndex: cuurentIndex + 1,
+      addresses,
+      nextAddress
+    }
+  }
+
+  syncBtcAccountInfo = async (accountIndex: number, progress: ?Function): Object => {
+    const btcLedger = await this.getBtcLedger()
+    const xpub = await getAccountXPub(btcLedger, baseBtcPath, `${accountIndex}'`, true)
+
+    const externalAddressData = await this.discoverAddress(xpub, accountIndex, 0, 0, progress)
+    const internalAddressData = await this.discoverAddress(xpub, accountIndex, 1, 0, progress)
+
+    let accountData = {
+      balance: new BN(externalAddressData.balance)
+        .add(new BN(internalAddressData.balance))
+        .toString(),
+      nextAddressIndex: externalAddressData.nextIndex,
+      address: externalAddressData.nextAddress, // address for receiving
+      nextChangeIndex: internalAddressData.nextIndex,
+      changeAddress: internalAddressData.nextAddress,
+      addresses: [...externalAddressData.addresses, ...internalAddressData.addresses],
+      lastBlockHeight: await getBtcLastBlockHeight(),
+      lastUpdate: moment().unix(),
+      xpub
+    }
+    return accountData
+  }
+
+  updateBtcAccountInfo = async (
+    accountIndex: number = 0,
+    accountInfo: Object,
+    xpub: string,
+    progress: ?Function
+  ) => {
+    const targetAccountInfo = accountInfo[accountIndex]
+    let { nextAddressIndex, nextChangeIndex, addresses } = targetAccountInfo
+
+    // update previous addresses
+    if (progress) {
+      progress(0)
+    }
+    const addressesData = await Promise.all(
+      addresses.map(address => {
+        const bitcoinAddress = address.publicKeyInfo.bitcoinAddress
+        return axios.get(
+          `${
+            url.LEDGER_API_URL
+          }/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`
+        )
+      })
+    )
+
+    const addressesUtxos = addressesData.map((rv, i) => {
+      return this.getUtxosFromTxs(rv.data.txs, addresses[i].publicKeyInfo.bitcoinAddress)
+    })
+
+    let newBalance = new BN(0)
+    let updatedAddresses = []
+    addressesUtxos.forEach((utxos, i) => {
+      let value = utxos.reduce((accu, utxo) => {
+        return new BN(utxo.value).add(accu)
+      }, new BN(0))
+      newBalance = newBalance.add(value)
+      const address = {
+        path: addresses[i].path,
+        publicKeyInfo: addresses[i].publicKeyInfo,
+        utxos: utxos
+      }
+      updatedAddresses.push(address)
+    })
+
+    // discover new address
+    const externalAddressData = await this.discoverAddress(
+      xpub,
+      accountIndex,
+      0,
+      nextAddressIndex,
+      progress
+    )
+    const internalAddressData = await this.discoverAddress(
+      xpub,
+      accountIndex,
+      1,
+      nextChangeIndex,
+      progress
+    )
+
+    let accountData = {
+      balance: newBalance
+        .add(new BN(externalAddressData.balance))
+        .add(new BN(internalAddressData.balance))
+        .toString(),
+      nextAddressIndex: externalAddressData.nextIndex,
+      address: externalAddressData.nextAddress, // address for receiving; match name with ethereum[accountIndex].address
+      nextChangeIndex: internalAddressData.nextIndex,
+      changeAddress: internalAddressData.nextAddress,
+      addresses: [
+        ...updatedAddresses,
+        ...externalAddressData.addresses,
+        ...internalAddressData.addresses
+      ],
+      lastBlockHeight: await getBtcLastBlockHeight(),
+      lastUpdate: moment().unix(),
+      xpub
+    }
+    return {
+      bitcoin: {
+        [accountIndex]: accountData
+      }
+    }
+  }
   // Function to estimate Tx size
   // Referrenced from
   // https://github.com/LedgerHQ/ledger-wallet-webtool/blob/094d3741527e181a626d929d56ab4a515403e4a0/src/TransactionUtils.js#L10

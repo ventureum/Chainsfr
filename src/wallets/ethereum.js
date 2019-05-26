@@ -26,6 +26,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
+  getWalletData = (): WalletDataEthereum => this.walletData
   // interface functions
   createAccount = async (): Promise<AccountEthereum> => {
     // we use the first address as the sending/change address
@@ -50,18 +51,52 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     return account
   }
 
-  getPrivateKey = (accountIdx?: number = 0): ?string => {
-    if (this.walletData.walletType === 'drive') {
-      return this.getAccount(accountIdx).privateKey
-    }
-    // no private keys avaiable
-    return null
-  }
-
   // get account (default first account)
   getAccount = (accountIdx?: number): AccountEthereum => {
     if (!accountIdx) accountIdx = 0
     return this.walletData.accounts[accountIdx]
+  }
+
+  encryptAccount = async (password: string) => {
+    let accountIdx = 0
+    if (!this.walletData.accounts[accountIdx].privateKey) {
+      throw new Error('PrivateKey does not exist')
+    }
+    this.walletData.accounts[accountIdx].encryptedPrivateKey = await utils.encryptMessage(
+      this.walletData.accounts[accountIdx].privateKey,
+      password
+    )
+  }
+
+  decryptAccount = async (password: string) => {
+    let accountIdx = 0
+    if (!this.walletData.accounts[accountIdx].encryptedPrivateKey) {
+      throw new Error('EncryptedPrivateKey does not exist')
+    }
+    this.walletData.accounts[accountIdx].privateKey = await utils.decryptMessage(
+      this.walletData.accounts[accountIdx].encryptedPrivateKey,
+      password
+    )
+  }
+
+  sync = async () => {
+    let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+
+    let { cryptoType } = this.walletData
+
+    // use the first account only
+    let account = this.walletData.accounts[0]
+
+    // set eth balance
+    account.ethBalance = await _web3.eth.getBalance(account.address)
+
+    // set token balance
+    if (['dai'].includes(cryptoType)) {
+      account.balance = (await ERC20.getBalance(account.address, cryptoType)).toString()
+    } else {
+      // copy eth balance
+      account.balance = account.ethBalance
+    }
   }
 
   getTxFee = async ({ to, value }: { to?: string, value: BasicTokenUnit }): Promise<TxFee> => {

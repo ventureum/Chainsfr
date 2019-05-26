@@ -5,7 +5,11 @@ import WalletEthereum from '../wallets/ethereum.js'
 export type AddressEthereum = string
 
 export type AccountEthereum = {
+  // eth/btc balance for ethereum/bitcoin
+  // token balance for erc20 tokens
   balance: string,
+  // eth balance only
+  ethBalance: string,
   address: AddressEthereum,
   privateKey: ?string,
   encryptedPrivateKey: ?string
@@ -30,8 +34,7 @@ export type HDWalletVariables = {
   changeAddress: string,
   addresses: Array<AddressBitcoin>,
   lastBlockHeight: number,
-  lastUpdate: number,
-  xpub: string
+  lastUpdate: number
 }
 
 export type AccountBitcoin = {
@@ -61,7 +64,8 @@ export type WalletDataEthereum = {
 export type WalletDataBitcoin = {
   walletType: string,
   cryptoType: string,
-  accounts: AccountBitcoin[]
+  accounts: AccountBitcoin[],
+  xpub: string
 }
 
 export type WalletData = WalletDataEthereum | WalletDataBitcoin
@@ -94,9 +98,12 @@ export interface IWallet<WalletData, Account> {
   walletData?: WalletData;
   ledger?: any;
   constructor(walletData?: WalletData): void;
+  getWalletData(): WalletData;
   createAccount(): Promise<Account>;
   getAccount(accountIdx?: number): Account;
-  getPrivateKey(accountIdx?: number): ?string;
+  encryptAccount(password: string): void;
+  decryptAccount(password: string): void;
+  sync(): Promise<void>;
   getTxFee({ to?: string, value: string }): Promise<TxFee>;
   sendTransaction({
     to: string,
