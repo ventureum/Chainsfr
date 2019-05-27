@@ -27,7 +27,15 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
   }
 
   getWalletData = (): WalletDataEthereum => this.walletData
-  // interface functions
+
+  generateWallet = async ({ walletType, cryptoType }: {walletType: string, cryptoType: string}) => {
+    this.walletData = {
+      walletType: walletType,
+      cryptoType: cryptoType,
+      accounts: [await this.createAccount()]
+    }
+  }
+
   createAccount = async (): Promise<AccountEthereum> => {
     // we use the first address as the sending/change address
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
@@ -43,6 +51,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
     let account = {
       balance: '0',
+      ethBalance: '0',
       address: web3Account.address,
       privateKey: web3Account.privateKey,
       encryptedPrivateKey: null

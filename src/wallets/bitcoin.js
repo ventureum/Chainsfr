@@ -31,31 +31,56 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   getWalletData = (): WalletDataBitcoin => this.walletData
-  // interface functions
-  createAccount = async (): Promise<AccountBitcoin> => {
-    const network =
-      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-    const seed = await bip39.mnemonicToSeed(bip39.generateMnemonic())
+
+  generateWallet = async ({
+    walletType,
+    cryptoType
+  }: {
+    walletType: string,
+    cryptoType: string
+  }) => {
+    const seed = bip39.mnemonicToSeedSync(bip39.generateMnemonic())
     const root = bip32.fromSeed(seed)
     let xpriv = root.toBase58()
     let xpub = root.neutered().toBase58()
 
-    const path = `m/49'/${env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'}'/0'/0/0`
+    this.walletData = {
+      walletType: walletType,
+      cryptoType: cryptoType,
+      accounts: [await this.createAccount({ xpriv: xpriv, accountIdx: 0 })],
+      xpub
+    }
+  }
+
+  createAccount = async ({
+    xpriv,
+    accountIdx
+  }: {
+    xpriv: string,
+    accountIdx: number
+  }): Promise<AccountBitcoin> => {
+    const network =
+      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
+    const path = `m/49'/${env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'}'/${accountIdx}'/0/0`
+    const root = bip32.fromBase58(xpriv, network)
     const child = root.derivePath(path)
 
-    // we use the first address as the sending/change address
+    const privateKey = child.toBase58()
+    const keyPair = bitcoin.ECPair.fromPrivateKey(privateKey)
+    const p2wpkh = bitcoin.payments.p2wpkh({
+      pubkey: keyPair.publicKey,
+      network: network
+    })
+
     const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({
-        pubkey: child.publicKey,
-        network: network
-      }),
+      redeem: p2wpkh,
       network: network
     })
 
     let account = {
       balance: '0',
       address: address,
-      privateKey: xpriv,
+      privateKey: privateKey,
       encryptedPrivateKey: null,
       hdWalletVariables: {
         nextAddressIndex: 0,
@@ -104,12 +129,31 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     )
   }
 
-  sync = async () => {
-    let { walletType } = this.walletData
-
+  sync = async (progress: any) => {
+    let account = this.getAccount()
+    let { hdWalletVariables } = account
     if (walletType === 'drive') {
       // only use the first derived address
-    }
+    } else {
+      // 1. account discovery
+      const externalAddressData = await this.discoverAddress(account.xpub, 0, 0, hdWalletVariables.nextAddressIndex, progress)
+      const internalAddressData = await this.discoverAddress(account.xpub, 0, 1, 0, hdWalletVariables.nextChangeIndex, progress)
+
+      // 2. update balance and utxo
+      await Promise.all(
+        hdWalletVariables.addresses.map(async (addressData) => {
+          let response = await axios.get(
+            `${
+              url.LEDGER_API_URL
+            }/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
+          )
+          const { txs } = response.data
+          const { address } = addressData
+
+          // update utxos
+          hdWalletVariables.addresses[address].utxos = this.getUtxosFromTxs(txs, address)
+        })
+      )
   }
 
   getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
@@ -180,7 +224,9 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 
     const root = bip32.fromBase58(xpub, network)
-    const path = `m/49'/${env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'}'/${accountIdx}'/${change}/${addressIdx}`
+    const path = `m/49'/${
+      env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'
+    }'/${accountIdx}'/${change}/${addressIdx}`
     const child = root.derivePath(path)
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: network }),
@@ -198,34 +244,24 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     fee: number,
     changeIndex: number
   ) => {
-    // TODO: sign inputs with associated keysets from hdWalletVariables.addresses
-    //
-    // Currently, we only use the first address
-
     const network =
       env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-    // use the first account
+    
+      // use the first account
     let account = this.getAccount()
 
-    // get the privateKey of the first address
-    const root = bip32.fromBase58(account.privateKey, network)
-    const path = `m/49'/${env.REACT_APP_BTC_NETWORK === 'mainnet' ? '0' : '1'}'/0'/0/0`
-    const child = root.derivePath(path)
 
-    // we use the first address as the sending/change address
-    const { from } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({
-        pubkey: child.publicKey,
-        network: network
-      }),
-      network: network
-    })
-
-    const keyPair = bitcoin.ECPair.fromPrivateKey(child.privateKey)
+    const keyPair = bitcoin.ECPair.fromPrivateKey(account.privateKey)
     const p2wpkh = bitcoin.payments.p2wpkh({
       pubkey: keyPair.publicKey,
       network: network
     })
+
+    const { address } = bitcoin.payments.p2sh({
+      redeem: p2wpkh,
+      network: network
+    })
+
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: network })
     const txb = new bitcoin.TransactionBuilder(network)
 
@@ -238,7 +274,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     // change
     const inputValueTotal = inputs.reduce((total, input) => total + input.value)
     const change = inputValueTotal - satoshiValue - fee
-    txb.addOutput(from, change)
+    txb.addOutput(address, change)
 
     // sign with first address's privateKey
     txb.sign(0, keyPair, p2sh.redeem.output, null, inputValueTotal)
@@ -307,43 +343,37 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let balance = new BN(0)
     let nextAddress
     let i = offset
-    let cuurentIndex = offset === 0 ? 0 : offset - 1
+    let currentIndex = offset === 0 ? 0 : offset - 1
     while (gap < 5) {
       let address
       const addressPath = `${baseBtcPath}/${accountIndex}'/${change}/${i}`
-      const bitcoinAddress = await findAddress(addressPath, true, xpub)
+      const address = this.getDerivedAddress(xpub, accountIndex, change, i)
 
       const addressData = (await axios.get(
         `${url.LEDGER_API_URL}/addresses/${bitcoinAddress}/transactions?noToken=true&truncated=true`
       )).data
+
       if (addressData.txs.length === 0) {
         if (!nextAddress) nextAddress = bitcoinAddress
         gap += 1
       } else {
-        cuurentIndex = i
+        currentIndex = i
         gap = 0
-        let utxos = this.getUtxosFromTxs(addressData.txs, bitcoinAddress)
-        let value = utxos.reduce((accu, utxo) => {
-          return new BN(utxo.value).add(accu)
-        }, new BN(0))
-        balance = balance.add(value)
         address = {
           path: addressPath,
           publicKeyInfo: { bitcoinAddress },
-          utxos: utxos
+          utxos: []
         }
         addresses.push(address)
       }
       if (progress) {
         progress(i, change)
       }
-      i += 1
+      i++
     }
     return {
-      balance: balance.toString(),
-      nextIndex: cuurentIndex + 1,
-      addresses,
-      nextAddress
+      nextIndex: currentIndex + 1,
+      addresses
     }
   }
 

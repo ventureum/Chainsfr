@@ -31,7 +31,6 @@ export type AddressBitcoin = {
 export type HDWalletVariables = {
   nextAddressIndex: number,
   nextChangeIndex: number,
-  changeAddress: string,
   addresses: Array<AddressBitcoin>,
   lastBlockHeight: number,
   lastUpdate: number
@@ -99,7 +98,6 @@ export interface IWallet<WalletData, Account> {
   ledger?: any;
   constructor(walletData?: WalletData): void;
   getWalletData(): WalletData;
-  createAccount(): Promise<Account>;
   getAccount(accountIdx?: number): Account;
   encryptAccount(password: string): void;
   decryptAccount(password: string): void;
