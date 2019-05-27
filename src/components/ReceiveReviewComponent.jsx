@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import moment from 'moment'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class ReceiveReviewComponent extends Component {
@@ -26,8 +25,8 @@ class ReceiveReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, actionsPending, txCost, destinationAddress } = this.props
-    const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
+    const { classes, transfer, actionsPending, txCost, destinationAddress, sentOn } = this.props
+    const { transferAmount, sender, destination, cryptoType } = transfer
 
     if (!actionsPending.getTxCost && txCost) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
@@ -50,7 +49,7 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -58,7 +57,7 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     To
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='destination'>
                     {destination}
                   </Typography>
                 </Grid>
@@ -66,15 +65,15 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Sent on
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  <Typography className={classes.reviewContent} align='left' id='sentOn'>
+                    {sentOn}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Wallet Address
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='destinationAddress'>
                     {destinationAddress}
                   </Typography>
                 </Grid>
@@ -82,7 +81,7 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
-                  <Typography className={classes.reviewContentAmount} align='left'>
+                  <Typography className={classes.reviewContentAmount} align='left' id='transferAmount'>
                     {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
                 </Grid>
@@ -90,21 +89,23 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
-                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  { !actionsPending.getTxCost && txCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />
+                  }
                 </Grid>
                 <Grid item>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
-                      ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getTxCost && txCost
+                    ? <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
+                      {receiveAmount} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />
+                  }
                 </Grid>
               </Paper>
             </Grid>
@@ -117,6 +118,7 @@ class ReceiveReviewComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(-1)}
+                id='cancel'
               >
                 Cancel
               </Button>
@@ -130,6 +132,7 @@ class ReceiveReviewComponent extends Component {
                   size='large'
                   disabled={actionsPending.acceptTransfer}
                   onClick={this.handleReviewNext}
+                  id='complete'
                 >
                   Complete
                 </Button>

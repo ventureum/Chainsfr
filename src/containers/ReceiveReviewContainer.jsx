@@ -5,6 +5,7 @@ import { acceptTransfer, getTxCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { getUtxoForEscrowWallet } from '../actions/walletActions'
+import moment from 'moment'
 
 class ReceiveReviewContainer extends Component {
   componentDidMount () {
@@ -30,17 +31,18 @@ class ReceiveReviewContainer extends Component {
 
   render () {
     const { wallet, lastUsedWallet, transfer, walletSelection } = this.props
-    const { cryptoType } = transfer
+    const { cryptoType, sendTimestamp } = transfer
 
     // if set to not used or no used address, use connected wallet
     let destinationAddress = (lastUsedWallet.notUsed || !lastUsedWallet[walletSelection].crypto[cryptoType])
       ? wallet.crypto[cryptoType][0].address
       : lastUsedWallet[walletSelection].crypto[cryptoType].address
-
+    let sentOn = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <ReceiveReview
         destinationAddress={destinationAddress}
         {...this.props}
+        sentOn={sentOn}
       />
     )
   }
