@@ -62,9 +62,9 @@ class ReceiveLandingPageComponent extends Component {
   }
 
   render () {
-    const { actionsPending, transfer, classes } = this.props
+    const { actionsPending, transfer, classes, sendTime, receiveTime, cancelTime } = this.props
     if (transfer) {
-      var { receivingId, receiveTxHash, cancelTxHash, sender, destination, transferAmount, cryptoType, sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
+      var { receivingId, receiveTxHash, cancelTxHash, sender, destination, transferAmount, cryptoType } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
     }
@@ -158,7 +158,7 @@ class ReceiveLandingPageComponent extends Component {
                    Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {sendTimestamp}
+                    {sendTime}
                   </Typography>
                 </Grid>
                 {(hasReceived || hasCancelled) &&
@@ -168,8 +168,8 @@ class ReceiveLandingPageComponent extends Component {
                     {hasCancelled && 'Cancelled on'}
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {hasReceived && receiveTimestamp}
-                    {hasCancelled && cancelTimestamp}
+                    {hasReceived && receiveTime}
+                    {hasCancelled && cancelTime}
                   </Typography>
                 </Grid>
                 }
