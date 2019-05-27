@@ -82,11 +82,11 @@ async function getPrefilledAccount () {
   }
 }
 
-async function setLastUsedAddress ({ googleId, cryptoType, walletType, address }) {
+async function setLastUsedAddress ({ idToken, cryptoType, walletType, address }) {
   try {
     var rv = await apiTransfer.post('/transfer', {
       action: 'SET_LAST_USED_ADDRESS',
-      googleId: googleId,
+      idToken: idToken,
       walletType: walletType,
       address: address,
       cryptoType: cryptoType
@@ -97,11 +97,11 @@ async function setLastUsedAddress ({ googleId, cryptoType, walletType, address }
   return rv.data
 }
 
-async function getLastUsedAddress (googleId, wallet) {
+async function getLastUsedAddress (idToken, wallet) {
   try {
     let rv = await apiTransfer.post('/transfer', {
       action: 'GET_LAST_USED_ADDRESS',
-      googleId: googleId
+      idToken: idToken
     })
     const { data } = rv
     let lastUsedAddress = ['metamask', 'ledger'].reduce((lastUsedAddressObj, walletType) => {

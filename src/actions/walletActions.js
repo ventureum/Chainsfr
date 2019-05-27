@@ -345,10 +345,10 @@ function unlockCloudWallet (
   }
 }
 
-function getLastUsedAddress (googleId: string) {
+function getLastUsedAddress (idToken: string) {
   return {
     type: 'GET_LAST_USED_ADDRESS',
-    payload: API.getLastUsedAddress(googleId)
+    payload: API.getLastUsedAddress(idToken)
   }
 }
 

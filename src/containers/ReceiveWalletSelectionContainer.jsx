@@ -42,8 +42,8 @@ class ReceiveWalletSelectionContainer extends Component {
 
   componentDidMount () {
     const { profile } = this.props
-    if (profile.isAuthenticated && profile.googleId) {
-      this.props.getLastUsedAddress(profile.googleId)
+    if (profile.isAuthenticated && profile.idToken) {
+      this.props.getLastUsedAddress(profile.idToken)
     }
   }
 
@@ -131,7 +131,7 @@ const mapDispatchToProps = dispatch => {
     goToStep: (n) => dispatch(goToStep('receive', n)),
     syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress)),
     updateBtcAccountInfo: (xpub, progress) => dispatch(updateBtcAccountInfo(xpub, progress)),
-    getLastUsedAddress: (googleId) => dispatch(getLastUsedAddress(googleId)),
+    getLastUsedAddress: (idToken) => dispatch(getLastUsedAddress(idToken)),
     notUseLastAddress: () => dispatch(notUseLastAddress())
   }
 }
