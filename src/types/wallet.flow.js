@@ -1,6 +1,7 @@
 // @flow
 import WalletBitcoin from '../wallets/bitcoin.js'
 import WalletEthereum from '../wallets/ethereum.js'
+import type { TxFee, TxHash } from '../types/transfer.flow'
 
 export type AddressEthereum = string
 
@@ -11,8 +12,8 @@ export type AccountEthereum = {
   // eth balance only
   ethBalance: string,
   address: AddressEthereum,
-  privateKey: ?string,
-  encryptedPrivateKey: ?string
+  privateKey?: string,
+  encryptedPrivateKey?: string
 }
 
 export type Utxos = Array<{
@@ -44,8 +45,8 @@ export type AccountBitcoin = {
   // nor metamask
   //
   // xPriv for hd wallet
-  privateKey: ?string,
-  encryptedPrivateKey: ?string,
+  privateKey?: string,
+  encryptedPrivateKey?: string,
 
   // optional hd wallet variables
   hdWalletVariables: HDWalletVariables
@@ -69,38 +70,15 @@ export type WalletDataBitcoin = {
 
 export type WalletData = WalletDataEthereum | WalletDataBitcoin
 
-export type TxHash = string
-export type TxFee = {
-  price: string,
-  gas: string,
-  costInBasicUnit: string,
-  costInStandardUnit: string,
-  // for erc20 tx
-  costByType?: {
-    txCostEth: {
-      price: string,
-      gas: string,
-      costInBasicUnit: string,
-      costInStandardUnit: string
-    },
-    txCostERC20: {
-      price: string,
-      gas: string,
-      costInBasicUnit: string,
-      costInStandardUnit: string
-    },
-    ethTransfer: string
-  }
-}
-
 export interface IWallet<WalletData, Account> {
   walletData?: WalletData;
   ledger?: any;
   constructor(walletData?: WalletData): void;
   getWalletData(): WalletData;
+  generateWallet({ walletType: string, cryptoType: string }): Promise<void>;
   getAccount(accountIdx?: number): Account;
-  encryptAccount(password: string): void;
-  decryptAccount(password: string): void;
+  encryptAccount(password: string): Promise<void>;
+  decryptAccount(password: string): Promise<void>;
   sync(): Promise<void>;
   getTxFee({ to?: string, value: string }): Promise<TxFee>;
   sendTransaction({

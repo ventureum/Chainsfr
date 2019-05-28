@@ -1,13 +1,11 @@
 // @flow
-import BN from 'bn.js'
-import utils from '../utils'
-import axios from 'axios'
 import url from '../url'
 import env from '../typedEnv'
 import API from '../apis'
 import Web3 from 'web3'
 import ERC20 from '../ERC20'
 import LedgerNanoS from '../ledgerSigner'
+import { networkIdMap } from '../ledgerSigner/utils'
 
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
@@ -28,7 +26,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
   getWalletData = (): WalletDataEthereum => this.walletData
 
-  generateWallet = async ({ walletType, cryptoType }: {walletType: string, cryptoType: string}) => {
+  generateWallet = async ({
+    walletType,
+    cryptoType
+  }: {
+    walletType: string,
+    cryptoType: string
+  }) => {
     this.walletData = {
       walletType: walletType,
       cryptoType: cryptoType,
@@ -53,8 +57,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       balance: '0',
       ethBalance: '0',
       address: web3Account.address,
-      privateKey: web3Account.privateKey,
-      encryptedPrivateKey: null
+      privateKey: web3Account.privateKey
     }
 
     return account
@@ -82,10 +85,36 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     if (!this.walletData.accounts[accountIdx].encryptedPrivateKey) {
       throw new Error('EncryptedPrivateKey does not exist')
     }
-    this.walletData.accounts[accountIdx].privateKey = await utils.decryptMessage(
+    let privateKey = await utils.decryptMessage(
       this.walletData.accounts[accountIdx].encryptedPrivateKey,
       password
     )
+    if (!privateKey) throw new Error('Incorrect password')
+    this.walletData.accounts[accountIdx].privateKey = privateKey
+  }
+
+  retrieveAddress = async (): Promise<void> => {
+    let accountIdx = 0
+    let { walletType } = this.walletData
+    if (walletType === 'ledger') {
+      // retrieve the first address from ledger
+      this.walletData.accounts[accountIdx].address = await this.ledger.getEthAddresss(accountIdx)
+    } else if (walletType === 'metamask') {
+      // retrieve the first address from metamask
+      if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+        if (
+          window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+        ) {
+          throw 'Incorrect Metamask network' // eslint-disable-line
+        }
+        let addresses = await window.ethereum.enable()
+        this.walletData.accounts[accountIdx].address = addresses[0]
+      } else {
+        throw new Error('Metamask not found')
+      }
+    } else {
+      throw new Error(`Cannot retrieve address for walletType ${walletType}`)
+    }
   }
 
   sync = async () => {

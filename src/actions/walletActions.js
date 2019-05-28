@@ -1,23 +1,17 @@
 // @flow
 import Web3 from 'web3'
 import LedgerNanoS from '../ledgerSigner'
-import utils from '../utils'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData, saveWallet, getWallet } from '../drive.js'
-import ERC20 from '../ERC20'
 import axios from 'axios'
-import bitcore from 'bitcore-lib'
-import BN from 'bn.js'
 import env from '../typedEnv'
 import API from '../apis'
 import url from '../url'
 import { walletCryptoSupports } from '../wallet.js'
 import { networkIdMap } from '../ledgerSigner/utils'
 import WalletFactory from '../wallets/factory'
-import type { WalletData, Account } from '../types/wallet.flow.js'
-import type { TxFee, TxHash } from '../types/transfer.flow.js'
-import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
+import type { WalletData, Account, AccountEthereum, AccountBitcoin } from '../types/wallet.flow.js'
 
 const ledgerNanoS = new LedgerNanoS()
 
@@ -38,57 +32,69 @@ function updateBtcAccountInfo (xpub: string, progress: ?Function) {
   }
 }
 
+class WalletUtils {
+  static toWalletData = (walletType, cryptoType, accounts): WalletData => {
+    return {
+      walletType,
+      cryptoType,
+      accounts: accounts.map(account => this._normalizeAccount(cryptoType, account))
+    }
+  }
+
+  static _normalizeAccount = (cryptoType, account): Account => {
+    if (cryptoType === 'ethereum') {
+      let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
+
+      // some variables must not be null
+      if (!address) {
+        throw new Error('Account normaliztion failed due to null values')
+      }
+
+      let _account: AccountEthereum = {
+        balance: balance || '0',
+        ethBalance: ethBalance || '0',
+        address: address,
+        privateKey: privateKey,
+        encryptedPrivateKey: encryptedPrivateKey
+      }
+      return _account
+    } else if (cryptoType === 'bitcoin') {
+      let { balance, address, privateKey, encryptedPrivateKey, hdWalletVariables } = account
+
+      // some variables must not be null
+      if (!address || !hdWalletVariables) {
+        throw new Error('Account normaliztion failed due to null values')
+      }
+      let _account: AccountBitcoin = {
+        balance: balance || '0',
+        address: address,
+        privateKey: privateKey,
+        encryptedPrivateKey: encryptedPrivateKey,
+        hdWalletVariables: hdWalletVariables
+      }
+      return _account
+    } else {
+      throw new Error(`Invalid cryptoType: ${cryptoType}`)
+    }
+  }
+}
+
 async function _checkMetamaskConnection (
   cryptoType: string,
   dispatch: Function
-): Promise<{
-  connected: boolean,
-  network: ?string,
-  crypto: ?Array<Object>
-}> {
-  let rv: Object = {
-    connected: false,
-    network: null,
-    crypto: null
-  }
-
+): Promise<WalletData> {
   if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-    rv.connected = true
-    rv.network = window.ethereum.networkVersion
-
     window._web3 = new Web3(window.ethereum)
-
-    // request the user logs in
-    rv.crypto = {}
-    if (
-      window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
-    ) {
-      throw 'Incorrect Metamask network' // eslint-disable-line
-    }
-
-    let addresses = await window.ethereum.enable()
-    if (addresses) {
-      for (let i = 0; i < addresses.length; i++) {
-        rv.crypto = {
-          [cryptoType]: {
-            [i]: {
-              address: addresses[i],
-              balance:
-                cryptoType === 'ethereum'
-                  ? await window._web3.eth.getBalance(addresses[i])
-                  : await ERC20.getBalance(addresses[i], cryptoType)
-            }
-          }
-        }
-      }
-    }
-
+    let wallet = WalletFactory.createWallet(WalletUtils.toWalletData('metamask', cryptoType, []))
+    await wallet.retrieveAddress()
     // listen for accounts changes
     window.ethereum.on('accountsChanged', function (accounts) {
       dispatch(onMetamaskAccountsChanged(accounts))
     })
+    return wallet.getWalletData()
+  } else {
+    throw new Error('Metamask not found')
   }
-  return rv
 }
 
 async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean = true) {

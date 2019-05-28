@@ -415,7 +415,7 @@ async function saveSendFile (transferData: TransferData) {
   })
 }
 
-async function saveWallet (walletDataList) {
+async function saveWallet (walletDataList: any) {
   // update the wallet
   await saveFileByName('appDataFolder', null, {
     name: WALLET_FILE_NAME,
@@ -448,7 +448,7 @@ async function getAllTransfers (): Promise< {[string]: TransferData} > {
   return loadFileByNameFromAppData(SEND_FILE_NAME)
 }
 
-async function getWallet (): Promise<Wallet> {
+async function getWallet (): Promise<any> {
   return loadFileByNameFromAppData(WALLET_FILE_NAME)
 }
 

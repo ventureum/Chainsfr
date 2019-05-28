@@ -3,8 +3,6 @@ import type {
   WalletData,
   WalletDataEthereum,
   WalletDataBitcoin,
-  AccountEthereum,
-  AccountBitcoin,
   Wallet
 } from '../types/wallet.flow'
 import WalletBitcoin from './bitcoin.js'
@@ -31,22 +29,15 @@ export default class WalletFactory {
     walletType: string,
     cryptoType: string
   }): Promise<Wallet> => {
+    let wallet = null
     if (['ethereum', 'dai'].includes(cryptoType)) {
-      let account: AccountEthereum = await new WalletEthereum().createAccount()
-      let walletData: WalletDataEthereum = {
-        walletType,
-        cryptoType,
-        accounts: [account]
-      }
-      return this.createWallet(walletData)
+      wallet = new WalletBitcoin()
     } else if (cryptoType === 'bitcoin') {
-      let account: AccountBitcoin = await new WalletBitcoin().createAccount()
-      let walletData: WalletDataEthereum = {
-        walletType,
-        cryptoType,
-        accounts: [account]
-      }
-      return this.createWallet(walletData)
+      wallet = new WalletEthereum()
+    }
+    if (wallet) {
+      await wallet.generateWallet({ walletType, cryptoType })
+      return wallet
     } else {
       throw new Error(`Invalid cryptoType: ${cryptoType}`)
     }

@@ -44,7 +44,11 @@ export default function (state = initState, action) {
   switch (action.type) {
     // metamask
     case 'CHECK_METAMASK_CONNECTION_FULFILLED':
-      return update(state, { wallet: { metamask: { $merge: action.payload } } })
+      let walletData = action.payload
+      return update(state, { wallet: { metamask: { $merge: {
+        connected: true,
+        crypto: { [walletData.cryptoType]: walletData.accounts }
+      } } } })
     case 'UPDATE_METAMASK_ACCOUNTS':
       return update(state, { wallet: { metamask: { accounts: { $set: action.payload } } } })
     // ledger
