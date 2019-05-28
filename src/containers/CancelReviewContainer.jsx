@@ -46,12 +46,16 @@ class CancelReviewContainer extends Component {
 
   render () {
     const { transfer } = this.props
-    let sendTime = ''
+    let sendTime, receiveTime, cancelTime
     if (transfer) sendTime = moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.receiveTxHash) receiveTime = moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.cancelTxHash) cancelTime = moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <CancelReviewComponent
         {...this.props}
         sendTime={sendTime}
+        receiveTime={receiveTime}
+        cancelTime={cancelTime}
       />
     )
   }

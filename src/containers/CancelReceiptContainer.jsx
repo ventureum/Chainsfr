@@ -2,12 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import CancelReceipt from '../components/CancelReceiptComponent'
 import { goToStep, backToHome } from '../actions/navigationActions'
+import moment from 'moment'
 
 class CancelReceiptContainer extends Component {
   render () {
+    const { receipt } = this.props
+    const cancelTime = moment.unix(receipt.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <CancelReceipt
         {...this.props}
+        cancelTime={cancelTime}
       />
     )
   }
