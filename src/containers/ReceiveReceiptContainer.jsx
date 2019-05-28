@@ -2,12 +2,15 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReceipt from '../components/ReceiveReceiptComponent'
 import { goToStep, backToHome } from '../actions/navigationActions'
+import moment from 'moment'
 
 class ReceiveReceiptContainer extends Component {
   render () {
+    const receiveTime = moment.unix(this.props.receipt.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <ReceiveReceipt
         {...this.props}
+        receiveTime={receiveTime}
       />
     )
   }
