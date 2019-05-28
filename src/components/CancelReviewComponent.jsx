@@ -7,8 +7,6 @@ import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
-import MuiLink from '@material-ui/core/Link'
-import moment from 'moment'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReviewComponent extends Component {
@@ -97,11 +95,9 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, txCost } = this.props
+    const { classes, transfer, escrowWallet, actionsPending, txCost, sendTime } = this.props
     if (transfer) {
-      var { sendingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
-      var hasReceived = !!receiveTxHash
-      var hasCancelled = !!cancelTxHash
+      var { sendingId, transferAmount, sender, destination, cryptoType } = transfer
     }
 
     if (
@@ -131,9 +127,7 @@ class CancelReviewComponent extends Component {
                 <Grid item className={classes.titleSection}>
                   <Grid container direction='column' justify='center' alignItems='flex-start'>
                     <Typography className={classes.title} variant='h6' align='left'>
-                      {hasReceived && 'Transfer has been received'}
-                      {hasCancelled && 'Transfer has already been cancelled'}
-                      {!hasReceived && !hasCancelled && 'Transfer details'}
+                      Transfer details
                     </Typography>
                     <Typography className={classes.transferId} align='left'>
                       {`Transfer ID: ${sendingId}`}
@@ -164,7 +158,6 @@ class CancelReviewComponent extends Component {
                     {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
                 </Grid>
-                {!hasReceived && !hasCancelled && // do not show gas in this case
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                       Transaction Fee
@@ -175,44 +168,18 @@ class CancelReviewComponent extends Component {
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>
-                }
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                      Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {sendTime}
                   </Typography>
                 </Grid>
-                {(hasReceived || hasCancelled) &&
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    {hasReceived && 'Received on'}
-                    {hasCancelled && 'Cancelled on'}
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                    {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                  </Typography>
-                </Grid>
-                }
-                {(hasReceived || hasCancelled) &&
-                <Grid item>
-                  <Typography color='primary' className={classes.etherscanLink} align='left'>
-                    <MuiLink
-                      target='_blank'
-                      rel='noopener'
-                      href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
-                        Check status on Etherscan
-                    </MuiLink>
-                  </Typography>
-                </Grid>
-                }
               </Grid>
             </Grid>
           </Paper>
         </Grid>
-        {!hasReceived && !hasCancelled &&
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={24}>
             <Grid item>
@@ -227,7 +194,6 @@ class CancelReviewComponent extends Component {
             </Grid>
           </Grid>
         </Grid>
-        }
         {this.state.open && this.renderModal()}
       </Grid>
     )
