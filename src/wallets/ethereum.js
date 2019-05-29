@@ -6,7 +6,7 @@ import Web3 from 'web3'
 import ERC20 from '../ERC20'
 import LedgerNanoS from '../ledgerSigner'
 import { networkIdMap } from '../ledgerSigner/utils'
-
+import utils from '../utils'
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
@@ -117,7 +117,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
-  sync = async () => {
+  sync = async (progress: any) => {
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
     let { cryptoType } = this.walletData

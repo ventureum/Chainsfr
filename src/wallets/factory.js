@@ -5,8 +5,9 @@ import type {
   WalletDataBitcoin,
   Wallet
 } from '../types/wallet.flow'
-import WalletBitcoin from './bitcoin.js'
-import WalletEthereum from './ethereum.js'
+import WalletBitcoin from './bitcoin'
+import WalletEthereum from './ethereum'
+import WalletUtils from './utils'
 
 export default class WalletFactory {
   static createWallet = (walletData: WalletData): Wallet => {
@@ -19,6 +20,10 @@ export default class WalletFactory {
     } else {
       throw new Error(`Invalid cryptoType: ${walletData.cryptoType}`)
     }
+  }
+
+  static createWalletFromState = (walletType: string, cryptoType: string, walletState: any): Wallet => {
+    return this.createWallet(WalletUtils.toWalletData(walletType, cryptoType, walletState[walletType].crypto[cryptoType].accounts))
   }
 
   // generate a new wallet

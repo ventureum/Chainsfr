@@ -1,36 +1,13 @@
 // @flow
 import Web3 from 'web3'
-import LedgerNanoS from '../ledgerSigner'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData, saveWallet, getWallet } from '../drive.js'
-import axios from 'axios'
-import env from '../typedEnv'
-import API from '../apis'
-import url from '../url'
 import { walletCryptoSupports } from '../wallet.js'
-import { networkIdMap } from '../ledgerSigner/utils'
 import WalletFactory from '../wallets/factory'
-import type { WalletData, Account, AccountEthereum, AccountBitcoin } from '../types/wallet.flow.js'
+import API from '../apis'
 
-const ledgerNanoS = new LedgerNanoS()
-
-function syncLedgerAccountInfo (cryptoType: string, accountIndex: number = 0, progress: ?Function) {
-  return {
-    type: 'SYNC_LEDGER_ACCOUNT_INFO',
-    payload: ledgerNanoS.syncAccountBaseOnCryptoType(cryptoType, accountIndex, progress)
-  }
-}
-
-function updateBtcAccountInfo (xpub: string, progress: ?Function) {
-  return (dispatch: Function, getState: Function) => {
-    const accountInfo = getState().walletReducer.wallet.ledger.crypto.bitcoin
-    return dispatch({
-      type: 'UPDATE_BTC_ACCOUNT_INFO',
-      payload: ledgerNanoS.updateBtcAccountInfo(0, accountInfo, xpub, progress)
-    })
-  }
-}
+import type { WalletData, AccountEthereum, AccountBitcoin } from '../types/wallet.flow.js'
 
 class WalletUtils {
   static toWalletData = (walletType, cryptoType, accounts): WalletData => {
@@ -41,7 +18,7 @@ class WalletUtils {
     }
   }
 
-  static _normalizeAccount = (cryptoType, account): Account => {
+  static _normalizeAccount = (cryptoType, account): any => {
     if (cryptoType === 'ethereum') {
       let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
 
@@ -98,12 +75,15 @@ async function _checkMetamaskConnection (
 }
 
 async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean = true) {
-  let deviceConnected = await ledgerNanoS.deviceConnected(cryptoType)
-  if (deviceConnected === null && throwError) {
-    const msg = 'Ledger not connected'
-    throw msg
-  }
-  return deviceConnected
+  let wallet = WalletFactory.createWallet(WalletUtils.toWalletData('ledger', cryptoType, []))
+  await wallet.retrieveAddress()
+  return wallet.getWalletData()
+}
+
+async function _sync (walletData: WalletData, progress: function) {
+  let wallet = WalletFactory.createWallet(walletData)
+  await wallet.sync(progress)
+  return wallet.getWalletData()
 }
 
 async function _verifyPassword (transferInfo: {
@@ -121,10 +101,7 @@ async function _verifyPassword (transferInfo: {
   }
 
   await wallet.decryptAccount(password)
-
-  return {
-    [encryptedWallet.cryptoType]: wallet.getAccount()
-  }
+  return wallet.getWalletData()
 }
 
 function checkMetamaskConnection (crypoType: string) {
@@ -147,6 +124,13 @@ function checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean) {
   return {
     type: 'CHECK_LEDGER_NANOS_CONNECTION',
     payload: _checkLedgerNanoSConnection(cryptoType, throwError)
+  }
+}
+
+function sync (walletData: WalletData, progress?: function) {
+  return {
+    type: 'SYNC',
+    payload: _sync(walletData, progress)
   }
 }
 
@@ -183,48 +167,21 @@ function clearDecryptedWallet () {
   }
 }
 
-async function _getUtxoForEscrowWallet (
-  address: string
-): Promise<{
-  utxos: Array<{
-    value: number,
-    script: string,
-    outputIndex: number,
-    txHash: string
-  }>
-}> {
-  const addressData = (await axios.get(
-    `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
-  )).data
-  const utxos = ledgerNanoS.getUtxosFromTxs(addressData.txs, address)
-  return { utxos }
-}
-
-function getUtxoForEscrowWallet () {
-  return (dispatch: Function, getState: Function) => {
-    const { address } = getState().walletReducer.escrowWallet.decryptedWallet
-    return dispatch({
-      type: 'GET_UTXO_FOR_ESCROW_WALLET',
-      payload: _getUtxoForEscrowWallet(address)
-    })
-  }
-}
-
 // cloud wallet actions
 async function _createCloudWallet (password: string) {
   var walletFileData = {}
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
-    let wallet = await WalletFactory.generateWallet({
-      walletType: 'drive',
-      cryptoType: cryptoType
-    })
-    await wallet.encryptAccount(password)
-    walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
+    if (!disabled) {
+      let wallet = await WalletFactory.generateWallet({
+        walletType: 'drive',
+        cryptoType: cryptoType
+      })
+      await wallet.encryptAccount(password)
+      walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
+    }
   }
-
   // save the encrypted wallet into drive
   await saveWallet(walletFileData)
-
   return _getCloudWallet()
 }
 
@@ -245,18 +202,16 @@ async function _getCloudWallet () {
     throw new Error('WALLET_NOT_EXIST')
   }
 
-  let rv = {}
-
+  let walletDataList = []
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
-    let wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
-    await wallet.sync()
-    rv[cryptoType] = [wallet.getAccount()]
+    if (!disabled) {
+      let wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
+      await wallet.sync()
+      walletDataList.push(wallet.getWalletData())
+    }
   }
 
-  return {
-    connected: true,
-    crypto: rv
-  }
+  return walletDataList
 }
 
 function getCloudWallet () {
@@ -293,10 +248,8 @@ async function _decryptCloudWallet ({
   encryptedWallet: WalletData,
   password: string
 }) {
-
   let wallet = WalletFactory.createWallet(encryptedWallet)
   await wallet.decryptAccount(password)
-
   return wallet.getWalletData()
 }
 
@@ -346,13 +299,11 @@ export {
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
   checkLedgerNanoSConnection,
+  sync,
   verifyPassword,
   clearDecryptedWallet,
   getCloudWallet,
   createCloudWallet,
-  syncLedgerAccountInfo,
-  updateBtcAccountInfo,
-  getUtxoForEscrowWallet,
   checkCloudWalletConnection,
   decryptCloudWallet,
   unlockCloudWallet,

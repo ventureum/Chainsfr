@@ -137,13 +137,14 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   retrieveAddress = async (): Promise<void> => {
+    // default first account
     let accountIdx = 0
     let { walletType } = this.walletData
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
       this.walletData.accounts[accountIdx].address = await this.ledger.getBtcAddresss(accountIdx)
     } else {
-      throw new Error(`Cannot retrieve address for walletType ${walletType}`)
+      throw new Error(`Cannot retrieve address for ${walletType}`)
     }
   }
 

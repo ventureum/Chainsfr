@@ -40,33 +40,44 @@ const initState = {
   }
 }
 
+function updateWalletState (state, walletDataList, extra) {
+  let _state = state
+  for (let walletData of walletDataList) {
+    _state = update(_state, {
+      wallet: {
+        [walletData.walletType]: {
+          $merge: {
+            ...extra,
+            crypto: { [walletData.cryptoType]: { $set: walletData.accounts } }
+          }
+        }
+      }
+    })
+  }
+  return _state
+}
+
 export default function (state = initState, action) {
   switch (action.type) {
     // metamask
     case 'CHECK_METAMASK_CONNECTION_FULFILLED':
-      let walletData = action.payload
-      return update(state, { wallet: { metamask: { $merge: {
-        connected: true,
-        crypto: { [walletData.cryptoType]: walletData.accounts }
-      } } } })
+      return updateWalletState(state, [action.payload], { connected: true })
     case 'UPDATE_METAMASK_ACCOUNTS':
-      return update(state, { wallet: { metamask: { accounts: { $set: action.payload } } } })
+      return updateWalletState(state, [action.payload], { connected: true })
     // ledger
     case 'CHECK_LEDGER_NANOS_CONNECTION_FULFILLED':
-      return update(state, { wallet: { ledger: { $merge: action.payload } } })
+      return updateWalletState(state, [action.payload], { connected: true })
     case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
-      return update(state, { wallet: { ledger: { $merge: { connected: false } } } })
+      return updateWalletState(state, [action.payload], { connected: false })
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return update(state, { wallet: { ledger: { $merge: {
-        connected: false,
-        network: null
-      } } } })
+      return updateWalletState(state, [action.payload], { connected: false })
+    case 'SYNC_FULFILLED':
+      return updateWalletState(state, [action.payload])
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
-      return update(state, { wallet: { drive: { $merge: action.payload } } })
+      return updateWalletState(state, [action.payload], { connected: true })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
-    // store decrypted wallet
-      return update(state, { escrowWallet: { decryptedWallet: { $set: action.payload } } })
+      return updateWalletState(state, action.payload)
     case 'CLEAR_DECRYPTED_WALLET':
       return update(state, { escrowWallet: { decryptedWallet: { $set: null } } })
     case 'SYNC_LEDGER_ACCOUNT_INFO_FULFILLED':
@@ -77,23 +88,9 @@ export default function (state = initState, action) {
       return update(state, { escrowWallet: { decryptedWallet: { $merge: action.payload } } })
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
-      return update(state, { wallet: { drive: { $merge: action.payload } } })
+      return updateWalletState(state, action.payload, { connected: true })
     case 'DECRYPT_CLOUD_WALLET_FULFILLED':
-      return update(state, {
-        wallet: {
-          drive: {
-            crypto: {
-              [action.payload.cryptoType]: {
-                0: {
-                  privateKey: {
-                    $set: action.payload.decryptedWallet.privateKey
-                  }
-                }
-              }
-            }
-          }
-        }
-      })
+      return updateWalletState(state, [action.payload])
     case 'UNLOCK_CLOUD_WALLET':
       return update(state, {
         wallet: {
@@ -122,7 +119,8 @@ export default function (state = initState, action) {
         if (incoming) return update(state, { wallet: { ledger: { $merge: incoming } } })
       }
       return state
-    default: // need this for default case
+    default:
+      // need this for default case
       return state
   }
 }

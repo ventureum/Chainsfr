@@ -7,16 +7,11 @@ import axios from 'axios'
 import bcrypt from 'bcrypt'
 import url from './url'
 
-const WIF_VERSION = {
-  testnet: 0xef,
-  mainnet: 0x80
-}
-
 /*
  * @param val BN instance, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
  */
-function toHumanReadableUnit (val, decimals = 18, precision = 3) {
+function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = new BN(val).div(base)
@@ -27,14 +22,14 @@ function toHumanReadableUnit (val, decimals = 18, precision = 3) {
  * @param val float number representing token units with precision [precision]
  * @return BN smallest token unit
  */
-function toBasicTokenUnit (val, decimals = 18, precision = 3) {
+function toBasicTokenUnit (val: any, decimals: number = 18, precision: number = 3) {
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = parseInt(val * precisionBase.toNumber())
   return new BN(rv).mul(base)
 }
 
-async function getGasCost (txObj) {
+async function getGasCost (txObj: any) {
   const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()
@@ -49,7 +44,7 @@ async function getGasCost (txObj) {
  * @param {Buffer} bytes The bytes to convert
  * @returns {Array.<string>}
  */
-function bytesToPassphrase (bytes) {
+function bytesToPassphrase (bytes: Buffer) {
   // Uint8Array should only be used when this is called in the browser
   // context.
   if (
@@ -98,7 +93,7 @@ function bytesToPassphrase (bytes) {
  * @param {number} size The number of random bytes to use
  * @returns {Array.<string>}
  */
-function generatePassphrase (size) {
+function generatePassphrase (size: number) {
   const MAX_PASSPHRASE_SIZE = 1024 // Max size of passphrase in bytes
 
   if (typeof size !== 'number' || size < 0 || size > MAX_PASSPHRASE_SIZE) {
