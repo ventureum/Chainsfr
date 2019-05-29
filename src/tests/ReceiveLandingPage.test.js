@@ -69,9 +69,9 @@ describe('ReceiveLandingPageComponent render', () => {
         initialProps,
         { transfer:
           {
-            receiveTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' },
-            receiveTimestamp: { $set: receiveTimestamp }
-          }
+            receiveTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' }
+          },
+        receiveTime: { $set: receiveTimestamp }
         })
     )
     expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
@@ -83,10 +83,10 @@ describe('ReceiveLandingPageComponent render', () => {
       update(
         initialProps,
         { transfer: {
-          receiveTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' },
-          receiveTimestamp: { $set: receiveTimestamp }
+          receiveTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' }
         },
-        isAuthenticated: { $set: true }
+        isAuthenticated: { $set: true },
+        receiveTime: { $set: receiveTimestamp }
         })
     )
     expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
@@ -100,9 +100,9 @@ describe('ReceiveLandingPageComponent render', () => {
       update(
         initialProps,
         { transfer: {
-          cancelTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' },
-          cancelTimestamp: { $set: cancelTimestamp }
-        }
+          cancelTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' }
+        },
+        cancelTime: { $set: cancelTimestamp }
         })
     )
     expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
@@ -117,9 +117,9 @@ describe('ReceiveLandingPageComponent render', () => {
       update(
         initialProps,
         { transfer: {
-          cancelTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' },
-          cancelTimestamp: { $set: cancelTimestamp }
+          cancelTxHash: { $set: '0xa2773cea9c23c1de5527b1544c2e64db29fdc4ffe9cce5dc2ccdb1f3179089a6' }
         },
+        cancelTime: { $set: cancelTimestamp },
         isAuthenticated: { $set: true }
         })
     )

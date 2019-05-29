@@ -18,15 +18,19 @@ class ReceiveLandingPageContainer extends Component {
 
   render () {
     const { transfer } = this.props
+    let sendTime, receiveTime, cancelTime
     if (transfer) {
       const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
-      transfer.sendTimestamp = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-      if (receiveTimestamp) transfer.receiveTimestamp = moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
-      if (cancelTimestamp) transfer.cancelTimestamp = moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      sendTime = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      if (receiveTimestamp) receiveTime = moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      if (cancelTimestamp) cancelTime = moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     }
     return (
       <ReceiveLandingPageComponent
         {...this.props}
+        sendTime={sendTime}
+        receiveTime={receiveTime}
+        cancelTime={cancelTime}
       />
     )
   }

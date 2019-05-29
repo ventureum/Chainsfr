@@ -6,7 +6,6 @@ import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
-import moment from 'moment'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
@@ -14,14 +13,12 @@ import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txCost, receipt, backToHome } = this.props
-    const { receivingId, transferAmount, sender, destination, cryptoType, receiveTimestamp, receiveTxHash } = receipt
+    const { classes, txCost, receipt, backToHome, receiveTime } = this.props
+    const { receivingId, transferAmount, sender, destination, cryptoType, receiveTxHash } = receipt
 
-    if (txCost) {
-      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
-        : parseFloat(transferAmount)
-    }
+    const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
+      ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+      : parseFloat(transferAmount)
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -76,7 +73,7 @@ class ReceiveReceiptComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
                     {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
@@ -85,7 +82,7 @@ class ReceiveReceiptComponent extends Component {
                     Accept on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {receiveTime}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -118,6 +115,7 @@ class ReceiveReceiptComponent extends Component {
                 component={Link}
                 to={Paths.home}
                 onClick={backToHome}
+                id='back'
               >
                 Back to Home
               </Button>
