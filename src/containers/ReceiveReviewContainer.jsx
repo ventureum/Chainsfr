@@ -2,18 +2,15 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
 import { acceptTransfer, getTxCost } from '../actions/transferActions'
+import { sync } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { getUtxoForEscrowWallet } from '../actions/walletActions'
+import WalletUtils from '../wallets/utils'
 
 class ReceiveReviewContainer extends Component {
   componentDidMount () {
-    const { transfer, getUtxoForEscrowWallet } = this.props
-    if (transfer.cryptoType === 'bitcoin') {
-      getUtxoForEscrowWallet()
-    } else {
-      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
-    }
+    // refresh wallet data
+    this.syncWallet()
   }
 
   componentDidUpdate (prevProps) {
@@ -21,11 +18,20 @@ class ReceiveReviewContainer extends Component {
     const prevActionsPending = prevProps.actionsPending
     if (!txCost &&
       !actionsPending.getTxCost &&
-      (prevActionsPending.getUtxoForEscrowWallet && !actionsPending.getUtxoForEscrowWallet) &&
-      transfer.cryptoType === 'bitcoin' &&
+      (prevActionsPending.sync && !actionsPending.sync) &&
       !error) {
-      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount, escrowWallet: escrowWallet })
+      this.props.getTxCost({
+        fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+        transferAmount: transfer.transferAmount
+      })
     }
+  }
+
+  syncWallet = () => {
+    let { wallet, walletSelection, transfer } = this.props
+    this.props.sync(
+      WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, wallet)
+    )
   }
 
   render () {
@@ -48,7 +54,7 @@ class ReceiveReviewContainer extends Component {
 
 const acceptTransferSelector = createLoadingSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
 const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
-const getUtxoForEscrowWalletSelector = createLoadingSelector(['GET_UTXO_FOR_ESCROW_WALLET'])
+const syncSelector = createLoadingSelector(['SYNC'])
 
 const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
 
@@ -57,7 +63,7 @@ const mapDispatchToProps = dispatch => {
     acceptTransfer: (txRequest) => dispatch(acceptTransfer(txRequest)),
     getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
-    getUtxoForEscrowWallet: () => dispatch(getUtxoForEscrowWallet())
+    sync: (txRequest) => dispatch(sync(txRequest))
   }
 }
 
@@ -72,7 +78,7 @@ const mapStateToProps = state => {
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
       getTxCost: getTxCostSelector(state),
-      getUtxoForEscrowWallet: getUtxoForEscrowWalletSelector(state)
+      sync: syncSelector(state)
     },
     error: errorSelector(state)
   }
