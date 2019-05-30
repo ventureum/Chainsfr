@@ -8,7 +8,6 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
-import moment from 'moment'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReviewComponent extends Component {
@@ -37,10 +36,6 @@ class CancelReviewComponent extends Component {
     this.setState({ open: false })
   }
 
-  handleDestinationOnChange = (event) => {
-    this.setState({ destinationInput: event.target.value })
-  }
-
   renderModal = () => {
     let { classes, actionsPending } = this.props
 
@@ -67,6 +62,7 @@ class CancelReviewComponent extends Component {
                 <Button
                   color='primary'
                   onClick={this.handleModalClose}
+                  id='close'
                 >
                   Let me think again
                 </Button>
@@ -78,6 +74,7 @@ class CancelReviewComponent extends Component {
                     color='primary'
                     disabled={actionsPending.cancelTransfer}
                     onClick={this.handleReviewNext}
+                    id='confirmCancel'
                   >
                     Cancel Transfer
                   </Button>
@@ -97,9 +94,9 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, txCost } = this.props
+    const { classes, transfer, escrowWallet, actionsPending, txCost, sendTime, receiveTime, cancelTime } = this.props
     if (transfer) {
-      var { sendingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
+      var { sendingId, transferAmount, receiveTxHash, cancelTxHash, sender, destination, cryptoType } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
     }
@@ -130,7 +127,7 @@ class CancelReviewComponent extends Component {
               <Grid item>
                 <Grid item className={classes.titleSection}>
                   <Grid container direction='column' justify='center' alignItems='flex-start'>
-                    <Typography className={classes.title} variant='h6' align='left'>
+                    <Typography className={classes.title} variant='h6' align='left' id='title'>
                       {hasReceived && 'Transfer has been received'}
                       {hasCancelled && 'Transfer has already been cancelled'}
                       {!hasReceived && !hasCancelled && 'Transfer details'}
@@ -144,7 +141,7 @@ class CancelReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                      From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -152,7 +149,7 @@ class CancelReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                      To
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='destination'>
                     {destination}
                   </Typography>
                 </Grid>
@@ -160,28 +157,27 @@ class CancelReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                      Amount
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='transferAmount'>
                     {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
                 </Grid>
-                {!hasReceived && !hasCancelled && // do not show gas in this case
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                       Transaction Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
-                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getTxCost && txCost
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />
+                  }
                 </Grid>
-                }
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                      Sent on
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  <Typography className={classes.reviewContent} align='left' id='sendTime'>
+                    {sendTime}
                   </Typography>
                 </Grid>
                 {(hasReceived || hasCancelled) &&
@@ -190,9 +186,9 @@ class CancelReviewComponent extends Component {
                     {hasReceived && 'Received on'}
                     {hasCancelled && 'Cancelled on'}
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {hasReceived && moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')}
-                    {hasCancelled && moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                  <Typography className={classes.reviewContent} align='left' id='actionTime'>
+                    {hasReceived && receiveTime}
+                    {hasCancelled && cancelTime}
                   </Typography>
                 </Grid>
                 }
@@ -221,6 +217,7 @@ class CancelReviewComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={this.handleModalOpen}
+                id='cancel'
               >
                 Cancel Transfer
               </Button>

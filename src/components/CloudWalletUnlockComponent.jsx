@@ -75,7 +75,7 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
           }
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color='primary'>
+          <Button onClick={handleClose} color='primary' id='cancel'>
             Cancel
           </Button>
           <Button
@@ -86,6 +86,7 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
               handleSubmit(this.state.password)
             }}
             color='primary'
+            id='submit'
           >
             Submit
           </Button>

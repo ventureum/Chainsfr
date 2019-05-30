@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
-
+import moment from 'moment'
 import CancelReviewComponent from '../components/CancelReviewComponent'
 import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -45,9 +45,17 @@ class CancelReviewContainer extends Component {
   }
 
   render () {
+    const { transfer } = this.props
+    let sendTime, receiveTime, cancelTime
+    if (transfer) sendTime = moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.receiveTxHash) receiveTime = moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.cancelTxHash) cancelTime = moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <CancelReviewComponent
         {...this.props}
+        sendTime={sendTime}
+        receiveTime={receiveTime}
+        cancelTime={cancelTime}
       />
     )
   }

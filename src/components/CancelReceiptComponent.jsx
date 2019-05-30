@@ -7,20 +7,18 @@ import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
-import moment from 'moment'
 import Paths from '../Paths'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import url from '../url'
 
 class CancelReceiptComponent extends Component {
   render () {
-    const { classes, receipt, txCost, backToHome } = this.props
-    const { sendingId, transferAmount, cryptoType, cancelTimestamp, cancelTxHash } = receipt
+    const { classes, receipt, txCost, backToHome, cancelTime } = this.props
+    const { sendingId, transferAmount, cryptoType, cancelTxHash } = receipt
 
-    if (txCost) {
-      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
-        : parseFloat(transferAmount)
-    }
+    const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
+      ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+      : parseFloat(transferAmount)
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -59,7 +57,7 @@ class CancelReceiptComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
                     {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                   </Typography>
                 </Grid>
@@ -68,13 +66,16 @@ class CancelReceiptComponent extends Component {
                     Cancelled on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')}
+                    {cancelTime}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     It may takes a few minutes to complete the transaction. You can track the transaction
-                    <MuiLink target='_blank' rel='noopener' href={`https://rinkeby.etherscan.io/tx/${cancelTxHash}`}>
+                    <MuiLink target='_blank' rel='noopener'
+                      href={
+                        receipt.cryptoType === 'bitcoin'
+                          ? url.getBtcExplorerTx(cancelTxHash) : url.getEthExplorerTx(cancelTxHash)}>
                       {' here'}
                     </MuiLink>
                     . A confirmation email will be sent to you.
@@ -95,6 +96,7 @@ class CancelReceiptComponent extends Component {
                 component={Link}
                 to={Paths.home}
                 onClick={backToHome}
+                id='back'
               >
                 Back to Home
               </Button>
