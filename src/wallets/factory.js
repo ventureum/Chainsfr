@@ -11,10 +11,10 @@ import WalletUtils from './utils'
 
 export default class WalletFactory {
   static createWallet = (walletData: WalletData): Wallet => {
-    if (walletData.cryptoType === 'ethereum') {
+    if (['ethereum', 'dai'].includes(walletData.cryptoType)) {
       // type casting
       return new WalletEthereum(((walletData: any): WalletDataEthereum))
-    } else if (walletData.cryptoType === 'bitcoin') {
+    } else if (['bitcoin'].includes(walletData.cryptoType)) {
       // type casting
       return new WalletBitcoin(((walletData: any): WalletDataBitcoin))
     } else {
@@ -36,9 +36,9 @@ export default class WalletFactory {
   }): Promise<Wallet> => {
     let wallet = null
     if (['ethereum', 'dai'].includes(cryptoType)) {
-      wallet = new WalletBitcoin()
-    } else if (cryptoType === 'bitcoin') {
       wallet = new WalletEthereum()
+    } else if (cryptoType === 'bitcoin') {
+      wallet = new WalletBitcoin()
     }
     if (wallet) {
       await wallet.generateWallet({ walletType, cryptoType })

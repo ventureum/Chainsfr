@@ -7,8 +7,8 @@ import url from '../url'
 import env from '../typedEnv'
 import moment from 'moment'
 import bitcoin from 'bitcoinjs-lib'
-import bip32 from 'bip32'
-import bip39 from 'bip39'
+import * as bip32 from 'bip32'
+import * as bip39 from 'bip39'
 import type {
   IWallet,
   WalletDataBitcoin,
@@ -19,6 +19,8 @@ import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
+
+const NETWORK = env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 
 export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
@@ -46,7 +48,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     cryptoType: string
   }) => {
     const seed = bip39.mnemonicToSeedSync(bip39.generateMnemonic())
-    const root = bip32.fromSeed(seed)
+    const root = bip32.fromSeed(seed, NETWORK)
     let xpriv = root.toBase58()
     let xpub = root.neutered().toBase58()
 
@@ -65,28 +67,25 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     xpriv: string,
     accountIdx: number
   }): Promise<AccountBitcoin> => {
-    const network =
-      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-    const path = `m/${BASE_BTC_PATH}/${accountIdx}'/0/0`
-    const root = bip32.fromBase58(xpriv, network)
+    const path = `m/${BASE_BTC_PATH}/${accountIdx}'`
+    const root = bip32.fromBase58(xpriv, NETWORK)
     const child = root.derivePath(path)
-
-    const privateKey = child.toBase58()
-    const keyPair = bitcoin.ECPair.fromPrivateKey(privateKey)
+    const privateKey = child.toWIF()
+    const keyPair = bitcoin.ECPair.fromWIF(privateKey, NETWORK)
     const p2wpkh = bitcoin.payments.p2wpkh({
       pubkey: keyPair.publicKey,
-      network: network
+      network: NETWORK
     })
 
     const { address } = bitcoin.payments.p2sh({
       redeem: p2wpkh,
-      network: network
+      network: NETWORK
     })
 
     let account = {
       balance: '0',
       address: address,
-      privateKey: privateKey,
+      privateKey: xpriv,
       hdWalletVariables: {
         nextAddressIndex: 0,
         nextChangeIndex: 0,
@@ -322,18 +321,15 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   getDerivedAddress = (xpub: string, accountIdx: number, change: number, addressIdx: number) => {
-    const network =
-      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-
-    const root = bip32.fromBase58(xpub, network)
+    const root = bip32.fromBase58(xpub, NETWORK)
     const path = `m/${BASE_BTC_PATH}/${accountIdx}'/${change}/${addressIdx}`
     const child = root.derivePath(path)
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({
         pubkey: child.publicKey,
-        network: network
+        network: NETWORK
       }),
-      network: network
+      network: NETWORK
     })
     return address
   }
@@ -347,25 +343,22 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     fee: number,
     changeIndex: number
   ) => {
-    const network =
-      env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-
     // use the first account
     let account = this.getAccount()
 
     const keyPair = bitcoin.ECPair.fromPrivateKey(account.privateKey)
     const p2wpkh = bitcoin.payments.p2wpkh({
       pubkey: keyPair.publicKey,
-      network: network
+      network: NETWORK
     })
 
     const { address } = bitcoin.payments.p2sh({
       redeem: p2wpkh,
-      network: network
+      network: NETWORK
     })
 
-    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: network })
-    const txb = new bitcoin.TransactionBuilder(network)
+    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: NETWORK })
+    const txb = new bitcoin.TransactionBuilder(NETWORK)
 
     // add all inputs
     inputs.map(input => txb.addInput(input.txHash, input.outputIndex))

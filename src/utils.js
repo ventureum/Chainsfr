@@ -4,9 +4,8 @@ import BN from 'bn.js'
 import randomBytes from 'randombytes'
 import wordlist from './wordlist.js'
 import axios from 'axios'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import url from './url'
-
 /*
  * @param val BN instance, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
