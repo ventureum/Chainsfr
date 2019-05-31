@@ -50,7 +50,7 @@ class FAQComponent extends Component {
           fullScreen={fullScreen}
           maxWidth='md'
           scroll='paper'
-          className={!fullScreen && classes.lowerLeftFixed}
+          className={fullScreen ? undefined : classes.lowerLeftFixed}
         >
           <DialogContent className={classes.zeroPadding}>
             <DialogContentText>
@@ -64,7 +64,7 @@ class FAQComponent extends Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color='primary'>
+            <Button onClick={this.handleClose} color='primary' id='close'>
               Close
             </Button>
           </DialogActions>
