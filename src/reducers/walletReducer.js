@@ -42,18 +42,30 @@ const initState = {
 
 function updateWalletState (state, walletDataList, extra) {
   let _state = state
-  for (let walletData of walletDataList) {
+
+  // de-duplicated walletType list
+  let walletTypeList = walletDataList.map(walletData => walletData.walletType)
+    .filter((value, index, self) => self.indexOf(value) === index)
+
+  walletTypeList.forEach(walletType => {
+    // aggregate crypto list for a given walletType
+    let cryptoList = walletDataList
+      .filter(walletData => walletData.walletType === walletType)
+      .reduce((accum, walletData) => {
+        accum[walletData.cryptoType] = walletData.accounts
+        return accum
+      }, {})
     _state = update(_state, {
       wallet: {
-        [walletData.walletType]: {
-          $merge: {
+        $merge: {
+          [walletType]: {
             ...extra,
-            crypto: { [walletData.cryptoType]: { $set: walletData.accounts } }
+            crypto: cryptoList
           }
         }
       }
     })
-  }
+  })
   return _state
 }
 
@@ -74,18 +86,26 @@ export default function (state = initState, action) {
     case 'SYNC_FULFILLED':
       return updateWalletState(state, [action.payload])
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
-      return updateWalletState(state, [action.payload], { connected: true })
+      return updateWalletState(state, action.payload, { connected: true })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
       return updateWalletState(state, action.payload)
     case 'CLEAR_DECRYPTED_WALLET':
-      return update(state, { escrowWallet: { decryptedWallet: { $set: null } } })
+      return update(state, {
+        escrowWallet: { decryptedWallet: { $set: null } }
+      })
     case 'SYNC_LEDGER_ACCOUNT_INFO_FULFILLED':
-      return update(state, { wallet: { ledger: { crypto: { $merge: action.payload } } } })
+      return update(state, {
+        wallet: { ledger: { crypto: { $merge: action.payload } } }
+      })
     case 'UPDATE_BTC_ACCOUNT_INFO_FULFILLED':
-      return update(state, { wallet: { ledger: { crypto: { $merge: action.payload } } } })
+      return update(state, {
+        wallet: { ledger: { crypto: { $merge: action.payload } } }
+      })
     case 'GET_UTXO_FOR_ESCROW_WALLET_FULFILLED':
-      return update(state, { escrowWallet: { decryptedWallet: { $merge: action.payload } } })
+      return update(state, {
+        escrowWallet: { decryptedWallet: { $merge: action.payload } }
+      })
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
       return updateWalletState(state, action.payload, { connected: true })

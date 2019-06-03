@@ -205,7 +205,6 @@ async function _getCloudWallet () {
   let walletDataList = []
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
     if (!disabled) {
-      console.log(JSON.parse(Base64.decode(walletFile[cryptoType])))
       let wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
       await wallet.sync()
       walletDataList.push(wallet.getWalletData())

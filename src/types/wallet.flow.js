@@ -30,6 +30,7 @@ export type AddressBitcoin = {
 }
 
 export type HDWalletVariables = {
+  xpub: string,
   nextAddressIndex: number,
   nextChangeIndex: number,
   addresses: Array<AddressBitcoin>,

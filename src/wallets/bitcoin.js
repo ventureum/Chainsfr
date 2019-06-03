@@ -70,6 +70,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     const path = `m/${BASE_BTC_PATH}/${accountIdx}'`
     const root = bip32.fromBase58(xpriv, NETWORK)
     const child = root.derivePath(path)
+    const accountXPub = child.neutered().toBase58()
     const privateKey = child.toWIF()
     const keyPair = bitcoin.ECPair.fromWIF(privateKey, NETWORK)
     const p2wpkh = bitcoin.payments.p2wpkh({
@@ -87,6 +88,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       address: address,
       privateKey: xpriv,
       hdWalletVariables: {
+        xpub: accountXPub,
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         changeAddress: address,
@@ -149,14 +151,18 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   sync = async (progress: any) => {
     let account = this.getAccount()
-    let { walletType, xpub } = this.walletData
+    let { walletType } = this.walletData
     let { hdWalletVariables } = account
+    let { xpub } = hdWalletVariables
 
     if (walletType === 'drive') {
       // only use the first derived address
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
-      hdWalletVariables.addresses = [this.getDerivedAddress(xpub, 0, 0, 0)]
+      hdWalletVariables.addresses = [{address: this.getDerivedAddress(xpub, 0, 0),
+        path: env.REACT_APP_BTC_PATH + `/0'/0/0`,
+        utxos: []
+      }]
     } else if (walletType === 'ledger') {
       // 1. account discovery
       const externalAddressData = await this._discoverAddress(
@@ -320,10 +326,9 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     return utxos
   }
 
-  getDerivedAddress = (xpub: string, accountIdx: number, change: number, addressIdx: number) => {
+  getDerivedAddress = (xpub: string, change: number, addressIdx: number) => {
     const root = bip32.fromBase58(xpub, NETWORK)
-    const path = `m/${BASE_BTC_PATH}/${accountIdx}'/${change}/${addressIdx}`
-    const child = root.derivePath(path)
+    const child = root.derive(change).derive(addressIdx)
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({
         pubkey: child.publicKey,
@@ -439,7 +444,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let lastUsedIdx = offset - 1
     while (gap < 5) {
       const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
-      const address = this.getDerivedAddress(xpub, accountIndex, change, currentIdx)
+      const address = this.getDerivedAddress(xpub, change, currentIdx)
 
       const response = (await axios.get(
         `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`

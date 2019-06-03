@@ -198,7 +198,7 @@ const mapStateToProps = state => {
   return {
     walletSelection: state.formReducer.walletSelection,
     cryptoSelection: state.formReducer.cryptoSelection,
-    wallet: state.walletReducer.wallet,
+    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
       sync: syncSelector(state)

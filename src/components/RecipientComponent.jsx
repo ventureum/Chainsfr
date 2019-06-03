@@ -11,6 +11,7 @@ import numeral from 'numeral'
 import validator from 'validator'
 import { getCryptoDecimals, getCryptoSymbol } from '../tokens'
 import BN from 'bn.js'
+import WalletUtils from '../wallets/utils'
 
 type Props = {
   updateTransferForm: Function,
@@ -35,12 +36,15 @@ class RecipientComponent extends Component<Props> {
   }
 
   componentDidUpdate (prevProps) {
-    const { walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
+    const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.getTxCost({
-        cryptoType: cryptoSelection,
-        transferAmount: transferForm.transferAmount,
-        walletType: walletSelection
+      this.props.getTxCost({ 
+        fromWallet: WalletUtils.toWalletDataFromState(
+          walletSelection,
+          cryptoSelection,
+          wallet
+        ),
+        transferAmount: transferForm.transferAmount
       })
     } else if (
       !actionsPending.getTxCost &&
