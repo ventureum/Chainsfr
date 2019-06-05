@@ -141,7 +141,7 @@ class WalletSelectionContainer extends Component<Props, State> {
 
   onSync = () => {
     let { wallet, walletSelection, cryptoSelection } = this.props
-    let accounts = wallet.crypto[cryptoSelection].accounts
+    let accounts = wallet.crypto[cryptoSelection]
     this.props.sync(
       WalletUtils.toWalletData(walletSelection, cryptoSelection, accounts),
       (index, change) => {

@@ -44,7 +44,8 @@ function updateWalletState (state, walletDataList, extra) {
   let _state = state
 
   // de-duplicated walletType list
-  let walletTypeList = walletDataList.map(walletData => walletData.walletType)
+  let walletTypeList = walletDataList
+    .map(walletData => walletData.walletType)
     .filter((value, index, self) => self.indexOf(value) === index)
 
   walletTypeList.forEach(walletType => {
@@ -55,16 +56,11 @@ function updateWalletState (state, walletDataList, extra) {
         accum[walletData.cryptoType] = walletData.accounts
         return accum
       }, {})
-    _state = update(_state, {
-      wallet: {
-        $merge: {
-          [walletType]: {
-            ...extra,
-            crypto: cryptoList
-          }
-        }
-      }
-    })
+    if (!_state.wallet[walletType]) {
+      _state = update(_state, { wallet: { [walletType]: { $set: {} } } })
+    }
+    _state = update(_state, { wallet: { [walletType]: { $merge: extra || {} } } })
+    _state = update(_state, { wallet: { [walletType]: { crypto: { $merge: cryptoList } } } })
   })
   return _state
 }

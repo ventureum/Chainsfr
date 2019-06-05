@@ -64,7 +64,7 @@ async function getBatchTransfers ({ sendingId, receivingId }) {
   })
 
   let responseData = rv.data
-  responseData = responseData.map(item => {
+  responseData = responseData.filter(item => !!item.data).map(item => {
     item.data = JSON.parse(Base64.decode(item.data))
     return item
   })

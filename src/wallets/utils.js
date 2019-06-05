@@ -29,16 +29,11 @@ export default class WalletUtils {
   }
 
   static toWalletDataFromState = (walletType: string, cryptoType: string, walletState: any) => {
-    return this.toWalletData(walletType,cryptoType, walletState.crypto[cryptoType])
+    return this.toWalletData(walletType, cryptoType, walletState.crypto[cryptoType])
   }
 
   static _normalizeAccountEthereum = (account: AccountEthereum): any => {
     let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
-
-    // some variables must not be null
-    if (!address) {
-      throw new Error('Account normaliztion failed due to null values')
-    }
 
     let _account: AccountEthereum = {
       balance: balance || '0',

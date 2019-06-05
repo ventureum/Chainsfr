@@ -6,55 +6,10 @@ import { getTransferData, saveWallet, getWallet } from '../drive.js'
 import { walletCryptoSupports } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
+import WalletUtils from '../wallets/utils'
+import type { WalletData } from '../types/wallet.flow.js'
 
-import type { WalletData, AccountEthereum, AccountBitcoin } from '../types/wallet.flow.js'
 
-class WalletUtils {
-  static toWalletData = (walletType, cryptoType, accounts): WalletData => {
-    return {
-      walletType,
-      cryptoType,
-      accounts: accounts.map(account => this._normalizeAccount(cryptoType, account))
-    }
-  }
-
-  static _normalizeAccount = (cryptoType, account): any => {
-    if (cryptoType === 'ethereum') {
-      let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
-
-      // some variables must not be null
-      if (!address) {
-        throw new Error('Account normaliztion failed due to null values')
-      }
-
-      let _account: AccountEthereum = {
-        balance: balance || '0',
-        ethBalance: ethBalance || '0',
-        address: address,
-        privateKey: privateKey,
-        encryptedPrivateKey: encryptedPrivateKey
-      }
-      return _account
-    } else if (cryptoType === 'bitcoin') {
-      let { balance, address, privateKey, encryptedPrivateKey, hdWalletVariables } = account
-
-      // some variables must not be null
-      if (!address || !hdWalletVariables) {
-        throw new Error('Account normaliztion failed due to null values')
-      }
-      let _account: AccountBitcoin = {
-        balance: balance || '0',
-        address: address,
-        privateKey: privateKey,
-        encryptedPrivateKey: encryptedPrivateKey,
-        hdWalletVariables: hdWalletVariables
-      }
-      return _account
-    } else {
-      throw new Error(`Invalid cryptoType: ${cryptoType}`)
-    }
-  }
-}
 
 async function _checkMetamaskConnection (
   cryptoType: string,

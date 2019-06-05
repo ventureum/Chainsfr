@@ -96,6 +96,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
   retrieveAddress = async (): Promise<void> => {
     let accountIdx = 0
     let { walletType } = this.walletData
+    if (this.walletData.accounts.length === 0) {
+      this.walletData.accounts.push({
+        balance: '0',
+        ethBalance: '0',
+        address: '0x0'
+      })
+    }
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
       this.walletData.accounts[accountIdx].address = await this.ledger.getEthAddresss(accountIdx)
