@@ -211,7 +211,8 @@ class LandingPageComponent extends Component {
                 Transfer ID: {transfer.sendingId}
               </Typography>
             </Grid>
-            {transfer.state === transferStates.SEND_PENDING &&
+            {[transferStates.SEND_PENDING,
+              transferStates.SEND_FAILURE].includes(transfer.state) &&
               <Grid item>
                 <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
@@ -362,15 +363,7 @@ class LandingPageComponent extends Component {
                           </Grid>
                         </Grid>
                         <Grid item className={classes.btnSection}>
-                          <Grid container direction='row' justify='flex-start' spacing={24}>
-                            <Grid item>
-                              <Button
-                                color='primary'
-                                disabled
-                              >
-                              Request Payment
-                              </Button>
-                            </Grid>
+                          <Grid container direction='row' justify='center' >
                             <Grid item>
                               <SpotlightTarget name='three'>
                                 <Button
@@ -379,7 +372,7 @@ class LandingPageComponent extends Component {
                                   component={Link}
                                   to={path.transfer}
                                 >
-                                Arrange Transfer
+                                  Arrange Transfer
                                 </Button>
                               </SpotlightTarget>
                             </Grid>

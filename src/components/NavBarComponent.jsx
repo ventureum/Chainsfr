@@ -51,6 +51,7 @@ class NavBarComponent extends Component {
                 onClick={() => {
                   backToHome()
                 }}
+                id='back'
               >
                 <Typography className={classes.appNameText}>
                   Chainsfer
@@ -66,18 +67,18 @@ class NavBarComponent extends Component {
                   aria-owns={anchorEl ? 'simple-menu' : undefined}
                   aria-haspopup='true'
                   onClick={this.handleToggle}
+                  id='avatarBtn'
                 >
                   {profile &&
                   profile.profileObj &&
-                  profile.profileObj.imageUrl ? (
-                    <Avatar
-                        alt=''
-                        src={profile.profileObj.imageUrl}
-                        className={classes.avatar}
-                      />
-                    ) : (
-                      <AccountCircle className={classes.userIcon} />
-                    )}
+                  profile.profileObj.imageUrl
+                    ? <Avatar
+                      alt=''
+                      src={profile.profileObj.imageUrl}
+                      className={classes.avatar}
+                    />
+                    : <AccountCircle className={classes.userIcon} />
+                  }
                 </IconButton>
                 <Menu
                   id='simple-menu'
@@ -86,7 +87,7 @@ class NavBarComponent extends Component {
                   onClose={this.handleClose()}
                 >
                   <MenuItem disabled > {profile.profileObj.email} </MenuItem>
-                  <MenuItem onClick={this.handleClose('logout')}>
+                  <MenuItem onClick={this.handleClose('logout')} id='logout'>
                       Logout
                   </MenuItem>
                 </Menu>
