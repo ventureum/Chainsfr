@@ -211,7 +211,8 @@ class LandingPageComponent extends Component {
                 Transfer ID: {transfer.sendingId}
               </Typography>
             </Grid>
-            {transfer.state === transferStates.SEND_PENDING &&
+            {[transferStates.SEND_PENDING,
+              transferStates.SEND_FAILURE].includes(transfer.state) &&
               <Grid item>
                 <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
