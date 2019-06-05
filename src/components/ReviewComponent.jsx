@@ -9,6 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
+import WalletUtils from '../wallets/utils'
 
 type Props = {
   submitTx: Function,
@@ -41,14 +42,12 @@ class ReviewComponent extends Component<Props> {
 
     // submit tx
     this.props.submitTx({
-      fromWallet: wallet,
-      walletType: walletSelection,
-      cryptoType: cryptoSelection,
+      fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
       transferAmount: transferAmount,
       destination: destination,
       sender: sender,
       password: password,
-      txCost: txCost
+      txFee: txCost
     })
   }
 

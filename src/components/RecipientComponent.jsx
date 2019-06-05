@@ -38,7 +38,7 @@ class RecipientComponent extends Component<Props> {
   componentDidUpdate (prevProps) {
     const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.getTxCost({ 
+      this.props.getTxCost({
         fromWallet: WalletUtils.toWalletDataFromState(
           walletSelection,
           cryptoSelection,

@@ -38,10 +38,10 @@ async function getFirstFromAddress (txHash: string) {
   return address
 }
 
-async function _getTxCost (txRequest: { fromWallet: WalletData, transferAmount: string }) {
+async function _getTxCost (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
   let { fromWallet, transferAmount } = txRequest
   let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
-    value: transferAmount
+    value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
   })
 
   if (['dai'].includes(fromWallet.cryptoType)) {
@@ -100,9 +100,9 @@ async function _directTransfer (txRequest: {
 async function _submitTx (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
-  password: string,
-  sender: string,
   destination: string,
+  sender: string,
+  password: string,
   txFee: TxFee
 }) {
   let { fromWallet, transferAmount, password, sender, destination, txFee } = txRequest
@@ -121,7 +121,7 @@ async function _submitTx (txRequest: {
 
   // supress flow warning
   if (!escrowAccount.privateKey) throw new Error('PrivateKey missing in escrow account')
-  let encryptedPrivateKey = utils.encryptMessage(escrowAccount.privateKey, _password)
+  let encryptedPrivateKey = await utils.encryptMessage(escrowAccount.privateKey, _password)
 
   let sendTxHash: TxHash
   let sendTxFeeTxHash: TxHash
@@ -208,6 +208,7 @@ async function _transactionHashRetrieved (txRequest: {
     sendTxFeeTxHash
   } = txRequest
 
+  console.log(encriptedEscrow)
   let transferData: Object = {
     clientId: 'test-client',
     sender: sender,

@@ -171,7 +171,6 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
 
     const account = this.getAccount()
-    const ledgerNanoS = new LedgerNanoS()
     const { walletType, cryptoType } = this.walletData
     let txObj: any = {}
     // setup tx obj
@@ -189,10 +188,16 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     txObj.gas = txFee.gas
     txObj.gasPrice = txFee.price
 
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+
     if (walletType === 'metamask') {
       return web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
+    } else if (walletType === 'drive') {
+      // add privateKey to web3
+      _web3.eth.accounts.wallet.add(account.privateKey)
+      return web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)
     } else if (walletType === 'ledger') {
-      let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+      const ledgerNanoS = new LedgerNanoS()
       const signedTransactionObject = await ledgerNanoS.signSendTransaction(txObj)
       return web3EthSendTransactionPromise(
         _web3.eth.sendSignedTransaction,
