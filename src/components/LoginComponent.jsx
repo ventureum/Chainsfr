@@ -1,11 +1,66 @@
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
+import Link from '@material-ui/core/Link'
 import { withStyles } from '@material-ui/core/styles'
-import Avatar from '@material-ui/core/Avatar'
-import SendLandingIllustration from '../images/send-landing.svg'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import GoogleLoginButton from './GoogleLoginButton'
+import ChainsfrLogo from '../images/chainsfr_logo.svg'
+import ChainsfrLogoWhite from '../images/chainsfr_logo_white.svg'
+import classNames from 'classnames'
+import env from '../typedEnv'
+
+const data = {
+  mainNet:
+  {
+    faq:
+    [
+      {
+        title: 'Do I need a Chainsfer account?',
+        content: 'No. You only need a Google account. You can track the status of your transaction through the link in your email.'
+      },
+      {
+        title: 'Why sign in with Google?',
+        content: 'Chainsfer service uses your Google account to store your crypto wallet and transfer information.'
+      },
+      {
+        title: 'Is Chainsfer related to Google?',
+        content: 'No. Chainsfer is registered as a third party apps using Google Drive APIs.'
+      }
+    ],
+    faqURL: env.REACT_APP_FAQ_URL,
+    loginURL: env.REACT_APP_ENTRYPOINT_MAINNET_URL,
+    loginTitle: 'Chainsfr',
+    linkText: 'Try Chainsfer TestNet',
+    backgroundColor: '#F6F9FE',
+    fontColor: '#1E0E62'
+  },
+  testNet:
+  {
+    faq: [
+      {
+        title: 'What is chainsfr TestNet?',
+        content: 'It is an alternative block chain, to be used for testing features.'
+      },
+      {
+        title: 'Does TestNet coin have value?',
+        content: 'Chainsfer service uses your Google account to store your crypto wallet and transfer information.'
+      },
+      {
+        title: 'How does it work?',
+        content: 'No. Chainsfer is registered as a third party apps using Google Drive APIs.'
+      }
+    ],
+    faqURL: env.REACT_APP_FAQ_TESTNET_URL,
+    loginURL: env.REACT_APP_ENTRYPOINT_TESTNET_URL,
+    loginTitle: 'Chainsfr TestNet',
+    linkText: 'Switch to Main App',
+    backgroundColor: '#393386',
+    fontColor: '#FFF'
+  }
+}
 
 class LoginComponent extends Component {
   loginSuccess = async (response) => {
@@ -17,87 +72,66 @@ class LoginComponent extends Component {
   }
 
   render () {
-    let { classes, actionsPending } = this.props
+    let { classes, actionsPending, isMainNet } = this.props
+
+    const envSuffix = isMainNet ? 'MainNet' : 'TestNet'
+
     return (
-      <Grid container direction='column' justify='center' alignItems='center'>
-        {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
-        <Grid item className={classes.centerContainer}>
-          {/* 'stretch' ensures upper and lower section align properly */}
-          <Grid container direction='column' justify='center' alignItems='stretch'>
-            {/* Upper section */}
-            <Grid item>
-              <Grid container direction='row' alignItems='center' justify='space-around'>
-                <Grid item md={6} className={classes.leftContainer}>
-                  <img
-                    src={SendLandingIllustration}
-                    alt={'landing-illustration'}
-                    className={classes.landingIllustration}
-                  />
-                </Grid>
-                <Grid item md={6} className={classes.rightColumn}>
-                  <Grid container direction='column' justify='center' alignItems='center'>
-                    <Grid item className={classes.rightContainer}>
-                      <Grid item className={classes.stepTitleContainer}>
-                        <Typography className={classes.stepTitle}>
-                          Send cryptocurrency directly to another person using email
-                        </Typography>
-                      </Grid>
-                      <Grid item className={classes.step}>
-                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                          <Grid item>
-                            <Avatar className={classes.stepIcon}> 1 </Avatar>
-                          </Grid>
-                          <Grid item xs>
-                            <Typography align='left' className={classes.stepText}>
-                            Connect to your wallet
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      <Grid item className={classes.step}>
-                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                          <Grid item>
-                            <Avatar className={classes.stepIcon}> 2 </Avatar>
-                          </Grid>
-                          <Grid item xs>
-                            <Typography align='left' className={classes.stepText}>
-                            Set the amount, recipient email and security answer
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      <Grid item className={classes.step}>
-                        <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                          <Avatar className={classes.stepIcon}> 3 </Avatar>
-                          <Typography align='left' className={classes.stepText}>
-                            Review and transfer
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item align='center'>
-                        <div className={classes.wrapper}>
-                          <GoogleLoginButton
-                            onSuccess={this.loginSuccess}
-                            onFailure={this.loginFailure}
-                            disabled={actionsPending.getCloudWallet}
-                          />
-                          {actionsPending.getCloudWallet &&
-                          <CircularProgress
-                            size={24}
-                            color='primary'
-                            className={classes.buttonProgress}
-                          />}
-                        </div>
-                      </Grid>
-                    </Grid>
+      <Grid container justify='center' className={classNames(classes.container, classes[`container${envSuffix}`])}>
+        <Grid container direction='row' className={classes.centerContainer}>
+          <Grid item md={12} className={classes.header}>
+            <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogo : ChainsfrLogoWhite} alt='Chainsfr Logo' />
+          </Grid>
+          <Grid container direction='row'>
+            <Grid item md={6}>
+              <Grid><Typography variant='h4' gutterBottom className={classNames(classes.faqSectionTitle, classes[`faqFontColor${envSuffix}`])}>FAQ</Typography></Grid>
+              {isMainNet &&
+                data.mainNet.faq.map((item, i) => (
+                  <Grid className={classes.leftContainer} key={i}>
+                    <Typography variant='h6' className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}>{item.title}</Typography>
+                    <Typography className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}>{item.content}</Typography>
                   </Grid>
-                </Grid>
+                ))
+              }
+              {!isMainNet &&
+                data.testNet.faq.map((item, i) => (
+                  <Grid className={classes.leftContainer} key={i}>
+                    <Typography variant='h6' className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}>{item.title}</Typography>
+                    <Typography className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}>{item.content}</Typography>
+                  </Grid>
+                ))
+              }
+              <Grid className={classes.leftContainer}>
+                <Button className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite} href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL} target='_blank' >Learn More</Button>
               </Grid>
             </Grid>
+            <Grid item md={6}>
+              <Paper className={classes.paperContainter}>
+                <Grid>
+                  <Typography variant='h3' align='center' gutterBottom className={classes.loginTitle}>{isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}</Typography>
+                  <Typography align='center' gutterBottom className={classes.loginContent}>Send cryptocurrency using email</Typography>
+                </Grid>
+                <Grid item align='center' className={classes.paperButtons}>
+                  <Grid className={classes.wrapper}>
+                    <GoogleLoginButton onSuccess={this.loginSuccess}
+                      onFailure={this.loginFailure}
+                      disabled={actionsPending.getCloudWallet} />
+                    {
+                      actionsPending.getCloudWallet &&
+                      <CircularProgress size={24} color='primary'className={classes.buttonProgress} />
+                    }
+                  </Grid>
+                  <Link href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL} className={classes.paperBtnLink}>{isMainNet ? data.mainNet.linkText : data.testNet.linkText}</Link>
+                </Grid>
+                <Grid item container className={classes.paperFooter} justify='center'>
+                  <Link href='#' variant='caption' align='center' color='textSecondary'>Term and Use</Link>
+                </Grid>
+              </Paper>
+            </Grid>
           </Grid>
-          {/* Lower section (TODO) */}
         </Grid>
       </Grid>
+    // </Container>
     )
   }
 }
@@ -107,7 +141,6 @@ const styles = theme => ({
     flex: 1
   },
   container: {
-    marginTop: '60px',
     '@media (min-width: 380px) and (max-width : 751px)': {
       maxWidth: '380px'
     },
@@ -115,136 +148,89 @@ const styles = theme => ({
       maxWidth: '752px'
     },
     '@media (min-width: 1130px) and (max-width : 1489px)': {
-      maxWidth: '1130px'
+      maxWidth: '960px'
     },
     '@media (min-width: 1490px) ': {
-      maxWidth: '1490px'
     }
   },
-  onBoardingTitle: {
-    fontSize: '24px',
-    fontWeight: 500,
-    color: '#333333'
+  containerMainNet: {
+    backgroundColor: '#F6F9FE'
   },
-  onBoardingSubtitle: {
-    fontSize: '14px',
-    color: '#333333',
-    maxWidth: '340px'
+  containerTestNet: {
+    backgroundColor: '#393386'
+  },
+  header: {
+    paddingTop: 60,
+    paddingBottom: 60
+  },
+  chainsfrLogo: {
+    width: 180
+  },
+  paperContainter: {
+    padding: 60
+  },
+  paperButtons: {
+    marginBottom: 30
+  },
+  paperBtnLink: {
+    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontWeight: 500,
+    color: '#4285F4'
+  },
+  paperFooter: {
+    paddingTop: 20,
+    borderTop: 'solid 1px #e9e9e9'
   },
   wrapper: {
-    margin: theme.spacing.unit,
-    position: 'relative'
-  },
-  subComponent: {
-    width: '100%',
-    maxWidth: '680px',
-    margin: '0px 0px 16px 0px'
+    padding: 30,
+    maxHeight: 60,
+
+    '&:first-child p': {
+      padding: 15,
+      fontFamily: 'Poppins',
+      fontSize: 16
+    }
   },
   leftContainer: {
-    margin: '60px 0px 60px 0px',
-    maxWidth: '600px'
+    paddingTop: 30,
+    paddingBottom: 30,
+    maxWidth: 480
   },
-  rightContainer: {
-    margin: '60px 0px 60px 0px'
+  faqFontColorMainNet: {
+    color: '#1E0E62'
   },
-  landingIllustration: {
-    width: '100%'
+  faqFontColorTestNet: {
+    color: '#FFF'
   },
-  stepContainer: {
-    padding: '30px'
+  faqSectionTitle: {
+    fontFamily: 'Poppins',
+    fontSize: 24,
+    fontWeight: 700
   },
-  stepTitleContainer: {
-    marginBottom: '30px'
+  faqTitle: {
+    fontFamily: 'Poppins',
+    fontSize: 18,
+    fontWeight: 500
   },
-  step: {
-    marginBottom: '22px'
+  faqContent: {
+    fontFamily: 'Poppins',
+    fontWeight: 400
   },
-  stepTitle: {
-    color: '#333333',
-    fontWeight: 'bold',
-    fontSize: '18px'
+  loginTitle: {
+    fontFamily: 'Poppins',
+    fontWeight: 700,
+    fontSize: 42,
+    color: '#1E0E62'
   },
-  stepText: {
-    color: '#333333',
-    fontSize: '18px'
-  },
-  stepIcon: {
-    height: '34px',
-    width: '34px',
-    backgroundColor: '#FFFFFF',
-    border: '2px solid #4285F4',
-    color: theme.palette.primary.main,
-    marginRight: '9.5px'
-  },
-  title: {
-    color: '#333333',
-    fontSize: '24px',
-    fontWeight: '600',
-    lineHeight: '36px',
-    letterSpacing: '0.97px',
-    padding: '0px 0px 0px 0px'
-  },
-  transferId: {
-    color: '#777777',
-    fontSize: '12px',
-    lineHeight: '17px'
-  },
-  btnSection: {
-    marginTop: '60px'
-  },
-  helperTextSection: {
-    marginTop: '20px'
-  },
-  recentTxTitle: {
-    color: '#333333',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '30px'
-  },
-  recentTransferItemTransferAmount: {
-    marginRight: '30px'
-  },
-  checkCircleIcon: {
-    color: '#0CCD70',
-    fontSize: '40px'
-  },
-  sendIcon: {
-    fontSize: '40px'
-  },
-  notInterestedIcon: {
-    color: '#a8aaac',
-    fontSize: '40px'
-  },
-  typography: {
-    useNextVariants: true,
-    suppressDeprecationWarnings: true
-  },
-  heading: {
-    marginTop: '42px',
-    height: '43px',
-    width: '100%',
-    color: '#333333',
-    fontSize: '32px',
-    fontWeight: 'bold',
-    letterSpacing: '0.56px',
-    lineHeight: '43px'
-  },
-  content: {
-    marginTop: '20px',
-    width: '90vw',
-    maxWidth: '640px',
-    color: '#666666',
-    fontSize: '18px',
-    letterSpacing: '0.32px',
-    lineHeight: '24px'
-  },
-  loginBtn: {
-    width: '100%',
-    maxWidth: '320px',
-    margin: '60px 0px 60px 0px'
+  loginContent: {
+    fontFamily: 'Poppins',
+    fontWeight: 400,
+    fontSize: 18,
+    color: '#1E0E62'
   },
   centerContainer: {
-    maxWidth: '1330px',
+    maxWidth: '1080px',
     width: '100%'
   },
   buttonProgress: {
@@ -253,6 +239,28 @@ const styles = theme => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12
+  },
+  btnOutlinedDark: {
+    border: '1px solid #EBEAED',
+    borderRadius: 100,
+    padding: '10px 20px',
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    fontSize: '16px',
+    textTransform: 'capitalize',
+    lineHeight: '22px',
+    color: '#1E0E62'
+  },
+  btnOutlinedWhite: {
+    border: '1px solid #FFFFFF',
+    borderRadius: 100,
+    padding: '10px 20px',
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    fontSize: '16px',
+    textTransform: 'capitalize',
+    lineHeight: '22px',
+    color: '#FFF'
   }
 })
 
