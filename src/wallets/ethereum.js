@@ -91,6 +91,9 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     )
     if (!privateKey) throw new Error('Incorrect password')
     this.walletData.accounts[accountIdx].privateKey = privateKey
+
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+    this.walletData.accounts[accountIdx].address = _web3.eth.accounts.privateKeyToAccount(privateKey).address
   }
 
   clearPrivateKey = (): void => {

@@ -46,7 +46,7 @@ class GoogleLoginButton extends Component {
         const authResponse = res.getAuthResponse()
         res.googleId = basicProfile.getId()
         res.tokenObj = authResponse
-        res.tokenId = authResponse.id_token
+        res.idToken = authResponse.id_token
         res.accessToken = authResponse.access_token
         res.profileObj = {
           googleId: basicProfile.getId(),

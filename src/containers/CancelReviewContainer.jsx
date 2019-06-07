@@ -7,6 +7,7 @@ import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActio
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword, sync } from '../actions/walletActions'
+import WalletUtils from '../wallets/utils'
 
 class CancelReviewContainer extends Component {
   componentDidMount () {
@@ -20,12 +21,16 @@ class CancelReviewContainer extends Component {
     let { transfer, actionsPending, error, escrowWallet } = this.props
     let prevActionPending = prevProps.actionsPending
     if (!error && transfer) {
-      let walletData = transfer.data
+      let walletData = WalletUtils.toWalletDataFromState(
+        'escrow',
+        transfer.cryptoType,
+        escrowWallet
+      )
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
         // transfer data retrieved, now decrypt escrow wallet
         this.props.verifyPassword({
           sendingId: transfer.sendingId,
-          encryptedWallet: walletData
+          fromWallet: walletData
         })
       } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
         // verifyPassword completed, currently not syncing
@@ -67,7 +72,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
-    escrowWallet: state.walletReducer.escrowWallet,
+    escrowWallet: state.walletReducer.wallet.escrow,
     txCost: state.transferReducer.txCost,
     receipt: state.transferReducer.receipt,
     actionsPending: {

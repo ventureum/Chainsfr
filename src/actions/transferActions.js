@@ -181,7 +181,7 @@ async function _submitTx (txRequest: {
     destination: txRequest.destination,
     transferAmount: txRequest.transferAmount,
     cryptoType: cryptoType,
-    encriptedEscrow: encryptedPrivateKey,
+    encryptedEscrow: encryptedPrivateKey,
     sendTxHash: sendTxHash,
     password: txRequest.password,
     sendTxFeeTxHash: sendTxFeeTxHash
@@ -193,7 +193,7 @@ async function _transactionHashRetrieved (txRequest: {
   destination: string,
   transferAmount: StandardTokenUnit,
   cryptoType: string,
-  encriptedEscrow: any,
+  encryptedEscrow: any,
   sendTxHash: TxHash,
   password: string,
   sendTxFeeTxHash: ?TxHash
@@ -203,7 +203,7 @@ async function _transactionHashRetrieved (txRequest: {
     destination,
     transferAmount,
     cryptoType,
-    encriptedEscrow,
+    encryptedEscrow,
     sendTxHash,
     password,
     sendTxFeeTxHash
@@ -216,7 +216,7 @@ async function _transactionHashRetrieved (txRequest: {
     transferAmount: transferAmount,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    data: Base64.encode(JSON.stringify(encriptedEscrow))
+    data: Base64.encode(JSON.stringify(encryptedEscrow))
   }
 
   if (sendTxFeeTxHash) transferData.sendTxHash = [sendTxHash, sendTxFeeTxHash]
@@ -440,10 +440,10 @@ function submitTx (txRequest: {
   }
 }
 
-function setLastUsedAddress ({ googleId, cryptoType, walletType, address }) {
+function setLastUsedAddress ({ idToken, cryptoType, walletType, address }) {
   return {
     type: 'SET_LAST_USED_ADDRESS',
-    payload: API.setLastUsedAddress({ googleId, cryptoType, walletType, address })
+    payload: API.setLastUsedAddress({ idToken, cryptoType, walletType, address })
   }
 }
 
@@ -476,10 +476,10 @@ function acceptTransfer (txRequest: {
       payload: _acceptTransfer(txRequest)
     }).then(() => {
       const { profile } = getState().userReducer
-      if (profile.isAuthenticated && profile.googleId) {
-        const googleId = profile.googleId
+      if (profile.isAuthenticated && profile.idToken) {
+        const idToken = profile.idToken
         dispatch(
-          setLastUsedAddress({ googleId, cryptoType, walletType, address: destinationAddress })
+          setLastUsedAddress({ idToken, cryptoType, walletType, address: destinationAddress })
         )
       }
 
