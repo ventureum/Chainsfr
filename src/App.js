@@ -55,10 +55,15 @@ const defaultLayoutStyle = {
   flexDirection: 'column'
 }
 
+const loginLayoutStyle = {
+  backgroundColor: '#F6F9FE',
+}
+
 const componentStyle = {
   minHeight: '100vh',
   flexDirection: 'column'
 }
+
 
 function browserSupported () {
   if (browser && browser.name === 'chrome') {
@@ -89,6 +94,22 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
   )
 }
 
+const LoginLayout = ({ component: Component, ...rest }) => {
+  return (
+    <Route {...rest} render={matchProps => (
+      <div style={loginLayoutStyle}>
+        <div style={componentStyle}>
+          {browserSupported()
+            ? <Component {...matchProps} />
+            : <BrowserNotSupportedComponent />
+          }
+        </div>
+        <NotifierComponent />
+      </div>
+    )} />
+  )
+}
+
 class App extends Component {
   constructor (props) {
     super(props)
@@ -112,7 +133,7 @@ class App extends Component {
           ]}>
             <ConnectedRouter history={history}>
               <Switch>
-                <DefaultLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
+                <LoginLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
                 <DefaultLayout exact path={paths.home} component={userIsAuthenticated(LandingPage)} />
                 <DefaultLayout exact path={paths.wallet} component={userIsAuthenticated(WalletContainer)} />
                 <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
