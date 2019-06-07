@@ -93,6 +93,11 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     this.walletData.accounts[accountIdx].privateKey = privateKey
   }
 
+  clearPrivateKey = (): void => {
+    let accountIdx = 0
+    this.walletData.accounts[accountIdx].privateKey = undefined
+  }
+
   retrieveAddress = async (): Promise<void> => {
     let accountIdx = 0
     let { walletType } = this.walletData
@@ -199,7 +204,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
     if (walletType === 'metamask') {
       return web3EthSendTransactionPromise(window._web3.eth.sendTransaction, txObj)
-    } else if (walletType === 'drive') {
+    } else if (['drive', 'escrow'].includes(walletType)) {
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(account.privateKey)
       return web3EthSendTransactionPromise(_web3.eth.sendTransaction, txObj)

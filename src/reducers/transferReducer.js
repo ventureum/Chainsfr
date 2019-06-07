@@ -21,7 +21,7 @@ export default function (state = initialState, action) {
     case 'GET_TRANSFER_FULFILLED':
       return {
         ...state,
-        transfer: action.payload
+        transfer: action.payload.transferData
       }
     case 'GET_TX_COST_FULFILLED':
       return {

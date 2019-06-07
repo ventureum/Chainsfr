@@ -42,8 +42,8 @@ class ReceiveWalletSelectionContainer extends Component {
 
   componentDidMount () {
     const { profile } = this.props
-    if (profile.isAuthenticated && profile.googleId) {
-      this.props.getLastUsedAddress(profile.googleId)
+    if (profile.isAuthenticated && profile.idToken) {
+      this.props.getLastUsedAddress(profile.idToken)
     }
   }
 
@@ -82,10 +82,11 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   onSync = () => {
-    let { wallet, walletSelection, cryptoSelection } = this.props
-    let accounts = wallet.crypto[cryptoSelection].accounts
+    let { wallet, walletSelection, transfer } = this.props
+    let accounts = wallet.crypto[transfer.cryptoType]
+    console.log(this.props)
     this.props.sync(
-      WalletUtils.toWalletData(walletSelection, cryptoSelection, accounts),
+      WalletUtils.toWalletData(walletSelection, transfer.cryptoType, accounts),
       (index, change) => {
         this.setState({ syncProgress: { index, change } })
       }

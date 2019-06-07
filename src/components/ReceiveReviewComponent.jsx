@@ -7,6 +7,7 @@ import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import moment from 'moment'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import WalletUtils from '../wallets/utils'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
@@ -16,10 +17,8 @@ class ReceiveReviewComponent extends Component {
     // accept transfer
     this.props.acceptTransfer({
       receivingId: receivingId,
-      escrowWallet: escrowWallet.decryptedWallet,
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
       destinationAddress: destinationAddress,
-      walletType: walletSelection,
-      cryptoType: transfer.cryptoType,
       transferAmount: transferAmount,
       txCost: txCost
     })

@@ -70,7 +70,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
-    escrowWallet: state.walletReducer.escrowWallet,
+    escrowWallet: state.walletReducer.wallet.escrow,
     lastUsedWallet: state.walletReducer.lastUsedWallet,
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],

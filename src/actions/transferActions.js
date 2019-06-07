@@ -10,6 +10,7 @@ import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
 import url from '../url'
+import WalletUtils from '../wallets/utils'
 import WalletFactory from '../wallets/factory'
 import type {
   Wallet,
@@ -208,7 +209,6 @@ async function _transactionHashRetrieved (txRequest: {
     sendTxFeeTxHash
   } = txRequest
 
-  console.log(encriptedEscrow)
   let transferData: Object = {
     clientId: 'test-client',
     sender: sender,
@@ -330,8 +330,12 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {
 }
 
 async function _getTransfer (sendingId: ?string, receivingId: ?string) {
-  let apiResponse = await API.getTransfer({ sendingId, receivingId })
-  return apiResponse
+  let transferData = await API.getTransfer({ sendingId, receivingId })
+  let walletData = WalletUtils.toWalletData('escrow', transferData.cryptoType, [{
+    address: transferData.address,
+    encryptedPrivateKey: transferData.data
+  }])
+  return { transferData, walletData }
 }
 
 async function _getTransferHistory () {

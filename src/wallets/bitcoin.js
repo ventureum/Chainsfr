@@ -137,6 +137,11 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     this.walletData.accounts[accountIdx].privateKey = privateKey
   }
 
+  clearPrivateKey = (): void => {
+    let accountIdx = 0
+    this.walletData.accounts[accountIdx].privateKey = undefined
+  }
+
   retrieveAddress = async (): Promise<void> => {
     // default first account
     let accountIdx = 0

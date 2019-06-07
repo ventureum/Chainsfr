@@ -43,11 +43,11 @@ async function _sync (walletData: WalletData, progress: function) {
 
 async function _verifyPassword (transferInfo: {
   sendingId: ?string,
-  encryptedWallet: WalletData,
+  fromWallet: WalletData,
   password: string
 }) {
-  let { sendingId, encryptedWallet, password } = transferInfo
-  let wallet = WalletFactory.createWallet(encryptedWallet)
+  let { sendingId, fromWallet, password } = transferInfo
+  let wallet = WalletFactory.createWallet(fromWallet)
 
   if (sendingId) {
     // retrieve password from drive
@@ -92,7 +92,7 @@ function sync (walletData: WalletData, progress?: function) {
 function verifyPassword (
   transferInfo: {
     sendingId: ?string,
-    encryptedWallet: WalletData,
+    fromWallet: WalletData,
     password: string
   },
   nextStep: ?{
@@ -116,9 +116,14 @@ function verifyPassword (
   }
 }
 
-function clearDecryptedWallet () {
+function clearDecryptedWallet (walletData: WalletData) {
   return {
-    type: 'CLEAR_DECRYPTED_WALLET'
+    type: 'CLEAR_DECRYPTED_WALLET',
+    payload: () => {
+      let wallet = WalletFactory.createWallet(walletData)
+      wallet.clearPrivateKey()
+      return wallet.getWalletData()
+    }
   }
 }
 
@@ -237,10 +242,10 @@ function unlockCloudWallet (
   }
 }
 
-function getLastUsedAddress (googleId: string) {
+function getLastUsedAddress (idToken: string) {
   return {
     type: 'GET_LAST_USED_ADDRESS',
-    payload: API.getLastUsedAddress(googleId)
+    payload: API.getLastUsedAddress(idToken)
   }
 }
 

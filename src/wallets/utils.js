@@ -5,7 +5,7 @@ export default class WalletUtils {
   static toWalletData = (
     walletType: string,
     cryptoType: string,
-    accounts: Array<Account>
+    accounts: Array<any>
   ): WalletData => {
     if (['ethereum', 'dai'].includes(cryptoType)) {
       return {
@@ -32,7 +32,7 @@ export default class WalletUtils {
     return this.toWalletData(walletType, cryptoType, walletState.crypto[cryptoType])
   }
 
-  static _normalizeAccountEthereum = (account: AccountEthereum): any => {
+  static _normalizeAccountEthereum = (account: any): any => {
     let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
 
     let _account: AccountEthereum = {
@@ -45,7 +45,7 @@ export default class WalletUtils {
     return _account
   }
 
-  static _normalizeAccountBitcoin = (account: AccountBitcoin): any => {
+  static _normalizeAccountBitcoin = (account: any): any => {
     let { balance, address, privateKey, encryptedPrivateKey, hdWalletVariables } = account
 
     // some variables must not be null

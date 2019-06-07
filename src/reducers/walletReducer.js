@@ -85,11 +85,9 @@ export default function (state = initState, action) {
       return updateWalletState(state, action.payload, { connected: true })
     // escrow wallet actions
     case 'VERIFY_PASSWORD_FULFILLED':
-      return updateWalletState(state, action.payload)
+      return updateWalletState(state, [action.payload])
     case 'CLEAR_DECRYPTED_WALLET':
-      return update(state, {
-        escrowWallet: { decryptedWallet: { $set: null } }
-      })
+      return updateWalletState(state, [action.payload])
     case 'SYNC_LEDGER_ACCOUNT_INFO_FULFILLED':
       return update(state, {
         wallet: { ledger: { crypto: { $merge: action.payload } } }
@@ -129,6 +127,8 @@ export default function (state = initState, action) {
           notUsed: { $set: true }
         }
       })
+    case 'GET_TRANSFER_FULFILLED':
+      return updateWalletState(state, [action.payload.walletData], { connected: true })
     case REHYDRATE:
       if (action.payload) {
         var incoming = action.payload.walletReducer.wallet.ledger
