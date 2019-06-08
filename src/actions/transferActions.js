@@ -5,7 +5,7 @@ import axios from 'axios'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'
-import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
+import { getTransferData, saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
@@ -183,7 +183,7 @@ async function _submitTx (txRequest: {
     cryptoType: cryptoType,
     encryptedEscrow: encryptedPrivateKey,
     sendTxHash: sendTxHash,
-    password: txRequest.password,
+    password: _password,
     sendTxFeeTxHash: sendTxFeeTxHash
   })
 }
@@ -281,36 +281,38 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {
 async function _cancelTransfer (
   txRequest: {
     escrowWallet: WalletData,
+    sendingId: string,
     sendTxHash: TxHash,
     transferAmount: StandardTokenUnit,
-    txFee: TxFee,
-    sendingId: string
+    txFee: TxFee
   }
 ) {
-  let { escrowWallet, sendTxHash, transferAmount, txFee } = txRequest
+  let { escrowWallet, sendingId, sendTxHash, transferAmount, txFee } = txRequest
   let { cryptoType } = escrowWallet
+
+  // assuming wallet has been decrypted
+  let wallet = WalletFactory.createWallet(escrowWallet)
 
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
-
-  let cancelTxHash: TxHash
+  let senderAddress: Address
 
   if (cryptoType === 'bitcoin') {
-    const senderAddress = await getFirstFromAddress(sendTxHash)
-    cancelTxHash = await WalletFactory.createWallet(escrowWallet).sendTransaction({ to: senderAddress, value: value, txFee: txFee })
+    senderAddress = await getFirstFromAddress(sendTxHash)
   } else if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
-    let senderAddress: Address = txReceipt.address
-    cancelTxHash = await WalletFactory.createWallet(escrowWallet).sendTransaction({ to: senderAddress, value: value, txFee: txFee })
+    senderAddress = txReceipt.from
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
+  let cancelTxHash = await wallet.sendTransaction({ to: senderAddress, value: value, txFee: txFee })
+
   return _cancelTransferTransactionHashRetrieved({
     cancelTxHash: cancelTxHash,
-    sendingId: txRequest.sendingId
+    sendingId: sendingId
   })
 }
 
@@ -490,10 +492,10 @@ function acceptTransfer (txRequest: {
 
 function cancelTransfer (txRequest: {
   escrowWallet: WalletData,
+  sendingId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
-  txFee: TxFee,
-  sendingId: string
+  txFee: TxFee
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({

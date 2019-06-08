@@ -10,6 +10,7 @@ import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import moment from 'moment'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import WalletUtils from '../wallets/utils'
 
 class CancelReviewComponent extends Component {
   state = {
@@ -20,10 +21,9 @@ class CancelReviewComponent extends Component {
     const { transfer, escrowWallet, txCost } = this.props
     const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
     this.props.cancelTransfer({
-      escrowWallet: escrowWallet.decryptedWallet,
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
       sendingId: sendingId,
       sendTxHash: sendTxHash,
-      cryptoType: cryptoType,
       transferAmount: transferAmount,
       txCost: txCost
     })
