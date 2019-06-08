@@ -65,9 +65,14 @@ async function getBatchTransfers ({ sendingId, receivingId }) {
 
   let responseData = rv.data
   responseData = responseData.map(item => {
-    item.data = JSON.parse(Base64.decode(item.data))
-    return item
-  })
+    if (!item.error) {
+      item.data = JSON.parse(Base64.decode(item.data))
+      return item
+    } else {
+      console.warn('Transfer item not found.')
+      return null
+    }
+  }).filter(item => item !== null)
 
   return responseData
 }
