@@ -13,12 +13,12 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 
 class CancelReceiptComponent extends Component {
   render () {
-    const { classes, receipt, txCost, backToHome } = this.props
+    const { classes, receipt, txFee, backToHome } = this.props
     const { sendingId, transferAmount, cryptoType, cancelTimestamp, cancelTxHash } = receipt
 
-    if (txCost) {
+    if (txFee) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
         : parseFloat(transferAmount)
     }
 
@@ -52,7 +52,7 @@ class CancelReceiptComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
-import { acceptTransfer, getTxCost } from '../actions/transferActions'
+import { acceptTransfer, gettxFee } from '../actions/transferActions'
 import { sync } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
@@ -14,13 +14,13 @@ class ReceiveReviewContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { transfer, escrowWallet, txCost, actionsPending, error } = this.props
+    const { transfer, escrowWallet, txFee, actionsPending, error } = this.props
     const prevActionsPending = prevProps.actionsPending
-    if (!txCost &&
-      !actionsPending.getTxCost &&
+    if (!txFee &&
+      !actionsPending.gettxFee &&
       (prevActionsPending.sync && !actionsPending.sync) &&
       !error) {
-      this.props.getTxCost({
+      this.props.gettxFee({
         fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
         transferAmount: transfer.transferAmount
       })
@@ -53,7 +53,7 @@ class ReceiveReviewContainer extends Component {
 }
 
 const acceptTransferSelector = createLoadingSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
-const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
+const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const syncSelector = createLoadingSelector(['SYNC'])
 
 const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
@@ -61,7 +61,7 @@ const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_T
 const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: (txRequest) => dispatch(acceptTransfer(txRequest)),
-    getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
+    gettxFee: (txRequest) => dispatch(gettxFee(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
     sync: (txRequest) => dispatch(sync(txRequest))
   }
@@ -74,10 +74,10 @@ const mapStateToProps = state => {
     lastUsedWallet: state.walletReducer.lastUsedWallet,
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
-      getTxCost: getTxCostSelector(state),
+      gettxFee: gettxFeeSelector(state),
       sync: syncSelector(state)
     },
     error: errorSelector(state)

@@ -5,7 +5,7 @@ import axios from 'axios'
 import utils from '../utils'
 import BN from 'bn.js'
 import { goToStep } from './navigationActions'
-import { getTransferData, saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
+import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
@@ -39,7 +39,7 @@ async function getFirstFromAddress (txHash: string) {
   return address
 }
 
-async function _getTxCost (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
+async function _gettxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
   let { fromWallet, transferAmount } = txRequest
   let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
     value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
@@ -61,10 +61,10 @@ async function _getTxCost (txRequest: { fromWallet: WalletData, transferAmount: 
       cryptoType: 'ethereum',
       accounts: []
     }
-    let txCostEth = await WalletFactory.createWallet(mockEthWalletData).getTxFee({ value: '1' })
+    let txFeeEth = await WalletFactory.createWallet(mockEthWalletData).getTxFee({ value: '1' })
 
     // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
-    let totalCostInBasicUnit = new BN(txCostEth.costInBasicUnit)
+    let totalCostInBasicUnit = new BN(txFeeEth.costInBasicUnit)
       .add(new BN(txFee.costInBasicUnit))
       .add(new BN(ethTransfer))
 
@@ -72,12 +72,12 @@ async function _getTxCost (txRequest: { fromWallet: WalletData, transferAmount: 
       // use the current estimated price
       price: txFee.price,
       // eth transfer gas + erc20 transfer gas
-      gas: new BN(txCostEth.gas).add(new BN(txFee.gas)).toString(),
+      gas: new BN(txFeeEth.gas).add(new BN(txFee.gas)).toString(),
       costInBasicUnit: totalCostInBasicUnit.toString(),
       costInStandardUnit: utils.toHumanReadableUnit(totalCostInBasicUnit).toString(),
       // subtotal tx cost
       // this is used for submitTx()
-      costByType: { txCostEth, txCostERC20: txFee, ethTransfer }
+      costByType: { txFeeEth, txFeeERC20: txFee, ethTransfer }
     }
   }
 
@@ -91,11 +91,18 @@ async function _directTransfer (txRequest: {
   txFee: TxFee
 }) {
   let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
-  return WalletFactory.createWallet(fromWallet).sendTransaction({
-    to: destinationAddress,
-    value: transferAmount,
-    txFee: txFee
-  })
+
+  // convert transferAmount to basic token unit
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
+
+  return {
+    cryptoType: fromWallet.cryptoType,
+    sendTxHash: await WalletFactory.createWallet(fromWallet).sendTransaction({
+      to: destinationAddress,
+      value: value,
+      txFee: txFee
+    })
+  }
 }
 
 async function _submitTx (txRequest: {
@@ -162,14 +169,14 @@ async function _submitTx (txRequest: {
     sendTxFeeTxHash = await WalletFactory.createWallet(ethWalletData).sendTransaction({
       to: escrowAccount.address,
       value: txFee.costByType && txFee.costByType.ethTransfer,
-      txFee: txFee.costByType && txFee.costByType.txCostEth
+      txFee: txFee.costByType && txFee.costByType.txFeeEth
     })
 
     // now transfer erc20 tokens
     sendTxHash = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
-      txFee: txFee.costByType && txFee.costByType.txCostERC20
+      txFee: txFee.costByType && txFee.costByType.txFeeERC20
     })
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
@@ -505,14 +512,14 @@ function cancelTransfer (txRequest: {
   }
 }
 
-function getTxCost (txRequest: {
+function gettxFee (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'GET_TX_COST',
-      payload: _getTxCost(txRequest)
+      payload: _gettxFee(txRequest)
     })
   }
 }
@@ -542,7 +549,7 @@ export {
   directTransfer,
   acceptTransfer,
   cancelTransfer,
-  getTxCost,
+  gettxFee,
   getTransfer,
   getTransferHistory,
   clearVerifyPasswordError,

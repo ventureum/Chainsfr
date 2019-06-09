@@ -14,12 +14,12 @@ import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txCost, receipt, backToHome } = this.props
+    const { classes, txFee, receipt, backToHome } = this.props
     const { receivingId, transferAmount, sender, destination, cryptoType, receiveTimestamp, receiveTxHash } = receipt
 
-    if (txCost) {
+    if (txFee) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
         : parseFloat(transferAmount)
     }
 
@@ -69,7 +69,7 @@ class ReceiveReceiptComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

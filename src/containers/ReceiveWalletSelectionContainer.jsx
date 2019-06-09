@@ -67,7 +67,7 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, actionsPending, transfer, error } = this.props
+    const { wallet, actionsPending, error } = this.props
     const prevActionsPending = prevProps.actionsPending
 
     if (

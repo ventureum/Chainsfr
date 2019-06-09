@@ -1,5 +1,5 @@
 // @flow
-import type { WalletData, AccountEthereum, AccountBitcoin, Account } from '../types/wallet.flow'
+import type { WalletData, AccountEthereum, AccountBitcoin } from '../types/wallet.flow'
 
 export default class WalletUtils {
   static toWalletData = (

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import CancelReviewComponent from '../components/CancelReviewComponent'
-import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActions'
+import { getTransfer, cancelTransfer, gettxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword, sync } from '../actions/walletActions'
@@ -35,9 +35,9 @@ class CancelReviewContainer extends Component {
       } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
         // verifyPassword completed, currently not syncing
         this.props.sync(walletData)
-      } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.getTxCost) {
-        // sync completed, currently not executing getTxCost action
-        this.props.getTxCost({ fromWallet: walletData, transferAmount: transfer.transferAmount })
+      } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.gettxFee) {
+        // sync completed, currently not executing gettxFee action
+        this.props.gettxFee({ fromWallet: walletData, transferAmount: transfer.transferAmount })
       }
     }
   }
@@ -53,7 +53,7 @@ class CancelReviewContainer extends Component {
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
-const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
+const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
 const syncSelector = createLoadingSelector(['SYNC'])
 const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD', 'GET_TX_COST', 'GET_UTXO_FOR_ESCROW_WALLET'])
@@ -62,7 +62,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
-    getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
+    gettxFee: (txRequest) => dispatch(gettxFee(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
     sync: (txRequest) => dispatch(sync(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n))
@@ -73,12 +73,12 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     escrowWallet: state.walletReducer.wallet.escrow,
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt,
     actionsPending: {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),
-      getTxCost: getTxCostSelector(state),
+      gettxFee: gettxFeeSelector(state),
       cancelTransfer: cancelTransferSelector(state),
       sync: syncSelector(state)
     },

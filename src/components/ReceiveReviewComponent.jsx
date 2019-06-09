@@ -11,7 +11,7 @@ import WalletUtils from '../wallets/utils'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, walletSelection, txCost, destinationAddress } = this.props
+    const { transfer, escrowWallet, txFee, destinationAddress } = this.props
     const { receivingId, transferAmount } = transfer
 
     // accept transfer
@@ -20,17 +20,17 @@ class ReceiveReviewComponent extends Component {
       escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
       destinationAddress: destinationAddress,
       transferAmount: transferAmount,
-      txCost: txCost
+      txFee: txFee
     })
   }
 
   render () {
-    const { classes, transfer, actionsPending, txCost, destinationAddress } = this.props
+    const { classes, transfer, actionsPending, txFee, destinationAddress } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
-    if (!actionsPending.getTxCost && txCost) {
+    if (!actionsPending.gettxFee && txFee) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
         : parseFloat(transferAmount)
     }
 
@@ -90,8 +90,8 @@ class ReceiveReviewComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
-                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
+                    {!actionsPending.gettxFee && txFee
+                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>
@@ -100,7 +100,7 @@ class ReceiveReviewComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
+                    {!actionsPending.gettxFee && txFee
                       ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>

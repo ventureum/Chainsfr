@@ -16,11 +16,9 @@ import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 
 type Props = {
-  goToStep: Function,
   backToHome: Function,
   cryptoSelection: string,
-  wallet: Object,
-  txCost: Object,
+  txFee: Object,
   receipt: Object,
   classes: Object,
   password: string
@@ -37,7 +35,7 @@ class ReceiptComponent extends Component<Props, State> {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, txCost, receipt, backToHome } = this.props
+    const { classes, cryptoSelection, password, txFee, receipt, backToHome } = this.props
     const { sendingId, transferAmount, sender, destination, sendTimestamp } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -85,7 +83,7 @@ class ReceiptComponent extends Component<Props, State> {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

@@ -18,14 +18,14 @@ class CancelReviewComponent extends Component {
   }
 
   handleReviewNext = () => {
-    const { transfer, escrowWallet, txCost } = this.props
+    const { transfer, escrowWallet, txFee } = this.props
     const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
     this.props.cancelTransfer({
-      escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
       sendingId: sendingId,
       sendTxHash: sendTxHash,
       transferAmount: transferAmount,
-      txCost: txCost
+      txFee: txFee
     })
   }
 
@@ -97,7 +97,7 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, txCost } = this.props
+    const { classes, transfer, escrowWallet, actionsPending, txFee } = this.props
     if (transfer) {
       var { sendingId, receiveTxHash, receiveTimestamp, cancelTxHash, cancelTimestamp, transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
       var hasReceived = !!receiveTxHash
@@ -170,8 +170,8 @@ class CancelReviewComponent extends Component {
                       Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxCost && txCost
-                      ? `${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
+                    {!actionsPending.gettxFee && txFee
+                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
                 </Grid>

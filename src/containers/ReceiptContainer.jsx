@@ -8,7 +8,7 @@ type Props = {
   goToStep: Function,
   cryptoSelection: string,
   wallet: Object,
-  txCost: Object,
+  txFee: Object,
   receipt: Object,
   password: string
 }
@@ -27,7 +27,7 @@ const mapStateToProps = state => {
   return {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt,
     password: state.formReducer.transferForm.password
   }

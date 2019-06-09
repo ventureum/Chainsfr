@@ -5,7 +5,7 @@ import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from 
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getTxCost } from '../actions/transferActions'
+import { gettxFee } from '../actions/transferActions'
 
 type Props = {
   updateTransferForm: Function,
@@ -15,7 +15,7 @@ type Props = {
   cryptoSelection: string,
   walletSelection: string,
   transferForm: Object,
-  txCost: any,
+  txFee: any,
   wallet: Object,
   actionsPending: Object,
   error: any,
@@ -39,7 +39,7 @@ class RecipientContainer extends Component<Props> {
     )
   }
 }
-const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
+const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const errorSelector = createErrorSelector(['GET_TX_COST'])
 
 const mapDispatchToProps = dispatch => {
@@ -48,7 +48,7 @@ const mapDispatchToProps = dispatch => {
     generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
     clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
     goToStep: (n) => dispatch(goToStep('send', n)),
-    getTxCost: (txRequest) => dispatch(getTxCost(txRequest))
+    gettxFee: (txRequest) => dispatch(gettxFee(txRequest))
 
   }
 }
@@ -60,9 +60,9 @@ const mapStateToProps = state => {
     transferForm: state.formReducer.transferForm,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     profile: state.userReducer.profile,
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     actionsPending: {
-      getTxCost: getTxCostSelector(state)
+      gettxFee: gettxFeeSelector(state)
     },
     error: errorSelector(state)
   }

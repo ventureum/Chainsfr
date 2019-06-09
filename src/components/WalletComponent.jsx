@@ -32,13 +32,14 @@ import utils from '../utils'
 import update from 'immutability-helper'
 import classNames from 'classnames'
 import validator from 'validator'
-import Web3 from 'web3'
 import BN from 'bn.js'
 import bitcore from 'bitcore-lib'
 import Tooltip from '@material-ui/core/Tooltip'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import url from '../url'
+import * as Web3Utils from 'web3-utils'
+import WalletUtils from '../wallets/utils'
 
 const WALLET_TYPE = 'drive'
 
@@ -63,7 +64,7 @@ class WalletComponent extends Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    let { actionsPending, receipt } = this.props
+    let { actionsPending, receipt, wallet } = this.props
     const { directTransferDialogForm, selectedCryptoType, directTransferDialogOpen, directTransferDialogFormError } = this.state
     const { transferAmount } = directTransferDialogForm
     if (prevProps.actionsPending.directTransfer &&
@@ -78,15 +79,14 @@ class WalletComponent extends Component {
       directTransferDialogOpen &&
       !directTransferDialogFormError.transferAmount
     ) {
-      this.props.getTxCost({
-        cryptoType: selectedCryptoType,
-        transferAmount: directTransferDialogForm.transferAmount,
-        walletType: 'drive'
+      this.props.gettxFee({
+        fromWallet: WalletUtils.toWalletDataFromState('drive', selectedCryptoType, wallet),
+        transferAmount: directTransferDialogForm.transferAmount
       })
     } else if (
       directTransferDialogOpen &&
-      !actionsPending.getTxCost &&
-      prevProps.actionsPending.getTxCost
+      !actionsPending.gettxFee &&
+      prevProps.actionsPending.gettxFee
     ) {
       this.setState(update(this.state, { // eslint-disable-line
         directTransferDialogFormError: { transferAmount: { $set: this.validate('transferAmount', directTransferDialogForm.transferAmount) } }
@@ -171,7 +171,7 @@ class WalletComponent extends Component {
   }
 
   validate = (name, value) => {
-    const { wallet, txCost } = this.props
+    const { wallet, txFee } = this.props
     const { selectedCryptoType } = this.state
     let balance = wallet ? wallet.crypto[selectedCryptoType][0].balance : null
     const decimals = getCryptoDecimals(selectedCryptoType)
@@ -189,22 +189,22 @@ class WalletComponent extends Component {
           // now check if ETH balance is sufficient for paying tx fees
           if (
             selectedCryptoType === 'ethereum' &&
-            txCost &&
-            new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+            txFee &&
+            new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
           ) {
             return 'Insufficent funds for paying transaction fees'
           }
           if (
             selectedCryptoType === 'dai' &&
-            txCost &&
-            new BN(balance).lt(new BN(txCost.costInBasicUnit))
+            txFee &&
+            new BN(balance).lt(new BN(txFee.costInBasicUnit))
           ) {
             return 'Insufficent funds for paying transaction fees'
           }
         } else if (
           selectedCryptoType === 'bitcoin' &&
-          txCost &&
-          new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+          txFee &&
+          new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
         ) {
           return 'Insufficent funds for paying transaction fees'
         }
@@ -214,7 +214,7 @@ class WalletComponent extends Component {
         if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])) {
           return 'Invalid address'
         }
-      } else if (!Web3.utils.isAddress(value)) {
+      } else if (!Web3Utils.isAddress(value)) {
         return 'Invalid address'
       }
       return null
@@ -242,7 +242,7 @@ class WalletComponent extends Component {
       directTransferDialogForm,
       selectedCryptoType
     } = this.state
-    const { wallet, directTransfer, txCost } = this.props
+    const { wallet, directTransfer, txFee } = this.props
 
     if (selectedCryptoType &&
         directTransferDialogForm.transferAmount &&
@@ -250,17 +250,16 @@ class WalletComponent extends Component {
     ) {
       // submit direct transfer request
       directTransfer({
-        fromWallet: wallet,
-        cryptoType: selectedCryptoType,
+        fromWallet: WalletUtils.toWalletDataFromState('drive', selectedCryptoType, wallet),
         destinationAddress: directTransferDialogForm.destinationAddress,
         transferAmount: directTransferDialogForm.transferAmount,
-        txCost: txCost
+        txFee: txFee
       })
     }
   }
 
   renderDirectTransferDialogRecipiantStep = () => {
-    let { classes, wallet, txCost, actionsPending } = this.props
+    let { classes, wallet, txFee, actionsPending } = this.props
     let {
       directTransferDialogOpen,
       directTransferDialogForm,
@@ -304,9 +303,9 @@ class WalletComponent extends Component {
             <Typography className={classes.txFeeSectionTitle} align='left'>
               Transaction Fee
             </Typography>
-            {!actionsPending.getTxCost
+            {!actionsPending.gettxFee
               ? <Typography className={classes.txFeeSectionFee} align='left'>
-                {txCost ? txCost.costInStandardUnit : 0} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
+                {txFee ? txFee.costInStandardUnit : 0} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
               </Typography>
               : <CircularProgress size={18} color='primary' />}
           </Grid>

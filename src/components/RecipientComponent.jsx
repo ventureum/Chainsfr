@@ -18,13 +18,13 @@ type Props = {
   generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
-  getTxCost: Function,
+  gettxFee: Function,
   cryptoSelection: string,
   walletSelection: string,
   transferForm: Object,
   wallet: Object,
   classes: Object,
-  txCost: any,
+  txFee: any,
   actionsPending: Object
 }
 
@@ -38,7 +38,7 @@ class RecipientComponent extends Component<Props> {
   componentDidUpdate (prevProps) {
     const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.getTxCost({
+      this.props.gettxFee({
         fromWallet: WalletUtils.toWalletDataFromState(
           walletSelection,
           cryptoSelection,
@@ -47,8 +47,8 @@ class RecipientComponent extends Component<Props> {
         transferAmount: transferForm.transferAmount
       })
     } else if (
-      !actionsPending.getTxCost &&
-      prevProps.actionsPending.getTxCost
+      !actionsPending.gettxFee &&
+      prevProps.actionsPending.gettxFee
     ) {
       this.props.updateTransferForm(update(transferForm, {
         formError: { transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) } }
@@ -81,7 +81,7 @@ class RecipientComponent extends Component<Props> {
   }
 
   validate = (name, value) => {
-    const { wallet, cryptoSelection, txCost } = this.props
+    const { wallet, cryptoSelection, txFee } = this.props
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
     if (name === 'transferAmount') {
@@ -91,26 +91,26 @@ class RecipientComponent extends Component<Props> {
         } else {
           return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
         }
-      } else if (txCost) {
+      } else if (txFee) {
         // balance check passed
         if (['ethereum', 'dai'].includes(cryptoSelection)) {
           // ethereum based coins
           // now check if ETH balance is sufficient for paying tx fees
           if (
             cryptoSelection === 'ethereum' &&
-            new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+            new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
           ) {
             return INSUFFICIENT_FUNDS_FOR_TX_FEES
           }
           if (cryptoSelection === 'dai') {
             let ethBalance = wallet.crypto.ethereum[0].balance
-            if (new BN(ethBalance).lt(new BN(txCost.costInBasicUnit))) {
+            if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
               return INSUFFICIENT_FUNDS_FOR_TX_FEES
             }
           }
         } else if (
           cryptoSelection === 'bitcoin' &&
-          new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+          new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
         ) {
           return INSUFFICIENT_FUNDS_FOR_TX_FEES
         }
