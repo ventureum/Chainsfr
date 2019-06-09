@@ -137,6 +137,7 @@ async function _createCloudWallet (password: string) {
         cryptoType: cryptoType
       })
       await wallet.encryptAccount(password)
+      wallet.clearPrivateKey()
       walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
     }
   }

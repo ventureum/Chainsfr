@@ -21,7 +21,6 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 
 const NETWORK = env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-
 export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
   walletData: WalletDataBitcoin

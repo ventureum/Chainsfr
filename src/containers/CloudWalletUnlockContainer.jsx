@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import CloudWalletUnlockComponent from '../components/CloudWalletUnlockComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { decryptCloudWallet, unlockCloudWallet } from '../actions/walletActions'
+import WalletUtils from '../wallets/utils'
 
 /*
  *   This module is used for unlocking/decrypting drive wallet
@@ -35,15 +36,9 @@ class CloudWalletUnlockContainer extends Component {
     let { wallet } = this.props
     if (wallet.unlockRequest) {
       let { cryptoType } = wallet.unlockRequest
-      let encryptedWallet =
-        cryptoType === 'bitcoin'
-          ? wallet.crypto[cryptoType][0].ciphertext
-          : wallet.crypto[cryptoType][0]
-
       this.props.decryptCloudWallet({
-        encryptedWallet: encryptedWallet,
-        password: password,
-        cryptoType: cryptoType
+        encryptedWallet: WalletUtils.toWalletDataFromState('drive', cryptoType, wallet),
+        password: password
       })
     }
   }
