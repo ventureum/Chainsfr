@@ -228,7 +228,7 @@ class LandingPageComponent extends Component {
                 </Typography>
               </Grid>
             }
-            {[transferStates.SEND_CONFIRMED_RECEIVE_PENDING,
+            {[transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
               transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
               <Grid item>
                 <Button
