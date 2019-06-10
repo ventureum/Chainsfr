@@ -23,6 +23,15 @@ export default function (state = initState, action) {
           isAuthenticated: true
         }
       }
+    case 'REFRESH_ACCESS_TOKEN_FULFILLED':
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          ...action.payload,
+          isAuthenticated: true
+        }
+      }
     case 'LOGOUT_FULFILLED':
       return initState
     case 'SET_NEW_USER_TAG':

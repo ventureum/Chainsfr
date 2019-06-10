@@ -121,7 +121,7 @@ type Wallet = {
 
 // gapi.load does not support promise
 // convert it into a promise
-function gapiLoad () {
+function gapiLoad (): Promise<any> {
   return new Promise((resolve, reject) => {
     window.gapi.load('client', {
       callback: function () {
@@ -463,5 +463,6 @@ export {
   saveWallet,
   getTransferData,
   getAllTransfers,
-  getWallet
+  getWallet,
+  gapiLoad
 }
