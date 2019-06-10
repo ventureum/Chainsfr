@@ -29,8 +29,8 @@ async function _checkMetamaskConnection (
   }
 }
 
-async function _checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean = true) {
-  let wallet = WalletFactory.createWallet(WalletUtils.toWalletData('ledger', cryptoType, []))
+async function _checkLedgerNanoSConnection (cryptoType: string, walletState: Object, throwError: ?boolean = true) {
+  let wallet = WalletFactory.createWallet(WalletUtils.toWalletDataFromState('ledger', cryptoType, walletState))
   await wallet.retrieveAddress()
   return wallet.getWalletData()
 }
@@ -76,9 +76,12 @@ function onMetamaskAccountsChanged (accounts: any) {
 }
 
 function checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean) {
-  return {
-    type: 'CHECK_LEDGER_NANOS_CONNECTION',
-    payload: _checkLedgerNanoSConnection(cryptoType, throwError)
+  return (dispatch: Function, getState: Function) => {
+    let walletState = getState().walletReducer.wallet.ledger
+    return dispatch({
+      type: 'CHECK_LEDGER_NANOS_CONNECTION',
+      payload: _checkLedgerNanoSConnection(cryptoType, walletState, throwError)
+    })
   }
 }
 

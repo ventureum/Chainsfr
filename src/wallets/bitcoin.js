@@ -147,7 +147,10 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let { walletType } = this.walletData
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
-      this.walletData.accounts[accountIdx].address = await this.ledger.getBtcAddresss(accountIdx)
+      let account = this.walletData.accounts[accountIdx]
+      let { address, xpub } = await this.ledger.getBtcAddresss(accountIdx)
+      account.address = address
+      account.hdWalletVariables.xpub = xpub
     } else {
       throw new Error(`Cannot retrieve address for ${walletType}`)
     }
@@ -158,6 +161,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let { walletType } = this.walletData
     let { hdWalletVariables } = account
     let { xpub } = hdWalletVariables
+    let addressPool = []
 
     if (walletType === 'drive') {
       // only use the first derived address
@@ -187,10 +191,13 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // 2. update addresses
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
       hdWalletVariables.nextChangeIndex = internalAddressData.nextIndex
-      hdWalletVariables.addresses = [
+      addressPool = [
         ...externalAddressData.addresses,
         ...internalAddressData.addresses
       ]
+
+      // append discovered addresses to the old address pool
+      hdWalletVariables.addresses.push(...addressPool)
     }
 
     // retrieve utxos and calcualte balance for each address
@@ -222,7 +229,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     })
 
     // sum up balance from all addresses
-    let totalBalance = utxoData.reduce((accu: any, { balance }) => accu.add(new BN(balance.value)), new BN(0))
+    let totalBalance = utxoData.reduce((accu: any, { balance }) => accu.add(new BN(balance)), new BN(0))
 
     // update balance
     account.balance = totalBalance.toString()
@@ -447,6 +454,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let currentIdx = offset
     let lastUsedIdx = offset - 1
     while (gap < 5) {
+      console.log(currentIdx)
       const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
       const address = this.getDerivedAddress(xpub, change, currentIdx)
 

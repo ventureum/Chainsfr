@@ -112,7 +112,7 @@ class WalletSelectionComponent extends Component<Props> {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.syncAccountInfo) {
+    } else if (actionsPending.sync) {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>

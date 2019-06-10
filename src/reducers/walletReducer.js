@@ -76,9 +76,9 @@ export default function (state = initState, action) {
     case 'CHECK_LEDGER_NANOS_CONNECTION_FULFILLED':
       return updateWalletState(state, [action.payload], { connected: true })
     case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
-      return updateWalletState(state, [action.payload], { connected: false })
+      return updateWalletState(state, [], { connected: false })
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return updateWalletState(state, [action.payload], { connected: false })
+      return updateWalletState(state, [], { connected: false })
     case 'SYNC_FULFILLED':
       return updateWalletState(state, [action.payload])
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':

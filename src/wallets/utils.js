@@ -1,13 +1,17 @@
 // @flow
-import type { WalletData, AccountEthereum, AccountBitcoin } from '../types/wallet.flow'
+import type { WalletData, AccountEthereum, AccountBitcoin, Account } from '../types/wallet.flow'
 
 export default class WalletUtils {
   static toWalletData = (
     walletType: string,
     cryptoType: string,
-    accounts: Array<any>
+    accounts: Array<Account>
   ): WalletData => {
+    if (!accounts) accounts = []
     if (['ethereum', 'dai'].includes(cryptoType)) {
+      if (accounts.length === 0) {
+        accounts.push(this._normalizeAccountEthereum({}))
+      }
       return {
         walletType,
         cryptoType,
@@ -16,6 +20,9 @@ export default class WalletUtils {
         )
       }
     } else if (['bitcoin'].includes(cryptoType)) {
+      if (accounts.length === 0) {
+        accounts.push(this._normalizeAccountBitcoin({}))
+      }
       return {
         walletType,
         cryptoType,
@@ -32,32 +39,35 @@ export default class WalletUtils {
     return this.toWalletData(walletType, cryptoType, walletState.crypto[cryptoType])
   }
 
-  static _normalizeAccountEthereum = (account: any): any => {
+  static _normalizeAccountEthereum = (account: AccountEthereum): any => {
     let { balance, ethBalance, address, privateKey, encryptedPrivateKey } = account
 
     let _account: AccountEthereum = {
       balance: balance || '0',
       ethBalance: ethBalance || '0',
-      address: address,
+      address: address || '0x0',
       privateKey: privateKey,
       encryptedPrivateKey: encryptedPrivateKey
     }
     return _account
   }
 
-  static _normalizeAccountBitcoin = (account: any): any => {
+  static _normalizeAccountBitcoin = (account: AccountBitcoin): any => {
     let { balance, address, privateKey, encryptedPrivateKey, hdWalletVariables } = account
 
-    // some variables must not be null
-    if (!address || !hdWalletVariables) {
-      throw new Error('Account normaliztion failed due to null values')
-    }
     let _account: AccountBitcoin = {
       balance: balance || '0',
-      address: address,
+      address: address || '0x0',
       privateKey: privateKey,
       encryptedPrivateKey: encryptedPrivateKey,
-      hdWalletVariables: hdWalletVariables
+      hdWalletVariables: hdWalletVariables || {
+        xpub: '0x0',
+        nextAddressIndex: 0,
+        nextChangeIndex: 0,
+        addresses: [],
+        lastBlockHeight: 0,
+        lastUpdate: 0 
+      }
     }
     return _account
   }
