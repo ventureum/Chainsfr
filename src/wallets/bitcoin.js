@@ -250,7 +250,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let price = txFeePerByte.toString()
     let gas = size.toString()
     let costInBasicUnit = fee
-    let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 8, 3).toString()
+    let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 8, 8).toString()
     return { price, gas, costInBasicUnit, costInStandardUnit }
   }
 
