@@ -39,7 +39,7 @@ async function getFirstFromAddress (txHash: string) {
   return address
 }
 
-async function _gettxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
+async function _getTxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
   let { fromWallet, transferAmount } = txRequest
   let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
     value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
@@ -512,14 +512,14 @@ function cancelTransfer (txRequest: {
   }
 }
 
-function gettxFee (txRequest: {
+function getTxFee (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'GET_TX_COST',
-      payload: _gettxFee(txRequest)
+      payload: _getTxFee(txRequest)
     })
   }
 }
@@ -549,7 +549,7 @@ export {
   directTransfer,
   acceptTransfer,
   cancelTransfer,
-  gettxFee,
+  getTxFee,
   getTransfer,
   getTransferHistory,
   clearVerifyPasswordError,

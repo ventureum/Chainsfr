@@ -22,9 +22,8 @@ type Props = {
   txFee: Object,
   actionsPending: {
     submitTx: boolean,
-    gettxFee: boolean
-  },
-  error: any
+    getTxFee: boolean
+  }
 }
 
 const walletInstruction = {
@@ -102,7 +101,7 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  {!actionsPending.gettxFee && txFee
+                  {!actionsPending.getTxFee && txFee
                     ? <Typography className={classes.reviewContent} align='left'>
                       {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
                     </Typography>

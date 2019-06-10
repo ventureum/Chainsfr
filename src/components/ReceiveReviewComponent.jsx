@@ -28,7 +28,7 @@ class ReceiveReviewComponent extends Component {
     const { classes, transfer, actionsPending, txFee, destinationAddress } = this.props
     const { transferAmount, sender, destination, cryptoType, sendTimestamp } = transfer
 
-    if (!actionsPending.gettxFee && txFee) {
+    if (!actionsPending.getTxFee && txFee) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
         ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
         : parseFloat(transferAmount)
@@ -90,7 +90,7 @@ class ReceiveReviewComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.gettxFee && txFee
+                    {!actionsPending.getTxFee && txFee
                       ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>
@@ -100,7 +100,7 @@ class ReceiveReviewComponent extends Component {
                     You will receive*
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.gettxFee && txFee
+                    {!actionsPending.getTxFee && txFee
                       ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>

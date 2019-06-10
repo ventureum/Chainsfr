@@ -5,7 +5,7 @@ import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from 
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { gettxFee } from '../actions/transferActions'
+import { getTxFee } from '../actions/transferActions'
 
 type Props = {
   updateTransferForm: Function,
@@ -48,7 +48,7 @@ const mapDispatchToProps = dispatch => {
     generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
     clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
     goToStep: (n) => dispatch(goToStep('send', n)),
-    gettxFee: (txRequest) => dispatch(gettxFee(txRequest))
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest))
 
   }
 }
@@ -62,7 +62,7 @@ const mapStateToProps = state => {
     profile: state.userReducer.profile,
     txFee: state.transferReducer.txFee,
     actionsPending: {
-      gettxFee: gettxFeeSelector(state)
+      getTxFee: gettxFeeSelector(state)
     },
     error: errorSelector(state)
   }

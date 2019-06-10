@@ -16,7 +16,7 @@ import axios from 'axios'
 import BN from 'bn.js'
 import url from '../url'
 import env from '../typedEnv'
-import { getAccountXPub, findAddress } from './addressFinderUtils'
+import { getAccountXPub } from './addressFinderUtils'
 
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = env.REACT_APP_BTC_PATH
@@ -335,7 +335,6 @@ class LedgerNanoS {
     const change = inputValueTotal - amount - fee // 138 bytes for 1 input, 64 bytes per additional input
 
     let changeBuffer = Buffer.alloc(8, 0)
-    debugger
     changeBuffer.writeUIntLE(change, 0, 8)
     const changeAddress = (await btcLedger.getWalletPublicKey(changeAddressPath, false, true)).bitcoinAddress
     const changeOutput = {

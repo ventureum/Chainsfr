@@ -4,7 +4,7 @@ import WalletComponent from '../components/WalletComponent'
 import CloudWalletUnlockContainer from './CloudWalletUnlockContainer'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getCloudWallet, unlockCloudWallet } from '../actions/walletActions'
-import { directTransfer, gettxFee } from '../actions/transferActions'
+import { directTransfer, getTxFee } from '../actions/transferActions'
 import { push } from 'connected-react-router'
 
 class WalletContainer extends Component {
@@ -40,7 +40,7 @@ const mapStateToProps = state => {
     receipt: state.transferReducer.receipt,
     actionsPending: {
       getCloudWallet: getCloudWalletSelector(state),
-      gettxFee: gettxFeeSelector(state),
+      getTxFee: gettxFeeSelector(state),
       directTransfer: directTransferSelector(state)
     },
     error: errorSelector(state)
@@ -50,7 +50,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     getCloudWallet: () => dispatch(getCloudWallet()),
-    gettxFee: (txRequest) => dispatch(gettxFee(txRequest)),
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     directTransfer: (txRequest) => dispatch(directTransfer(txRequest)),
     unlockCloudWallet: (unlockRequestParams) => dispatch(unlockCloudWallet(unlockRequestParams)),
     push: (path) => dispatch(push(path))

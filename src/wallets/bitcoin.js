@@ -167,7 +167,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // only use the first derived address
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
-      hdWalletVariables.addresses = [{address: this.getDerivedAddress(xpub, 0, 0),
+      hdWalletVariables.addresses = [{ address: this.getDerivedAddress(xpub, 0, 0),
         path: env.REACT_APP_BTC_PATH + `/0'/0/0`,
         utxos: []
       }]
@@ -264,14 +264,13 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     txFee?: TxFee
   }): Promise<TxHash> => {
     let account = this.getAccount()
-    const satoshiValue = parseFloat(value) * 100000000 // 1 btc = 100,000,000 satoshi
     const addressPool = account.hdWalletVariables.addresses
 
     if (!txFee) txFee = await this.getTxFee({ to, value })
 
     const { fee, utxosCollected } = this.collectUtxos(
       addressPool,
-      satoshiValue,
+      value,
       Number(txFee.price)
     )
 
@@ -288,7 +287,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       let signedTxRaw = await signer(
         utxosCollected,
         to,
-        satoshiValue,
+        value,
         fee,
         account.hdWalletVariables.nextChangeIndex
       )

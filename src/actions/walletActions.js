@@ -9,8 +9,6 @@ import API from '../apis'
 import WalletUtils from '../wallets/utils'
 import type { WalletData } from '../types/wallet.flow.js'
 
-
-
 async function _checkMetamaskConnection (
   cryptoType: string,
   dispatch: Function

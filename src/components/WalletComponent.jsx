@@ -79,14 +79,14 @@ class WalletComponent extends Component {
       directTransferDialogOpen &&
       !directTransferDialogFormError.transferAmount
     ) {
-      this.props.gettxFee({
+      this.props.getTxFee({
         fromWallet: WalletUtils.toWalletDataFromState('drive', selectedCryptoType, wallet),
         transferAmount: directTransferDialogForm.transferAmount
       })
     } else if (
       directTransferDialogOpen &&
-      !actionsPending.gettxFee &&
-      prevProps.actionsPending.gettxFee
+      !actionsPending.getTxFee &&
+      prevProps.actionsPending.getTxFee
     ) {
       this.setState(update(this.state, { // eslint-disable-line
         directTransferDialogFormError: { transferAmount: { $set: this.validate('transferAmount', directTransferDialogForm.transferAmount) } }
@@ -303,7 +303,7 @@ class WalletComponent extends Component {
             <Typography className={classes.txFeeSectionTitle} align='left'>
               Transaction Fee
             </Typography>
-            {!actionsPending.gettxFee
+            {!actionsPending.getTxFee
               ? <Typography className={classes.txFeeSectionFee} align='left'>
                 {txFee ? txFee.costInStandardUnit : 0} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
               </Typography>

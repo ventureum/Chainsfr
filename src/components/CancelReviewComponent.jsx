@@ -170,7 +170,7 @@ class CancelReviewComponent extends Component {
                       Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.gettxFee && txFee
+                    {!actionsPending.getTxFee && txFee
                       ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
                       : <CircularProgress size={18} color='primary' />}
                   </Typography>

@@ -18,7 +18,7 @@ type Props = {
   generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
-  gettxFee: Function,
+  getTxFee: Function,
   cryptoSelection: string,
   walletSelection: string,
   transferForm: Object,
@@ -38,7 +38,7 @@ class RecipientComponent extends Component<Props> {
   componentDidUpdate (prevProps) {
     const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.gettxFee({
+      this.props.getTxFee({
         fromWallet: WalletUtils.toWalletDataFromState(
           walletSelection,
           cryptoSelection,
@@ -47,8 +47,8 @@ class RecipientComponent extends Component<Props> {
         transferAmount: transferForm.transferAmount
       })
     } else if (
-      !actionsPending.gettxFee &&
-      prevProps.actionsPending.gettxFee
+      !actionsPending.getTxFee &&
+      prevProps.actionsPending.getTxFee
     ) {
       this.props.updateTransferForm(update(transferForm, {
         formError: { transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) } }

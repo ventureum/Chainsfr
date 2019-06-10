@@ -66,7 +66,7 @@ export default class WalletUtils {
         nextChangeIndex: 0,
         addresses: [],
         lastBlockHeight: 0,
-        lastUpdate: 0 
+        lastUpdate: 0
       }
     }
     return _account

@@ -8,7 +8,7 @@ import { goToStep } from '../actions/navigationActions'
 
 type Props = {
   submitTx: Function,
-  gettxFee: Function,
+  getTxFee: Function,
   goToStep: Function,
   transferForm: Object,
   cryptoSelection: string,
@@ -17,7 +17,7 @@ type Props = {
   txFee: Object,
   actionsPending: {
     submitTx: boolean,
-    gettxFee: boolean
+    getTxFee: boolean
   },
   error: any
 }

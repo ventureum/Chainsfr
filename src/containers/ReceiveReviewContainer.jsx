@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
-import { acceptTransfer, gettxFee } from '../actions/transferActions'
+import { acceptTransfer, getTxFee } from '../actions/transferActions'
 import { sync } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
@@ -17,10 +17,10 @@ class ReceiveReviewContainer extends Component {
     const { transfer, escrowWallet, txFee, actionsPending, error } = this.props
     const prevActionsPending = prevProps.actionsPending
     if (!txFee &&
-      !actionsPending.gettxFee &&
+      !actionsPending.getTxFee &&
       (prevActionsPending.sync && !actionsPending.sync) &&
       !error) {
-      this.props.gettxFee({
+      this.props.getTxFee({
         fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
         transferAmount: transfer.transferAmount
       })
@@ -61,7 +61,7 @@ const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_T
 const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: (txRequest) => dispatch(acceptTransfer(txRequest)),
-    gettxFee: (txRequest) => dispatch(gettxFee(txRequest)),
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
     sync: (txRequest) => dispatch(sync(txRequest))
   }
@@ -77,7 +77,7 @@ const mapStateToProps = state => {
     txFee: state.transferReducer.txFee,
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
-      gettxFee: gettxFeeSelector(state),
+      getTxFee: gettxFeeSelector(state),
       sync: syncSelector(state)
     },
     error: errorSelector(state)

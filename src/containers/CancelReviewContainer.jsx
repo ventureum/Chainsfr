@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import CancelReviewComponent from '../components/CancelReviewComponent'
-import { getTransfer, cancelTransfer, gettxFee } from '../actions/transferActions'
+import { getTransfer, cancelTransfer, getTxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword, sync } from '../actions/walletActions'
@@ -35,9 +35,9 @@ class CancelReviewContainer extends Component {
       } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
         // verifyPassword completed, currently not syncing
         this.props.sync(walletData)
-      } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.gettxFee) {
-        // sync completed, currently not executing gettxFee action
-        this.props.gettxFee({ fromWallet: walletData, transferAmount: transfer.transferAmount })
+      } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.getTxFee) {
+        // sync completed, currently not executing getTxFee action
+        this.props.getTxFee({ fromWallet: walletData, transferAmount: transfer.transferAmount })
       }
     }
   }
@@ -62,7 +62,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
-    gettxFee: (txRequest) => dispatch(gettxFee(txRequest)),
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
     sync: (txRequest) => dispatch(sync(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n))
@@ -78,7 +78,7 @@ const mapStateToProps = state => {
     actionsPending: {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),
-      gettxFee: gettxFeeSelector(state),
+      getTxFee: gettxFeeSelector(state),
       cancelTransfer: cancelTransferSelector(state),
       sync: syncSelector(state)
     },
