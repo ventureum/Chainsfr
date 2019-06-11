@@ -167,12 +167,13 @@ class LedgerNanoS {
   }
 
   signSendTransaction = async (txObj: any) => {
+    console.log(txObj)
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
     const accountIndex = 0 // default first account
     const accountPath = baseEtherPath + `/${accountIndex}`
 
-    txObj.nonce = await web3.eth.getTransactionCount(txObj.from)
+    txObj.nonce = txObj.nonce || await web3.eth.getTransactionCount(txObj.from)
     txObj.gas = web3.utils.numberToHex(txObj.gas)
     txObj.gasPrice = web3.utils.numberToHex(txObj.gasPrice)
     txObj.value = web3.utils.numberToHex(txObj.value)

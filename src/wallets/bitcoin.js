@@ -55,8 +55,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       walletType: walletType,
       cryptoType: cryptoType,
       accounts: [await this.createAccount({ xpriv: xpriv, accountIdx: 0 })],
-      xpub,
-      xpriv
+      xpub
     }
   }
 
@@ -126,15 +125,18 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   decryptAccount = async (password: string): Promise<void> => {
     let accountIdx = 0
-    if (!this.walletData.accounts[accountIdx].encryptedPrivateKey) {
+    let account = this.walletData.accounts[accountIdx]
+    if (!account.encryptedPrivateKey) {
       throw new Error('EncryptedPrivateKey does not exist')
     }
+    // xpriv
     let privateKey = await utils.decryptMessage(
-      this.walletData.accounts[accountIdx].encryptedPrivateKey,
+      account.encryptedPrivateKey,
       password
     )
     if (!privateKey) throw new Error('Incorrect password')
-    this.walletData.accounts[accountIdx].privateKey = privateKey
+    account.privateKey = privateKey
+    account.xpub = bip32.fromBase58(privateKey, NETWORK).neutered().toBase58()
   }
 
   clearPrivateKey = (): void => {
@@ -164,7 +166,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let { xpub } = hdWalletVariables
     let addressPool = []
 
-    if (walletType === 'drive') {
+    if (['drive', 'escrow'].includes(walletType)) {
       // only use the first derived address
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
@@ -359,10 +361,10 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     fee: number,
     changeIndex: number
   ) => {
+    debugger
     // use the first account
     let account = this.getAccount()
-
-    const keyPair = bitcoin.ECPair.fromPrivateKey(account.privateKey)
+    const keyPair = bitcoin.ECPair.fromWIF(account.privateKey, NETWORK)
     const p2wpkh = bitcoin.payments.p2wpkh({
       pubkey: keyPair.publicKey,
       network: NETWORK

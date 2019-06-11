@@ -86,7 +86,7 @@ export interface IWallet<WalletData, Account> {
     to: string,
     value: string,
     txFee?: TxFee
-  }): Promise<TxHash>;
+  }): Promise<TxHash | Array<TxHash>>;
 }
 
 export type Wallet = WalletEthereum | WalletBitcoin

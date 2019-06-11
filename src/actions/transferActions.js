@@ -42,45 +42,8 @@ async function getFirstFromAddress (txHash: string) {
 async function _getTxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
   let { fromWallet, transferAmount } = txRequest
   let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
-    value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
+    value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType)).toString()
   })
-
-  if (['dai'].includes(fromWallet.cryptoType)) {
-    // special case for erc20 tokens
-    // amount of eth to be transfered to the escrow wallet
-    // this will be spent as tx fees for the next token transfer (from escrow wallet)
-    // otherwise, the tokens in the escrow wallet cannot be transfered out
-    // we use the current estimation to calculate amount of ETH to be transfered
-
-    // eth to be transfered for paying erc20 token tx while receiving
-    let ethTransfer = txFee.costInBasicUnit
-
-    // standard gas limit for regular eth transactions
-    let mockEthWalletData: WalletDataEthereum = {
-      walletType: 'metamask',
-      cryptoType: 'ethereum',
-      accounts: []
-    }
-    let txFeeEth = await WalletFactory.createWallet(mockEthWalletData).getTxFee({ value: '1' })
-
-    // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
-    let totalCostInBasicUnit = new BN(txFeeEth.costInBasicUnit)
-      .add(new BN(txFee.costInBasicUnit))
-      .add(new BN(ethTransfer))
-
-    return {
-      // use the current estimated price
-      price: txFee.price,
-      // eth transfer gas + erc20 transfer gas
-      gas: new BN(txFeeEth.gas).add(new BN(txFee.gas)).toString(),
-      costInBasicUnit: totalCostInBasicUnit.toString(),
-      costInStandardUnit: utils.toHumanReadableUnit(totalCostInBasicUnit).toString(),
-      // subtotal tx cost
-      // this is used for submitTx()
-      costByType: { txFeeEth, txFeeERC20: txFee, ethTransfer }
-    }
-  }
-
   return txFee
 }
 
@@ -146,38 +109,20 @@ async function _submitTx (txRequest: {
   })
 
   // convert transferAmount to basic token unit
-  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType)).toString()
 
-  if (['ethereum', 'bitcoin'].includes(cryptoType)) {
-    sendTxHash = await WalletFactory.createWallet(fromWallet).sendTransaction({
-      to: escrowAccount.address,
-      value: value
-    })
-  } else if (['dai'].includes(cryptoType)) {
-    // we need to transfer a small amount of eth to escrow to pay for
-    // the next transfer's tx fees
-    //
-    // create a mock eth wallet data for transfering eth
-    // force type casting due to flowjs unable to handle union type spread issue
-    // https://github.com/facebook/flow/pull/7298
-    let ethWalletData: WalletDataEthereum = ((fromWallet: any): WalletDataEthereum)
-    ethWalletData.cryptoType = 'ethereum'
-
-    if (!txFee.costByType) throw new Error('costByType is missing from txFee')
-
-    // transfer tx fees
-    sendTxFeeTxHash = await WalletFactory.createWallet(ethWalletData).sendTransaction({
-      to: escrowAccount.address,
-      value: txFee.costByType && txFee.costByType.ethTransfer,
-      txFee: txFee.costByType && txFee.costByType.txFeeEth
-    })
-
-    // now transfer erc20 tokens
-    sendTxHash = await WalletFactory.createWallet(fromWallet).sendTransaction({
+  if (['ethereum', 'bitcoin', 'dai'].includes(cryptoType)) {
+    let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
-      txFee: txFee.costByType && txFee.costByType.txFeeERC20
+      txFee: txFee
     })
+    if (Array.isArray(txHashList)) {
+      sendTxHash = txHashList[0]
+      sendTxFeeTxHash = txHashList[1]
+    } else {
+      sendTxHash = txHashList
+    }
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
