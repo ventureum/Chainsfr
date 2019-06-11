@@ -172,7 +172,10 @@ class LedgerNanoS {
     const accountIndex = 0 // default first account
     const accountPath = baseEtherPath + `/${accountIndex}`
 
-    txObj.txCount = await web3.eth.getTransactionCount(txObj.from)
+    txObj.nonce = await web3.eth.getTransactionCount(txObj.from)
+    txObj.gas = web3.utils.numberToHex(txObj.gas)
+    txObj.gasPrice = web3.utils.numberToHex(txObj.gasPrice)
+    txObj.value = web3.utils.numberToHex(txObj.value)
 
     let tx = new EthTx(txObj)
     tx.raw[6] = Buffer.from([networkId])

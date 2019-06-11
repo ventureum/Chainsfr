@@ -27,7 +27,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   constructor (walletData?: WalletDataBitcoin) {
     if (walletData) {
-      if (!['drive', 'ledger'].includes(walletData.walletType)) {
+      if (!['drive', 'ledger', 'escrow'].includes(walletData.walletType)) {
         throw new Error(`Invalid walletType: ${walletData.walletType}`)
       }
       this.walletData = walletData
@@ -55,7 +55,8 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       walletType: walletType,
       cryptoType: cryptoType,
       accounts: [await this.createAccount({ xpriv: xpriv, accountIdx: 0 })],
-      xpub
+      xpub,
+      xpriv
     }
   }
 
@@ -85,7 +86,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let account = {
       balance: '0',
       address: address,
-      privateKey: xpriv,
+      privateKey: privateKey,
       hdWalletVariables: {
         xpub: accountXPub,
         nextAddressIndex: 0,
@@ -278,7 +279,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     if (this.walletData.walletType === 'ledger') {
       // using ledger signer
       signer = this.ledger.createNewBtcPaymentTransaction
-    } else if (this.walletData.walletType === 'drive') {
+    } else if (['drive', 'escrow'].includes(this.walletData.walletType)) {
       // using xPriv signer
       signer = this.xPrivSigner
     }

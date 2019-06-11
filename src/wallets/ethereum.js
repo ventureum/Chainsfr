@@ -113,7 +113,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
-      this.walletData.accounts[accountIdx].address = await this.ledger.getEthAddresss(accountIdx)
+      this.walletData.accounts[accountIdx].address = await this.ledger.getEthAddress(accountIdx)
     } else if (walletType === 'metamask') {
       // retrieve the first address from metamask
       if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
