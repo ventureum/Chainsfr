@@ -56,14 +56,13 @@ const defaultLayoutStyle = {
 }
 
 const loginLayoutStyle = {
-  backgroundColor: '#F6F9FE',
+  backgroundColor: '#F6F9FE'
 }
 
 const componentStyle = {
   minHeight: '100vh',
   flexDirection: 'column'
 }
-
 
 function browserSupported () {
   if (browser && browser.name === 'chrome') {
