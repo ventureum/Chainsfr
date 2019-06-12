@@ -2,7 +2,7 @@
 import 'babel-polyfill'
 import WebUsbTransport from '@ledgerhq/hw-transport-webusb' // for browser
 import Ledger from '@ledgerhq/hw-app-eth'
-import EthTx from 'ethereumjs-tx'
+import { Transaction as EthTx } from 'ethereumjs-tx'
 import Web3 from 'web3'
 import {
   getSignTransactionObject,
@@ -167,7 +167,6 @@ class LedgerNanoS {
   }
 
   signSendTransaction = async (txObj: any) => {
-    console.log(txObj)
     const web3 = this.getWeb3()
     const ethLedger = await this.getEtherLedger()
     const accountIndex = 0 // default first account
@@ -177,16 +176,17 @@ class LedgerNanoS {
     txObj.gas = web3.utils.numberToHex(txObj.gas)
     txObj.gasPrice = web3.utils.numberToHex(txObj.gasPrice)
     txObj.value = web3.utils.numberToHex(txObj.value)
+    txObj.v = web3.utils.numberToHex(4)
+    txObj.r = web3.utils.numberToHex(0)
+    txObj.s = web3.utils.numberToHex(0)
 
-    let tx = new EthTx(txObj)
-    tx.raw[6] = Buffer.from([networkId])
-    tx.raw[7] = Buffer.from([])
-    tx.raw[8] = Buffer.from([])
+    let tx = new EthTx(txObj, { chain: env.REACT_APP_ETHEREUM_NETWORK })
 
     const rv = await ethLedger.signTransaction(
       accountPath,
       tx.serialize().toString('hex')
     )
+
     tx.v = getBufferFromHex(rv.v)
     tx.r = getBufferFromHex(rv.r)
     tx.s = getBufferFromHex(rv.s)
