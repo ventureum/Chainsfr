@@ -178,7 +178,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       let totalCostInBasicUnit = new BN(txFeeEth.costInBasicUnit)
         .add(new BN(txFeeERC20.costInBasicUnit))
         .add(new BN(ethTransfer))
-      return {
+      
+      let rv: TxFee = {
         // use the current estimated price
         price: txFeeERC20.price,
         // eth transfer gas + erc20 transfer gas
@@ -189,6 +190,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         // this is used for submitTx()
         costByType: { txFeeEth, txFeeERC20, ethTransfer }
       }
+      return rv
     } else {
       throw new Error(`Invalid cryptoType: ${cryptoType}`)
     }
@@ -197,11 +199,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
   sendTransaction = async ({
     to,
     value,
-    txFee
+    txFee,
+    options
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee
+    txFee?: TxFee,
+    options?: Object
   }): Promise<TxHash | Array<TxHash>> => {
     // helper function
     function web3SendTransactionPromise (web3Function: Function, txObj: Object) {
@@ -224,32 +228,39 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     const account = this.getAccount()
     const { walletType, cryptoType } = this.walletData
     let txObjs: any = []
-    if (!txFee) txFee = await this.getTxFee({ to, value })
 
+    if (!txFee) {
+      txFee = await this.getTxFee({ to, value })
+    }
     // setup tx obj
     if (cryptoType === 'ethereum') {
       txObjs.push({ from: account.address, to: to, value: value, gas: txFee.gas, gasPrice: txFee.price })
     } else if (cryptoType === 'dai') {
-      txObjs.push({
-        from: account.address,
-        to: to,
-        value: txFee.costByType && txFee.costByType.ethTransfer,
-        gas: txFee.costByType && txFee.costByType.txFeeEth.gas,
-        gasPrice: txFee.costByType && txFee.costByType.txFeeEth.price,
-        nonce: await _web3.eth.getTransactionCount(account.address)
-      })
-      txObjs.push(await ERC20.getTransferTxObj(account.address, to, value, cryptoType))
+      let ERC20TxObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
 
       // set ERC20 tx gas
       if (txFee.costByType.txFeeERC20) {
-        txObjs[1].gas = txFee.costByType.txFeeERC20.gas
-        txObjs[1].gasPrice = txFee.costByType.txFeeERC20.price
+        ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
+        ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
       } else {
         throw new Error('txFeeERC20 not found in txFee')
       }
-
-      // consecutive tx, need to set nonce manually
-      txObjs[1].nonce = txObjs[0].nonce + 1
+      
+      if (options && options.prepayTxFee) {
+        // need to prepay tx fee
+        var txFeeEthTxObj = {
+          from: account.address,
+          to: to,
+          value: txFee.costByType && txFee.costByType.ethTransfer,
+          gas: txFee.costByType && txFee.costByType.txFeeEth.gas,
+          gasPrice: txFee.costByType && txFee.costByType.txFeeEth.price,
+          nonce: await _web3.eth.getTransactionCount(account.address)
+        }
+        // consecutive tx, need to set nonce manually
+        ERC20TxObj.nonce = txFeeEthTxObj.nonce + 1
+        txObjs.push(txFeeEthTxObj)
+      }
+      txObjs.push(ERC20TxObj)
     }
 
     if (walletType === 'metamask') {

@@ -85,7 +85,8 @@ export interface IWallet<WalletData, Account> {
   sendTransaction({
     to: string,
     value: string,
-    txFee?: TxFee
+    txFee?: TxFee,
+    options?: Object
   }): Promise<TxHash | Array<TxHash>>;
 }
 

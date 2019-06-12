@@ -115,7 +115,8 @@ async function _submitTx (txRequest: {
     let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
-      txFee: txFee
+      txFee: txFee,
+      options: cryptoType === 'dai' ? { prepayTxFee: true } : null
     })
     if (Array.isArray(txHashList)) {
       sendTxHash = txHashList[0]
@@ -201,7 +202,7 @@ async function _acceptTransfer (txRequest: {
 
   let { cryptoType } = escrowWallet
   // convert transferAmount to basic token unit
-  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType)).toString()
 
   let receiveTxHash: TxHash = await WalletFactory.createWallet(escrowWallet).sendTransaction({
     to: destinationAddress,
@@ -246,7 +247,7 @@ async function _cancelTransfer (
   let wallet = WalletFactory.createWallet(escrowWallet)
 
   // convert transferAmount to basic token unit
-  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType)).toString()
   let senderAddress: Address
 
   if (cryptoType === 'bitcoin') {
