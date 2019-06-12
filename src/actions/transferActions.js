@@ -56,7 +56,7 @@ async function _directTransfer (txRequest: {
   let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
 
   // convert transferAmount to basic token unit
-  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
+  let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType)).toString()
 
   return {
     cryptoType: fromWallet.cryptoType,

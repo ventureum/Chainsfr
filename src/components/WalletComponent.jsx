@@ -409,7 +409,7 @@ class WalletComponent extends Component {
   renderViewAddressDialog = () => {
     const { viewAddressDialogOpen, selectedCryptoType, copied } = this.state
     const { classes, wallet } = this.props
-    const address = (selectedCryptoType !== 'bitcoin' ? '0x' : '') + wallet.crypto[selectedCryptoType][0].address
+    const address = wallet.crypto[selectedCryptoType][0].address
 
     return (
       <Dialog open={viewAddressDialogOpen}>
