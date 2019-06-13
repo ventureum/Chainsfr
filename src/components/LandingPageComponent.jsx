@@ -212,7 +212,8 @@ class LandingPageComponent extends Component {
               </Typography>
             </Grid>
             {[transferStates.SEND_PENDING,
-              transferStates.SEND_FAILURE].includes(transfer.state) &&
+              transferStates.SEND_FAILURE,
+              transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
               <Grid item>
                 <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
@@ -221,7 +222,9 @@ class LandingPageComponent extends Component {
                     rel='noopener'
                     href={
                       transfer.cryptoType === 'bitcoin'
-                        ? url.getBtcExplorerTx(transfer.sendTxHash) : url.getEthExplorerTx(transfer.sendTxHash)}
+                        ? url.getBtcExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
+                        : url.getEthExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
+                    }
                   >
                     {' here'}
                   </MuiLink>
