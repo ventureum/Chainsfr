@@ -203,7 +203,7 @@ class ReceiveWalletSelectionComponent extends Component {
     const { classes, walletType, transfer, wallet, lastUsedWallet } = this.props
     const { cryptoType } = transfer
     return (
-      <Grid container direction='column' justify='center' spacing={24}>
+      <Grid container direction='column' justify='center' spacing={3}>
         <Grid item>
           <Typography align='left' className={classes.title}>
             Connect with your wallet
@@ -216,7 +216,7 @@ class ReceiveWalletSelectionComponent extends Component {
           {this.renderWalletConnectionNotification()}
         </Grid>
         <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' alignItems='center' spacing={24}>
+          <Grid container direction='row' justify='center' alignItems='center' spacing={3}>
             <Grid item>
               <Button
                 color='primary'
@@ -260,7 +260,7 @@ const styles = theme => ({
     padding: '0px 0px 0px 0px'
   },
   faqIcon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   },
   checkCircleIcon: {
     color: '#0CCD70',

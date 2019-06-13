@@ -10,7 +10,6 @@ import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import ListItem from '@material-ui/core/ListItem'
 import Button from '@material-ui/core/Button'
-import ErrorIcon from '@material-ui/icons/Error'
 
 jest.mock('react-router-dom', () => () => ({
   Link: 'Link'
@@ -276,7 +275,6 @@ describe('WalletSelectionComponent rendering', () => {
       cryptoType: { $set: 'bitcoin' },
       wallet: { $set: emptyWallet }
     }))
-    expect(wrapper.find(ErrorIcon)).toHaveLength(1)
     expect(wrapper.find(Typography).filter('#walletNotConnectedText')).toHaveLength(1)
   })
 })

@@ -79,7 +79,7 @@ class ReceivePasswordComponent extends Component {
         </Grid>
         {actionsPending.verifyPassword &&
         <Grid item>
-          <Grid container direction='column' className={classes.linearProgressContainer} spacing={8}>
+          <Grid container direction='column' className={classes.linearProgressContainer} spacing={2}>
             <Grid item>
               <Typography className={classes.checkingText}>Checking password...</Typography>
             </Grid>

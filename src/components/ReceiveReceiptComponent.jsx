@@ -105,7 +105,7 @@ class ReceiveReceiptComponent extends Component {
           </Paper>
         </Grid>
         <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={24}>
+          <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
               <Button
                 fullWidth

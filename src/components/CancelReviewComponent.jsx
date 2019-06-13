@@ -210,7 +210,7 @@ class CancelReviewComponent extends Component {
         </Grid>
         {!hasReceived && !hasCancelled &&
         <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={24}>
+          <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
               <Button
                 fullWidth
@@ -306,7 +306,7 @@ const styles = theme => ({
     marginLeft: -12
   },
   wrapper: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
     position: 'relative'
   }
 })
