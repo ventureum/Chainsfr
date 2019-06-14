@@ -137,6 +137,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     if (!privateKey) throw new Error('Incorrect password')
     account.privateKey = privateKey
     account.xpub = bip32.fromBase58(privateKey, NETWORK).neutered().toBase58()
+    console.log(account)
   }
 
   clearPrivateKey = (): void => {
@@ -225,7 +226,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
         return { utxos, balance }
       })
     )
-
     // update utxos
     hdWalletVariables.addresses.forEach((addressData, i) => {
       addressData.utxos = utxoData[i].utxos
