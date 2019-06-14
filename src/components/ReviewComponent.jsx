@@ -9,6 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
+import WalletUtils from '../wallets/utils'
 
 type Props = {
   submitTx: Function,
@@ -18,12 +19,11 @@ type Props = {
   cryptoSelection: string,
   walletSelection: string,
   wallet: Object,
-  txCost: Object,
+  txFee: Object,
   actionsPending: {
     submitTx: boolean,
-    getTxCost: boolean
-  },
-  error: any
+    getTxFee: boolean
+  }
 }
 
 const walletInstruction = {
@@ -36,24 +36,22 @@ const walletInstruction = {
 
 class ReviewComponent extends Component<Props> {
   handleReviewNext = () => {
-    const { wallet, transferForm, cryptoSelection, walletSelection, txCost } = this.props
+    const { wallet, transferForm, cryptoSelection, walletSelection, txFee } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     // submit tx
     this.props.submitTx({
-      fromWallet: wallet,
-      walletType: walletSelection,
-      cryptoType: cryptoSelection,
+      fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
       transferAmount: transferAmount,
       destination: destination,
       sender: sender,
       password: password,
-      txCost: txCost
+      txFee: txFee
     })
   }
 
   render () {
-    const { classes, transferForm, cryptoSelection, actionsPending, txCost, walletSelection } = this.props
+    const { classes, transferForm, cryptoSelection, actionsPending, txFee, walletSelection } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     return (
@@ -103,9 +101,9 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  {!actionsPending.getTxCost && txCost
+                  {!actionsPending.getTxFee && txFee
                     ? <Typography className={classes.reviewContent} align='left'>
-                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
+                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
                     </Typography>
                     : <CircularProgress size={18} color='primary' />}
                 </Grid>

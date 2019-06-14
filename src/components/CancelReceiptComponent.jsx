@@ -13,11 +13,11 @@ import url from '../url'
 
 class CancelReceiptComponent extends Component {
   render () {
-    const { classes, receipt, txCost, backToHome, cancelTime } = this.props
+    const { classes, receipt, txFee, backToHome, cancelTime } = this.props
     const { sendingId, transferAmount, cryptoType, cancelTxHash } = receipt
 
     const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-      ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+      ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
       : parseFloat(transferAmount)
 
     return (
@@ -50,7 +50,7 @@ class CancelReceiptComponent extends Component {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

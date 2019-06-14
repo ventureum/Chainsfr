@@ -10,10 +10,10 @@ const destinationAddress = '0x4cAa4D1CA9170A72871898dA6a89D4DcbF957551'
 
 const initialProps = {
   actionsPending: {
-    getTxCost: false,
+    getTxFee: false,
     acceptTransfer: false
   },
-  txCost: {
+  txFee: {
     costInBasicUnit: '21000000000000',
     costInStandardUnit: '0.000021',
     gas: '21000',
@@ -30,7 +30,8 @@ const initialProps = {
     cryptoType: 'ethereum'
 
   },
-  escrowWallet: {},
+  wallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
+  escrowWallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
   sentOn: 'May 27th 2019, 12:43:06',
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
@@ -49,7 +50,7 @@ describe('ReceiveReviewComponent render', () => {
   })
 
   it('Initial render', () => {
-    const receiveAmount = parseFloat(initialProps.transfer.transferAmount) - parseFloat(initialProps.txCost.costInStandardUnit)
+    const receiveAmount = parseFloat(initialProps.transfer.transferAmount) - parseFloat(initialProps.txFee.costInStandardUnit)
     expect(wrapper.find(Typography).filter('#sender').text()).toEqual(initialProps.transfer.sender)
     expect(wrapper.find(Typography).filter('#destination').text()).toEqual(initialProps.transfer.destination)
     expect(wrapper.find(Typography).filter('#sentOn').text()).toEqual(initialProps.sentOn)
@@ -66,7 +67,7 @@ describe('ReceiveReviewComponent render', () => {
 
   // actionsPending
   it('getTxCost', () => {
-    wrapper.setProps(update(initialProps, { actionsPending: { getTxCost: { $set: true } } }))
+    wrapper.setProps(update(initialProps, { actionsPending: { getTxFee: { $set: true } } }))
     expect(wrapper.find(CircularProgress)).toHaveLength(2)
   })
 

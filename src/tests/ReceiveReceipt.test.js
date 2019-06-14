@@ -10,7 +10,7 @@ import ReceiveReceipt from '../components/ReceiveReceiptComponent'
 const initialProps = {
   backToHome: () => {},
   cryptoSelection: 'ethereum',
-  txCost: {
+  txFee: {
     costInBasicUnit: '21000000000000',
     costInStandardUnit: '0.000021',
     gas: '21000',
@@ -46,8 +46,8 @@ describe('ReceiptComponent render:', () => {
   })
 
   it('Receipt render:', () => {
-    const { receipt, txCost } = initialProps
-    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txCost.costInStandardUnit)
+    const { receipt, txFee } = initialProps
+    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txFee.costInStandardUnit)
     expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} ETH`)
   })
 
@@ -59,8 +59,8 @@ describe('ReceiptComponent render:', () => {
   })
 
   it('bitcoin render', () => {
-    const { receipt, txCost } = initialProps
-    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txCost.costInStandardUnit)
+    const { receipt, txFee } = initialProps
+    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txFee.costInStandardUnit)
     wrapper.setProps({ receipt: { ...initialProps.receipt, cryptoType: 'bitcoin' } })
     expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} BTC`)
     expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(receipt.receiveTxHash))))

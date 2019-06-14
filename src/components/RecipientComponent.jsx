@@ -11,19 +11,20 @@ import numeral from 'numeral'
 import validator from 'validator'
 import { getCryptoDecimals, getCryptoSymbol } from '../tokens'
 import BN from 'bn.js'
+import WalletUtils from '../wallets/utils'
 
 type Props = {
   updateTransferForm: Function,
   generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
-  getTxCost: Function,
+  getTxFee: Function,
   cryptoSelection: string,
   walletSelection: string,
   transferForm: Object,
   wallet: Object,
   classes: Object,
-  txCost: any,
+  txFee: any,
   actionsPending: Object
 }
 
@@ -35,16 +36,22 @@ class RecipientComponent extends Component<Props> {
   }
 
   componentDidUpdate (prevProps) {
-    const { walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
+    const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.getTxCost({
-        cryptoType: cryptoSelection,
+      this.props.getTxFee({
+        fromWallet: WalletUtils.toWalletDataFromState(
+          walletSelection,
+          cryptoSelection,
+          wallet
+        ),
         transferAmount: transferForm.transferAmount,
-        walletType: walletSelection
+        options: {
+          prepayTxFee: true
+        }
       })
     } else if (
-      !actionsPending.getTxCost &&
-      prevProps.actionsPending.getTxCost
+      !actionsPending.getTxFee &&
+      prevProps.actionsPending.getTxFee
     ) {
       this.props.updateTransferForm(update(transferForm, {
         formError: { transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) } }
@@ -77,7 +84,7 @@ class RecipientComponent extends Component<Props> {
   }
 
   validate = (name, value) => {
-    const { wallet, cryptoSelection, txCost } = this.props
+    const { wallet, cryptoSelection, txFee } = this.props
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
     if (name === 'transferAmount') {
@@ -87,26 +94,26 @@ class RecipientComponent extends Component<Props> {
         } else {
           return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
         }
-      } else if (txCost) {
+      } else if (txFee) {
         // balance check passed
         if (['ethereum', 'dai'].includes(cryptoSelection)) {
           // ethereum based coins
           // now check if ETH balance is sufficient for paying tx fees
           if (
             cryptoSelection === 'ethereum' &&
-            new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+            new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
           ) {
             return INSUFFICIENT_FUNDS_FOR_TX_FEES
           }
           if (cryptoSelection === 'dai') {
-            let ethBalance = wallet.crypto.ethereum[0].balance
-            if (new BN(ethBalance).lt(new BN(txCost.costInBasicUnit))) {
+            let ethBalance = wallet.crypto.dai[0].ethBalance
+            if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
               return INSUFFICIENT_FUNDS_FOR_TX_FEES
             }
           }
         } else if (
           cryptoSelection === 'bitcoin' &&
-          new BN(balance).lt(new BN(txCost.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+          new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
         ) {
           return INSUFFICIENT_FUNDS_FOR_TX_FEES
         }

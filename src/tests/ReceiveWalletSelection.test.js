@@ -85,7 +85,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'drive' },
       transfer: { cryptoType: { $set: 'ethereum' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#drive`).prop('selected')).toEqual(true)
@@ -97,7 +98,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'metamask' },
       transfer: { cryptoType: { $set: 'ethereum' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#metamask`).prop('selected')).toEqual(true)
@@ -110,7 +112,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'metamask' },
       transfer: { cryptoType: { $set: 'ethereum' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { metamask: { crypto: { $set: { ethereum: { address: mockLastUsedAddress } } } } }
+      lastUsedWallet: { crypto: { $set: { ethereum: [{ address: mockLastUsedAddress }] } } }
     }))
     expect(wrapper.find(SquareButton).filter(`#metamask`).prop('selected')).toEqual(true)
     expect(wrapper.find(Typography).someWhere(t => t.text() === 'Last used Metamask Account')).toEqual(true)
@@ -120,7 +122,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'ethereum' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
@@ -133,7 +136,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'ethereum' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { ethereum: { address: mockLastUsedAddress } } } } }
+      lastUsedWallet: { crypto: { $set: { ethereum: [{ address: mockLastUsedAddress }] } } }
     }))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
     expect(wrapper.find(Typography).someWhere(t => t.text() === 'Last used Ledger Device')).toEqual(true)
@@ -151,7 +154,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'drive' },
       transfer: { cryptoType: { $set: 'dai' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#drive`).prop('selected')).toEqual(true)
@@ -163,7 +167,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'metamask' },
       transfer: { cryptoType: { $set: 'dai' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#metamask`).prop('selected')).toEqual(true)
@@ -176,7 +181,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'metamask' },
       transfer: { cryptoType: { $set: 'dai' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { metamask: { crypto: { $set: { dai: { address: mockLastUsedAddress } } } } }
+      lastUsedWallet: { crypto: { $set: { dai: [{ address: mockLastUsedAddress }] } } }
     }))
     expect(wrapper.find(SquareButton).filter(`#metamask`).prop('selected')).toEqual(true)
     expect(wrapper.find(Typography).someWhere(t => t.text() === 'Last used Metamask Account')).toEqual(true)
@@ -186,7 +191,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'dai' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
@@ -199,7 +205,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'dai' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { dai: { address: mockLastUsedAddress } } } } }
+      lastUsedWallet: { crypto: { $set: { dai: [{ address: mockLastUsedAddress }] } } }
     }))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
     expect(wrapper.find(Typography).someWhere(t => t.text() === 'Last used Ledger Device')).toEqual(true)
@@ -217,7 +223,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'drive' },
       transfer: { cryptoType: { $set: 'bitcoin' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#drive`).prop('selected')).toEqual(true)
@@ -229,7 +236,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'bitcoin' } },
-      wallet: { $set: mockWallet }
+      wallet: { $set: mockWallet },
+      lastUsedWallet: { $set: null }
     }
     ))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
@@ -242,7 +250,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'bitcoin' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { bitcoin: { address: mockLastUsedAddress } } } } }
+      lastUsedWallet: { crypto: { $set: { bitcoin: [{ address: mockLastUsedAddress }] } } }
     }))
     expect(wrapper.find(SquareButton).filter(`#ledger`).prop('selected')).toEqual(true)
     expect(wrapper.find(Typography).someWhere(t => t.text() === 'Last used Ledger Device')).toEqual(true)
@@ -254,7 +262,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'ethereum' } },
       wallet: { $set: emptyWallet },
-      lastUsedWallet: { $merge: { notUsed: true } }
+      lastUsedWallet: { $set: null }
     }))
     expect(wrapper.find(Typography).filter('#walletNotConnectedText')).toHaveLength(1)
   })
@@ -264,7 +272,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'metamask' },
       transfer: { cryptoType: { $set: 'ethereum' } },
       actionsPending: { checkMetamaskConnection: { $set: true } },
-      wallet: { $set: emptyWallet }
+      wallet: { $set: emptyWallet },
+      lastUsedWallet: { $set: null }
     }))
     expect(wrapper.find(LinearProgress)).toHaveLength(1)
 
@@ -272,7 +281,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'bitcoin' } },
       actionsPending: { checkLedgerNanoSConnection: { $set: true } },
-      wallet: { $set: emptyWallet }
+      wallet: { $set: emptyWallet },
+      lastUsedWallet: { $set: null }
     }))
     expect(wrapper.find(LinearProgress)).toHaveLength(1)
 
@@ -280,31 +290,10 @@ describe('ReceiveWalletSelectionComponent render', () => {
       walletType: { $set: 'drive' },
       transfer: { cryptoType: { $set: 'bitcoin' } },
       actionsPending: { checkCloudWalletConnection: { $set: true } },
-      wallet: { $set: emptyWallet }
+      wallet: { $set: emptyWallet },
+      lastUsedWallet: { $set: null }
     }))
     expect(wrapper.find(LinearProgress)).toHaveLength(1)
-  })
-
-  it('syncAccountInfo', () => {
-    wrapper.setProps(update(initialProps, {
-      walletType: { $set: 'ledger' },
-      transfer: { cryptoType: { $set: 'bitcoin' } },
-      actionsPending: { syncAccountInfo: { $set: true } },
-      wallet: { $set: mockWallet }
-    }))
-    expect(wrapper.find(LinearProgress)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Synchronizing Account Info')).toEqual(true)
-  })
-
-  it('updateBtcAccountInfo', () => {
-    wrapper.setProps(update(initialProps, {
-      walletType: { $set: 'ledger' },
-      transfer: { cryptoType: { $set: 'bitcoin' } },
-      actionsPending: { updateBtcAccountInfo: { $set: true } },
-      wallet: { $set: mockWallet }
-    }))
-    expect(wrapper.find(LinearProgress)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Updating Acoount Info')).toEqual(true)
   })
 })
 
@@ -328,7 +317,7 @@ describe('ReceiveWalletSelectionComponent interaction', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'dai' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { dai: { address: mockLastUsedAddress } } } } },
+      lastUsedWallet: { crypto: { $set: { dai: [{ address: mockLastUsedAddress }] } } },
       goToStep: { $set: mockGoToStep }
     }))
     wrapper.find(Button).filter('#continue').simulate('click')
@@ -342,7 +331,7 @@ describe('ReceiveWalletSelectionComponent interaction', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'dai' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { dai: { address: mockLastUsedAddress } } } } },
+      lastUsedWallet: { crypto: { $set: { dai: [{ address: mockLastUsedAddress }] } } },
       goToStep: { $set: mockGoToStep },
       onWalletSelected: { $set: mockOnWalletSelected }
     }))
@@ -357,7 +346,7 @@ describe('ReceiveWalletSelectionComponent interaction', () => {
       walletType: { $set: 'ledger' },
       transfer: { cryptoType: { $set: 'dai' } },
       wallet: { $set: { crypto: {} } },
-      lastUsedWallet: { ledger: { crypto: { $set: { dai: { address: mockLastUsedAddress } } } } },
+      lastUsedWallet: { crypto: { $set: { dai: [{ address: mockLastUsedAddress }] } } },
       useAnotherAddress: { $set: useAnotherAddress }
     }))
     wrapper.find(Grid).filter('#useAnotherAddress').simulate('click')

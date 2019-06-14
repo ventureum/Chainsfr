@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import update from 'immutability-helper'
 import MuiLink from '@material-ui/core/Link'
+import WalletUtils from '../wallets/utils'
 
 import CancelReview from '../components/CancelReviewComponent'
 
@@ -14,9 +15,9 @@ const initialProps = {
     getTransfer: false,
     verifyPassword: false,
     cancelTransfer: false,
-    getTxCost: false
+    getTxFee: false
   },
-  txCost: {
+  txFee: {
     costInBasicUnit: '21000000000000',
     costInStandardUnit: '0.000021',
     gas: '21000',
@@ -32,7 +33,7 @@ const initialProps = {
     transferAmount: '0.001',
     cryptoType: 'ethereum'
   },
-  escrowWallet: { decryptedWallet: 'decryptedWallet' },
+  escrowWallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
   sendTime: 'May 27th 2019, 12:43:06',
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
@@ -93,8 +94,8 @@ describe('CancelReviewComponent render', () => {
     expect(wrapper.find(CircularProgress)).toHaveLength(1)
   })
 
-  it('actionPending.txCost', () => {
-    wrapper.setProps(update(initialProps, { actionsPending: { getTxCost: { $set: true } } }))
+  it('actionPending.txFee', () => {
+    wrapper.setProps(update(initialProps, { actionsPending: { getTxFee: { $set: true } } }))
     expect(wrapper.find(CircularProgress)).toHaveLength(1)
   })
 })
@@ -118,12 +119,11 @@ describe('CancelReviewComponent interaction', () => {
 
     wrapper.find(Button).filter('#confirmCancel').simulate('click')
     expect(mockFunction.mock.calls[0][0]).toEqual({
-      escrowWallet: initialProps.escrowWallet.decryptedWallet,
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', initialProps.transfer.cryptoType, initialProps.escrowWallet),
       sendingId: initialProps.transfer.sendingId,
       sendTxHash: initialProps.transfer.sendTxHash,
-      cryptoType: initialProps.transfer.cryptoType,
       transferAmount: initialProps.transfer.transferAmount,
-      txCost: initialProps.txCost
+      txFee: initialProps.txFee
     })
 
     wrapper.setProps(update(initialProps, { actionsPending: { cancelTransfer: { $set: true } } }))

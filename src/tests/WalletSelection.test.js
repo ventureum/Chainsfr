@@ -246,19 +246,6 @@ describe('WalletSelectionComponent rendering', () => {
     expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
 
-  it('syncAccountInfo', () => {
-    wrapper.setProps(update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'bitcoin' },
-      actionsPending: { syncAccountInfo: { $set: true } },
-      wallet: { $set: mockWallet }
-    }))
-    expect(wrapper.find(LinearProgress)).toHaveLength(1)
-    expect(wrapper.find(Typography).filter('#synchronizeAccInfo').text()).toEqual('Synchronizing Account Info')
-    expect(wrapper.find(ListItem).filter('#bitcoin').prop('disabled')).toEqual(true)
-    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
-  })
-
   it('updateBtcAccountInfo', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },

@@ -9,7 +9,7 @@ import Receipt from '../components/ReceiptComponent'
 const initialProps = {
   backToHome: () => {},
   cryptoSelection: 'ethereum',
-  txCost: {
+  txFee: {
     costInBasicUnit: '21000000000000',
     costInStandardUnit: '0.000021',
     gas: '21000',

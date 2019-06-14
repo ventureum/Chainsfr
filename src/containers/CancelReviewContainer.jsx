@@ -3,10 +3,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import CancelReviewComponent from '../components/CancelReviewComponent'
-import { getTransfer, cancelTransfer, getTxCost } from '../actions/transferActions'
+import { getTransfer, cancelTransfer, getTxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { verifyPassword, getUtxoForEscrowWallet } from '../actions/walletActions'
+import { verifyPassword, sync } from '../actions/walletActions'
+import WalletUtils from '../wallets/utils'
 
 class CancelReviewContainer extends Component {
   componentDidMount () {
@@ -17,29 +18,26 @@ class CancelReviewContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    let { transfer, actionsPending, error, getUtxoForEscrowWallet, escrowWallet } = this.props
+    let { transfer, actionsPending, error, escrowWallet } = this.props
     let prevActionPending = prevProps.actionsPending
     if (!error && transfer) {
+      let walletData = WalletUtils.toWalletDataFromState(
+        'escrow',
+        transfer.cryptoType,
+        escrowWallet
+      )
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
+        // transfer data retrieved, now decrypt escrow wallet
         this.props.verifyPassword({
           sendingId: transfer.sendingId,
-          encryptedWallet: transfer.data,
-          cryptoType: transfer.cryptoType
+          fromWallet: walletData
         })
-      } else if (
-        (prevActionPending.verifyPassword && !actionsPending.verifyPassword) ||
-        (prevActionPending.getUtxoForEscrowWallet && !actionsPending.getUtxoForEscrowWallet)
-      ) {
-        if (transfer.cryptoType === 'bitcoin' && !prevActionPending.getUtxoForEscrowWallet) {
-          getUtxoForEscrowWallet()
-        } else if (transfer.cryptoType !== 'bitcoin' || prevActionPending.getUtxoForEscrowWallet) {
-          // get gas cost
-          this.props.getTxCost({
-            cryptoType: transfer.cryptoType,
-            transferAmount: transfer.transferAmount,
-            escrowWallet: escrowWallet
-          })
-        }
+      } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
+        // verifyPassword completed, currently not syncing
+        this.props.sync(walletData)
+      } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.getTxFee) {
+        // sync completed, currently not executing getTxFee action
+        this.props.getTxFee({ fromWallet: walletData, transferAmount: transfer.transferAmount })
       }
     }
   }
@@ -63,34 +61,34 @@ class CancelReviewContainer extends Component {
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
-const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
-const getUtxoForEscrowWalletSelector = createLoadingSelector(['GET_UTXO_FOR_ESCROW_WALLET'])
+const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
+const syncSelector = createLoadingSelector(['SYNC'])
 const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD', 'GET_TX_COST', 'GET_UTXO_FOR_ESCROW_WALLET'])
 
 const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
-    getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
-    goToStep: (n) => dispatch(goToStep('receive', n)),
-    getUtxoForEscrowWallet: () => dispatch(getUtxoForEscrowWallet())
+    sync: (txRequest) => dispatch(sync(txRequest)),
+    goToStep: (n) => dispatch(goToStep('receive', n))
   }
 }
 
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
-    escrowWallet: state.walletReducer.escrowWallet,
-    txCost: state.transferReducer.txCost,
+    escrowWallet: state.walletReducer.wallet.escrow,
+    txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt,
     actionsPending: {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),
-      getTxCost: getTxCostSelector(state),
+      getTxFee: gettxFeeSelector(state),
       cancelTransfer: cancelTransferSelector(state),
-      getUtxoForEscrowWallet: getUtxoForEscrowWalletSelector(state)
+      sync: syncSelector(state)
     },
     error: errorSelector(state)
   }

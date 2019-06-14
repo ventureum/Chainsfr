@@ -8,16 +8,16 @@ import { goToStep } from '../actions/navigationActions'
 
 type Props = {
   submitTx: Function,
-  getTxCost: Function,
+  getTxFee: Function,
   goToStep: Function,
   transferForm: Object,
   cryptoSelection: string,
   walletSelection: string,
   wallet: Object,
-  txCost: Object,
+  txFee: Object,
   actionsPending: {
     submitTx: boolean,
-    getTxCost: boolean
+    getTxFee: boolean
   },
   error: any
 }
@@ -49,7 +49,7 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     actionsPending: {
       submitTx: submitTxSelector(state)
     },

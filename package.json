@@ -19,15 +19,18 @@
     "axios": "^0.19.0-beta.1",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "bcryptjs": "^2.4.3",
+    "bip32": "^2.0.3",
     "bip38": "^2.0.2",
-    "bitcoinjs-lib": "^4.0.3",
+    "bip39": "^3.0.2",
+    "bitcoinjs-lib": "^4.0.5",
     "bitcore-lib": "^8.1.0",
     "bn.js": "^4.11.8",
     "classnames": "^2.2.6",
     "connected-react-router": "^6.3.1",
     "detect-browser": "^4.2.1",
     "dotenv-webpack": "^1.7.0",
-    "ethereumjs-tx": "^1.3.7",
+    "ethereumjs-tx": "2.0.0",
     "ethereumjs-util": "^6.1.0",
     "gapi-client": "0.0.3",
     "googleapis": "^27.0.0",
@@ -71,7 +74,10 @@
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
-    "eslint": "eslint \"./src/**/*.js\""
+    "eslint": "eslint \"./src/**/*.js\"",
+    "snapshots:unzip": "unzip src/tests/__snapshots__",
+    "snapshots:zip": "zip -r src/tests/__snapshots__.zip src/tests/__snapshots__ -x \"*.DS_Store\"",
+    "snapshots:clean": "rm -fr src/tests/__snapshots__"
   },
   "eslintConfig": {
     "extends": "react-app"

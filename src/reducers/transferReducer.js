@@ -10,7 +10,7 @@ const initialState = {
   transfer: null,
 
   // tx related data
-  txCost: null,
+  txFee: null,
 
   // transaction receipt
   receipt: null
@@ -21,12 +21,12 @@ export default function (state = initialState, action) {
     case 'GET_TRANSFER_FULFILLED':
       return {
         ...state,
-        transfer: action.payload
+        transfer: action.payload.transferData
       }
     case 'GET_TX_COST_FULFILLED':
       return {
         ...state,
-        txCost: action.payload
+        txFee: action.payload
       }
     case 'SUBMIT_TX_FULFILLED':
       return {
