@@ -14,8 +14,7 @@ import WalletUtils from '../wallets/utils'
 import WalletFactory from '../wallets/factory'
 import type {
   Wallet,
-  WalletData,
-  WalletDataEthereum
+  WalletData
 } from '../types/wallet.flow.js'
 import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
@@ -39,10 +38,11 @@ async function getFirstFromAddress (txHash: string) {
   return address
 }
 
-async function _getTxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit }) {
-  let { fromWallet, transferAmount } = txRequest
+async function _getTxFee (txRequest: { fromWallet: WalletData, transferAmount: StandardTokenUnit, options: Object }) {
+  let { fromWallet, transferAmount, options } = txRequest
   let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
-    value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType)).toString()
+    value: utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType)).toString(),
+    options: options
   })
   return txFee
 }
@@ -461,6 +461,7 @@ function cancelTransfer (txRequest: {
 function getTxFee (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
+  options: Object
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({

@@ -44,7 +44,10 @@ class RecipientComponent extends Component<Props> {
           cryptoSelection,
           wallet
         ),
-        transferAmount: transferForm.transferAmount
+        transferAmount: transferForm.transferAmount,
+        options: {
+          prepayTxFee: true
+        }
       })
     } else if (
       !actionsPending.getTxFee &&
@@ -103,7 +106,7 @@ class RecipientComponent extends Component<Props> {
             return INSUFFICIENT_FUNDS_FOR_TX_FEES
           }
           if (cryptoSelection === 'dai') {
-            let ethBalance = wallet.crypto.ethereum[0].balance
+            let ethBalance = wallet.crypto.dai[0].ethBalance
             if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
               return INSUFFICIENT_FUNDS_FOR_TX_FEES
             }

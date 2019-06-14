@@ -37,15 +37,16 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     this.walletData = {
       walletType: walletType,
       cryptoType: cryptoType,
-      accounts: [await this.createAccount()]
+      accounts: []
     }
+    this.walletData.accounts.push(await this.createAccount())
   }
 
   createAccount = async (): Promise<AccountEthereum> => {
     // we use the first address as the sending/change address
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let web3Account
-    if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT) {
+    if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT && this.walletData.walletType !== 'escrow') {
       const privateKey = await API.getPrefilledAccount()
       web3Account = privateKey
         ? _web3.eth.accounts.privateKeyToAccount(privateKey)
@@ -153,14 +154,14 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
-  getTxFee = async ({ to, value }: { to?: string, value: BasicTokenUnit }): Promise<TxFee> => {
+  getTxFee = async ({ to, value, options }: { to?: string, value: BasicTokenUnit }): Promise<TxFee> => {
     let { cryptoType } = this.walletData
 
     const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
     const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
 
     if (cryptoType === 'ethereum') {
-      return utils.getGasCost({ from: mockFrom, to: mockTo, value: value })
+      return this._getGasCost({ from: mockFrom, to: mockTo, value: value })
     } else if (cryptoType === 'dai') {
       // special case for erc20 tokens
       // amount of eth to be transfered to the escrow wallet
@@ -168,29 +169,33 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       // otherwise, the tokens in the escrow wallet cannot be transfered out
       // we use the current estimation to calculate amount of ETH to be transfered
 
-      let txFeeERC20 = await utils.getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, value, cryptoType))
+      let txFeeERC20 = await this._getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, value, cryptoType))
+      if (options && options.prepayTxFee) {
+        // eth to be transfered for paying erc20 token tx while receiving
+        let ethTransfer = txFeeERC20.costInBasicUnit
+        let txFeeEth = await this._getGasCost({ from: mockFrom, to: mockTo, value: value })
 
-      // eth to be transfered for paying erc20 token tx while receiving
-      let ethTransfer = txFeeERC20.costInBasicUnit
-      let txFeeEth = await utils.getGasCost({ from: mockFrom, to: mockTo, value: value })
-
-      // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
-      let totalCostInBasicUnit = new BN(txFeeEth.costInBasicUnit)
-        .add(new BN(txFeeERC20.costInBasicUnit))
-        .add(new BN(ethTransfer))
-      
-      let rv: TxFee = {
-        // use the current estimated price
-        price: txFeeERC20.price,
-        // eth transfer gas + erc20 transfer gas
-        gas: new BN(txFeeEth.gas).add(new BN(txFeeERC20.gas)).toString(),
-        costInBasicUnit: totalCostInBasicUnit.toString(),
-        costInStandardUnit: utils.toHumanReadableUnit(totalCostInBasicUnit).toString(),
-        // subtotal tx cost
-        // this is used for submitTx()
-        costByType: { txFeeEth, txFeeERC20, ethTransfer }
+        // estimate total cost = eth to be transfered + eth transfer fee + erc20 transfer fee
+        let totalCostInBasicUnit = new BN(txFeeEth.costInBasicUnit)
+          .add(new BN(txFeeERC20.costInBasicUnit))
+          .add(new BN(ethTransfer))
+          .toString()
+        
+        let rv: TxFee = {
+          // use the current estimated price
+          price: txFeeERC20.price,
+          // eth transfer gas + erc20 transfer gas
+          gas: new BN(txFeeEth.gas).add(new BN(txFeeERC20.gas)).toString(),
+          costInBasicUnit: totalCostInBasicUnit,
+          costInStandardUnit: utils.toHumanReadableUnit(totalCostInBasicUnit, 18, 8).toString(),
+          // subtotal tx cost
+          // this is used for submitTx()
+          costByType: { txFeeEth, txFeeERC20, ethTransfer }
+        }
+        return rv
+      } else {
+        return txFeeERC20
       }
-      return rv
     } else {
       throw new Error(`Invalid cryptoType: ${cryptoType}`)
     }
@@ -234,14 +239,21 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
     // setup tx obj
     if (cryptoType === 'ethereum') {
-      txObjs.push({ from: account.address, to: to, value: value, gas: txFee.gas, gasPrice: txFee.price })
+      txObjs.push({
+        from: account.address,
+        to: to,
+        value: _web3.utils.toHex(value),
+        gas: _web3.utils.toHex(txFee.gas),
+        gasPrice: _web3.utils.toHex(txFee.price)
+      })
     } else if (cryptoType === 'dai') {
       let ERC20TxObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
 
       // set ERC20 tx gas
       if (txFee.costByType.txFeeERC20) {
-        ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
-        ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
+        const _txFeeERC20 = txFee.costByType.txFeeERC20
+        ERC20TxObj.gas = _web3.utils.toHex(_txFeeERC20.gas)
+        ERC20TxObj.gasPrice = _web3.utils.toHex(_txFeeERC20.price)
       } else {
         throw new Error('txFeeERC20 not found in txFee')
       }
@@ -251,13 +263,14 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         var txFeeEthTxObj = {
           from: account.address,
           to: to,
-          value: txFee.costByType && txFee.costByType.ethTransfer,
-          gas: txFee.costByType && txFee.costByType.txFeeEth.gas,
-          gasPrice: txFee.costByType && txFee.costByType.txFeeEth.price,
+          value: _web3.utils.toHex(txFee.costByType && txFee.costByType.ethTransfer),
+          gas: _web3.utils.toHex(txFee.costByType && txFee.costByType.txFeeEth.gas),
+          gasPrice: _web3.utils.toHex(txFee.costByType && txFee.costByType.txFeeEth.price),
           nonce: await _web3.eth.getTransactionCount(account.address)
         }
         // consecutive tx, need to set nonce manually
-        ERC20TxObj.nonce = txFeeEthTxObj.nonce + 1
+        ERC20TxObj.nonce = _web3.utils.toHex(txFeeEthTxObj.nonce + 1)
+        txFeeEthTxObj.nonce = _web3.utils.toHex(txFeeEthTxObj.nonce)
         txObjs.push(txFeeEthTxObj)
       }
       txObjs.push(ERC20TxObj)
@@ -282,5 +295,15 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     } else {
       throw new Error(`Invalid walletType: ${walletType}`)
     }
+  }
+
+  _getGasCost = async (txObj: any) => {
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+    let price = await _web3.eth.getGasPrice()
+    let gas = (await _web3.eth.estimateGas(txObj)).toString()
+    let costInBasicUnit = new BN(price).mul(new BN(gas)).toString()
+    let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 18, 8)
+  
+    return { price, gas, costInBasicUnit, costInStandardUnit }
   }
 }

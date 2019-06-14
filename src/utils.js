@@ -7,7 +7,7 @@ import axios from 'axios'
 import bcrypt from 'bcryptjs'
 import url from './url'
 /*
- * @param val BN instance, assuming smallest token unit
+ * @param val string, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
  */
 function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 3) {
@@ -33,7 +33,7 @@ async function getGasCost (txObj: any) {
   let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()
   let costInBasicUnit = new BN(price).mul(new BN(gas)).toString()
-  let costInStandardUnit = _web3.utils.fromWei(costInBasicUnit, 'ether')
+  let costInStandardUnit = toHumanReadableUnit(costInBasicUnit, 18, 8)
 
   return { price, gas, costInBasicUnit, costInStandardUnit }
 }
