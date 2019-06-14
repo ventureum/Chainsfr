@@ -455,8 +455,7 @@ class WalletComponent extends Component {
     const { viewPrivateKeyDialogOpen, selectedCryptoType, copied } = this.state
     const { classes, wallet, actionsPending } = this.props
 
-    const pKey = selectedCryptoType === 'bitcoin' && wallet.crypto[selectedCryptoType][0].privateKey ? wallet.crypto[selectedCryptoType][0].privateKey.toWIF()
-      : wallet.crypto[selectedCryptoType][0].privateKey
+    const privateKey = wallet.crypto[selectedCryptoType][0].privateKey
     return (
       <Dialog open={viewPrivateKeyDialogOpen}>
         <DialogTitle>Private Key</DialogTitle>
@@ -465,12 +464,12 @@ class WalletComponent extends Component {
             ? <Grid container direction='row' alignItems='center'>
               <Grid item >
                 <Typography className={classes.addressDialog} align='left'>
-                  {pKey}
+                  {privateKey}
                 </Typography>
               </Grid>
               <Grid item>
                 <CopyToClipboard
-                  text={pKey}
+                  text={privateKey}
                   onCopy={() => {
                     this.setState({ copied: true },
                       () => setTimeout(() => this.setState({ copied: false }), 1500)

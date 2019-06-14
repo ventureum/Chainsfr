@@ -19,7 +19,7 @@ import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
-
+const DEFAULT_ACCOUNT = 0
 const NETWORK = env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
@@ -70,22 +70,20 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     const root = bip32.fromBase58(xpriv, NETWORK)
     const child = root.derivePath(path)
     const accountXPub = child.neutered().toBase58()
-    const privateKey = child.toWIF()
-    const keyPair = bitcoin.ECPair.fromWIF(privateKey, NETWORK)
-    const p2wpkh = bitcoin.payments.p2wpkh({
-      pubkey: keyPair.publicKey,
-      network: NETWORK
-    })
-
+    const accountXpriv = child.toWIF()
     const { address } = bitcoin.payments.p2sh({
-      redeem: p2wpkh,
+      redeem: bitcoin.payments.p2wpkh({
+        // change = 0, addressIdx = 0
+        pubkey: child.derive(0).derive(0).publicKey,
+        network: NETWORK
+      }),
       network: NETWORK
     })
 
     let account = {
       balance: '0',
       address: address,
-      privateKey: privateKey,
+      privateKey: accountXpriv,
       hdWalletVariables: {
         xpub: accountXPub,
         nextAddressIndex: 0,
@@ -108,24 +106,21 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   // get account (default first account)
   getAccount = (accountIdx?: number): AccountBitcoin => {
-    if (!accountIdx) accountIdx = 0
-    return this.walletData.accounts[accountIdx]
+    return this.walletData.accounts[accountIdx || DEFAULT_ACCOUNT]
   }
 
   encryptAccount = async (password: string) => {
-    let accountIdx = 0
-    if (!this.walletData.accounts[accountIdx].privateKey) {
+    if (!this.walletData.accounts[DEFAULT_ACCOUNT].privateKey) {
       throw new Error('PrivateKey does not exist')
     }
-    this.walletData.accounts[accountIdx].encryptedPrivateKey = await utils.encryptMessage(
-      this.walletData.accounts[accountIdx].privateKey,
+    this.walletData.accounts[DEFAULT_ACCOUNT].encryptedPrivateKey = await utils.encryptMessage(
+      this.walletData.accounts[DEFAULT_ACCOUNT].privateKey,
       password
     )
   }
 
   decryptAccount = async (password: string): Promise<void> => {
-    let accountIdx = 0
-    let account = this.walletData.accounts[accountIdx]
+    let account = this.walletData.accounts[DEFAULT_ACCOUNT]
     if (!account.encryptedPrivateKey) {
       throw new Error('EncryptedPrivateKey does not exist')
     }
@@ -135,24 +130,21 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       password
     )
     if (!privateKey) throw new Error('Incorrect password')
-    account.privateKey = privateKey
-    account.xpub = bip32.fromBase58(privateKey, NETWORK).neutered().toBase58()
-    console.log(account)
+    const path = `m/${BASE_BTC_PATH}/${DEFAULT_ACCOUNT}'`
+    account.privateKey = bip32.fromBase58(privateKey, NETWORK).derivePath(path + '/0/0').toWIF()
+    account.hdWalletVariables.xpub = bip32.fromBase58(privateKey, NETWORK).derivePath(path).neutered().toBase58()
   }
 
   clearPrivateKey = (): void => {
-    let accountIdx = 0
-    this.walletData.accounts[accountIdx].privateKey = undefined
+    this.walletData.accounts[DEFAULT_ACCOUNT].privateKey = undefined
   }
 
   retrieveAddress = async (): Promise<void> => {
-    // default first account
-    let accountIdx = 0
     let { walletType } = this.walletData
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
-      let account = this.walletData.accounts[accountIdx]
-      let { address, xpub } = await this.ledger.getBtcAddresss(accountIdx)
+      let account = this.walletData.accounts[DEFAULT_ACCOUNT]
+      let { address, xpub } = await this.ledger.getBtcAddresss(DEFAULT_ACCOUNT)
       account.address = address
       account.hdWalletVariables.xpub = xpub
     } else {
@@ -172,7 +164,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
       hdWalletVariables.addresses = [{ address: this.getDerivedAddress(xpub, 0, 0),
-        path: env.REACT_APP_BTC_PATH + `/0'/0/0`,
+        path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
         utxos: []
       }]
     } else if (walletType === 'ledger') {
