@@ -5,6 +5,7 @@ import OnboardingComponent from '../components/OnboardingComponent'
 import { onLogin, setNewUserTag } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import env from '../typedEnv'
 
 class LoginContainer extends Component {
   state = {
@@ -56,6 +57,7 @@ class LoginContainer extends Component {
       <LoginComponent
         onLogin={this.onLogin}
         actionsPending={actionsPending}
+        isMainNet={env.REACT_APP_ENV === 'prod'}
       />)
   }
 }

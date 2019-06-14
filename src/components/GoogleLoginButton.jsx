@@ -76,7 +76,6 @@ class GoogleLoginButton extends Component {
 
 const styles = theme => ({
   btn: {
-    padding: '17px 93px 17px 93px',
     backgroundColor: '#4285F4',
     opacity: 1,
     '&:hover': {
@@ -87,7 +86,6 @@ const styles = theme => ({
   },
   btnDisabled: {
     backgroundColor: 'rgb(66, 133, 244)',
-    padding: '17px 93px 17px 93px',
     opacity: 1,
     '&:hover': {
       cursor: 'pointer',
