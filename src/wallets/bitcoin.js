@@ -20,7 +20,8 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
-const NETWORK = env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
+const NETWORK =
+  env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 export default class WalletBitcoin implements IWallet<WalletDataBitcoin, AccountBitcoin> {
   ledger: any
   walletData: WalletDataBitcoin
@@ -125,14 +126,18 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       throw new Error('EncryptedPrivateKey does not exist')
     }
     // xpriv
-    let privateKey = await utils.decryptMessage(
-      account.encryptedPrivateKey,
-      password
-    )
+    let privateKey = await utils.decryptMessage(account.encryptedPrivateKey, password)
     if (!privateKey) throw new Error('Incorrect password')
     const path = `m/${BASE_BTC_PATH}/${DEFAULT_ACCOUNT}'`
-    account.privateKey = bip32.fromBase58(privateKey, NETWORK).derivePath(path + '/0/0').toWIF()
-    account.hdWalletVariables.xpub = bip32.fromBase58(privateKey, NETWORK).derivePath(path).neutered().toBase58()
+    account.privateKey = bip32
+      .fromBase58(privateKey, NETWORK)
+      .derivePath(path + '/0/0')
+      .toWIF()
+    account.hdWalletVariables.xpub = bip32
+      .fromBase58(privateKey, NETWORK)
+      .derivePath(path)
+      .neutered()
+      .toBase58()
   }
 
   clearPrivateKey = (): void => {
@@ -163,10 +168,13 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // only use the first derived address
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
-      hdWalletVariables.addresses = [{ address: this.getDerivedAddress(xpub, 0, 0),
-        path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
-        utxos: []
-      }]
+      hdWalletVariables.addresses = [
+        {
+          address: this.getDerivedAddress(xpub, 0, 0),
+          path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
+          utxos: []
+        }
+      ]
     } else if (walletType === 'ledger') {
       // 1. account discovery
       const externalAddressData = await this._discoverAddress(
@@ -187,10 +195,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // 2. update addresses
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
       hdWalletVariables.nextChangeIndex = internalAddressData.nextIndex
-      addressPool = [
-        ...externalAddressData.addresses,
-        ...internalAddressData.addresses
-      ]
+      addressPool = [...externalAddressData.addresses, ...internalAddressData.addresses]
 
       // append discovered addresses to the old address pool
       hdWalletVariables.addresses.push(...addressPool)
@@ -224,7 +229,10 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     })
 
     // sum up balance from all addresses
-    let totalBalance = utxoData.reduce((accu: any, { balance }) => accu.add(new BN(balance)), new BN(0))
+    let totalBalance = utxoData.reduce(
+      (accu: any, { balance }) => accu.add(new BN(balance)),
+      new BN(0)
+    )
 
     // update balance
     account.balance = totalBalance.toString()
@@ -263,11 +271,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
     if (!txFee) txFee = await this.getTxFee({ to, value })
 
-    const { fee, utxosCollected } = this.collectUtxos(
-      addressPool,
-      value,
-      Number(txFee.price)
-    )
+    const { fee, utxosCollected } = this.collectUtxos(addressPool, value, Number(txFee.price))
 
     let signer = null
     if (this.walletData.walletType === 'ledger') {
@@ -353,7 +357,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     fee: number,
     changeIndex: number
   ) => {
-    debugger
     // use the first account
     let account = this.getAccount()
     const keyPair = bitcoin.ECPair.fromWIF(account.privateKey, NETWORK)
