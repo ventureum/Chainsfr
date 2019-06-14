@@ -56,7 +56,9 @@ const defaultLayoutStyle = {
 }
 
 const loginLayoutStyle = {
-  backgroundColor: '#F6F9FE'
+  minHeight: '100vh',
+  flexDirection: 'column',
+  display: 'flex'
 }
 
 const componentStyle = {
@@ -97,12 +99,10 @@ const LoginLayout = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={matchProps => (
       <div style={loginLayoutStyle}>
-        <div style={componentStyle}>
-          {browserSupported()
-            ? <Component {...matchProps} />
-            : <BrowserNotSupportedComponent />
-          }
-        </div>
+        {browserSupported()
+          ? <Component {...matchProps} />
+          : <BrowserNotSupportedComponent />
+        }
         <NotifierComponent />
       </div>
     )} />

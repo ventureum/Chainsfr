@@ -78,12 +78,12 @@ class LoginComponent extends Component {
 
     return (
       <Grid container justify='center' className={classNames(classes.container, classes[`container${envSuffix}`])}>
-        <Grid container direction='row' className={classes.centerContainer}>
+        <Grid container direction='column' className={classes.centerContainer}>
           <Grid item md={12} className={classes.header}>
             <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogo : ChainsfrLogoWhite} alt='Chainsfr Logo' />
           </Grid>
           <Grid container direction='row'>
-            <Grid item md={6}>
+            <Grid className={classes.faqContainer} item md={6}>
               <Grid><Typography variant='h4' gutterBottom className={classNames(classes.faqSectionTitle, classes[`faqFontColor${envSuffix}`])}>FAQ</Typography></Grid>
               {isMainNet &&
                 data.mainNet.faq.map((item, i) => (
@@ -138,9 +138,14 @@ class LoginComponent extends Component {
 
 const styles = theme => ({
   root: {
-    flex: 1
+    flex: 1,
+    display: 'flex'
   },
   container: {
+    width: '100%',
+    flexGrow: 1
+  },
+  centerContainer: {
     '@media (min-width: 380px) and (max-width : 751px)': {
       maxWidth: '380px'
     },
@@ -151,7 +156,9 @@ const styles = theme => ({
       maxWidth: '960px'
     },
     '@media (min-width: 1490px) ': {
-    }
+      maxWidth: '1080px'
+    },
+    height: '100%'
   },
   containerMainNet: {
     backgroundColor: '#F6F9FE'
@@ -164,9 +171,16 @@ const styles = theme => ({
     paddingBottom: 60
   },
   chainsfrLogo: {
-    width: 180
+    width: 180,
+    marginLeft: 30
+  },
+  faqContainer: {
+    marginBottom: 30
   },
   paperContainter: {
+    marginLeft: 30,
+    marginRight: 30,
+    marginBottom: 60,
     padding: 60
   },
   paperButtons: {
@@ -183,7 +197,8 @@ const styles = theme => ({
     borderTop: 'solid 1px #e9e9e9'
   },
   wrapper: {
-    padding: 30,
+    paddingTop: 30,
+    paddingBottom: 30,
     maxHeight: 60,
 
     '&:first-child p': {
@@ -193,8 +208,7 @@ const styles = theme => ({
     }
   },
   leftContainer: {
-    paddingTop: 30,
-    paddingBottom: 30,
+    padding: 30,
     maxWidth: 480
   },
   faqFontColorMainNet: {
@@ -206,7 +220,9 @@ const styles = theme => ({
   faqSectionTitle: {
     fontFamily: 'Poppins',
     fontSize: 24,
-    fontWeight: 700
+    fontWeight: 700,
+    paddingLeft: 30,
+    paddingRight: 30
   },
   faqTitle: {
     fontFamily: 'Poppins',
@@ -228,10 +244,6 @@ const styles = theme => ({
     fontWeight: 400,
     fontSize: 18,
     color: '#1E0E62'
-  },
-  centerContainer: {
-    maxWidth: '1080px',
-    width: '100%'
   },
   buttonProgress: {
     position: 'absolute',
