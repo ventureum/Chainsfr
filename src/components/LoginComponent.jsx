@@ -59,7 +59,8 @@ const data = {
     linkText: 'Switch to Main App',
     backgroundColor: '#393386',
     fontColor: '#FFF'
-  }
+  },
+  termURL: env.REACT_APP_TERMS_URL
 }
 
 class LoginComponent extends Component {
@@ -124,7 +125,7 @@ class LoginComponent extends Component {
                   <Link href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL} className={classes.paperBtnLink}>{isMainNet ? data.mainNet.linkText : data.testNet.linkText}</Link>
                 </Grid>
                 <Grid item container className={classes.paperFooter} justify='center'>
-                  <Link href='#' variant='caption' align='center' color='textSecondary'>Term and Use</Link>
+                  <Link variant='caption' align='center' color='textSecondary' href={data.termURL} target='_blank'>Term and Use</Link>
                 </Grid>
               </Paper>
             </Grid>
