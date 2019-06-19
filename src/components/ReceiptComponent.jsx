@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom'
 type Props = {
   backToHome: Function,
   cryptoSelection: string,
-  txCost: Object,
+  txFee: Object,
   receipt: Object,
   classes: Object,
   password: string,
@@ -35,7 +35,7 @@ class ReceiptComponent extends Component<Props, State> {
 
   render () {
     const { copied } = this.state
-    const { classes, cryptoSelection, password, txCost, receipt, backToHome, sendTime } = this.props
+    const { classes, cryptoSelection, password, txFee, receipt, backToHome, sendTime } = this.props
     const { sendingId, transferAmount, sender, destination } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -83,7 +83,7 @@ class ReceiptComponent extends Component<Props, State> {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txCost.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

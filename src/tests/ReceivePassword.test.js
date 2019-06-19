@@ -10,6 +10,14 @@ const initialProps = {
   actionsPending: {
     verifyPassword: false
   },
+  escrowWallet: {
+    crypto: {
+      ethereum: [{
+        address: '0x0'
+      }]
+    }
+  },
+  transfer: { cryptoType: 'ethereum' },
   clearDecryptedWallet: () => {},
   verifyPassword: () => {}
 }
@@ -63,7 +71,7 @@ describe('Interaction', () => {
     const mockCallBack = jest.fn()
     wrapper.setProps({
       verifyPassword: mockCallBack,
-      transfer: {}
+      transfer: { cryptoType: 'ethereum' }
     })
     wrapper.find(Button).filter('#continue').simulate('click')
     expect(mockCallBack.mock.calls.length).toEqual(1)
@@ -126,7 +134,7 @@ describe('Interaction', () => {
     const mockVerifyPassword = jest.fn()
     wrapper.setProps({
       verifyPassword: mockVerifyPassword,
-      transfer: {}
+      transfer: { cryptoType: 'ethereum' }
     })
     wrapper.find(TextField).filter('#password').props().onKeyPress({ key: 'other key' })
     expect(mockVerifyPassword.mock.calls.length).toEqual(0)

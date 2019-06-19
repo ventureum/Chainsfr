@@ -7,30 +7,25 @@ const mockWallet = {
   connected: true,
   crypto: {
     ethereum:
-    {
-      0: {
+      [{
         address: 'e7b7baf2b41c61f9f376ae3a5bc2cd78709995a7',
         balance: '10000000000000000',
         id: '0737b8f5-7f3e-46f8-8489-a60a8b9d3158',
         version: 3
-      }
-    },
-    dai: {
-      0: {
+      }],
+    dai:
+      [{
         address: 'e7b7baf2b41c61f9f376ae3a5bc2cd78709995a7',
         balance: '10000000000000000',
         id: '0737b8f5-7f3e-46f8-8489-a60a8b9d3158',
         version: 3
-      }
-    },
-    bitcoin: {
-      0: {
+      }],
+    bitcoin:
+      [{
         address: 'mtHrY25GUMvSsj9s72BQjPbK5iDvJykGFh',
-        addresses: [],
         balance: '34432784',
-        ciphertext: '6PYSS2TUay4BfyA3VBzidSmz5GqSbfe2cUoDobWomkL7acsb1AJbGRU6mK'
-      }
-    }
+        privateKey: '6PYSS2TUay4BfyA3VBzidSmz5GqSbfe2cUoDobWomkL7acsb1AJbGRU6mK'
+      }]
   }
 }
 
@@ -61,12 +56,12 @@ let initialProps = {
   generateSecurityAnswer: () => {},
   clearSecurityAnswer: () => {},
   goToStep: () => {},
-  getTxCost: () => {},
+  getTxFee: () => {},
   cryptoSelection: 'ethereum',
   walletSelection: 'metamask',
   transferForm: mockTransferForm,
   wallet: mockWallet,
-  txCost: undefined,
+  txFee: undefined,
   actionsPending: {
     getTxCost: false
   }
@@ -168,10 +163,10 @@ describe('RecipientComponent Interactions:', () => {
     expect(wrapper.find(TextField).filter('#amount').prop('error')).toEqual(false)
 
     // This is for the second check on transferAmount when getTxCost finish
-    wrapper.setProps({ actionsPending: { getTxCost: true } })
+    wrapper.setProps({ actionsPending: { getTxFee: true } })
     wrapper.setProps({
-      txCost: { costInBasicUnit: '99999999999999999' },
-      actionsPending: { getTxCost: false }
+      txFee: { costInBasicUnit: '99999999999999999' },
+      actionsPending: { getTxFee: false }
     })
     expect(mockUpdateTransferForm.mock.calls.length).toEqual(2)
   })
@@ -187,14 +182,14 @@ describe('RecipientComponent Interactions:', () => {
   })
 
   it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) ETH', () => {
-    wrapper.setProps({ txCost: { costInBasicUnit: '99999999999999999' } })
+    wrapper.setProps({ txFee: { costInBasicUnit: '99999999999999999' } })
     wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
     expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
   })
 
   it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) DAI', () => {
     wrapper.setProps({
-      txCost: { costInBasicUnit: '99999999999999999' },
+      txFee: { costInBasicUnit: '99999999999999999' },
       cryptoSelection: 'dai'
     })
     wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
@@ -203,7 +198,7 @@ describe('RecipientComponent Interactions:', () => {
 
   it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) BTC', () => {
     wrapper.setProps({
-      txCost: { costInBasicUnit: '99999999999999999' },
+      txFee: { costInBasicUnit: '99999999999999999' },
       cryptoSelection: 'bitcoin'
     })
     wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountBTC } })
@@ -224,13 +219,15 @@ describe('RecipientComponent Interactions:', () => {
   })
 
   it('continue', () => {
-    wrapper.setProps({ transferForm: {
-      ...initialProps.transferForm,
-      sender: mockValidEmail,
-      destination: mockValidEmail,
-      transferAmount: mockValidAmount,
-      password: mockValidPassword
-    } })
+    wrapper.setProps({
+      transferForm: {
+        ...initialProps.transferForm,
+        sender: mockValidEmail,
+        destination: mockValidEmail,
+        transferAmount: mockValidAmount,
+        password: mockValidPassword
+      }
+    })
     wrapper.find(Button).filter('#continue').simulate('click')
     expect(mockGoToStep.mock.calls[0][0]).toEqual(1)
   })

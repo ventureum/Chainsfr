@@ -1,32 +1,38 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
-import { acceptTransfer, getTxCost } from '../actions/transferActions'
+import { acceptTransfer, getTxFee } from '../actions/transferActions'
+import { sync } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { getUtxoForEscrowWallet } from '../actions/walletActions'
+import WalletUtils from '../wallets/utils'
 import moment from 'moment'
 
 class ReceiveReviewContainer extends Component {
   componentDidMount () {
-    const { transfer, getUtxoForEscrowWallet } = this.props
-    if (transfer.cryptoType === 'bitcoin') {
-      getUtxoForEscrowWallet()
-    } else {
-      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount })
-    }
+    // refresh wallet data
+    this.syncWallet()
   }
 
   componentDidUpdate (prevProps) {
-    const { transfer, escrowWallet, txCost, actionsPending, error } = this.props
+    const { transfer, escrowWallet, txFee, actionsPending, error } = this.props
     const prevActionsPending = prevProps.actionsPending
-    if (!txCost &&
-      !actionsPending.getTxCost &&
-      (prevActionsPending.getUtxoForEscrowWallet && !actionsPending.getUtxoForEscrowWallet) &&
-      transfer.cryptoType === 'bitcoin' &&
+    if (!txFee &&
+      !actionsPending.getTxFee &&
+      (prevActionsPending.sync && !actionsPending.sync) &&
       !error) {
-      this.props.getTxCost({ cryptoType: transfer.cryptoType, transferAmount: transfer.transferAmount, escrowWallet: escrowWallet })
+      this.props.getTxFee({
+        fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+        transferAmount: transfer.transferAmount
+      })
     }
+  }
+
+  syncWallet = () => {
+    let { wallet, lastUsedWallet, walletSelection, transfer } = this.props
+    this.props.sync(
+      WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, lastUsedWallet || wallet)
+    )
   }
 
   render () {
@@ -34,9 +40,9 @@ class ReceiveReviewContainer extends Component {
     const { cryptoType, sendTimestamp } = transfer
 
     // if set to not used or no used address, use connected wallet
-    let destinationAddress = (lastUsedWallet.notUsed || !lastUsedWallet[walletSelection].crypto[cryptoType])
+    let destinationAddress = lastUsedWallet
       ? wallet.crypto[cryptoType][0].address
-      : lastUsedWallet[walletSelection].crypto[cryptoType].address
+      : lastUsedWallet[walletSelection].crypto[cryptoType][0].address
     let sentOn = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <ReceiveReview
@@ -49,32 +55,40 @@ class ReceiveReviewContainer extends Component {
 }
 
 const acceptTransferSelector = createLoadingSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
-const getTxCostSelector = createLoadingSelector(['GET_TX_COST'])
-const getUtxoForEscrowWalletSelector = createLoadingSelector(['GET_UTXO_FOR_ESCROW_WALLET'])
+const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
+const syncSelector = createLoadingSelector(['SYNC'])
 
 const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'ACCEPT_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
 
 const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: (txRequest) => dispatch(acceptTransfer(txRequest)),
-    getTxCost: (txRequest) => dispatch(getTxCost(txRequest)),
+    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
-    getUtxoForEscrowWallet: () => dispatch(getUtxoForEscrowWallet())
+    sync: (txRequest) => dispatch(sync(txRequest))
   }
 }
 
 const mapStateToProps = state => {
+  const _transfer = state.transferReducer.transfer
+  const _lastUsedWallet = state.walletReducer.lastUsedWallet
+  const _walletSelection = state.formReducer.walletSelection
+  const _lastUsedWalletExist = !_lastUsedWallet.notUsed &&
+  _lastUsedWallet[_walletSelection] &&
+  _lastUsedWallet[_walletSelection].crypto[_transfer.cryptoType]
+  const _lastUsedWalletByWalletType = _lastUsedWalletExist ? _lastUsedWallet[_walletSelection] : null
+
   return {
     transfer: state.transferReducer.transfer,
-    escrowWallet: state.walletReducer.escrowWallet,
-    lastUsedWallet: state.walletReducer.lastUsedWallet,
+    escrowWallet: state.walletReducer.wallet.escrow,
+    lastUsedWallet: _lastUsedWalletByWalletType,
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
-      getTxCost: getTxCostSelector(state),
-      getUtxoForEscrowWallet: getUtxoForEscrowWalletSelector(state)
+      getTxFee: gettxFeeSelector(state),
+      sync: syncSelector(state)
     },
     error: errorSelector(state)
   }

@@ -31,6 +31,7 @@ module.exports = {
     'promise'
   ],
   'rules': {
-    "react/prop-types": 'off'
+    "react/prop-types": 'off',
+    'code': 100
   }
 }

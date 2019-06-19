@@ -114,11 +114,6 @@ type TransferData = {
   sendTimestamp: number
 }
 
-type Wallet = {
-  ethereum: string,
-  bitcoin: string
-}
-
 // gapi.load does not support promise
 // convert it into a promise
 function gapiLoad (): Promise<any> {
@@ -420,16 +415,16 @@ async function saveSendFile (transferData: TransferData) {
   })
 }
 
-async function saveWallet (wallet: Wallet) {
+async function saveWallet (walletDataList: any) {
   // update the wallet
   await saveFileByName('appDataFolder', null, {
     name: WALLET_FILE_NAME,
-    content: wallet
+    content: walletDataList
   })
 
   await saveFileByName('drive', null, {
     name: WALLET_FILE_NAME,
-    content: wallet
+    content: walletDataList
   })
 }
 
@@ -453,7 +448,7 @@ async function getAllTransfers (): Promise< {[string]: TransferData} > {
   return loadFileByNameFromAppData(SEND_FILE_NAME)
 }
 
-async function getWallet (): Promise<Wallet> {
+async function getWallet (): Promise<any> {
   return loadFileByNameFromAppData(WALLET_FILE_NAME)
 }
 

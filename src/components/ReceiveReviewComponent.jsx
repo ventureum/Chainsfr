@@ -6,31 +6,29 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import WalletUtils from '../wallets/utils'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, walletSelection, txCost, destinationAddress } = this.props
+    const { transfer, escrowWallet, lastUsedWallet, txFee, walletSelection, wallet } = this.props
     const { receivingId, transferAmount } = transfer
-
     // accept transfer
     this.props.acceptTransfer({
       receivingId: receivingId,
-      escrowWallet: escrowWallet.decryptedWallet,
-      destinationAddress: destinationAddress,
-      walletType: walletSelection,
-      cryptoType: transfer.cryptoType,
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+      receiveWallet: WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, lastUsedWallet || wallet),
       transferAmount: transferAmount,
-      txCost: txCost
+      txFee: txFee
     })
   }
 
   render () {
-    const { classes, transfer, actionsPending, txCost, destinationAddress, sentOn } = this.props
+    const { classes, transfer, actionsPending, txFee, destinationAddress, sentOn } = this.props
     const { transferAmount, sender, destination, cryptoType } = transfer
 
-    if (!actionsPending.getTxCost && txCost) {
+    if (!actionsPending.getTxFee && txFee) {
       var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txCost.costInStandardUnit)
+        ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
         : parseFloat(transferAmount)
     }
 
@@ -89,23 +87,21 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  { !actionsPending.getTxCost && txCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />
-                  }
+                  <Typography className={classes.reviewContent} align='left'>
+                    {!actionsPending.getTxFee && txFee
+                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
                 </Grid>
                 <Grid item>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  {!actionsPending.getTxCost && txCost
-                    ? <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
-                      {receiveAmount} {getCryptoSymbol(cryptoType)}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />
-                  }
+                  <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
+                    {!actionsPending.getTxFee && txFee
+                      ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
                 </Grid>
               </Paper>
             </Grid>

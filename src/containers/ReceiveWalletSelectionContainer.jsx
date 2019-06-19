@@ -6,14 +6,14 @@ import {
   checkMetamaskConnection,
   checkCloudWalletConnection,
   checkLedgerNanoSConnection,
-  syncLedgerAccountInfo,
-  updateBtcAccountInfo,
   getLastUsedAddress,
-  notUseLastAddress
+  notUseLastAddress,
+  sync
 } from '../actions/walletActions'
 import { selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
+import WalletUtils from '../wallets/utils'
 
 class ReceiveWalletSelectionContainer extends Component {
   onWalletSelected = (walletType) => {
@@ -29,7 +29,7 @@ class ReceiveWalletSelectionContainer extends Component {
 
     let { cryptoType } = transfer
     selectWallet(walletType)
-    if (walletType && !lastUsedWallet[walletType].crypto[cryptoType]) {
+    if (walletType && !lastUsedWallet) {
       if (walletType === 'ledger' && walletType !== walletSelection) {
         checkLedgerNanoSConnection(cryptoType, true)
       } else if (walletType === 'metamask' && walletType !== walletSelection) {
@@ -67,30 +67,28 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, actionsPending, transfer, error } = this.props
+    const { wallet, actionsPending, error } = this.props
     const prevActionsPending = prevProps.actionsPending
-    let { cryptoType } = transfer
 
-    if (wallet &&
+    if (
+      wallet &&
       wallet.connected &&
-      (prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection) &&
-      !error) {
-      if (!wallet.crypto[cryptoType] || cryptoType !== 'bitcoin') {
-        this.onSync(cryptoType)
-      }
-    } else if (
-      wallet && cryptoType === 'bitcoin' &&
-      wallet.crypto[cryptoType] &&
-      wallet.crypto[cryptoType][0].xpub &&
-      prevActionsPending.checkLedgerNanoSConnection && !actionsPending.checkLedgerNanoSConnection
+      (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
+      !error
     ) {
-      this.props.updateBtcAccountInfo(wallet.crypto[cryptoType][0].xpub)
+      // wallet connected, sync wallet data
+      this.onSync()
     }
   }
 
-  onSync = (cryptoType: string) => {
-    const { syncLedgerAccountInfo } = this.props
-    syncLedgerAccountInfo(cryptoType, 0, (index, change) => { this.setState({ syncProgress: { index, change } }) })
+  onSync = () => {
+    let { wallet, lastUsedWallet, walletSelection, transfer } = this.props
+    this.props.sync(
+      WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, lastUsedWallet || wallet),
+      (index, change) => {
+        this.setState({ syncProgress: { index, change } })
+      }
+    )
   }
 
   render () {
@@ -108,10 +106,14 @@ class ReceiveWalletSelectionContainer extends Component {
     )
   }
 }
+const checkWalletConnectionSelector = createLoadingSelector([
+  'CHECK_CLOUD_WALLET_CONNECTION',
+  'CHECK_METAMASK_CONNECTION',
+  'CHECK_LEDGER_NANOS_CONNECTION'
+])
 
-const checkMetamaskConnectionSelector = createLoadingSelector(['CHECK_METAMASK_CONNECTION'])
-const checkLedgerNanoSConnectionSelector = createLoadingSelector(['CHECK_LEDGER_NANOS_CONNECTION'])
-const checkCloudWalletConnectionSelector = createLoadingSelector(['CHECK_CLOUD_WALLET_CONNECTION'])
+const syncSelector = createLoadingSelector(['SYNC'])
+
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'CHECK_CLOUD_WALLET_CONNECTION',
@@ -119,8 +121,6 @@ const errorSelector = createErrorSelector([
   'UPDATE_BTC_ACCOUNT_INFO'
 ])
 const getLastUsedAddressSelector = createLoadingSelector(['GET_LAST_USED_ADDRESS'])
-const syncAccountInfoSelector = createLoadingSelector(['SYNC_LEDGER_ACCOUNT_INFO'])
-const updateBtcAccountInfoSelector = createLoadingSelector(['UPDATE_BTC_ACCOUNT_INFO'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -129,26 +129,30 @@ const mapDispatchToProps = dispatch => {
     checkLedgerNanoSConnection: (cryptoType, throwError) => dispatch(checkLedgerNanoSConnection(cryptoType, throwError)),
     selectWallet: (w) => dispatch(selectWallet(w)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
-    syncLedgerAccountInfo: (c, accountIndex, progress) => dispatch(syncLedgerAccountInfo(c, accountIndex, progress)),
-    updateBtcAccountInfo: (xpub, progress) => dispatch(updateBtcAccountInfo(xpub, progress)),
-    getLastUsedAddress: (idToken) => dispatch(getLastUsedAddress(idToken)),
+    sync: (walletData, progress) => dispatch(sync(walletData, progress)),
+    getLastUsedAddress: (googleId) => dispatch(getLastUsedAddress(googleId)),
     notUseLastAddress: () => dispatch(notUseLastAddress())
   }
 }
 
 const mapStateToProps = state => {
+  const _transfer = state.transferReducer.transfer
+  const _lastUsedWallet = state.walletReducer.lastUsedWallet
+  const _walletSelection = state.formReducer.walletSelection
+  const _lastUsedWalletExist = !_lastUsedWallet.notUsed &&
+  _lastUsedWallet[_walletSelection] &&
+  _lastUsedWallet[_walletSelection].crypto[_transfer.cryptoType]
+  const _lastUsedWalletByWalletType = _lastUsedWalletExist ? _lastUsedWallet[_walletSelection] : null
+
   return {
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    lastUsedWallet: state.walletReducer.lastUsedWallet,
+    lastUsedWallet: _lastUsedWalletByWalletType,
     transfer: state.transferReducer.transfer,
     profile: state.userReducer.profile,
     actionsPending: {
-      checkMetamaskConnection: checkMetamaskConnectionSelector(state),
-      checkLedgerNanoSConnection: checkLedgerNanoSConnectionSelector(state),
-      checkCloudWalletConnection: checkCloudWalletConnectionSelector(state),
-      syncAccountInfo: syncAccountInfoSelector(state),
-      updateBtcAccountInfo: updateBtcAccountInfoSelector(state),
+      checkWalletConnection: checkWalletConnectionSelector(state),
+      sync: syncSelector(state),
       getLastUsedAddress: getLastUsedAddressSelector(state)
     },
     error: errorSelector(state)

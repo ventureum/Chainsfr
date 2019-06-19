@@ -61,12 +61,7 @@ class ReceiveWalletSelectionComponent extends Component {
     } else if (cryptoType === 'bitcoin') {
       getExplorerLink = url.getBtcExplorerAddress
     }
-    if (
-      walletType &&
-      lastUsedWallet[walletType].crypto[cryptoType] &&
-      lastUsedWallet[walletType].crypto[cryptoType].address &&
-      !lastUsedWallet.notUsed
-    ) {
+    if (walletType && lastUsedWallet) {
       return (
         <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
           <Grid item>
@@ -80,13 +75,13 @@ class ReceiveWalletSelectionComponent extends Component {
                 <Grid container direction='row' alignItems='center'>
                   <Grid item>
                     <Typography className={classes.addressInfoText}>
-                      Wallet Address: {lastUsedWallet[walletType].crypto[cryptoType].address}
+                      Wallet Address: {lastUsedWallet.crypto[cryptoType][0].address}
                     </Typography>
                   </Grid>
                   <IconButton
                     className={classes.explorerButton}
                     aria-label='Explorer'
-                    target='_blank' href={getExplorerLink(lastUsedWallet[walletType].crypto[cryptoType].address)}
+                    target='_blank' href={getExplorerLink(lastUsedWallet.crypto[cryptoType][0].address)}
                   >
                     <OpenInNewIcon className={classes.explorerIcon} />
                   </IconButton>
@@ -242,7 +237,7 @@ class ReceiveWalletSelectionComponent extends Component {
                 onClick={() => this.props.goToStep(1)}
                 disabled={
                   !walletType ||
-                  (!wallet.crypto[cryptoType] && lastUsedWallet[walletType].crypto[cryptoType] && !lastUsedWallet[walletType].crypto[cryptoType].address)
+                  (!wallet.crypto[cryptoType] && !lastUsedWallet)
                 }
                 id='continue'
               >

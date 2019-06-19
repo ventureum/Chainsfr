@@ -27,7 +27,7 @@ const mapStateToProps = state => {
   return {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
-    txCost: state.transferReducer.txCost,
+    txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt
   }
 }

@@ -9,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import WalletUtils from '../wallets/utils'
 
 class CancelReviewComponent extends Component {
   state = {
@@ -16,15 +17,14 @@ class CancelReviewComponent extends Component {
   }
 
   handleReviewNext = () => {
-    const { transfer, escrowWallet, txCost } = this.props
+    const { transfer, escrowWallet, txFee } = this.props
     const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
     this.props.cancelTransfer({
-      escrowWallet: escrowWallet.decryptedWallet,
+      escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
       sendingId: sendingId,
       sendTxHash: sendTxHash,
-      cryptoType: cryptoType,
       transferAmount: transferAmount,
-      txCost: txCost
+      txFee: txFee
     })
   }
 
@@ -94,7 +94,8 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, txCost, sendTime, receiveTime, cancelTime } = this.props
+    const { classes, transfer, escrowWallet, actionsPending, txFee, sendTime, receiveTime, cancelTime } = this.props
+
     if (transfer) {
       var { sendingId, transferAmount, receiveTxHash, cancelTxHash, sender, destination, cryptoType } = transfer
       var hasReceived = !!receiveTxHash
@@ -165,12 +166,11 @@ class CancelReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                       Transaction Fee
                   </Typography>
-                  {!actionsPending.getTxCost && txCost
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {txCost.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />
-                  }
+                  <Typography className={classes.reviewContent} align='left'>
+                    {!actionsPending.getTxFee && txFee
+                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
+                      : <CircularProgress size={18} color='primary' />}
+                  </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
