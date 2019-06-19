@@ -71,7 +71,9 @@
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
-    "eslint": "eslint \"./src/**/*.js\""
+    "eslint": "eslint \"./src/**/*.js\"",
+    "zip": "zip -r src/tests/__snapshots__.zip src/tests/__snapshots__ -x \"*.DS_Store\"",
+    "unzip": "unzip src/tests/__snapshots__"
   },
   "eslintConfig": {
     "extends": "react-app"
