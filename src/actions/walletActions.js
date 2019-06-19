@@ -7,7 +7,7 @@ import { walletCryptoSupports } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
 import WalletUtils from '../wallets/utils'
-import type { WalletData } from '../types/wallet.flow.js'
+import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
 
 async function _checkMetamaskConnection (
   cryptoType: string,
@@ -19,8 +19,7 @@ async function _checkMetamaskConnection (
     await wallet.retrieveAddress()
     // listen for accounts changes
     window.ethereum.on('accountsChanged', (accounts) => {
-      let newWallet = WalletFactory.createWallet(WalletUtils.toWalletData('metamask', cryptoType, accounts))
-      dispatch(onMetamaskAccountsChanged(newWallet.getWalletData()))
+      dispatch(onMetamaskAccountsChanged(accounts, cryptoType))
     })
     return wallet.getWalletData()
   } else {
@@ -67,10 +66,15 @@ function checkMetamaskConnection (crypoType: string) {
   }
 }
 
-function onMetamaskAccountsChanged (accounts: any) {
+function onMetamaskAccountsChanged (accounts: Array<string>, cryptoType: string) {
   return {
     type: 'UPDATE_METAMASK_ACCOUNTS',
-    payload: accounts
+    payload: async () => {
+      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
+      let newWallet = WalletFactory.createWallet(WalletUtils.toWalletData('metamask', cryptoType, [account]))
+      await newWallet.sync()
+      return newWallet.getWalletData()
+    }
   }
 }
 

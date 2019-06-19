@@ -69,7 +69,7 @@ export default function (state = initState, action) {
   switch (action.type) {
     // metamask
     case 'CHECK_METAMASK_CONNECTION_FULFILLED':
-    case 'UPDATE_METAMASK_ACCOUNTS':
+    case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED':
     case 'CHECK_LEDGER_NANOS_CONNECTION_FULFILLED':
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
