@@ -87,21 +87,21 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxFee && txFee
-                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getTxFee && txFee
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />}
                 </Grid>
                 <Grid item>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
-                    {!actionsPending.getTxFee && txFee
-                      ? `${receiveAmount} ${getCryptoSymbol(cryptoType)}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getTxFee && txFee
+                    ? <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
+                      {receiveAmount} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />}
                 </Grid>
               </Paper>
             </Grid>

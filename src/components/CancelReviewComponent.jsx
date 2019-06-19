@@ -166,11 +166,11 @@ class CancelReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                       Transaction Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {!actionsPending.getTxFee && txFee
-                      ? `${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`
-                      : <CircularProgress size={18} color='primary' />}
-                  </Typography>
+                  {!actionsPending.getTxFee && txFee
+                    ? <Typography className={classes.reviewContent} align='left'>
+                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                    </Typography>
+                    : <CircularProgress size={18} color='primary' />}
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
