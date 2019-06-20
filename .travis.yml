@@ -20,7 +20,7 @@ deploy:
     cache_control: "max-age=0,no-cache,no-store,must-revalidate"
     access_key_id: $S3_ACCESS_KEY
     secret_access_key: $S3_SECRET
-    bucket: testnet.chainsfer.io
+    bucket: testnet.chainsfr.com
     local_dir: build_staging
     region: us-east-1
     acl: public_read
@@ -31,7 +31,7 @@ deploy:
     cache_control: "max-age=0,no-cache,no-store,must-revalidate"
     access_key_id: $S3_ACCESS_KEY
     secret_access_key: $S3_SECRET
-    bucket: www.chainsfer.io
+    bucket: app.chainsfr.com
     local_dir: build_prod
     region: us-east-1
     acl: public_read
