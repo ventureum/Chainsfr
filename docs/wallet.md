@@ -19,7 +19,7 @@ The wallet provides the following functions:
 > * Send and Receive cryptocurrencies
 > * Email Transfer Service
 
-## Does Chainsfer.io have access to my private keys?
+## Does Chainsfr.com have access to my private keys?
 
 All sensitive user data are encrypted with [Advanced Encryption Standard ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard).
 We will not have access to your private keys, passwords or funds at any time, preserving your privacy and control. Google will also not have access to your funds, as only you know the password that decrypts your encrypted private keys.

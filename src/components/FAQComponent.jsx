@@ -11,7 +11,7 @@ import Icon from '@material-ui/core/Icon'
 import withMobileDialog from '@material-ui/core/withMobileDialog'
 import classNames from 'classnames'
 
-const DOC_URL = 'https://ventureum.github.io/Chainsfer/#/#'
+const DOC_URL = 'https://ventureum.github.io/Chainsfr/#/#'
 
 class FAQComponent extends Component {
   state = {

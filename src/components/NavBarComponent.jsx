@@ -54,7 +54,7 @@ class NavBarComponent extends Component {
                 id='back'
               >
                 <Typography className={classes.appNameText}>
-                  Chainsfer
+                  Chainsfr
                 </Typography>
               </Button>
             </Grid>

@@ -18,22 +18,22 @@ const data = {
     faq:
     [
       {
-        title: 'Do I need a Chainsfer account?',
+        title: 'Do I need a Chainsfr account?',
         content: 'No. You only need a Google account. You can track the status of your transaction through the link in your email.'
       },
       {
         title: 'Why sign in with Google?',
-        content: 'Chainsfer service uses your Google account to store your crypto wallet and transfer information.'
+        content: 'Chainsfer service use your Google account to store your crypto wallet and transfer information.'
       },
       {
-        title: 'Is Chainsfer related to Google?',
-        content: 'No. Chainsfer is registered as a third party apps using Google Drive APIs.'
+        title: 'Is Chainsfr related to Google?',
+        content: 'No. Chainsfr is registered as a third party apps using Google APIs.'
       }
     ],
     faqURL: env.REACT_APP_FAQ_URL,
     loginURL: env.REACT_APP_ENTRYPOINT_MAINNET_URL,
     loginTitle: 'Chainsfr',
-    linkText: 'Try Chainsfer TestNet',
+    linkText: 'Try it on Testnet',
     backgroundColor: '#F6F9FE',
     fontColor: '#1E0E62'
   },
@@ -41,22 +41,22 @@ const data = {
   {
     faq: [
       {
-        title: 'What is chainsfr TestNet?',
-        content: 'It is an alternative block chain, to be used for testing features.'
+        title: 'What is testnet?',
+        content: 'The testnet is an alternative blockchain, to be used for testing. Testnet coins are separate and distinct from actual coins, and are never supposed to have any value.'
       },
       {
-        title: 'Does TestNet coin have value?',
-        content: 'Chainsfer service uses your Google account to store your crypto wallet and transfer information.'
+        title: 'Why sign in with Google?',
+        content: 'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
       },
       {
         title: 'How does it work?',
-        content: 'No. Chainsfer is registered as a third party apps using Google Drive APIs.'
+        content: 'Ethereum testnet coins are provided when you first log in, and can be used for testing transfer functionalities.'
       }
     ],
     faqURL: env.REACT_APP_FAQ_TESTNET_URL,
     loginURL: env.REACT_APP_ENTRYPOINT_TESTNET_URL,
-    loginTitle: 'Chainsfr TestNet',
-    linkText: 'Switch to Main App',
+    loginTitle: 'Chainsfr Testnet',
+    linkText: 'Switch to Mainnet',
     backgroundColor: '#393386',
     fontColor: '#FFF'
   },
@@ -110,7 +110,7 @@ class LoginComponent extends Component {
               <Paper className={classes.paperContainter}>
                 <Grid>
                   <Typography variant='h3' align='center' gutterBottom className={classes.loginTitle}>{isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}</Typography>
-                  <Typography align='center' gutterBottom className={classes.loginContent}>Send cryptocurrency using email</Typography>
+                  <Typography align='center' gutterBottom className={classes.loginContent}>Send cryptocurrency by email</Typography>
                 </Grid>
                 <Grid item align='center' className={classes.paperButtons}>
                   <Grid className={classes.wrapper}>
