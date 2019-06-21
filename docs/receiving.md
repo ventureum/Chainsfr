@@ -24,7 +24,7 @@ following wallets:
 After logging in, you can using Metamask and Ledger wallet to receive funds without installing Metamask extension or connecting
 to your hardware wallet device, provided that you choose to use the last-used receiving address.
 
-## Does Chainsfer.io send transfer notifications via email.
+## Does Chainsfr.com send transfer notifications via email.
 
 Yes. We send a notification email to you once the transfer is ready to be accepted.
 
@@ -59,7 +59,7 @@ The sender must cancel the transfer to retrieve the funds and resend another tra
 
 Always be careful prior to clicking on any links within a notification. 
 Only act on email notifications when you were expecting someone to send you money. 
-Make sure the email you received is from **notify@chainsfer.io**.
+Make sure the email you received is from **notify@chainsfr.com**.
 
 
-If you suspect a notification may be fraudulent, forward the notification to **support@chainsfer.io**
+If you suspect a notification may be fraudulent, forward the notification to **support@chainsfr.com**

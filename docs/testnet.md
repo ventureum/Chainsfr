@@ -4,7 +4,7 @@
 It is an alternative block chain, to be used for testing features.
 
 ## Does TestNet coin have value?
-Chainsfer service uses your Google account to store your crypto wallet and transfer information.
+Chainsfr service uses your Google account to store your crypto wallet and transfer information.
 
 ## How does it work?'
 To be updated soon

@@ -58,7 +58,7 @@ class OnboardingComponent extends Component {
               <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
                 <Grid item>
                   <Typography align='left' className={classes.onBoardingTitle}>
-                    Welcome to Chainsfer,
+                    Welcome to Chainsfr,
                   </Typography>
                   <Typography align='left' className={classes.onBoardingTitle}>
                     {profile.profileObj.name}
@@ -66,9 +66,9 @@ class OnboardingComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Typography align='left' className={classes.onBoardingSubtitle}>
-                    We are going to create a Chainsfer wallet for you.
+                    We are going to create a Chainsfr wallet for you.
                     Please set an independent password to protect your
-                    Chainsfer wallet and your future transfers.
+                    Chainsfr wallet and your future transfers.
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -118,7 +118,7 @@ class OnboardingComponent extends Component {
                                 actionsPending.createCloudWallet}
                       onClick={this.onSubmit}
                     >
-                      Start Using Chainsfer
+                      Start Using Chainsfr
                     </Button>
                     {actionsPending.createCloudWallet &&
                     <CircularProgress

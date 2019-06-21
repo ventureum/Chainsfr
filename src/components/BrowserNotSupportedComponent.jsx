@@ -16,7 +16,7 @@ class BrowserNotSupportedComponent extends Component {
             </Grid>
             <Grid item className={classes.subText}>
               <Typography>
-                To maxiumize your experience of using Chainsfer,
+                To maxiumize your experience of using Chainsfr,
               </Typography>
             </Grid>
             <Grid item className={classes.subText}>

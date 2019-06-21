@@ -75,7 +75,7 @@ class LandingPageComponent extends Component {
           }
         ]}
         actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/3</Typography>}
-        heading='Chainsfer Wallet'
+        heading='Chainsfr Wallet'
         header={((props) => {
           return headerComponent(props.children[0].props.children)
         })}
@@ -86,8 +86,8 @@ class LandingPageComponent extends Component {
         dialogPlacement='bottom center'
       >
         <Typography className={classes.spotlightBodyText}>
-          {`Welcome to Chainsfer!` +
-        `We have set up a Chainsfer Wallet for you to get familiar with our transfer feature.`}
+          {`Welcome to Chainsfr!` +
+        `We have set up a Chainsfr Wallet for you to get familiar with our transfer feature.`}
         </Typography>
       </Spotlight>,
       <Spotlight

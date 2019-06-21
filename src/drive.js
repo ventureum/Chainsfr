@@ -19,7 +19,7 @@ const ROOT_FOLDER_NAME: string = '__ChainsferData__'
  * of the wallet
  *
  * The frontend does not update temp files, the funds recovery procedure is done
- * manually with the help of Chainsfer team
+ * manually with the help of Chainsfr team
  *
  * Data format:
  *
