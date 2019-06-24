@@ -239,17 +239,19 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       txObjs.push({ from: account.address, to: to, value: value, gas: txFee.gas, gasPrice: txFee.price })
     } else if (cryptoType === 'dai') {
       let ERC20TxObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
-
-      // set ERC20 tx gas
-      if (txFee.costByType && txFee.costByType.txFeeERC20) {
-        ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
-        ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
-      } else {
-        throw new Error('txFeeERC20 not found in txFee')
-      }
+      ERC20TxObj.gas = txFee.gas
+      ERC20TxObj.gasPrice = txFee.price
 
       if (options && options.prepayTxFee) {
-        // need to prepay tx fee
+        // need to prepay tx fee, tx fees are classified by tx type: ERC20 and ETH
+        // set ERC20 type tx gas
+        if (txFee.costByType && txFee.costByType.txFeeERC20) {
+          ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
+          ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
+        } else {
+          throw new Error('txFeeERC20 not found in txFee')
+        }
+        // send eth as prepaid tx fee
         var txFeeEthTxObj = {
           from: account.address,
           to: to,
