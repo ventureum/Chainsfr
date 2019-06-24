@@ -106,7 +106,7 @@ class LoginComponent extends Component {
                 <Button className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite} href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL} target='_blank' >Learn More</Button>
               </Grid>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} className={classes.loginContainer} >
               <Paper className={classes.paperContainter}>
                 <Grid>
                   <Typography variant='h3' align='center' gutterBottom className={classes.loginTitle}>{isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}</Typography>
@@ -150,11 +150,14 @@ const styles = theme => ({
     '@media (min-width: 380px) and (max-width : 751px)': {
       maxWidth: '380px'
     },
-    '@media (min-width: 752px) and (max-width : 1129px)': {
-      maxWidth: '752px'
+    '@media (min-width: 752px) and (max-width : 959px)': {
+      maxWidth: '480px'
+    },
+    '@media (min-width: 960px) and (max-width : 1129px)': {
+      maxWidth: '960px'
     },
     '@media (min-width: 1130px) and (max-width : 1489px)': {
-      maxWidth: '960px'
+      maxWidth: '1080px'
     },
     '@media (min-width: 1490px) ': {
       maxWidth: '1080px'
@@ -176,7 +179,14 @@ const styles = theme => ({
     marginLeft: 30
   },
   faqContainer: {
-    marginBottom: 30
+    marginBottom: 30,
+    order: 3,
+    '@media screen and (min-width: 960px) ': {
+      order: 1
+    }
+  },
+  loginContainer: {
+    order: 2
   },
   paperContainter: {
     marginLeft: 30,
