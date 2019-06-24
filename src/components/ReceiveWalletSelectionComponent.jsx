@@ -122,18 +122,20 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && !wallet.connected && !wallet.crypto[cryptoType]) {
+    } else if (actionsPending.checkWalletConnection) {
       return (
-        <Grid container direction='row' alignItems='center' className={classes.balanceSection}>
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
-            <ErrorIcon className={classes.notConnectIcon} />
+            <Typography className={classes.connectedtext}>
+              Please connect and unlock your wallet with the selected coin.
+            </Typography>
           </Grid>
           <Grid item>
-            <Typography id='walletNotConnectedText' className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
+            <LinearProgress className={classes.linearProgress} />
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.syncAccountInfo) {
+    } else if (actionsPending.sync) {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
@@ -146,16 +148,14 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.updateBtcAccountInfo) {
+    } else if (wallet && !wallet.connected && !wallet.crypto[cryptoType]) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+        <Grid container direction='row' alignItems='center' className={classes.balanceSection}>
           <Grid item>
-            <Typography className={classes.connectedtext}>
-            Updating Acoount Info
-            </Typography>
+            <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
           <Grid item>
-            <LinearProgress className={classes.linearProgress} />
+            <Typography id='walletNotConnectedText' className={classes.notConnectText}>{WalletConnectionErrorMessage[walletType]}</Typography>
           </Grid>
         </Grid>
       )
