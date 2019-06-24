@@ -36,13 +36,13 @@ class ReceiveReviewContainer extends Component {
   }
 
   render () {
-    const { wallet, lastUsedWallet, transfer, walletSelection } = this.props
+    const { wallet, lastUsedWallet, transfer } = this.props
     const { cryptoType, sendTimestamp } = transfer
 
     // if set to not used or no used address, use connected wallet
     let destinationAddress = lastUsedWallet
-      ? wallet.crypto[cryptoType][0].address
-      : lastUsedWallet[walletSelection].crypto[cryptoType][0].address
+      ? lastUsedWallet.crypto[cryptoType][0].address
+      : wallet.crypto[cryptoType][0].address
     let sentOn = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <ReceiveReview
