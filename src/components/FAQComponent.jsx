@@ -8,8 +8,8 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab'
 import Icon from '@material-ui/core/Icon'
-import withMobileDialog from '@material-ui/core/withMobileDialog'
 import classNames from 'classnames'
+import { isMobile } from 'react-device-detect'
 
 const DOC_URL = 'https://ventureum.github.io/Chainsfr/#/#'
 
@@ -27,7 +27,8 @@ class FAQComponent extends Component {
   }
 
   render () {
-    let { classes, docId, fullScreen } = this.props
+    let { classes, docId } = this.props
+
     return (
       <div>
         <Fab
@@ -47,16 +48,16 @@ class FAQComponent extends Component {
           onClose={this.handleClose}
           aria-labelledby='faq-dialog'
           fullWidth
-          fullScreen={fullScreen}
+          fullScreen={isMobile}
           maxWidth='md'
           scroll='paper'
-          className={fullScreen ? undefined : classes.lowerLeftFixed}
+          className={isMobile ? undefined : classes.lowerLeftFixed}
         >
           <DialogContent className={classes.zeroPadding}>
             <DialogContentText>
               <iframe
                 title='faq-iframe'
-                className={fullScreen ? classes.iframeMobile : classes.iframe}
+                className={isMobile ? classes.iframeMobile : classes.iframe}
                 src={DOC_URL + docId}
                 allowFullScreen
                 frameBorder='0'
@@ -105,8 +106,8 @@ const styles = theme => ({
   },
   icon: {
     color: 'white',
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   }
 })
 
-export default withMobileDialog()(withStyles(styles)(FAQComponent))
+export default withStyles(styles)(FAQComponent)

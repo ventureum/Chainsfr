@@ -187,7 +187,7 @@ class ReceiveLandingPageComponent extends Component {
                 }
                 {!hasReceived && !hasCancelled &&
                 <Grid item className={classes.btnSection}>
-                  <Grid container direction='row' justify='flex-start' spacing={24}>
+                  <Grid container direction='row' justify='flex-start' spacing={3}>
                     { this.renderBtnSection() }
                   </Grid>
                 </Grid>

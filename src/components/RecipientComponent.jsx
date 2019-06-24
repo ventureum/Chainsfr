@@ -164,7 +164,7 @@ class RecipientComponent extends Component<Props> {
 
     let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
           <Grid item>
             <TextField
@@ -225,7 +225,7 @@ class RecipientComponent extends Component<Props> {
             />
           </Grid>
           <Grid item className={classes.btnSection}>
-            <Grid container direction='row' justify='center' spacing={24}>
+            <Grid container direction='row' justify='center' spacing={3}>
               <Grid item>
                 <Button
                   color='primary'

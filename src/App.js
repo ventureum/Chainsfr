@@ -12,7 +12,7 @@ import WalletContainer from './containers/WalletContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
-import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import { store, history } from './configureStore'
 import LandingPage from './containers/LandingPageContainer'
 import { SnackbarProvider } from 'notistack'
@@ -167,4 +167,4 @@ const theme = createMuiTheme({
   }
 })
 
-export default withStyles(theme)(App)
+export default App

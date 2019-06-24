@@ -1,6 +1,5 @@
 import Avatar from '@material-ui/core/Avatar'
 import MenuItem from '@material-ui/core/MenuItem'
-import AccountCircle from '@material-ui/icons/AccountCircle'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 
@@ -53,7 +52,6 @@ describe('NavBarComponent', () => {
         profileObj: profileObjWithoutAvatar
       }
     })
-    expect(wrapper.find(AccountCircle)).toHaveLength(1)
     expect(wrapper.find(MenuItem).filter('#logout')).toHaveLength(1)
   })
 

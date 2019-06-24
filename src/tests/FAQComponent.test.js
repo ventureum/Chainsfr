@@ -24,13 +24,13 @@ describe('FAQComponent', () => {
   })
 
   it('should handlec open', () => {
-    wrapper = shallow(<FAQComponent {...initialProps} />).dive().childAt(0).dive().dive().dive()
+    wrapper = mount(shallow(<FAQComponent {...initialProps} />).get(0))
     wrapper.find(Fab).simulate('click')
     expect(wrapper.state().open).toEqual(true)
   })
 
   it('should handlec close', () => {
-    wrapper = shallow(<FAQComponent {...initialProps} />).dive().childAt(0).dive().dive().dive()
+    wrapper = shallow(<FAQComponent {...initialProps} />).dive()
     wrapper.find(Dialog).dive().find(Button).simulate('click')
     expect(wrapper.state().open).toEqual(false)
   })

@@ -55,7 +55,7 @@ class OnboardingComponent extends Component {
           <Grid container direction='column' className={classes.container} alignItems='center'>
             {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
             <Grid item>
-              <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+              <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
                 <Grid item>
                   <Typography align='left' className={classes.onBoardingTitle}>
                     Welcome to Chainsfr,
@@ -167,7 +167,7 @@ const styles = theme => ({
     maxWidth: '340px'
   },
   wrapper: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
     position: 'relative'
   },
   buttonProgress: {

@@ -236,7 +236,7 @@ class WalletSelectionComponent extends Component<Props> {
     const { walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
 
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch' spacing={24}>
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
         <Grid item>
           <Grid container direction='row'>
             <Grid item>
@@ -265,7 +265,7 @@ class WalletSelectionComponent extends Component<Props> {
             {this.renderBalance()}
           </Grid>}
         <Grid item>
-          <Grid container direction='row' justify='center' spacing={24}>
+          <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
               <Button
                 color='primary'
@@ -306,11 +306,11 @@ class WalletSelectionComponent extends Component<Props> {
 
 const styles = theme => ({
   faqIcon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   },
   cryptoList: {
     width: '100%',
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background
   },
   notConnectIcon: {
     color: '#B00020',

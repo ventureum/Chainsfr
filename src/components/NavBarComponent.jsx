@@ -77,7 +77,7 @@ class NavBarComponent extends Component {
                       src={profile.profileObj.imageUrl}
                       className={classes.avatar}
                     />
-                    : <AccountCircle className={classes.userIcon} />
+                    : <AccountCircle className={classes.userIcon} id='accountCircle' />
                   }
                 </IconButton>
                 <Menu

@@ -108,7 +108,7 @@ class ReceiveReviewComponent extends Component {
           </Grid>
         </Grid>
         <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={24}>
+          <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
               <Button
                 color='primary'
