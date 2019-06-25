@@ -113,13 +113,13 @@ class LoginComponent extends Component {
                   <Typography align='center' gutterBottom className={classes.loginContent}>Send cryptocurrency by email</Typography>
                 </Grid>
                 <Grid item align='center' className={classes.paperButtons}>
-                  <Grid className={classes.wrapper}>
+                  <Grid className={classes.btnContainer}>
                     <GoogleLoginButton onSuccess={this.loginSuccess}
                       onFailure={this.loginFailure}
                       disabled={actionsPending.getCloudWallet} />
                     {
                       actionsPending.getCloudWallet &&
-                      <CircularProgress size={24} color='primary'className={classes.buttonProgress} />
+                      <CircularProgress size={24} color='primary' className={classes.buttonProgress} />
                     }
                   </Grid>
                   <Link href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL} className={classes.paperBtnLink}>{isMainNet ? data.mainNet.linkText : data.testNet.linkText}</Link>
@@ -132,7 +132,6 @@ class LoginComponent extends Component {
           </Grid>
         </Grid>
       </Grid>
-    // </Container>
     )
   }
 }
@@ -207,11 +206,11 @@ const styles = theme => ({
     paddingTop: 20,
     borderTop: 'solid 1px #e9e9e9'
   },
-  wrapper: {
+  btnContainer: {
     paddingTop: 30,
     paddingBottom: 30,
     maxHeight: 60,
-
+    position: 'relative',
     '&:first-child p': {
       padding: 15,
       fontFamily: 'Poppins',
