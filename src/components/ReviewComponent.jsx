@@ -10,6 +10,7 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
 import WalletUtils from '../wallets/utils'
+import MetamaskPendingIcon from '../images/metamask_pending.png'
 
 type Props = {
   submitTx: Function,
@@ -26,12 +27,56 @@ type Props = {
   }
 }
 
-const walletInstruction = {
+const BASE_WALLET_INSTRUCTION = {
   ledger: 'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
           'Press the right button to confirm and sign the transaction if everything is correct. ' +
           'The transaction is then signed and sent to the network for confirmation.',
   metamask: 'Please confirm transaction in the Metamask popup window.',
   drive: 'Please wait while we are broadcasting your transaction to the network.'
+}
+
+const BASE_CRYPTO_INSTRUCTION = {
+  dai: 'Two consecutive transactions will be sent: The first one prepays the transaction fees for receiving or cancellation.' +
+       'The second one sends DAI tokens.'
+}
+
+const WALLET_INSTRUCTION = {
+  ledger: {
+    bitcoin: BASE_WALLET_INSTRUCTION.ledger,
+    ethereum: BASE_WALLET_INSTRUCTION.ledger,
+    dai: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.ledger}
+        <br /> <br />
+        {BASE_CRYPTO_INSTRUCTION.dai}
+      </div>
+    )
+  },
+  metamask: {
+    ethereum: (
+      <div> 
+        {BASE_WALLET_INSTRUCTION.metamask}
+        <br /> <br />
+        Look for <img src={MetamaskPendingIcon} alt='metamask pending icon' />
+        on the right side of the address bar if the popup is not shown.
+      </div>
+    ),
+    dai: (
+      <div> 
+        {BASE_WALLET_INSTRUCTION.metamask}
+        <br /> <br />
+        {BASE_CRYPTO_INSTRUCTION.dai}
+        <br /> <br />
+        Look for <img src={MetamaskPendingIcon} alt='metamask pending icon' />
+        on the right side of the address bar if the popup is not shown.
+      </div>
+    )
+  },
+  drive: {
+    bitcoin: BASE_WALLET_INSTRUCTION.drive,
+    ethereum: BASE_WALLET_INSTRUCTION.drive,
+    dai: BASE_WALLET_INSTRUCTION.drive
+  }
 }
 
 class ReviewComponent extends Component<Props> {
@@ -118,7 +163,7 @@ class ReviewComponent extends Component<Props> {
                     </Grid>
                     <Grid>
                       <Typography className={classes.instructionText}>
-                        {walletInstruction[walletSelection]}
+                        {WALLET_INSTRUCTION[walletSelection][cryptoSelection]}
                       </Typography>
                     </Grid>
                     <Grid>
