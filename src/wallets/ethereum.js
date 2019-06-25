@@ -18,6 +18,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
   constructor (walletData?: WalletDataEthereum) {
     if (walletData) {
+      if (walletData.accounts.length === 0) {
+        walletData.accounts.push({
+          balance: '0',
+          ethBalance: '0',
+          address: '0x0'
+        })
+      }
       this.walletData = walletData
       if (this.walletData.walletType === 'ledger') {
         this.ledger = new LedgerNanoS()
@@ -25,7 +32,12 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
-  getWalletData = (): WalletDataEthereum => this.walletData
+  getWalletData = (): WalletDataEthereum => {
+    if (!this.walletData) {
+      throw new Error('walletData does not exist')
+    }
+    return this.walletData
+  }
 
   generateWallet = async ({
     walletType,
@@ -38,6 +50,9 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       walletType: walletType,
       cryptoType: cryptoType,
       accounts: [await this.createAccount()]
+    }
+    if (this.walletData.walletType === 'ledger') {
+      this.ledger = new LedgerNanoS()
     }
   }
 
@@ -66,28 +81,34 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
   // get account (default first account)
   getAccount = (accountIdx?: number): AccountEthereum => {
-    if (!accountIdx) accountIdx = 0
-    return this.walletData.accounts[accountIdx]
+    if (accountIdx === undefined) {
+      accountIdx = 0
+    }
+    const walletData = this.getWalletData()
+    return walletData.accounts[accountIdx]
   }
 
   encryptAccount = async (password: string) => {
     let accountIdx = 0
-    if (!this.walletData.accounts[accountIdx].privateKey) {
+    const walletData = this.getWalletData()
+    if (!walletData.accounts[accountIdx].privateKey) {
       throw new Error('PrivateKey does not exist')
     }
     this.walletData.accounts[accountIdx].encryptedPrivateKey = await utils.encryptMessage(
-      this.walletData.accounts[accountIdx].privateKey,
+      walletData.accounts[accountIdx].privateKey,
       password
     )
+    this.walletData = walletData
   }
 
   decryptAccount = async (password: string) => {
     let accountIdx = 0
-    if (!this.walletData.accounts[accountIdx].encryptedPrivateKey) {
+    const walletData = this.getWalletData()
+    if (!walletData.accounts[accountIdx].encryptedPrivateKey) {
       throw new Error('EncryptedPrivateKey does not exist')
     }
     let privateKey = await utils.decryptMessage(
-      this.walletData.accounts[accountIdx].encryptedPrivateKey,
+      walletData.accounts[accountIdx].encryptedPrivateKey,
       password
     )
     if (!privateKey) throw new Error('Incorrect password')
@@ -102,16 +123,10 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     this.walletData.accounts[accountIdx].privateKey = undefined
   }
 
-  retrieveAddress = async (): Promise<void> => {
+  retrieveAddress = async () => {
     let accountIdx = 0
-    let { walletType } = this.walletData
-    if (this.walletData.accounts.length === 0) {
-      this.walletData.accounts.push({
-        balance: '0',
-        ethBalance: '0',
-        address: '0x0'
-      })
-    }
+    const walletData = this.getWalletData()
+    let { walletType } = walletData
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
       this.walletData.accounts[accountIdx].address = await this.ledger.getEthAddress(accountIdx)
@@ -121,7 +136,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         if (
           window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
         ) {
-          throw 'Incorrect Metamask network' // eslint-disable-line
+          throw new Error('Incorrect Metamask network') // eslint-disable-line
         }
         let addresses = await window.ethereum.enable()
         this.walletData.accounts[accountIdx].address = addresses[0]
@@ -136,7 +151,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
   sync = async (progress: any) => {
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
-    let { cryptoType } = this.walletData
+    const walletData = this.getWalletData()
+    let { cryptoType } = walletData
 
     // use the first account only
     let account = this.walletData.accounts[0]
@@ -154,7 +170,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
   }
 
   getTxFee = async ({ to, value, options }: { to?: string, value: BasicTokenUnit, options?: Object }): Promise<TxFee> => {
-    let { cryptoType } = this.walletData
+    let walletData = this.getWalletData()
+    let { cryptoType } = walletData
 
     const mockFrom = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d904'
     const mockTo = '0x0f3fe948d25ddf2f7e8212145cef84ac6f20d905'
@@ -218,7 +235,6 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
           .on('error', error => reject(error))
       })
     }
-
     async function web3SendTransactions (web3Function: Function, txObjs: Array<Object>) {
       let txHashList = []
       for (let txObj of txObjs) {
@@ -232,7 +248,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     const { walletType, cryptoType } = this.walletData
     let txObjs: any = []
 
-    if (!txFee) txFee = await this.getTxFee({ to, value })
+    if (!txFee) txFee = await this.getTxFee({ to, value, options: options })
 
     // setup tx obj
     if (cryptoType === 'ethereum') {
@@ -265,6 +281,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         txObjs.push(txFeeEthTxObj)
       }
       txObjs.push(ERC20TxObj)
+    } else {
+      throw new Error(`Invalid cryptoType: ${cryptoType}`)
     }
 
     if (walletType === 'metamask') {
