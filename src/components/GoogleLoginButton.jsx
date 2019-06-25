@@ -85,12 +85,8 @@ const styles = theme => ({
     borderRadius: 8
   },
   btnDisabled: {
-    backgroundColor: 'rgb(66, 133, 244)',
-    opacity: 1,
-    '&:hover': {
-      cursor: 'pointer',
-      opacity: 0.9
-    },
+    backgroundColor: '#4285F4',
+    opacity: 0.5,
     borderRadius: 8
   },
   text: {
