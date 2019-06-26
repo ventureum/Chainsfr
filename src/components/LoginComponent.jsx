@@ -23,11 +23,11 @@ const data = {
       },
       {
         title: 'Why sign in with Google?',
-        content: 'Chainsfer service use your Google account to store your crypto wallet and transfer information.'
+        content: 'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
       },
       {
         title: 'Is Chainsfr related to Google?',
-        content: 'No. Chainsfr is registered as a third party apps using Google APIs.'
+        content: 'No. Chainsfr is registered as a third party apps using Google Drive APIs.'
       }
     ],
     faqURL: env.REACT_APP_FAQ_URL,
