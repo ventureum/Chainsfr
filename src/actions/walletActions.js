@@ -136,17 +136,31 @@ function clearDecryptedWallet (walletData: WalletData) {
 // cloud wallet actions
 async function _createCloudWallet (password: string) {
   var walletFileData = {}
+  let ethereumBasedWalletData = null
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
     if (!disabled) {
       let wallet = await WalletFactory.generateWallet({
         walletType: 'drive',
         cryptoType: cryptoType
       })
+      if (['ethereum', 'dai'].includes(cryptoType)) {
+        if (ethereumBasedWalletData) {
+          // share the same privateKey for ethereum based coins
+          // deep-copy walletData
+          wallet.walletData = JSON.parse(JSON.stringify(ethereumBasedWalletData))
+          wallet.walletData.cryptoType = cryptoType
+        } else {
+          // deep-copy walletData
+          // otherwise, privateKey will be cleared in the next step
+          ethereumBasedWalletData = JSON.parse(JSON.stringify(wallet.getWalletData()))
+        }
+      }
       await wallet.encryptAccount(password)
       wallet.clearPrivateKey()
       walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
     }
   }
+
   // save the encrypted wallet into drive
   await saveWallet(walletFileData)
   return _getCloudWallet()
