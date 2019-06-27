@@ -68,7 +68,7 @@ class LandingPageComponent extends Component {
         <Typography className={classes.spotlightHeaderText}>{headerText}</Typography>
       )
     }
-    const variants = [
+    const devVariants = [
       <Spotlight
         actions={[
           {
@@ -130,6 +130,49 @@ class LandingPageComponent extends Component {
       </Spotlight>
     ]
 
+    const prodVariants = [
+      <Spotlight
+        actions={[
+          {
+            onClick: this.next,
+            text: <Typography className={classes.spotlightbtnText}>Next</Typography>
+          }
+        ]}
+        actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/2</Typography>}
+        heading='Chainsfr Wallet'
+        header={((props) => {
+          return headerComponent(props.children[0].props.children)
+        })}
+        target='one'
+        key='one'
+        targetBgColor='#fff'
+        pulse={false}
+        dialogPlacement='bottom center'
+      >
+        <Typography className={classes.spotlightBodyText}>
+          {`Welcome to Chainsfr!` +
+        `We have set up a Chainsfr Wallet for you to get familiar with our transfer feature.`}
+        </Typography>
+      </Spotlight>,
+      <Spotlight
+        actionsBeforeElement={<Typography className={classes.spotlightStepText}>2/2</Typography>}
+        actions={[{ onClick: this.finish, text: <Typography className={classes.spotlightbtnText}>Done</Typography> }]}
+        heading='Start Transfering'
+        header={((props) => {
+          return headerComponent(props.children[0].props.children)
+        })}
+        target='three'
+        key='three'
+        targetBgColor='#fff'
+        pulse={false}
+        dialogPlacement='bottom center'
+      >
+        <Typography className={classes.spotlightBodyText}>
+        Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
+        </Typography>
+      </Spotlight>
+    ]
+
     if (
       this.state.active == null ||
       this.props.actionsPending.getTransferHistory ||
@@ -138,9 +181,9 @@ class LandingPageComponent extends Component {
     ) return null
 
     // Skip variants[1] in prod env
-    if (env.NODE_ENV === 'prod' && this.state.active === 1) return variants[this.state.active + 1]
+    if (env.NODE_ENV === 'production') return prodVariants[this.state.active]
 
-    return variants[this.state.active]
+    return devVariants[this.state.active]
   }
 
   getIdAbbreviation = (id) => {
