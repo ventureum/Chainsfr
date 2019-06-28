@@ -629,7 +629,7 @@ class WalletComponent extends Component {
                 {'< Back to Home'}
               </Button>
               {/* Title */}
-              <Typography className={classes.title} align='left'>My Chainsfr Wallet</Typography>
+              <Typography className={classes.title} align='left'>My Drive Wallet</Typography>
             </Grid>
             <Grid container direction='column' alignItems='center'>
               <List className={classes.walletList}>

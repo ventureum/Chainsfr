@@ -66,9 +66,9 @@ class OnboardingComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Typography align='left' className={classes.onBoardingSubtitle}>
-                    We are going to create a Chainsfr wallet for you.
+                    We are going to create a Drive wallet for you.
                     Please set an independent password to protect your
-                    Chainsfr wallet and your future transfers.
+                    Drive wallet and your future transfers.
                   </Typography>
                 </Grid>
                 <Grid item>
