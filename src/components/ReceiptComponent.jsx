@@ -10,7 +10,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 
@@ -83,7 +83,7 @@ class ReceiptComponent extends Component<Props, State> {
                     Transaction Fee
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
-                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(cryptoSelection)}`}
+                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}`}
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>

@@ -77,7 +77,7 @@ class LandingPageComponent extends Component {
           }
         ]}
         actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/3</Typography>}
-        heading='Chainsfr Wallet'
+        heading='Drive Wallet'
         header={((props) => {
           return headerComponent(props.children[0].props.children)
         })}
@@ -89,7 +89,7 @@ class LandingPageComponent extends Component {
       >
         <Typography className={classes.spotlightBodyText}>
           {`Welcome to Chainsfr!` +
-        `We have set up a Chainsfr Wallet for you to get familiar with our transfer feature.`}
+        `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
         </Typography>
       </Spotlight>,
       <Spotlight
@@ -139,7 +139,7 @@ class LandingPageComponent extends Component {
           }
         ]}
         actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/2</Typography>}
-        heading='Chainsfr Wallet'
+        heading='Drive Wallet'
         header={((props) => {
           return headerComponent(props.children[0].props.children)
         })}
@@ -151,7 +151,7 @@ class LandingPageComponent extends Component {
       >
         <Typography className={classes.spotlightBodyText}>
           {`Welcome to Chainsfr!` +
-        `We have set up a Chainsfr Wallet for you to get familiar with our transfer feature.`}
+        `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
         </Typography>
       </Spotlight>,
       <Spotlight

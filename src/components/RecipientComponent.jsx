@@ -151,7 +151,7 @@ class RecipientComponent extends Component<Props> {
         }
         {!validationErrMsg &&
         <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
-           We recommend you to use auto-generated security password for better security
+          We recommend you to use auto-generated security password for better security
         </Typography>
         }
       </span>
@@ -279,7 +279,8 @@ const styles = theme => ({
     lineHeight: '1em'
   },
   generateSecurityAnswerBtn: {
-    padding: '0px 0px 0px 0px'
+    padding: '0px 0px 0px 0px',
+    marginRight: '6px'
   },
   btnSection: {
     marginTop: '60px'
