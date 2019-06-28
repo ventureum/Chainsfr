@@ -1,3 +1,17 @@
+<img align="center" src="https://i.imgur.com/fcg8nNP.png" height="80px" />
+
+[![Build Status](https://travis-ci.com/ventureum/Chainsfr.svg?branch=master)](https://travis-ci.com/ventureum/Chainsfr)
+![License](https://img.shields.io/github/license/ventureum/Chainsfr.svg)
+
+**🌎🚀 Send cryptocurrency by email**
+
+<img src="https://i.imgur.com/yzyOeWC.png" />
+
+- 📚 Read the [FAQ](https://faq.chainsfr.com) first, if you have any questions as a user.
+- 📝 Please report any issues and feedback in the [Chainsfr Chat #General](https://chat.chainsfr.com/channel/general) channel.
+- 🔧 For technical stuff, use this project's [issues](http://github.com/ventureum/Chainsfr/issues).
+- 🚢 For an overview of changes in each release, check the [releases](https://github.com/ventureum/Chainsfr/releases)
+
 ## What is Chainsfr? 
 * Chainsfr is a cryptocurrency transfer service, powered by Google Drive APIs and Amazon Web Services.
 * Chainsfr is a service developed and maintained by Ventureum Inc.
