@@ -429,6 +429,7 @@ class LandingPageComponent extends Component {
                 </Grid>
               </div>
             </Grid>
+
           </Grid>
         </Grid>
       </Grid>
