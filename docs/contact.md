@@ -1,4 +1,4 @@
 # Contact us
 
-- Slack - [chainsferio.slack.com](https://chainsferio.slack.com)
-- Email - support@chainsfr.com
+- Chat - [chat.chainsfr.com](https://chat.chainsfr.com)
+- Email - help@chainsfr.com
