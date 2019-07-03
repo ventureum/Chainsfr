@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import './index.css'
 import App from './App'
-import registerServiceWorker from './registerServiceWorker'
+import { unregister } from './registerServiceWorker'
 import 'typeface-roboto'
 import { store, persistor } from './configureStore.js'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -16,7 +16,8 @@ function render () {
       </PersistGate>
     </Provider>
     , document.getElementById('root'))
-  registerServiceWorker()
+  // disable offline-cache
+  unregister()
 }
 
 document.addEventListener('DOMContentLoaded', () => render())
