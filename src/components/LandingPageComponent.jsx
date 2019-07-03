@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
-import List from '@material-ui/core/List'
 import ListItemText from '@material-ui/core/ListItemText'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
@@ -444,14 +443,12 @@ class LandingPageComponent extends Component {
                   Recent Transactions
                     </Typography>
                     <Scrollbars style={{ height: 300 }}>
-                      <List subheader={<li />}>
-                        {actionsPending.getTransferHistory &&
+                      {actionsPending.getTransferHistory &&
                         <Grid container direction='row' justify='center' alignItems='center'>
                           <CircularProgress color='primary' />
                         </Grid>
-                        }
-                        {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
-                      </List>
+                      }
+                      {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
                     </Scrollbars>
                   </Grid>
                 </Grid>
