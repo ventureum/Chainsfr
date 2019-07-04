@@ -2,6 +2,9 @@
 import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
+import { detect } from 'detect-browser'
+
+const browser = detect()
 
 export const walletCryptoSupports = {
   'drive': [{ cryptoType: 'ethereum', disabled: false },
@@ -12,6 +15,16 @@ export const walletCryptoSupports = {
   'ledger': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: false }]
+}
+
+function browserSupported () {
+  if (browser && browser.name === 'chrome') {
+    let v = browser.version.split('.')[0]
+    if (parseInt(v) >= 73) {
+      return true
+    }
+  }
+  return false
 }
 
 export const walletSelections = [
@@ -27,14 +40,14 @@ export const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskLogo,
-    disabled: false
+    disabled: !browserSupported()
   },
   {
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: LedgerWalletLogo,
-    disabled: false
+    disabled: !browserSupported()
   }
 ]
 

@@ -210,7 +210,7 @@ class WalletSelectionComponent extends Component<Props> {
                   disableRipple
                   id={c.cryptoType}
                 />
-                <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'coming soon' : c.title} />
+                <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'Chrome Only' : c.title} />
                 {
                   wallet &&
                   c.cryptoType === cryptoType &&
