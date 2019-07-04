@@ -11,7 +11,7 @@ import Receipt from '../containers/ReceiptContainer'
 import queryString from 'query-string'
 
 type Props = {
-  classes:Object,
+  classes: Object,
   step: number,
   history: Object
 }
@@ -24,26 +24,31 @@ class TransferComponent extends React.Component<Props> {
       <Grid
         container
         direction='column'
-        className={step === 4 ? classes.rootReceipt : undefined}
+        alignItems='center'
+        className={step === 3 ? classes.rootReceipt : undefined}
       >
-        <Grid item>
-          {step <= 3 && <Stepper actionType='transfer' step={step} />}
-        </Grid>
-        <Grid item>
-          {/* receipt page requires a different background color */}
-          <Grid
-            container
-            direction='column'
-            alignItems='center'
-          >
-            <Grid item className={classes.subComponent}>
-              {step === 0 && <WalletSelection
-                walletSelectionPrefilled={urlParams && urlParams.walletSelection}
-                cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
-              />}
-              {step === 1 && <Recipient />}
-              {step === 2 && <Review />}
-              {step === 3 && <Receipt />}
+        <Grid item className={classes.sectionContainer}>
+          <Grid container direction='column'>
+            <Grid item>
+              {step <= 2 && <Stepper actionType='transfer' step={step} />}
+            </Grid>
+            <Grid item>
+              {/* receipt page requires a different background color */}
+              <Grid
+                container
+                direction='column'
+                alignItems='center'
+              >
+                <Grid item className={classes.subComponent}>
+                  {step === 0 && <WalletSelection
+                    walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+                    cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
+                  />}
+                  {step === 1 && <Recipient />}
+                  {step === 2 && <Review />}
+                  {step === 3 && <Receipt />}
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -61,6 +66,10 @@ const styles = theme => ({
     width: '100%',
     maxWidth: '680px',
     margin: '0px 0px 16px 0px'
+  },
+  sectionContainer: {
+    width: '100%',
+    maxWidth: '1200px'
   }
 })
 

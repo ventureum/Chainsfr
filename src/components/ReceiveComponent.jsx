@@ -13,34 +13,37 @@ class ReceiveComponent extends React.Component {
   render () {
     const { classes, step, history } = this.props
 
-    if (step === 0) {
-      // landing page
-      return (<ReceiveLandingPage location={history.location} />)
-    }
-
     return (
       <Grid
         container
         direction='column'
+        alignItems='center'
         className={step === 4 ? classes.rootReceipt : undefined}>
-        <Grid item>
-          {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
-        </Grid>
-        <Grid item>
-          {/* receipt page requires a different background color */}
-          <Grid
-            container
-            direction='column'
-            alignItems='center'
-            className={step === 4 && classes.receiptContainer}
-          >
-            <Grid item className={classes.subComponent}>
-              {step === 1 && <ReceivePassword />}
-              {step === 2 && <ReceiveWalletSelection />}
-              {step === 3 && <ReceiveReview />}
-              {step === 4 && <ReceiveReceipt />}
+        <Grid item className={classes.sectionContainer}>
+          {step === 0
+            ? <ReceiveLandingPage location={history.location} />
+            : <Grid container direction='column'>
+              <Grid item>
+                {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
+              </Grid>
+              <Grid item>
+                {/* receipt page requires a different background color */}
+                <Grid
+                  container
+                  direction='column'
+                  alignItems='center'
+                  className={step === 4 && classes.receiptContainer}
+                >
+                  <Grid item className={classes.subComponent}>
+                    {step === 1 && <ReceivePassword />}
+                    {step === 2 && <ReceiveWalletSelection />}
+                    {step === 3 && <ReceiveReview />}
+                    {step === 4 && <ReceiveReceipt />}
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
-          </Grid>
+          }
         </Grid>
       </Grid>
     )
@@ -56,6 +59,10 @@ const styles = theme => ({
     width: '100%',
     maxWidth: '680px',
     margin: '0px 0px 16px 0px'
+  },
+  sectionContainer: {
+    width: '100%',
+    maxWidth: '1200px'
   }
 })
 
