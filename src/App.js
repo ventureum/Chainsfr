@@ -116,6 +116,7 @@ class App extends Component {
     this.state = {
       auth: false
     }
+    console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
   }
 
   render () {
