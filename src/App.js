@@ -12,7 +12,7 @@ import WalletContainer from './containers/WalletContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { ThemeProvider } from '@material-ui/styles'
 import { store, history } from './configureStore'
 import LandingPage from './containers/LandingPageContainer'
 import { SnackbarProvider } from 'notistack'
@@ -22,6 +22,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import BrowserNotSupportedComponent from './components/BrowserNotSupportedComponent'
 import FAQContainer from './containers/FAQContainer'
 import { detect } from 'detect-browser'
+import { theme } from './styles/theme'
 
 const browser = detect()
 
@@ -119,7 +120,7 @@ class App extends Component {
 
   render () {
     return (
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <SnackbarProvider action={[
             <IconButton
@@ -142,29 +143,9 @@ class App extends Component {
             </ConnectedRouter>
           </SnackbarProvider>
         </Provider>
-      </MuiThemeProvider>
+      </ThemeProvider>
     )
   }
 }
-
-const theme = createMuiTheme({
-  typography: {
-    useNextVariants: true
-  },
-  palette: {
-    primary: {
-      light: '#757ce8',
-      main: '#3f50b5',
-      dark: '#002884',
-      contrastText: '#fff'
-    },
-    secondary: {
-      light: '#ff7961',
-      main: '#f44336',
-      dark: '#ba000d',
-      contrastText: '#000'
-    }
-  }
-})
 
 export default App

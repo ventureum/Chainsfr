@@ -1,13 +1,11 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import { ThemeProvider } from '@material-ui/styles'
 import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
-import List from '@material-ui/core/List'
 import ListItemText from '@material-ui/core/ListItemText'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
@@ -32,7 +30,6 @@ import env from '../typedEnv'
 import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
-import { theme } from '../styles/theme'
 
 const toUserReadableState = {
   SEND_PENDING: 'Sending',
@@ -227,39 +224,38 @@ class LandingPageComponent extends Component {
     }
 
     return (
-      <ThemeProvider theme={theme}>
-        <ExpansionPanel key={i}>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Grid container direction='row' alignItems='center' >
-              <Grid xs={8} item>
-                <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
-              </Grid>
-              <Grid xs={4} item>
-                <Grid container direction='row' justify='space-between' alignItems='center'>
-                  <Grid item>
-                    <Typography align='center' className={classes[stateClassName]}>
-                      {toUserReadableState[transfer.state]}
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography className={classes.recentTransferItemTransferAmount}>
+      <ExpansionPanel key={i}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <Grid container direction='row' alignItems='center' >
+            <Grid xs={8} item>
+              <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
+            </Grid>
+            <Grid xs={4} item>
+              <Grid container direction='row' justify='space-between' alignItems='center'>
+                <Grid item>
+                  <Typography align='center' className={classes[stateClassName]}>
+                    {toUserReadableState[transfer.state]}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.recentTransferItemTransferAmount}>
                     - {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
-                    </Typography>
-                  </Grid>
+                  </Typography>
                 </Grid>
               </Grid>
             </Grid>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Grid container direction='column' justify='center' alignItems='flex-start'>
-              <Grid item>
-                <Typography className={classes.recentTransferItemTransferId}>
+          </Grid>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <Grid container direction='column' justify='center' alignItems='flex-start'>
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferId}>
                 Transfer ID: {transfer.sendingId}
-                </Typography>
-              </Grid>
-              {[transferStates.SEND_PENDING,
-                transferStates.SEND_FAILURE,
-                transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
+              </Typography>
+            </Grid>
+            {[transferStates.SEND_PENDING,
+              transferStates.SEND_FAILURE,
+              transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
                 <Grid item>
                   <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
@@ -276,9 +272,9 @@ class LandingPageComponent extends Component {
                     </MuiLink>
                   </Typography>
                 </Grid>
-              }
-              {[transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
-                transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
+            }
+            {[transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
+              transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
                 <Grid item>
                   <Button
                     color='primary'
@@ -290,11 +286,10 @@ class LandingPageComponent extends Component {
                  Cancel Transfer
                   </Button>
                 </Grid>
-              }
-            </Grid>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-      </ThemeProvider>
+            }
+          </Grid>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
     )
   }
 
@@ -352,81 +347,79 @@ class LandingPageComponent extends Component {
   render () {
     const { classes, actionsPending, transferHistory } = this.props
     return (
-      <ThemeProvider theme={theme}>
-        <SpotlightManager blanketIsTinted={false}>
-          <Grid container direction='column' justify='center' alignItems='center'>
-            {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
-            <Grid item>
-              {/* 'stretch' ensures upper and lower section align properly */}
-              <Grid container direction='column' justify='center' alignItems='stretch' className={classes.root}>
-                {/* Upper section */}
-                <Grid item>
-                  <Grid container direction='row' alignItems='center'>
-                    <Grid item xl={6} lg={6} md={6} className={classes.leftColumn}>
-                      <Grid container direction='column' justify='center' alignItems='center'>
-                        <Grid item className={classes.leftContainer}>
-                          <img
-                            src={SendLandingIllustration}
-                            alt={'landing-illustration'}
-                            className={classes.landingIllustration}
-                          />
-                        </Grid>
+      <SpotlightManager blanketIsTinted={false}>
+        <Grid container direction='column' justify='center' alignItems='center'>
+          {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
+          <Grid item>
+            {/* 'stretch' ensures upper and lower section align properly */}
+            <Grid container direction='column' justify='center' alignItems='stretch' className={classes.root}>
+              {/* Upper section */}
+              <Grid item>
+                <Grid container direction='row' alignItems='center'>
+                  <Grid item xl={6} lg={6} md={6} className={classes.leftColumn}>
+                    <Grid container direction='column' justify='center' alignItems='center'>
+                      <Grid item className={classes.leftContainer}>
+                        <img
+                          src={SendLandingIllustration}
+                          alt={'landing-illustration'}
+                          className={classes.landingIllustration}
+                        />
                       </Grid>
                     </Grid>
-                    <Grid item xl={6} lg={6} md={6} className={classes.rightColumn}>
-                      <Grid container direction='column' justify='center' alignItems='center'>
-                        <Grid item className={classes.rightContainer}>
-                          <Grid item className={classes.stepTitleContainer}>
-                            <Typography className={classes.stepTitle}>
+                  </Grid>
+                  <Grid item xl={6} lg={6} md={6} className={classes.rightColumn}>
+                    <Grid container direction='column' justify='center' alignItems='center'>
+                      <Grid item className={classes.rightContainer}>
+                        <Grid item className={classes.stepTitleContainer}>
+                          <Typography className={classes.stepTitle}>
                             Send cryptocurrency directly to another person using email
-                            </Typography>
-                          </Grid>
-                          <Grid item className={classes.step}>
-                            <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                              <Grid item>
-                                <Avatar className={classes.stepIcon}> 1 </Avatar>
-                              </Grid>
-                              <Grid item xs>
-                                <Typography align='left' className={classes.stepText}>
-                              Connect to your wallet
-                                </Typography>
-                              </Grid>
+                          </Typography>
+                        </Grid>
+                        <Grid item className={classes.step}>
+                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
+                            <Grid item>
+                              <Avatar className={classes.stepIcon}> 1 </Avatar>
                             </Grid>
-                          </Grid>
-                          <Grid item className={classes.step}>
-                            <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                              <Grid item>
-                                <Avatar className={classes.stepIcon}> 2 </Avatar>
-                              </Grid>
-                              <Grid item xs>
-                                <Typography align='left' className={classes.stepText}>
-                              Set the amount, recipient email and security answer
-                                </Typography>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                          <Grid item className={classes.step}>
-                            <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                              <Avatar className={classes.stepIcon}> 3 </Avatar>
+                            <Grid item xs>
                               <Typography align='left' className={classes.stepText}>
-                            Review and transfer
+                              Connect to your wallet
                               </Typography>
                             </Grid>
                           </Grid>
-                          <Grid item className={classes.btnSection}>
-                            <Grid container direction='row' justify='center' >
-                              <Grid item>
-                                <SpotlightTarget name='three'>
-                                  <Button
-                                    variant='contained'
-                                    color='primary'
-                                    component={Link}
-                                    to={path.transfer}
-                                  >
+                        </Grid>
+                        <Grid item className={classes.step}>
+                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
+                            <Grid item>
+                              <Avatar className={classes.stepIcon}> 2 </Avatar>
+                            </Grid>
+                            <Grid item xs>
+                              <Typography align='left' className={classes.stepText}>
+                              Set the amount, recipient email and security answer
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item className={classes.step}>
+                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
+                            <Avatar className={classes.stepIcon}> 3 </Avatar>
+                            <Typography align='left' className={classes.stepText}>
+                            Review and transfer
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                        <Grid item className={classes.btnSection}>
+                          <Grid container direction='row' justify='center' >
+                            <Grid item>
+                              <SpotlightTarget name='three'>
+                                <Button
+                                  variant='contained'
+                                  color='primary'
+                                  component={Link}
+                                  to={path.transfer}
+                                >
                                   Arrange Transfer
-                                  </Button>
-                                </SpotlightTarget>
-                              </Grid>
+                                </Button>
+                              </SpotlightTarget>
                             </Grid>
                           </Grid>
                         </Grid>
@@ -434,35 +427,33 @@ class LandingPageComponent extends Component {
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item>
-                  {this.renderWalletInfo()}
-                </Grid>
-                {/* Lower section */}
-                <Grid item>
-                  <Grid container direction='column' justify='center' alignItems='stretch'>
-                    <Typography className={classes.recentTxTitle} >
+              </Grid>
+              <Grid item>
+                {this.renderWalletInfo()}
+              </Grid>
+              {/* Lower section */}
+              <Grid item>
+                <Grid container direction='column' justify='center' alignItems='stretch'>
+                  <Typography className={classes.recentTxTitle} >
                   Recent Transactions
-                    </Typography>
-                    <Scrollbars style={{ height: 300 }}>
-                      <List subheader={<li />}>
-                        {actionsPending.getTransferHistory &&
-                        <Grid container direction='row' justify='center' alignItems='center'>
-                          <CircularProgress color='primary' />
-                        </Grid>
-                        }
-                        {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
-                      </List>
-                    </Scrollbars>
-                  </Grid>
+                  </Typography>
+                  <Scrollbars style={{ height: 300 }}>
+                    {actionsPending.getTransferHistory &&
+                    <Grid container direction='row' justify='center' alignItems='center'>
+                      <CircularProgress color='primary' />
+                    </Grid>
+                    }
+                    {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
+                  </Scrollbars>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
-          <SpotlightTransition>
-            {this.renderActiveSpotlight()}
-          </SpotlightTransition>
-        </SpotlightManager>
-      </ThemeProvider>
+        </Grid>
+        <SpotlightTransition>
+          {this.renderActiveSpotlight()}
+        </SpotlightTransition>
+      </SpotlightManager>
     )
   }
 }
