@@ -64,7 +64,7 @@ const SEND_FILE_NAME: string = `__chainsfer_send_${env.REACT_APP_ENV}__.json`
  *   bitcoin: Base58 encoded BIP38 encrypted privateKey
  * }
  */
-const WALLET_FILE_NAME: string = `__chainsfer_wallet_${env.NODE_ENV}__.json`
+const WALLET_FILE_NAME: string = `__chainsfer_wallet_${env.REACT_APP_ENV}__.json`
 
 // flow type definitions
 
