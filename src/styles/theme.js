@@ -9,5 +9,12 @@ export const theme = createMuiTheme({
     secondary: {
       main: uiColors.secondary
     }
+  },
+  typography: {
+    fontFamily: [
+      'Lato',
+      'Roboto',
+      'sans-serif'
+    ].join(',')
   }
 })

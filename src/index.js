@@ -7,6 +7,7 @@ import { unregister } from './registerServiceWorker'
 import 'typeface-roboto'
 import { store, persistor } from './configureStore.js'
 import { PersistGate } from 'redux-persist/integration/react'
+require('typeface-lato')
 
 function render () {
   ReactDOM.render(

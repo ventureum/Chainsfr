@@ -4,6 +4,14 @@ import DaiLogo from './images/dai.svg'
 
 export const cryptoSelections = [
   {
+    cryptoType: 'bitcoin',
+    title: 'Bitcoin',
+    symbol: 'BTC',
+    logo: BitcoinLogo,
+    decimals: 8,
+    txFeesCryptoType: 'bitcoin'
+  },
+  {
     cryptoType: 'ethereum',
     title: 'Ethereum',
     symbol: 'ETH',
@@ -19,14 +27,6 @@ export const cryptoSelections = [
     address: process.env.REACT_APP_DAI_ADDRESS,
     decimals: 18,
     txFeesCryptoType: 'ethereum'
-  },
-  {
-    cryptoType: 'bitcoin',
-    title: 'Bitcoin',
-    symbol: 'BTC',
-    logo: BitcoinLogo,
-    decimals: 8,
-    txFeesCryptoType: 'bitcoin'
   }
 ]
 
