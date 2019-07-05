@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
+import Tooltip from '@material-ui/core/Tooltip'
 
 type Props = {
   onClick: Function,
@@ -35,21 +36,32 @@ class SquareButtonComponent extends Component<Props> {
     }
 
     return (
-      <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
-        <Grid item className={classes.imgContainer}>
-          <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
+      <Tooltip
+        title={disabled
+          ? <React.Fragment>
+            <Typography className={classes.tooltip}>
+              Chrome version 73 and above
+            </Typography>
+          </React.Fragment>
+
+          : ''}
+      >
+        <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
+          <Grid item className={classes.imgContainer}>
+            <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
+          </Grid>
+          <Grid item>
+            <Typography className={btnTitleStyle} align='center'>
+              {title}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography className={btnDescStyle} align='center'>
+              {disabled ? 'Chrome Only' : desc}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography className={btnTitleStyle} align='center'>
-            {title}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Typography className={btnDescStyle} align='center'>
-            {disabled ? 'Coming soon' : desc}
-          </Typography>
-        </Grid>
-      </Grid>
+      </Tooltip>
     )
   }
 }
@@ -124,6 +136,9 @@ const styles = theme => ({
   },
   imgContainer: {
     marginTop: '8px'
+  },
+  tooltip: {
+    fontSize: '14px'
   }
 })
 

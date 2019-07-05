@@ -4,7 +4,6 @@ import { withStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import ListItemText from '@material-ui/core/ListItemText'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
@@ -13,12 +12,12 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { Scrollbars } from 'react-custom-scrollbars'
-import SendLandingIllustration from '../images/send-landing.svg'
 import moment from 'moment'
 import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
 import path from '../Paths.js'
 import utils from '../utils'
 import numeral from 'numeral'
+import Divider from '@material-ui/core/Divider'
 import {
   Spotlight,
   SpotlightManager,
@@ -30,6 +29,9 @@ import env from '../typedEnv'
 import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
+import { spacing, fontSize } from '../styles/base'
+import { uiColors } from '../styles/color'
+import { headers } from '../styles/typography'
 
 const toUserReadableState = {
   SEND_PENDING: 'Sending',
@@ -45,7 +47,10 @@ const toUserReadableState = {
 }
 
 class LandingPageComponent extends Component {
-  state = { active: this.props.profile.newUser ? 0 : null }
+  state = {
+    active: this.props.profile.newUser ? 0 : null,
+    expanded: false
+  }
 
   start = () => this.setState({ active: 0 })
 
@@ -82,11 +87,11 @@ class LandingPageComponent extends Component {
         key='one'
         targetBgColor='#fff'
         pulse={false}
-        dialogPlacement='bottom center'
+        dialogPlacement='left middle'
       >
         <Typography className={classes.spotlightBodyText}>
           {`Welcome to Chainsfr!` +
-        `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
+            `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
         </Typography>
       </Spotlight>,
       <Spotlight
@@ -105,7 +110,7 @@ class LandingPageComponent extends Component {
         dialogPlacement='right middle'
       >
         <Typography className={classes.spotlightBodyText}>
-        We have loaded you up with some free ETH on the test network Rinkeby.
+          We have loaded you up with some free ETH on the test network Rinkeby.
         </Typography>
       </Spotlight>,
       <Spotlight
@@ -119,10 +124,10 @@ class LandingPageComponent extends Component {
         key='three'
         targetBgColor='#fff'
         pulse={false}
-        dialogPlacement='bottom center'
+        dialogPlacement='right middle'
       >
         <Typography className={classes.spotlightBodyText}>
-        Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
+          Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
         </Typography>
       </Spotlight>
     ]
@@ -144,11 +149,11 @@ class LandingPageComponent extends Component {
         key='one'
         targetBgColor='#fff'
         pulse={false}
-        dialogPlacement='bottom center'
+        dialogPlacement='left middle'
       >
         <Typography className={classes.spotlightBodyText}>
           {`Welcome to Chainsfr!` +
-        `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
+            `We have set up a Drive Wallet for you to get familiar with our transfer feature.`}
         </Typography>
       </Spotlight>,
       <Spotlight
@@ -162,10 +167,10 @@ class LandingPageComponent extends Component {
         key='three'
         targetBgColor='#fff'
         pulse={false}
-        dialogPlacement='bottom center'
+        dialogPlacement='right middle'
       >
         <Typography className={classes.spotlightBodyText}>
-        Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
+          Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
         </Typography>
       </Spotlight>
     ]
@@ -183,13 +188,8 @@ class LandingPageComponent extends Component {
     return devVariants[this.state.active]
   }
 
-  getIdAbbreviation = (id) => {
-    return id.slice(0, 4) + '...' + id.slice(-4)
-  }
-
   renderRecentTransferItem = (transfer, i) => {
     const { classes } = this.props
-
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
       secondaryDesc = 'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
@@ -224,7 +224,14 @@ class LandingPageComponent extends Component {
     }
 
     return (
-      <ExpansionPanel key={i}>
+      <ExpansionPanel
+        key={i}
+        className={i % 2 === 0 ? undefined : classes.coloredBackgrond}
+        classes={{
+          root: classes.expansionPanelRoot,
+          expanded: classes.expansionPanelExpanded
+        }}
+      >
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Grid container direction='row' alignItems='center' >
             <Grid xs={8} item>
@@ -256,36 +263,36 @@ class LandingPageComponent extends Component {
             {[transferStates.SEND_PENDING,
               transferStates.SEND_FAILURE,
               transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
-                <Grid item>
-                  <Typography className={classes.recentTransferItemTransferId}>
+              <Grid item>
+                <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
-                    <MuiLink
-                      target='_blank'
-                      rel='noopener'
-                      href={
-                        transfer.cryptoType === 'bitcoin'
-                          ? url.getBtcExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                          : url.getEthExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                      }
-                    >
-                      {' here'}
-                    </MuiLink>
-                  </Typography>
-                </Grid>
+                  <MuiLink
+                    target='_blank'
+                    rel='noopener'
+                    href={
+                      transfer.cryptoType === 'bitcoin'
+                        ? url.getBtcExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
+                        : url.getEthExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
+                    }
+                  >
+                    {' here'}
+                  </MuiLink>
+                </Typography>
+              </Grid>
             }
             {[transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
               transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
-                <Grid item>
-                  <Button
-                    color='primary'
-                    component={Link}
-                    target='_black'
-                    to={`cancel?id=${transfer.sendingId}`}
-                    className={classes.recentTransferItemCancelBtn}
-                  >
-                 Cancel Transfer
-                  </Button>
-                </Grid>
+              <Grid item>
+                <Button
+                  color='primary'
+                  component={Link}
+                  target='_black'
+                  to={`cancel?id=${transfer.sendingId}`}
+                  className={classes.recentTransferItemCancelBtn}
+                >
+                  Cancel Transfer
+                </Button>
+              </Grid>
             }
           </Grid>
         </ExpansionPanelDetails>
@@ -293,51 +300,146 @@ class LandingPageComponent extends Component {
     )
   }
 
-  renderWalletInfo = () => {
-    const { classes, cloudWallet, actionsPending } = this.props
+  renderWalletSection = (props) => {
+    const { classes, actionsPending, cloudWallet } = this.props
+    // Do not remove <div style={{ padding: 10 }}>
+    // See https://material-ui.com/components/grid/#limitations
     return (
-      <Grid container direction='column' alignItems='stretch' className={classes.walletInfoSection}>
-        <Grid item>
-          <Grid container direction='row' justify='space-between' alignItems='center'>
+      <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
+        <Grid item className={classes.sectionContainer}>
+          <Grid container direction='column'>
             <Grid item>
-              <Typography className={classes.recentTxTitle}>
+              <Typography className={classes.balanceTitleText}>
                 My Balance
               </Typography>
             </Grid>
-            <Grid item>
-              <Link to={path.wallet} style={{ textDecoration: 'none' }}>
-                <Grid container direction='row' alignItems='center' justify='space-around'>
-                  <SpotlightTarget name='one'>
-                    <Typography className={classes.walletLinkText}>
-                    View Drive Wallet
-                    </Typography>
-                  </SpotlightTarget>
-                </Grid>
-              </Link>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <Grid container direction='row' alignItems='center'>
-            {cryptoSelections.map((c, i) => {
-              return (
-                <Grid item xs={4} key={i} >
-                  <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
-                    <SpotlightTarget name={c.cryptoType === 'ethereum' ? 'two' : undefined}>
-                      <Grid item>
-                        {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
-                          ? <Typography align='center' className={classes.balanceText}>
-                            { numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')}
-                          </Typography>
-                          : <CircularProgress color='primary' />
-                        }
-                        <Typography align='center'>{c.symbol}</Typography>
+
+            <Grid item className={classes.verticalMarginL}>
+              <div style={{ padding: 10 }}>
+                <Grid container direction='row' alignItems='center' spacing={5}>
+                  {cryptoSelections.map((c, i) => {
+                    return (
+                      <Grid item sm={4} key={i} xs={12} >
+                        <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
+                          <SpotlightTarget name={c.cryptoType === 'ethereum' ? 'two' : undefined}>
+                            <Grid item>
+                              {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
+                                ? <Typography align='center' className={classes.balanceText}>
+                                  {numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')}
+                                </Typography>
+                                : <CircularProgress color='primary' />
+                              }
+                              <Typography className={classes.cryptoTypeText} align='center'>{c.symbol}</Typography>
+                            </Grid>
+                          </SpotlightTarget>
+                        </Grid>
                       </Grid>
+                    )
+                  })}
+                </Grid>
+              </div>
+            </Grid>
+
+            <Grid item className={classes.verticalMarginL}>
+              <div style={{ padding: 8 }}>
+                <Grid container direction='row' alignItems='center' justify='center' spacing={4}>
+                  <Grid item >
+                    <SpotlightTarget name='one'>
+                      <Button
+                        variant='contained'
+                        component={Link}
+                        to={path.wallet}
+                        className={classes.viewDriveWalletBtn}
+                      >
+                        View Drive Wallet
+                      </Button>
+                    </SpotlightTarget>
+                  </Grid>
+                  <Grid item >
+                    <SpotlightTarget name='three'>
+                      <Button
+                        variant='contained'
+                        component={Link}
+                        to={path.transfer}
+                        className={classes.startTransferBtn}
+                      >
+                        Start Transfer
+                      </Button>
                     </SpotlightTarget>
                   </Grid>
                 </Grid>
-              )
-            })}
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
+
+  renderTransferHistorySection = () => {
+    const { classes, actionsPending, transferHistory } = this.props
+    return (
+      <Grid container alignItems='center' justify='center' className={classes.transactionHistorySection}>
+        <Grid item className={classes.sectionContainer}>
+          <Grid container direction='column' justify='center' alignItems='stretch'>
+            <Grid item>
+              <Grid container direction='row' justify='space-between'>
+                <Grid item>
+                  <Typography className={classes.recentTxTitle} >
+                    Recent Transactions
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.viewAllTxTitle} >
+                    View all Transactions
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Scrollbars
+                autoHeight
+                autoHeightMin={300}
+                autoHeightMax={600}>
+                <Grid item className={classes.txHistoryTitleContainer}>
+                  <Grid container direction='row' alignItems='center' >
+                    <Grid item xs={8}>
+                      <Typography className={classes.txHistoryTitleText}>
+                        Transaction
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Grid container alignItems='center' justify='space-between'>
+                        <Grid item>
+                          <Typography className={classes.txHistoryTitleText}>
+                            Status
+                          </Typography>
+                        </Grid>
+                        <Grid item>
+                          <Typography className={classes.txHistoryTitleText}>
+                            Amount
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Divider />
+                {actionsPending.getTransferHistory &&
+                  <Grid container direction='row' justify='center' alignItems='center'>
+                    <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                  </Grid>
+                }
+                {!actionsPending.getTransferHistory && transferHistory && transferHistory.length === 0 &&
+                <Grid container justify='center'>
+                  <Typography className={classes.noTxText}>
+                    It seems you don't have any transaction yet
+                  </Typography>
+                </Grid>
+                }
+                {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
+              </Scrollbars>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
@@ -345,234 +447,140 @@ class LandingPageComponent extends Component {
   }
 
   render () {
-    const { classes, actionsPending, transferHistory } = this.props
     return (
       <SpotlightManager blanketIsTinted={false}>
-        <Grid container direction='column' justify='center' alignItems='center'>
-          {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}
-          <Grid item>
-            {/* 'stretch' ensures upper and lower section align properly */}
-            <Grid container direction='column' justify='center' alignItems='stretch' className={classes.root}>
-              {/* Upper section */}
-              <Grid item>
-                <Grid container direction='row' alignItems='center'>
-                  <Grid item xl={6} lg={6} md={6} className={classes.leftColumn}>
-                    <Grid container direction='column' justify='center' alignItems='center'>
-                      <Grid item className={classes.leftContainer}>
-                        <img
-                          src={SendLandingIllustration}
-                          alt={'landing-illustration'}
-                          className={classes.landingIllustration}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xl={6} lg={6} md={6} className={classes.rightColumn}>
-                    <Grid container direction='column' justify='center' alignItems='center'>
-                      <Grid item className={classes.rightContainer}>
-                        <Grid item className={classes.stepTitleContainer}>
-                          <Typography className={classes.stepTitle}>
-                            Send cryptocurrency directly to another person using email
-                          </Typography>
-                        </Grid>
-                        <Grid item className={classes.step}>
-                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                            <Grid item>
-                              <Avatar className={classes.stepIcon}> 1 </Avatar>
-                            </Grid>
-                            <Grid item xs>
-                              <Typography align='left' className={classes.stepText}>
-                              Connect to your wallet
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                        <Grid item className={classes.step}>
-                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                            <Grid item>
-                              <Avatar className={classes.stepIcon}> 2 </Avatar>
-                            </Grid>
-                            <Grid item xs>
-                              <Typography align='left' className={classes.stepText}>
-                              Set the amount, recipient email and security answer
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                        <Grid item className={classes.step}>
-                          <Grid container direction='row' alignItems='center' wrap='nowrap'>
-                            <Avatar className={classes.stepIcon}> 3 </Avatar>
-                            <Typography align='left' className={classes.stepText}>
-                            Review and transfer
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                        <Grid item className={classes.btnSection}>
-                          <Grid container direction='row' justify='center' >
-                            <Grid item>
-                              <SpotlightTarget name='three'>
-                                <Button
-                                  variant='contained'
-                                  color='primary'
-                                  component={Link}
-                                  to={path.transfer}
-                                >
-                                  Arrange Transfer
-                                </Button>
-                              </SpotlightTarget>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item>
-                {this.renderWalletInfo()}
-              </Grid>
-              {/* Lower section */}
-              <Grid item>
-                <Grid container direction='column' justify='center' alignItems='stretch'>
-                  <Typography className={classes.recentTxTitle} >
-                  Recent Transactions
-                  </Typography>
-                  <Scrollbars style={{ height: 300 }}>
-                    {actionsPending.getTransferHistory &&
-                    <Grid container direction='row' justify='center' alignItems='center'>
-                      <CircularProgress color='primary' />
-                    </Grid>
-                    }
-                    {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
-                  </Scrollbars>
-                </Grid>
-              </Grid>
-            </Grid>
+
+        <Grid container direction='column'>
+          <Grid item >
+            {this.renderWalletSection()}
           </Grid>
+          <Grid item>
+            {this.renderTransferHistorySection()}
+          </Grid>
+          <SpotlightTransition>
+            {this.renderActiveSpotlight()}
+          </SpotlightTransition>
         </Grid>
-        <SpotlightTransition>
-          {this.renderActiveSpotlight()}
-        </SpotlightTransition>
       </SpotlightManager>
     )
   }
 }
 
 const styles = theme => ({
-  leftContainer: {
-    margin: '60px',
-    maxWidth: '600px'
+  sectionContainer: {
+    width: '100%',
+    maxWidth: '1200px',
+    margin: `0px ${spacing.s} 0px ${spacing.s}`,
+    paddingTop: spacing.l,
+    paddingBottom: spacing.l
   },
-  rightContainer: {
-    margin: '60px'
+  coloredBackgrond: {
+    backgroundColor: '#FAFBFE'
   },
-  landingIllustration: {
-    maxWidth: '100%',
-    marginBottom: '60px'
+  balanceContainer: {
+    height: '120px',
+    border: `1px solid ${uiColors.white}`,
+    boxShadow: `0px 2px 4px rgba(51, 51, 51, 0.1)`,
+    backgroundColor: uiColors.white,
+    borderRadius: '8px'
   },
-  stepContainer: {
-    padding: '30px'
+  balanceTitleText: {
+    ...headers.h2,
+    marginLeft: '10px',
+    fontWeight: '600'
   },
-  stepTitleContainer: {
-    marginBottom: '30px'
-  },
-  step: {
-    marginBottom: '22px'
-  },
-  stepTitle: {
-    color: '#333333',
-    fontWeight: 'bold',
-    fontSize: '18px'
-  },
-  stepText: {
-    color: '#333333',
-    fontSize: '18px'
-  },
-  stepIcon: {
-    height: '34px',
-    width: '34px',
-    backgroundColor: '#FFFFFF',
-    border: '2px solid #4285F4',
-    color: theme.palette.primary.main,
-    marginRight: '9.5px'
-  },
-  title: {
-    color: '#333333',
-    fontSize: '24px',
+  balanceText: {
+    fontSize: fontSize.xl.size,
+    lineHeight: fontSize.xl.lineHeight,
     fontWeight: '600',
-    lineHeight: '36px',
-    letterSpacing: '0.97px',
-    padding: '0px 0px 0px 0px'
+    color: '#333333'
   },
-  transferId: {
-    color: '#777777',
-    fontSize: '12px',
-    lineHeight: '17px'
+  verticalMarginL: {
+    marginTop: spacing.l,
+    marginBottom: spacing.l
   },
-  btnSection: {
-    marginTop: '60px'
+  expansionPanelRoot: {
+    boxShadow: 'none',
+    marginTop: '0px'
+  },
+  expansionPanelExpanded: {
+    marginTop: 'auto'
+  },
+  btnContainer: {
+    margin: '10px 10px 10px 10px'
   },
   recentTxTitle: {
-    color: '#333333',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '30px'
+    ...headers.h2,
+    fontWeight: '600'
   },
-  recentTransferItemTransferAmount: {
-    marginRight: '30px'
+  cryptoTypeText: {
+    color: '#777777',
+    fontSize: '18px',
+    lineHeight: '21px'
+  },
+  viewAllTxTitle: {
+    ...headers.h4,
+    color: '#396EC8'
+  },
+  txHistoryTitleContainer: {
+    margin: '10px 0px 10px 0px',
+    width: '100%',
+    padding: '0px 60px 0px 24px'
+  },
+  txHistoryTitleText: {
+    fontWeight: '600',
+    fontSize: '12px',
+    color: '#777777'
   },
   recentTransferItemTransferStatusPending: {
-    borderRadius: '4px',
-    backgroundColor: '#F5A623',
+    borderRadius: '100px',
+    backgroundColor: '#F49B20',
     color: 'white',
-    padding: '5px 10px 5px 10px',
+    padding: '5px',
     fontSize: '14px',
     width: '86px',
     fontWeight: '500'
   },
   recentTransferItemTransferStatusTextBased: {
-    borderRadius: '4px',
-    color: 'black',
-    padding: '5px 10px 5px 10px',
+    borderRadius: '100px',
+    backgroundColor: '#43B384',
+    color: 'white',
+    padding: '5px',
     fontSize: '14px',
     width: '86px',
     fontWeight: '500'
   },
   recentTransferItemTransferStatusError: {
-    borderRadius: '4px',
-    backgroundColor: '#B00020',
+    borderRadius: '100px',
+    backgroundColor: '#A8A8A8',
     color: 'white',
     width: '86px',
-    padding: '5px 10px 5px 10px',
+    padding: '5px ',
     fontSize: '14px',
     fontWeight: '500'
   },
-  recentTransferItemTransferId: {
-    color: '#777777',
-    fontSize: '12px'
-  },
-  recentTransferItemCancelBtn: {
-    padding: '0px',
-    fontSize: '12px',
+  recentTransferItemTransferAmount: {
     fontWeight: '500',
-    marginTop: '10px'
-  },
-  balanceContainer: {
-    height: '120px',
-    border: '1px solid #E9E9E9'
-  },
-  balanceText: {
-    fontSize: '24px',
-    fontWeight: '500',
+    fontSize: '14px',
     color: '#333333'
   },
-  walletInfoSection: {
-    margin: '30px 0px 60px 0px'
+  startTransferBtn: {
+    backgroundColor: '#393386',
+    borderRadius: '4px',
+    color: '#ffffff',
+    boxShadow: 'none',
+    textTransform: 'none',
+    fontWeight: '600'
   },
-  walletLinkText: {
-    color: theme.palette.primary.main,
-    fontSize: '12px',
-    fontWeight: '500'
+  viewDriveWalletBtn: {
+    border: '1px solid #393386',
+    boxSizing: 'border-box',
+    borderRadius: '4px',
+    backgroundColor: '#FAFBFE',
+    color: '#393386',
+    boxShadow: 'none',
+    textTransform: 'none',
+    fontWeight: '600'
   },
   spotlightHeaderText: {
     color: '#ffffff',
@@ -592,6 +600,21 @@ const styles = theme => ({
     color: '#ffffff',
     fontSize: '14px',
     fontWeight: '500'
+  },
+  recentTransferItemTransferId: {
+    color: '#777777',
+    fontSize: '12px'
+  },
+  recentTransferItemCancelBtn: {
+    padding: '0px',
+    fontSize: '12px',
+    fontWeight: '500',
+    marginTop: '10px'
+  },
+  noTxText: {
+    margin: '60px 0px 60px 0px',
+    fontSize: '24px',
+    color: '#A8A8A8'
   }
 })
 

@@ -59,6 +59,7 @@
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
     "styled-components": "^3.4.10",
+    "typeface-lato": "0.0.54",
     "typeface-roboto": "0.0.54",
     "uuid": "^3.3.2",
     "validator": "^10.11.0",

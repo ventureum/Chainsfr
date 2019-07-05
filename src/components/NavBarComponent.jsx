@@ -12,7 +12,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import { uiColors } from '../styles/color'
-import ChainsfrLogoWhite from '../images/chainsfr_logo_white.svg'
+import ChainsfrLogo from '../images/chainsfr_logo.svg'
 
 class NavBarComponent extends Component {
   state = {
@@ -36,62 +36,66 @@ class NavBarComponent extends Component {
     const { anchorEl } = this.state
 
     return (
-      <AppBar position='static' color='primary'>
+      <AppBar position='static' color='primary' className={classes.appBar}>
         <Toolbar>
-          <Grid
-            container
-            direction='row'
-            justify='space-between'
-            alignItems='center'
-          >
-            <Grid item>
-              <Button
-                classes={{ root: classes.homeButton }}
-                component={Link}
-                to={path.home}
-                onClick={() => {
-                  backToHome()
-                }}
-                id='back'
+          <Grid container justify='center' alignItems='center'>
+            <Grid item className={classes.sectionContainer}>
+              <Grid
+                container
+                direction='row'
+                justify='space-between'
+                alignItems='center'
               >
-                <img className={classes.chainsfrLogo} src={ChainsfrLogoWhite} alt='Chainsfr Logo' />
-              </Button>
-            </Grid>
-            {profile.isAuthenticated && (
-              <Grid item>
-                <IconButton
-                  buttonRef={node => {
-                    this.anchorEl = node
-                  }}
-                  aria-owns={anchorEl ? 'simple-menu' : undefined}
-                  aria-haspopup='true'
-                  onClick={this.handleToggle}
-                  id='avatarBtn'
-                >
-                  {profile &&
-                  profile.profileObj &&
-                  profile.profileObj.imageUrl
-                    ? <Avatar
-                      alt=''
-                      src={profile.profileObj.imageUrl}
-                      className={classes.avatar}
-                    />
-                    : <AccountCircle className={classes.userIcon} id='accountCircle' />
-                  }
-                </IconButton>
-                <Menu
-                  id='simple-menu'
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={this.handleClose()}
-                >
-                  <MenuItem disabled > {profile.profileObj.email} </MenuItem>
-                  <MenuItem onClick={this.handleClose('logout')} id='logout'>
-                      Logout
-                  </MenuItem>
-                </Menu>
+                <Grid item>
+                  <Button
+                    classes={{ root: classes.homeButton }}
+                    component={Link}
+                    to={path.home}
+                    onClick={() => {
+                      backToHome()
+                    }}
+                    id='back'
+                  >
+                    <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
+                  </Button>
+                </Grid>
+                {profile.isAuthenticated && (
+                  <Grid item>
+                    <IconButton
+                      buttonRef={node => {
+                        this.anchorEl = node
+                      }}
+                      aria-owns={anchorEl ? 'simple-menu' : undefined}
+                      aria-haspopup='true'
+                      onClick={this.handleToggle}
+                      id='avatarBtn'
+                    >
+                      {profile &&
+                        profile.profileObj &&
+                        profile.profileObj.imageUrl
+                        ? <Avatar
+                          alt=''
+                          src={profile.profileObj.imageUrl}
+                          className={classes.avatar}
+                        />
+                        : <AccountCircle className={classes.userIcon} id='accountCircle' />
+                      }
+                    </IconButton>
+                    <Menu
+                      id='simple-menu'
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={this.handleClose()}
+                    >
+                      <MenuItem disabled > {profile.profileObj.email} </MenuItem>
+                      <MenuItem onClick={this.handleClose('logout')} id='logout'>
+                        Logout
+                      </MenuItem>
+                    </Menu>
+                  </Grid>
+                )}
               </Grid>
-            )}
+            </Grid>
           </Grid>
         </Toolbar>
       </AppBar>
@@ -100,13 +104,9 @@ class NavBarComponent extends Component {
 }
 
 const styles = theme => ({
-  grow: {
-    flexGrow: 1
-  },
-  appNameText: {
-    color: '#ffffff',
-    fontSize: '18px',
-    fontWeight: 600
+  appBar: {
+    backgroundColor: '#ffffff',
+    boxShadow: `0px 2px 2px  rgba(51, 51, 51, 0.1)`
   },
   homeButton: {
     '&:hover': {
@@ -124,6 +124,10 @@ const styles = theme => ({
   },
   chainsfrLogo: {
     width: 120
+  },
+  sectionContainer: {
+    width: '100%',
+    maxWidth: '1200px'
   }
 })
 

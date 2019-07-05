@@ -68,8 +68,8 @@ class WalletComponent extends Component {
     const { directTransferDialogForm, selectedCryptoType, directTransferDialogOpen, directTransferDialogFormError } = this.state
     const { transferAmount } = directTransferDialogForm
     if (prevProps.actionsPending.directTransfer &&
-        !actionsPending.directTransfer &&
-        receipt) {
+      !actionsPending.directTransfer &&
+      receipt) {
       // direct transfer action is completed
       // sucessfully retrieved the receipt
       // jump to receipt step
@@ -127,16 +127,21 @@ class WalletComponent extends Component {
       _state = update(_state, { directTransferDialogOpen: { $set: false } })
       // close dropdown menu as well
       _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
-      _state = update(_state, { directTransferDialogForm: { $set: {
-        destinationAddress: '',
-        transferAmount: ''
-      } } })
+      _state = update(_state, {
+        directTransferDialogForm: {
+          $set: {
+            destinationAddress: '',
+            transferAmount: ''
+          }
+        }
+      })
     }
     this.setState(_state)
   }
 
   toggleViewAddressDialog = (open, cryptoType) => {
-    let _state = update(this.state, { viewAddressDialogOpen: { $set: open },
+    let _state = update(this.state, {
+      viewAddressDialogOpen: { $set: open },
       selectedCryptoType: { $set: cryptoType }
     })
     if (!open) {
@@ -152,7 +157,8 @@ class WalletComponent extends Component {
     if (open) {
       var unlocked = !!this.props.wallet.crypto[cryptoType][0].privateKey
       if (unlocked) {
-        _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open },
+        _state = update(this.state, {
+          viewPrivateKeyDialogOpen: { $set: open },
           selectedCryptoType: { $set: cryptoType }
         })
       } else {
@@ -222,8 +228,10 @@ class WalletComponent extends Component {
   }
 
   handleDirectTransferDialogFormChange = name => event => {
-    this.setState(update(this.state, { directTransferDialogForm: { [name]: { $set: event.target.value } },
-      directTransferDialogFormError: { [name]: { $set: this.validate(name, event.target.value) } } }))
+    this.setState(update(this.state, {
+      directTransferDialogForm: { [name]: { $set: event.target.value } },
+      directTransferDialogFormError: { [name]: { $set: this.validate(name, event.target.value) } }
+    }))
   }
 
   validateForm = () => {
@@ -245,8 +253,8 @@ class WalletComponent extends Component {
     const { wallet, directTransfer, txFee } = this.props
 
     if (selectedCryptoType &&
-        directTransferDialogForm.transferAmount &&
-        directTransferDialogForm.destinationAddress
+      directTransferDialogForm.transferAmount &&
+      directTransferDialogForm.destinationAddress
     ) {
       // submit direct transfer request
       directTransfer({
@@ -460,7 +468,7 @@ class WalletComponent extends Component {
       <Dialog open={viewPrivateKeyDialogOpen}>
         <DialogTitle>Private Key</DialogTitle>
         <DialogContent className={classes.minWidth200px}>
-          { (wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet)
+          {(wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet)
             ? <Grid container direction='row' alignItems='center'>
               <Grid item >
                 <Typography className={classes.addressDialog} align='left'>
@@ -615,9 +623,9 @@ class WalletComponent extends Component {
     }
 
     return (
-      <div className={classes.root}>
-        <Grid container direction='column' alignItems='center'>
-          <Grid container direction='column' className={classes.walletListContainer} alignItems='center'>
+      <Grid container direction='column' alignItems='center'>
+        <Grid item className={classes.walletListContainer}>
+          <Grid container direction='column' >
             <Grid item className={classes.headerSection}>
               {/* Back button */}
               <Button
@@ -629,55 +637,56 @@ class WalletComponent extends Component {
                 {'< Back to Home'}
               </Button>
               {/* Title */}
+            </Grid>
+            <Grid item className={classes.headerSection}>
               <Typography className={classes.title} align='left'>My Drive Wallet</Typography>
             </Grid>
-            <Grid container direction='column' alignItems='center'>
-              <List className={classes.walletList}>
-                {/* List header */}
-                <ListItem key='walletListHeader'>
-                  <Grid container direction='row' alignItems='center'>
-                    <Grid item lg={9} md={8} sm={6} xs={3}>
-                      <Typography className={classes.walletListHeaderLabel} align='left'>
-                        Token
-                      </Typography>
+            <Grid item>
+              <Grid container direction='column' alignItems='center'>
+                <List className={classes.walletList}>
+                  {/* List header */}
+                  <ListItem key='walletListHeader'>
+                    <Grid container direction='row' alignItems='center'>
+                      <Grid item lg={9} md={8} sm={6} xs={3}>
+                        <Typography className={classes.walletListHeaderLabel} align='left'>
+                          Token
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={1} md={1} sm={1} xs={4}>
+                        <Typography className={classes.walletListHeaderLabel} align='right'>
+                          Balance
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item lg={1} md={1} sm={1} xs={4}>
-                      <Typography className={classes.walletListHeaderLabel} align='right'>
-                        Balance
-                      </Typography>
-                    </Grid>
+                  </ListItem>
+                  <Divider />
+                  {/* List content */}
+                  {!actionsPending.getCloudWallet && wallet.connected &&
+                    walletList.map(wallet => this.renderItem(wallet))
+                  }
+                </List>
+                {actionsPending.getCloudWallet &&
+                  <Grid item align='center'>
+                    <CircularProgress
+                      size={24}
+                      color='primary'
+                      className={classes.buttonProgress}
+                    />
                   </Grid>
-                </ListItem>
-                <Divider />
-                {/* List content */}
-                {!actionsPending.getCloudWallet && wallet.connected &&
-                 walletList.map(wallet => this.renderItem(wallet))
                 }
-              </List>
-              {actionsPending.getCloudWallet &&
-              <Grid item align='center'>
-                <CircularProgress
-                  size={24}
-                  color='primary'
-                  className={classes.buttonProgress}
-                />
+                {directTransferDialogOpen && this.renderDirectTransferDialog()}
+                {viewAddressDialogOpen && this.renderViewAddressDialog()}
+                {viewPrivateKeyDialogOpen && this.renderViewPrivateKeyDialog()}
               </Grid>
-              }
-              {directTransferDialogOpen && this.renderDirectTransferDialog()}
-              {viewAddressDialogOpen && this.renderViewAddressDialog()}
-              {viewPrivateKeyDialogOpen && this.renderViewPrivateKeyDialog()}
             </Grid>
           </Grid>
         </Grid>
-      </div>
+      </Grid>
     )
   }
 }
 
 const styles = theme => ({
-  root: {
-    flex: 1
-  },
   walletList: {
     width: '100%'
   },
@@ -685,23 +694,12 @@ const styles = theme => ({
     fontSize: '18px',
     fontWeight: '500',
     color: '#333333',
-    alignSelf: 'flex-start',
-    marginBottom: '30px'
+    alignSelf: 'flex-start'
   },
   walletListContainer: {
-    marginTop: '60px',
-    '@media (min-width: 380px) and (max-width : 751px)': {
-      maxWidth: '380px'
-    },
-    '@media (min-width: 752px) and (max-width : 1129px)': {
-      maxWidth: '752px'
-    },
-    '@media (min-width: 1130px) and (max-width : 1489px)': {
-      maxWidth: '1130px'
-    },
-    '@media (min-width: 1490px) ': {
-      maxWidth: '1490px'
-    }
+    padding: '60px 30px 60px 30px',
+    width: '100%',
+    maxWidth: '1200px'
   },
   walletListHeaderLabel: {
     fontSize: '12px',
@@ -726,14 +724,12 @@ const styles = theme => ({
     alignSelf: 'flex-start'
   },
   headerSection: {
-    alignSelf: 'flex-start',
-    marginLeft: '16px'
+    marginBottom: '30px'
   },
   backBtn: {
     fontSize: '12px',
     fontWeight: 500,
-    padding: '0px',
-    marginBottom: '30px'
+    padding: '0px'
   },
   directTransferToAddressTextField: {
     marginTop: '10px',

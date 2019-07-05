@@ -2,7 +2,7 @@
 // Typography
 
 export const fontFamily = {
-  fontFamily: "'Roboto', sans-serif;",
+  fontFamily: "'Lato', 'Roboto', 'sans-serif';",
   fontFamilySeconday: "'Source Sans Pro', sans-serif;"
 }
 
