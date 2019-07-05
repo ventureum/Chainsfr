@@ -9,7 +9,8 @@ const browser = detect()
 export const walletCryptoSupports = {
   'drive': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }],
+    { cryptoType: 'bitcoin', disabled: false },
+    { cryptoType: 'libra', disabled: false }],
   'metamask': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false }],
   'ledger': [{ cryptoType: 'ethereum', disabled: false },

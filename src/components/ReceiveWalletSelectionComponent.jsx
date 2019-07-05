@@ -17,7 +17,6 @@ import CheckIcon from '@material-ui/icons/CheckCircle'
 import url from '../url'
 import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
-import env from '../typedEnv'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -53,14 +52,7 @@ class ReceiveWalletSelectionComponent extends Component {
   renderWalletConnectionNotification = () => {
     let { classes, actionsPending, walletType, wallet, transfer, lastUsedWallet, useAnotherAddress } = this.props
     const { cryptoType } = transfer
-    var getExplorerLink = null
-    if (cryptoType === 'ethereum') {
-      getExplorerLink = url.getEthExplorerAddress
-    } else if (cryptoType === 'dai') {
-      getExplorerLink = url.getEthExplorerToken
-    } else if (cryptoType === 'bitcoin') {
-      getExplorerLink = url.getBtcExplorerAddress
-    }
+
     if (walletType && lastUsedWallet) {
       return (
         <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
@@ -81,7 +73,7 @@ class ReceiveWalletSelectionComponent extends Component {
                   <IconButton
                     className={classes.explorerButton}
                     aria-label='Explorer'
-                    target='_blank' href={getExplorerLink(lastUsedWallet.crypto[cryptoType][0].address)}
+                    target='_blank' href={url.getExplorerAddress(transfer.cryptoType, lastUsedWallet.crypto[cryptoType][0].address)}
                   >
                     <OpenInNewIcon className={classes.explorerIcon} />
                   </IconButton>
@@ -179,11 +171,7 @@ class ReceiveWalletSelectionComponent extends Component {
                   <IconButton
                     aria-label='Explorer'
                     className={classes.explorerButton}
-                    target='_blank' href={
-                      cryptoType === 'ethereum'
-                        ? getExplorerLink(wallet.crypto[cryptoType][0].address)
-                        : getExplorerLink(env.REACT_APP_DAI_ADDRESS, wallet.crypto[cryptoType][0].address)
-                    }
+                    target='_blank' href={url.getExplorerAddress(transfer.cryptoType, wallet.crypto[cryptoType][0].address)}
                   >
                     <OpenInNewIcon className={classes.explorerIcon} />
                   </IconButton>

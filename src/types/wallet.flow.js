@@ -1,6 +1,7 @@
 // @flow
 import WalletBitcoin from '../wallets/bitcoin.js'
 import WalletEthereum from '../wallets/ethereum.js'
+import WalletLibra from '../wallets/libra.js'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 
 export type AddressEthereum = string
@@ -90,4 +91,4 @@ export interface IWallet<WalletData, Account> {
   }): Promise<TxHash | Array<TxHash>>;
 }
 
-export type Wallet = WalletEthereum | WalletBitcoin
+export type Wallet = WalletEthereum | WalletBitcoin | WalletLibra

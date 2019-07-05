@@ -267,7 +267,7 @@ async function _getLastUsedAddress (idToken: string) {
   let response = await API.getLastUsedAddress(idToken)
   let rv = {}
   const walletTypeList = ['drive', 'metamask', 'ledger']
-  const cryptoTypeList = ['bitcoin', 'ethereum', 'dai']
+  const cryptoTypeList = ['bitcoin', 'ethereum', 'dai', 'libra']
   // convert response to our wallet struct
   walletTypeList.forEach((walletType) => {
     if (response[walletType]) {

@@ -223,6 +223,8 @@ class LandingPageComponent extends Component {
       stateClassName = 'recentTransferItemTransferStatusError'
     }
 
+    const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
+    
     return (
       <ExpansionPanel
         key={i}
@@ -269,11 +271,7 @@ class LandingPageComponent extends Component {
                   <MuiLink
                     target='_blank'
                     rel='noopener'
-                    href={
-                      transfer.cryptoType === 'bitcoin'
-                        ? url.getBtcExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                        : url.getEthExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                    }
+                    href={url.getExplorerTx(transfer.cryptoType, txHash)}
                   >
                     {' here'}
                   </MuiLink>

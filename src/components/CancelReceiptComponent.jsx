@@ -73,9 +73,8 @@ class CancelReceiptComponent extends Component {
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     It may takes a few minutes to complete the transaction. You can track the transaction
                     <MuiLink target='_blank' rel='noopener'
-                      href={
-                        receipt.cryptoType === 'bitcoin'
-                          ? url.getBtcExplorerTx(cancelTxHash) : url.getEthExplorerTx(cancelTxHash)}>
+                      href={url.getExplorerTx(receipt.cryptoType, cancelTxHash)}
+                    >
                       {' here'}
                     </MuiLink>
                     . A confirmation email will be sent to you.
