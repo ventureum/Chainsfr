@@ -3,6 +3,7 @@ import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import { detect } from 'detect-browser'
+import env from './typedEnv'
 
 const browser = detect()
 
@@ -15,6 +16,11 @@ export const walletCryptoSupports = {
   'ledger': [{ cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: false }]
+}
+
+if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
+  // only enable libra for testnet
+  walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
 }
 
 function browserSupported () {

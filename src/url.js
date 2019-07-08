@@ -36,6 +36,17 @@ const BLOCKCYPHER_API_URL =
 
 const BTC_FEE_ENDPOINT = 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
 
+const LIBRA_EXPLORER_ADDRESS_BASE_URL = 'https://www.libravista.com/address/'
+
+function getLibraExplorerAddress (address) {
+  return LIBRA_EXPLORER_ADDRESS_BASE_URL + address
+}
+
+function getLibraExplorerTx (txHash) {
+  // no txHash for libra available, use address instead
+  return LIBRA_EXPLORER_ADDRESS_BASE_URL + txHash
+}
+
 function getEthExplorerAddress (address) {
   return ETHEREUM_EXPLORER_ADDRESS_BASE_URL + address
 }
@@ -56,6 +67,35 @@ function getBtcExplorerTx (txHash) {
   return BITCOIN_EXPLORER_TX_BASE_URL + txHash
 }
 
+function getExplorerTx (cryptoType, txHash) {
+  switch (cryptoType) {
+    case 'ethereum':
+    case 'dai':
+      return getEthExplorerTx(txHash)
+    case 'bitcoin':
+      return getBtcExplorerTx(txHash)
+    case 'libra':
+      return getLibraExplorerTx(txHash)
+    default:
+      throw new Error(`Invalid cryptoType: ${cryptoType}`)
+  }
+}
+
+function getExplorerAddress (cryptoType, address) {
+  switch (cryptoType) {
+    case 'ethereum':
+      return getEthExplorerAddress(address)
+    case 'dai':
+      return getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, address)
+    case 'bitcoin':
+      return getBtcExplorerAddress(address)
+    case 'libra':
+      return getLibraExplorerAddress(address)
+    default:
+      throw new Error(`Invalid cryptoType: ${cryptoType}`)
+  }
+}
+
 export default {
   REACT_APP_BTC_NETWORK,
   BLOCKCYPHER_API_URL,
@@ -66,5 +106,9 @@ export default {
   getEthExplorerToken,
   getEthExplorerTx,
   getBtcExplorerAddress,
-  getBtcExplorerTx
+  getBtcExplorerTx,
+  getLibraExplorerAddress,
+  getLibraExplorerTx,
+  getExplorerTx,
+  getExplorerAddress
 }

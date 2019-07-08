@@ -10,6 +10,7 @@ import url from './url'
  * @return float number of val/(10**decimals) with precision [precision]
  */
 function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 8) {
+  if (decimals === 0) return parseFloat(val)
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = new BN(val).div(base)
@@ -21,6 +22,7 @@ function toHumanReadableUnit (val: any, decimals: number = 18, precision: number
  * @return BN smallest token unit
  */
 function toBasicTokenUnit (val: any, decimals: number = 18, precision: number = 8) {
+  if (decimals === 0) return new BN(val)
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = parseInt(val * precisionBase.toNumber())

@@ -75,7 +75,8 @@ const WALLET_INSTRUCTION = {
   drive: {
     bitcoin: BASE_WALLET_INSTRUCTION.drive,
     ethereum: BASE_WALLET_INSTRUCTION.drive,
-    dai: BASE_WALLET_INSTRUCTION.drive
+    dai: BASE_WALLET_INSTRUCTION.drive,
+    libra: BASE_WALLET_INSTRUCTION.drive
   }
 }
 

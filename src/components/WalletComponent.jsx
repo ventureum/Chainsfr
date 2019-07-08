@@ -220,8 +220,15 @@ class WalletComponent extends Component {
         if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])) {
           return 'Invalid address'
         }
-      } else if (!Web3Utils.isAddress(value)) {
-        return 'Invalid address'
+      } else if (['ethereum', 'dai'].includes(selectedCryptoType)) {
+        if (!Web3Utils.isAddress(value)) {
+          return 'Invalid address'
+        }
+      } else if (selectedCryptoType === 'libra') {
+        if (value.length !== 64 || !/^[a-f0-9]+$/.test(value)) {
+          // length of 64, only contains 0-9, a-f
+          return 'Invalid address'
+        }
       }
       return null
     }
@@ -385,10 +392,7 @@ class WalletComponent extends Component {
             <MuiLink
               target='_blank'
               rel='noopener'
-              href={
-                receipt.cryptoType === 'bitcoin'
-                  ? url.getBtcExplorerTx(receipt.sendTxHash) : url.getEthExplorerTx(receipt.sendTxHash)}
-            >
+              href={url.getExplorerTx(receipt.cryptoType, receipt.sendTxHash)}>
               {' here'}
             </MuiLink>
           </Typography>
@@ -528,6 +532,8 @@ class WalletComponent extends Component {
       explorerLink = url.getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, walletByCryptoType.address)
     } else if (walletByCryptoType.cryptoType === 'bitcoin') {
       explorerLink = url.getBtcExplorerAddress(walletByCryptoType.address)
+    } else if (walletByCryptoType.cryptoType === 'libra') {
+      explorerLink = url.getLibraExplorerAddress(walletByCryptoType.address)
     }
 
     let moreMenu = this.state.moreMenu[walletByCryptoType.cryptoType]

@@ -91,9 +91,7 @@ class ReceiveReceiptComponent extends Component {
                     <MuiLink
                       target='_blank'
                       rel='noopener'
-                      href={
-                        receipt.cryptoType === 'bitcoin'
-                          ? url.getBtcExplorerTx(receiveTxHash) : url.getEthExplorerTx(receiveTxHash)}
+                      href={url.getExplorerTx(receipt.cryptoType, receiveTxHash)}
                     >
                       {' here'}
                     </MuiLink>

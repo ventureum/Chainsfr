@@ -1,6 +1,7 @@
 import EthereumLogo from './images/eth.svg'
 import BitcoinLogo from './images/btc.svg'
 import DaiLogo from './images/dai.svg'
+import LibraLogo from './images/libra.png'
 
 export const cryptoSelections = [
   {
@@ -27,6 +28,14 @@ export const cryptoSelections = [
     address: process.env.REACT_APP_DAI_ADDRESS,
     decimals: 18,
     txFeesCryptoType: 'ethereum'
+  },
+  {
+    cryptoType: 'libra',
+    title: 'Libra',
+    symbol: 'Libra',
+    logo: LibraLogo,
+    decimals: 0,
+    txFeesCryptoType: 'libra'
   }
 ]
 

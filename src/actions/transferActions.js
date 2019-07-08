@@ -110,7 +110,7 @@ async function _submitTx (txRequest: {
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils.toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType)).toString()
 
-  if (['ethereum', 'bitcoin', 'dai'].includes(cryptoType)) {
+  if (['ethereum', 'bitcoin', 'dai', 'libra'].includes(cryptoType)) {
     let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
@@ -257,6 +257,9 @@ async function _cancelTransfer (
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
+  } else if (cryptoType === 'libra') {
+    // txHash is the sender's address for libra
+    senderAddress = sendTxHash
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }

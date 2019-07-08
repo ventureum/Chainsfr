@@ -15,7 +15,7 @@ export default class WalletUtils {
     accounts: Array<Account>
   ): WalletData => {
     if (!accounts) accounts = []
-    if (['ethereum', 'dai'].includes(cryptoType)) {
+    if (['ethereum', 'dai', 'libra'].includes(cryptoType)) {
       if (accounts.length === 0) {
         accounts.push(this._normalizeAccountEthereum({}))
       }

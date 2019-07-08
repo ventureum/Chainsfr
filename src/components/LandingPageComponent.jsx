@@ -13,7 +13,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { Scrollbars } from 'react-custom-scrollbars'
 import moment from 'moment'
-import { cryptoSelections, getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import { getCryptoSymbol, getCryptoDecimals, getCrypto } from '../tokens'
+import { walletCryptoSupports } from '../wallet'
 import path from '../Paths.js'
 import utils from '../utils'
 import numeral from 'numeral'
@@ -223,6 +224,8 @@ class LandingPageComponent extends Component {
       stateClassName = 'recentTransferItemTransferStatusError'
     }
 
+    const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
+    
     return (
       <ExpansionPanel
         key={i}
@@ -269,11 +272,7 @@ class LandingPageComponent extends Component {
                   <MuiLink
                     target='_blank'
                     rel='noopener'
-                    href={
-                      transfer.cryptoType === 'bitcoin'
-                        ? url.getBtcExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                        : url.getEthExplorerTx(transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash)
-                    }
+                    href={url.getExplorerTx(transfer.cryptoType, txHash)}
                   >
                     {' here'}
                   </MuiLink>
@@ -317,7 +316,8 @@ class LandingPageComponent extends Component {
             <Grid item className={classes.verticalMarginL}>
               <div style={{ padding: 10 }}>
                 <Grid container direction='row' alignItems='center' spacing={5}>
-                  {cryptoSelections.map((c, i) => {
+                  {walletCryptoSupports['drive'].map((c, i) => {
+                    c = getCrypto(c.cryptoType)
                     return (
                       <Grid item sm={4} key={i} xs={12} >
                         <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>

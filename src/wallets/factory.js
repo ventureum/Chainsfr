@@ -7,6 +7,7 @@ import type {
 } from '../types/wallet.flow'
 import WalletBitcoin from './bitcoin'
 import WalletEthereum from './ethereum'
+import WalletLibra from './libra'
 import WalletUtils from './utils'
 
 export default class WalletFactory {
@@ -17,6 +18,8 @@ export default class WalletFactory {
     } else if (['bitcoin'].includes(walletData.cryptoType)) {
       // type casting
       return new WalletBitcoin(((walletData: any): WalletDataBitcoin))
+    } else if (['libra'].includes(walletData.cryptoType)) {
+      return new WalletLibra(((walletData: any): WalletDataEthereum))
     } else {
       throw new Error(`Invalid cryptoType: ${walletData.cryptoType}`)
     }
@@ -39,6 +42,8 @@ export default class WalletFactory {
       wallet = new WalletEthereum()
     } else if (cryptoType === 'bitcoin') {
       wallet = new WalletBitcoin()
+    } else if (cryptoType === 'libra') {
+      wallet = new WalletLibra()
     }
     if (wallet) {
       await wallet.generateWallet({ walletType, cryptoType })
