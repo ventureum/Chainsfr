@@ -333,7 +333,7 @@ class WalletComponent extends Component {
             variant='contained'
             onClick={() => this.setState({ directTransferDialogStep: 'REVIEW' })}
             color='primary'
-            disabled={!this.validateForm()}
+            disabled={!this.validateForm() || actionsPending.getTxFee}
           >
             Continue to Review
           </Button>
@@ -343,7 +343,7 @@ class WalletComponent extends Component {
   }
 
   renderDirectTransferDialogReviewStep = () => {
-    let { classes } = this.props
+    let { classes, actionsPending } = this.props
     let {
       directTransferDialogForm,
       selectedCryptoType
@@ -368,13 +368,20 @@ class WalletComponent extends Component {
           <Button onClick={() => this.setState({ directTransferDialogStep: 'RECIPIANT' })} color='primary'>
             Back
           </Button>
-          <Button
-            variant='contained'
-            onClick={this.directTransferDialogOnSubmit}
-            color='primary'
-          >
-            Confirm to Transfer
-          </Button>
+          <div className={classes.directTxConfirmBtnContainer}>
+            <Button
+              variant='contained'
+              onClick={this.directTransferDialogOnSubmit}
+              color='primary'
+              disabled={actionsPending.directTransfer}
+            >
+              Confirm to Transfer
+            </Button>
+            {actionsPending.directTransfer
+              ? <CircularProgress size={24} className={classes.directTxConfirmBtnProgress} />
+              : null
+            }
+          </div>
         </DialogActions>
       </>
     )
@@ -764,6 +771,14 @@ const styles = theme => ({
   },
   minWidth200px: {
     minWidth: '300px'
+  },
+  directTxConfirmBtnContainer: {
+    position: 'relative'
+  },
+  directTxConfirmBtnProgress: {
+    position: 'absolute',
+    left: '45%',
+    top: '20%'
   }
 })
 

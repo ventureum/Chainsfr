@@ -93,7 +93,6 @@ describe('RecipientComponent render', () => {
     expect(wrapper.find(TextField).filter('#destination').prop('value')).toEqual(mockValidEmail)
     expect(wrapper.find(TextField).filter('#amount').prop('value')).toEqual(mockValidAmount)
     expect(wrapper.find(TextField).filter('#password').prop('value')).toEqual(mockValidPassword)
-    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(false)
   })
 
   // invalid inputs
