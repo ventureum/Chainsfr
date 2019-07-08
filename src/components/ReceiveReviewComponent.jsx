@@ -126,7 +126,7 @@ class ReceiveReviewComponent extends Component {
                   variant='contained'
                   color='primary'
                   size='large'
-                  disabled={actionsPending.acceptTransfer}
+                  disabled={actionsPending.acceptTransfer || actionsPending.getTxFee}
                   onClick={this.handleReviewNext}
                   id='complete'
                 >

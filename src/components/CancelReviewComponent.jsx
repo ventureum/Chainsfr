@@ -72,7 +72,7 @@ class CancelReviewComponent extends Component {
                   <Button
                     variant='contained'
                     color='primary'
-                    disabled={actionsPending.cancelTransfer}
+                    disabled={actionsPending.cancelTransfer || actionsPending.getTxFee}
                     onClick={this.handleReviewNext}
                     id='confirmCancel'
                   >

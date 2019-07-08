@@ -159,7 +159,7 @@ class RecipientComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, transferForm, wallet, cryptoSelection } = this.props
+    const { classes, transferForm, wallet, cryptoSelection, actionsPending } = this.props
     const { transferAmount, destination, password, sender, formError } = transferForm
 
     let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
@@ -244,7 +244,7 @@ class RecipientComponent extends Component<Props> {
                   color='primary'
                   size='large'
                   onClick={() => this.props.goToStep(1)}
-                  disabled={!this.validateForm()}
+                  disabled={!this.validateForm() || actionsPending.getTxFee}
                 >
                   Continue
                 </Button>

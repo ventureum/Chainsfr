@@ -333,7 +333,7 @@ class WalletComponent extends Component {
             variant='contained'
             onClick={() => this.setState({ directTransferDialogStep: 'REVIEW' })}
             color='primary'
-            disabled={!this.validateForm()}
+            disabled={!this.validateForm() || actionsPending.getTxFee}
           >
             Continue to Review
           </Button>
