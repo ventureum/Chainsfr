@@ -272,6 +272,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     } else if (['drive', 'escrow'].includes(walletType)) {
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(account.privateKey)
+      // convert decimal to hex
+      for (let txObj of txObjs) {
+        txObj.nonce = _web3.utils.toHex(txObj.nonce)
+        txObj.value = _web3.utils.toHex(txObj.value)
+        txObj.gas = _web3.utils.toHex(txObj.gas)
+        txObj.gasPrice = _web3.utils.toHex(txObj.gasPrice)
+      }
       return web3SendTransactions(_web3.eth.sendTransaction, txObjs)
     } else if (walletType === 'ledger') {
       const ledgerNanoS = new LedgerNanoS()
