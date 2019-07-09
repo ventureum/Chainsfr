@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab'
@@ -28,7 +27,6 @@ class FAQComponent extends Component {
 
   render () {
     let { classes, docId } = this.props
-
     return (
       <div>
         <Fab
@@ -47,22 +45,19 @@ class FAQComponent extends Component {
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby='faq-dialog'
-          fullWidth
           fullScreen={isMobile}
           maxWidth='md'
           scroll='paper'
-          className={isMobile ? undefined : classes.lowerLeftFixed}
+          classes={isMobile ? undefined : { paper: classes.lowerLeftFixed }}
         >
           <DialogContent className={classes.zeroPadding}>
-            <DialogContentText>
-              <iframe
-                title='faq-iframe'
-                className={isMobile ? classes.iframeMobile : classes.iframe}
-                src={DOC_URL + docId}
-                allowFullScreen
-                frameBorder='0'
-              />
-            </DialogContentText>
+            <iframe
+              title='faq-iframe'
+              className={isMobile ? classes.iframeMobile : classes.iframe}
+              src={DOC_URL + docId}
+              allowFullScreen
+              frameBorder='0'
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color='primary' id='close'>
@@ -76,18 +71,14 @@ class FAQComponent extends Component {
 }
 
 const styles = theme => ({
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-end'
-  },
   lowerLeftFixed: {
     margin: 0,
     top: 'auto',
     right: 20,
     bottom: 20,
     left: 'auto',
-    position: 'fixed'
+    position: 'fixed',
+    maxWidth: 'none'
   },
   zeroPadding: {
     padding: '0px 0px 0px 0px !important'
