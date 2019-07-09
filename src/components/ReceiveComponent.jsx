@@ -32,7 +32,7 @@ class ReceiveComponent extends React.Component {
                   container
                   direction='column'
                   alignItems='center'
-                  className={step === 4 && classes.receiptContainer}
+                  className={step === 4 ? classes.receiptContainer : undefined}
                 >
                   <Grid item className={classes.subComponent}>
                     {step === 1 && <ReceivePassword />}
