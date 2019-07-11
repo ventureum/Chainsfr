@@ -60,7 +60,7 @@ export const trackerMiddleware = store => next => action => {
     case 'LOGIN':
       // register user
       trackUser(action.payload.googleId)
-      currentUserId = action.payload.profile.googleId
+      currentUserId = action.payload.googleId
       break
     case 'LOGOUT_FULFILLED':
       trackEvent({
