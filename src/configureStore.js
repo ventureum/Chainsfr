@@ -9,19 +9,26 @@ import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2'
 import reducers from './reducers'
 import { routerMiddleware } from 'connected-react-router'
 import { createBrowserHistory } from 'history'
+import { trackerMiddleware } from './trackerMiddleware'
+import env from './typedEnv'
 
 const history = createBrowserHistory()
 
 function configureStore (reducers) {
-  const middlewares = [routerMiddleware(history), errorMiddleware, promiseMiddleware(), thunk]
+  const middlewares = [
+    routerMiddleware(history),
+    // only add trackerMiddleware if tracking id exists
+    ...(env.REACT_APP_GA_TRACKING_ID ? [trackerMiddleware] : []),
+    errorMiddleware,
+    promiseMiddleware(),
+    thunk
+  ]
 
   if (process.env.NODE_ENV === `development`) {
     middlewares.push(logger)
   }
 
-  const enhancer = compose(
-    applyMiddleware(...middlewares)
-  )
+  const enhancer = compose(applyMiddleware(...middlewares))
 
   return createStore(reducers, enhancer)
 }
@@ -50,9 +57,7 @@ const persistConfig = {
   key: 'root',
   storage,
   stateReconciler: autoMergeLevel2,
-  transforms: [
-    serializeTransform
-  ],
+  transforms: [serializeTransform],
   whitelist: ['userReducer', 'walletReducer']
 }
 
