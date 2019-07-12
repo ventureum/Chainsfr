@@ -10,11 +10,16 @@ export const componentMargins = {
     small: {
       marginBottom: spacing.m
     },
-    regular: {
+    default: {
       marginBottom: spacing.m,
       marginRight: spacing.m
     },
     large: {
+      marginBottom: spacing.l
+    }
+  },
+  card: {
+    default: {
       marginBottom: spacing.l
     }
   }
@@ -39,6 +44,24 @@ export const componentPaddings = {
       paddingBottom: spacing.m,
       paddingLeft: spacing.l,
       paddingRight: spacing.l
+    }
+  },
+  card: {
+    default: {
+      paddingTop: spacing.xxl,
+      paddingBottom: spacing.xl
+    }
+  },
+  container: {
+    default: {
+      paddingTop: spacing.xxl,
+      paddingBottom: spacing.xxl
+    }
+  },
+  toolbar: {
+    default: {
+      paddingLeft: spacing.xxl,
+      paddingRight: spacing.xxl
     }
   }
 }

@@ -20,7 +20,7 @@ import { SnackbarProvider } from 'notistack'
 import NotifierComponent from './components/NotifierComponent'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
-import { theme } from './styles/theme'
+import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
 
@@ -125,7 +125,7 @@ class App extends Component {
 
   render () {
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={themeChainsfr}>
         <Provider store={store}>
           <SnackbarProvider
             action={[

@@ -2,7 +2,7 @@
 // Typography
 
 export const fontFamily = {
-  fontFamily: "'Lato', Roboto', sans-serif;",
+  fontFamily: "'Lato', 'Roboto', sans-serif;",
   fontFamilySeconday: "'Poppins', sans-serif;"
 }
 
@@ -62,17 +62,20 @@ export const spacing = {
 export const baseColors = {
   black: '#333',
   grey: {
-    g600: '#666',
-    g500: '#a8a8a8',
-    g400: '#c4c4c4',
-    g300: '#d2d2d2',
+    g100: '#f8f8f8',
     g200: '#e9e9e9',
-    g100: '#f8f8f8'
-
+    g300: '#c4c4c4',
+    g400: '#a8a8a8',
+    g500: '#666',
+    g600: '#444',
+    g700: '#333',
+    g800: '#222',
+    g900: '#111'
   },
   purple: {
     p400: '#452bd6',
-    p700: '#3118bd'
+    p500: '#393386',
+    p700: '#1D1960'
   },
   red: {
     r500: '#dc1434',
@@ -81,10 +84,14 @@ export const baseColors = {
   white: '#fff',
   blue: {
     b100: '#f6f9fe',
-    b400: '#4285F4', // primary
-    b500: '#396EC8',
-    b600: '#1266f1', // temp
-    b700: '#1266f1'
+    b200: '#B3D8FD',
+    b300: '#8DBFFB',
+    b400: '#70A8F8',
+    b500: '#4285F4', // primary
+    b600: '#3066D1', // temp
+    b700: '#214BAF',
+    b800: '#15348D',
+    b900: '#0C2375'
   },
   green: ''
 }

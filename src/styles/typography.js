@@ -41,6 +41,16 @@ export const headers = {
     lineHeight: fontSize.s.lineHeight,
     color: fontColors.primary,
     textTransform: textTransform.titleCase
+  },
+
+  // table header
+  h6: {
+    fontFamily: fontFamily.fontFamily,
+    fontWeight: fontWeight.semiBold,
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.titleCase
   }
 
 }
@@ -52,15 +62,17 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
-    color: fontColors.secondary
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   },
 
   d2: {
     fontFamily: fontFamily.fontFamily,
     fontWeight: fontWeight.regular,
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
-    color: fontColors.primary
+    fontSize: fontSize.m.size,
+    lineHeight: fontSize.m.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   },
 
   d3: {
@@ -68,7 +80,8 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.m.size,
     lineHeight: fontSize.m.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.default
   },
 
   d4: {
@@ -76,28 +89,33 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.default
+  },
+
+  d5: {
+    fontFamily: fontFamily.fontFamily,
+    fontWeight: fontWeight.regular,
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   }
 }
 
 export const textValues = {
   fontFamily: fontFamily.fontFamily,
   fontWeight: fontWeight.regular,
-  textDefault: {
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
-    color: fontColors.secondary
-  },
-
-  textLarge: {
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
+  default: {
+    fontSize: fontSize.s.size,
+    lineHeight: fontSize.s.lineHeight,
     color: fontColors.primary
   },
-
-  textSmall: {
-    fontSize: fontSize.m.size,
-    lineHeight: fontSize.m.lineHeight,
+  large: {
+  },
+  small: {
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
     color: fontColors.primary
   }
 }

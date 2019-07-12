@@ -2,9 +2,12 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
+import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
+import Card from '@material-ui/core/Card'
+import Box from '@material-ui/core/Box'
 import ListItemText from '@material-ui/core/ListItemText'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
@@ -30,9 +33,8 @@ import env from '../typedEnv'
 import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
-import { spacing, fontSize } from '../styles/base'
-import { uiColors } from '../styles/color'
-import { headers, textValues } from '../styles/typography'
+import { spacing } from '../styles/base'
+import { headers } from '../styles/typography'
 
 const toUserReadableState = {
   SENDER: {
@@ -83,7 +85,7 @@ class LandingPageComponent extends Component {
         actions={[
           {
             onClick: this.next,
-            text: <Typography className={classes.spotlightbtnText}>Next</Typography>
+            text: (<Typography className={classes.spotlightbtnText}>Next</Typography>)
           }
         ]}
         actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/3</Typography>}
@@ -135,7 +137,7 @@ class LandingPageComponent extends Component {
         dialogPlacement='right middle'
       >
         <Typography className={classes.spotlightBodyText}>
-          Now it is the right time to try our transfer feature. Click on Arrange Transfer to start.
+          Now it is the right time to try our transfer feature. Click on Arrange Transfer to start
         </Typography>
       </Spotlight>
     ]
@@ -145,7 +147,7 @@ class LandingPageComponent extends Component {
         actions={[
           {
             onClick: this.next,
-            text: <Typography className={classes.spotlightbtnText}>Next</Typography>
+            text: (<Typography className={classes.spotlightbtnText}>Next</Typography>)
           }
         ]}
         actionsBeforeElement={<Typography className={classes.spotlightStepText}>1/2</Typography>}
@@ -264,7 +266,7 @@ class LandingPageComponent extends Component {
         }}
       >
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Grid container direction='row' alignItems='center' >
+          <Grid container direction='row' alignItems='center'>
             <Grid xs={8} item>
               <ListItemText
                 primary={
@@ -274,9 +276,9 @@ class LandingPageComponent extends Component {
               />
             </Grid>
             <Grid xs={4} item>
-              <Grid container direction='row' justify='space-between' alignItems='center'>
+              <Grid container direction='row' justify='space-between' alignItems='center' >
                 <Grid item>
-                  <Typography align='center' className={classes[stateClassName]}>
+                  <Typography align='center' className={classes[stateClassName]} >
                     {toUserReadableState[transfer.transferType][transfer.state]}
                   </Typography>
                 </Grid>
@@ -295,7 +297,7 @@ class LandingPageComponent extends Component {
           </Grid>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <Grid container direction='column' justify='center' alignItems='flex-start'>
+          <Grid container direction='column' justify='center' alignItems='flex-start' >
             <Grid item>
               <Typography className={classes.recentTransferItemTransferId}>
                 Transfer ID: {transfer.transferType === 'SENDER' ? transfer.sendingId : transfer.receivingId}
@@ -317,7 +319,7 @@ class LandingPageComponent extends Component {
             }
             {[transferStates.SEND_PENDING,
               transferStates.SEND_FAILURE,
-              transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
+              transferStates.SEND_CONFIRMED_CANCEL_PENDING ].includes(transfer.state) &&
               <Grid item>
                 <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
@@ -331,7 +333,8 @@ class LandingPageComponent extends Component {
                 </Typography>
               </Grid>
             }
-            {[transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
+            {[
+              transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
               transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED].includes(transfer.state) &&
               <Grid item>
                 <Button
@@ -356,82 +359,76 @@ class LandingPageComponent extends Component {
     // Do not remove <div style={{ padding: 10 }}>
     // See https://material-ui.com/components/grid/#limitations
     return (
-      <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Grid item>
-              <Typography className={classes.balanceTitleText}>
-                My Balance
-              </Typography>
-            </Grid>
+      <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond} >
+        <Container maxWidth='lg'>
+          <Box mb={2}>
+            <Typography variant='h2'>Drive Wallet Balance</Typography>
+          </Box>
 
-            <Grid item className={classes.verticalMarginL}>
-              <div style={{ padding: 10 }}>
-                <Grid container direction='row' alignItems='center' spacing={5}>
-                  {walletCryptoSupports['drive'].map((c, i) => {
-                    c = getCrypto(c.cryptoType)
-                    return (
-                      <Grid item sm={4} key={i} xs={12} >
-                        <Grid container direction='column' alignItems='center' justify='center' className={classes.balanceContainer}>
-                          <SpotlightTarget name={c.cryptoType === 'ethereum' ? 'two' : undefined}>
-                            <Grid item>
-                              {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
-                                ? <>
-                                  <Grid container direction='row' alignItems='center' justify='center'>
-                                    <Typography align='left' className={classes.balanceText}>
-                                      {numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000[000]')}
-                                    </Typography>
-                                    <Typography align='right' className={classes.balanceCurrencyText}>
-                                      (≈ {walletBalanceCurrencyAmount[c.cryptoType]})
-                                    </Typography>
-                                  </Grid>
-                                </>
-                                : <CircularProgress color='primary' />
-                              }
-                              <Typography className={classes.cryptoTypeText} align='center'>{c.symbol}</Typography>
-                            </Grid>
-                          </SpotlightTarget>
-                        </Grid>
-                      </Grid>
-                    )
-                  })}
-                </Grid>
-              </div>
-            </Grid>
-
-            <Grid item className={classes.verticalMarginL}>
-              <div style={{ padding: 8 }}>
-                <Grid container direction='row' alignItems='center' justify='center' spacing={4}>
-                  <Grid item >
-                    <SpotlightTarget name='one'>
-                      <Button
-                        variant='contained'
-                        component={Link}
-                        to={path.wallet}
-                        className={classes.viewDriveWalletBtn}
-                      >
-                        View Drive Wallet
-                      </Button>
+          {/* <div style={{ padding: '0 10px 0 10px' }}> */}
+          <Grid container direction='row' alignItems='center' spacing={2}>
+            {walletCryptoSupports['drive'].map((c, i) => {
+              c = getCrypto(c.cryptoType)
+              return (
+                <Grid item sm={12 / walletCryptoSupports['drive'].length} key={i} xs={12}>
+                  <Card>
+                    <SpotlightTarget
+                      name={c.cryptoType === 'ethereum' ? 'two' : undefined}
+                    >
+                      {cloudWallet.crypto[c.cryptoType] &&
+                      !actionsPending.getCloudWallet
+                        ? <>
+                          <Grid container direction='row' alignItems='center' justify='center'>
+                            <Typography variant='h1' align='center'>
+                              {numeral(
+                                utils.toHumanReadableUnit(
+                                  cloudWallet.crypto[c.cryptoType][0].balance,
+                                  getCryptoDecimals(c.cryptoType)
+                                )
+                              ).format('0.000a')}
+                            </Typography>
+                            <Typography align='right' className={classes.balanceCurrencyText}>
+                          (≈ {walletBalanceCurrencyAmount[c.cryptoType]})
+                            </Typography>
+                          </Grid>
+                        </>
+                        : <Box display='flex' justifyContent='center'><CircularProgress color='primary' /></Box>
+                      }
+                      <Typography variant='body2' align='center'>{c.symbol}</Typography>
                     </SpotlightTarget>
-                  </Grid>
-                  <Grid item >
-                    <SpotlightTarget name='three'>
-                      <Button
-                        variant='contained'
-                        component={Link}
-                        to={path.transfer}
-                        className={classes.startTransferBtn}
-                      >
-                        Start Transfer
-                      </Button>
-                    </SpotlightTarget>
-                  </Grid>
+                  </Card>
                 </Grid>
-              </div>
-            </Grid>
-
+              )
+            })}
           </Grid>
-        </Grid>
+
+          <Grid container direction='row' alignItems='center' justify='center' spacing={2} >
+            <Grid item>
+              <SpotlightTarget name='one'>
+                <Button
+                  variant='outlined'
+                  color='primary'
+                  component={Link}
+                  to={path.wallet}
+                >
+                  View Drive Wallet
+                </Button>
+              </SpotlightTarget>
+            </Grid>
+            <Grid item>
+              <SpotlightTarget name='three'>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  component={Link}
+                  to={path.transfer}
+                >
+                  Start Transfer
+                </Button>
+              </SpotlightTarget>
+            </Grid>
+          </Grid>
+        </Container>
       </Grid>
     )
   }
@@ -439,15 +436,13 @@ class LandingPageComponent extends Component {
   renderTransferHistorySection = () => {
     const { classes, actionsPending, transferHistory, loadMoreTransferHistory } = this.props
     return (
-      <Grid container alignItems='center' justify='center' className={classes.transactionHistorySection}>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column' justify='center' alignItems='stretch'>
+      <Grid container alignItems='center' justify='center' className={classes.transactionHistorySection} >
+        <Container maxWidth='lg'>
+          <Grid container direction='column' justify='center' alignItems='stretch' >
             <Grid item>
               <Grid container direction='row'>
                 <Grid item>
-                  <Typography className={classes.recentTxTitle} >
-                    Recent Transactions
-                  </Typography>
+                  <Typography variant='h2'>Recent Transactions</Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -471,14 +466,14 @@ class LandingPageComponent extends Component {
                 initialLoad={false}
               >
                 <Grid item className={classes.txHistoryTitleContainer}>
-                  <Grid container direction='row' alignItems='center' >
+                  <Grid container direction='row' alignItems='center'>
                     <Grid item xs={8}>
                       <Typography className={classes.txHistoryTitleText}>
                         Transaction
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
-                      <Grid container alignItems='center' justify='space-between'>
+                      <Grid container alignItems='center' justify='space-between' >
                         <Grid item>
                           <Typography className={classes.txHistoryTitleText}>
                             Status
@@ -505,7 +500,7 @@ class LandingPageComponent extends Component {
               </InfiniteScroll>
             </Grid>
           </Grid>
-        </Grid>
+        </Container>
       </Grid>
     )
   }
@@ -513,14 +508,9 @@ class LandingPageComponent extends Component {
   render () {
     return (
       <SpotlightManager blanketIsTinted={false}>
-
         <Grid container direction='column'>
-          <Grid item >
-            {this.renderWalletSection()}
-          </Grid>
-          <Grid item>
-            {this.renderTransferHistorySection()}
-          </Grid>
+          <Grid item>{this.renderWalletSection()}</Grid>
+          <Grid item>{this.renderTransferHistorySection()}</Grid>
           <SpotlightTransition>
             {this.renderActiveSpotlight()}
           </SpotlightTransition>
@@ -534,35 +524,12 @@ const styles = theme => ({
   sectionContainer: {
     width: '100%',
     maxWidth: '1200px',
-    margin: `0px ${spacing.s} 0px ${spacing.s}`,
-    paddingTop: spacing.l,
-    paddingBottom: spacing.l
+    margin: `0px ${spacing.s}px 0px ${spacing.s}px`,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl
   },
   coloredBackgrond: {
     backgroundColor: '#FAFBFE'
-  },
-  balanceContainer: {
-    height: '120px',
-    border: `1px solid ${uiColors.white}`,
-    boxShadow: `0px 2px 4px rgba(51, 51, 51, 0.1)`,
-    backgroundColor: uiColors.white,
-    borderRadius: '8px'
-  },
-  balanceTitleText: {
-    ...headers.h2,
-    marginLeft: '10px',
-    fontWeight: '600'
-  },
-  balanceText: {
-    fontSize: fontSize.xl.size,
-    lineHeight: fontSize.xl.lineHeight,
-    fontWeight: '600',
-    color: '#333333'
-  },
-  balanceCurrencyText: {
-    ...textValues.textSmall,
-    marginLeft: '5px',
-    color: '#777777'
   },
   verticalMarginL: {
     marginTop: spacing.l,
