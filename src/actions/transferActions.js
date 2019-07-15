@@ -298,7 +298,8 @@ async function _getTransfer (sendingId: ?string, receivingId: ?string) {
   return { transferData, walletData }
 }
 
-async function _getTransferHistory () {
+async function _getTransferHistory (offset: number = 0) {
+  const ITEM_PER_FETCH = 10
   let transfersDict = await getAllTransfers()
 
   // convert dict to array
@@ -310,9 +311,14 @@ async function _getTransferHistory () {
   // sort transfers by sendTimestamp in descending order
   transfers.sort((a, b) => b.sendTimestamp - a.sendTimestamp)
 
-  // pick most recent 20 transfers
-  transfers = transfers.slice(0, Math.min(transfers.length, 20))
-
+  // pick most recent 10 transfers
+  let hasMore = true
+  if (offset + ITEM_PER_FETCH < transfers.length) {
+    transfers = transfers.slice(offset, Math.min(transfers.length, offset + ITEM_PER_FETCH))
+  } else {
+    hasMore = false
+    transfers = transfers.slice(offset)
+  }
   // identify transfer state
   const sendingIds = transfers.map(t => t.sendingId)
   let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
@@ -381,7 +387,8 @@ async function _getTransferHistory () {
       state
     }
   })
-  return transferData
+
+  return { hasMore, transferData, offset }
 }
 
 function submitTx (txRequest: {
@@ -486,10 +493,10 @@ function getTransfer (sendingId: ?string, receivingId: ?string) {
   }
 }
 
-function getTransferHistory () {
+function getTransferHistory (offset: number) {
   return {
     type: 'GET_TRANSFER_HISTORY',
-    payload: _getTransferHistory()
+    payload: _getTransferHistory(offset)
   }
 }
 

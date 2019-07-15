@@ -10,17 +10,23 @@ import { setNewUserTag } from '../actions/userActions'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
-    if (this.props.profile.isAuthenticated) {
-      if (!this.props.cloudWallet.connected) this.props.getCloudWallet()
+    const { profile, cloudWallet, getCloudWallet, getTransferHistory } = this.props
+    if (profile.isAuthenticated) {
+      if (!cloudWallet.connected) getCloudWallet()
       // load transfer history for logged-in users
-      this.props.getTransferHistory()
+      getTransferHistory(0)
     }
+  }
+
+  loadMoreTransferHistory = (offset) => {
+    this.props.getTransferHistory(offset)
   }
 
   render () {
     return (
       <LandingPageComponent
         {...this.props}
+        loadMoreTransferHistory={this.loadMoreTransferHistory}
       />
     )
   }
@@ -48,7 +54,7 @@ const mapDispatchToProps = dispatch => {
   return {
     goToStep: (n) => dispatch(goToStep('send', n)),
     getCloudWallet: () => dispatch(getCloudWallet()),
-    getTransferHistory: () => dispatch(getTransferHistory()),
+    getTransferHistory: (offset) => dispatch(getTransferHistory(offset)),
     setNewUserTag: (isNewUser) => dispatch(setNewUserTag(isNewUser))
 
   }

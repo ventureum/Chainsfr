@@ -13,7 +13,12 @@ const initialState = {
   txFee: null,
 
   // transaction receipt
-  receipt: null
+  receipt: null,
+
+  transferHistory: {
+    hasMore: true,
+    history: []
+  }
 }
 
 export default function (state = initialState, action) {
@@ -51,7 +56,12 @@ export default function (state = initialState, action) {
     case 'GET_TRANSFER_HISTORY_FULFILLED':
       return {
         ...state,
-        transferHistory: action.payload
+        transferHistory: {
+          hasMore: action.payload.hasMore,
+          history: action.payload.offset === 0
+            ? action.payload.transferData
+            : [...state.transferHistory.history, ...action.payload.transferData]
+        }
       }
     default: // need this for default case
       return state
