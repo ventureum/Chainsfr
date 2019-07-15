@@ -24,7 +24,6 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import url from '../url'
 import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
-import env from '../typedEnv'
 
 const WalletConnectionErrorMessage = {
   'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
@@ -69,12 +68,6 @@ class WalletSelectionComponent extends Component<Props> {
 
   renderBalance = () => {
     const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
-    var explorerLink = null
-    if (cryptoType === 'ethereum' && wallet.crypto[cryptoType]) {
-      explorerLink = url.getEthExplorerAddress(wallet.crypto[cryptoType][0].address)
-    } else if (cryptoType === 'dai' && wallet.crypto[cryptoType]) {
-      explorerLink = url.getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, wallet.crypto[cryptoType][0].address)
-    }
     if (actionsPending.checkCloudWalletConnection) {
       // special case, only show progress indicator while loading the cloud wallet
       return (
@@ -165,7 +158,9 @@ class WalletSelectionComponent extends Component<Props> {
                     <IconButton
                       className={classes.explorerButton}
                       aria-label='Explorer'
-                      target='_blank' href={explorerLink}
+                      target='_blank' href={
+                        url.getExplorerAddress(cryptoType, wallet.crypto[cryptoType][0].address)
+                      }
                     >
                       <OpenInNewIcon className={classes.explorerIcon} />
                     </IconButton>
