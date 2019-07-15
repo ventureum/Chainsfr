@@ -11,7 +11,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { Scrollbars } from 'react-custom-scrollbars'
+import InfiniteScroll from 'react-infinite-scroller'
 import moment from 'moment'
 import { getCryptoSymbol, getCryptoDecimals, getCrypto } from '../tokens'
 import { walletCryptoSupports } from '../wallet'
@@ -225,11 +225,11 @@ class LandingPageComponent extends Component {
     }
 
     const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
-    
+
     return (
       <ExpansionPanel
-        key={i}
-        className={i % 2 === 0 ? undefined : classes.coloredBackgrond}
+        key={i + 1}
+        className={i % 2 !== 0 ? undefined : classes.coloredBackgrond}
         classes={{
           root: classes.expansionPanelRoot,
           expanded: classes.expansionPanelExpanded
@@ -377,30 +377,39 @@ class LandingPageComponent extends Component {
   }
 
   renderTransferHistorySection = () => {
-    const { classes, actionsPending, transferHistory } = this.props
+    const { classes, actionsPending, transferHistory, loadMoreTransferHistory } = this.props
     return (
       <Grid container alignItems='center' justify='center' className={classes.transactionHistorySection}>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' justify='center' alignItems='stretch'>
             <Grid item>
-              <Grid container direction='row' justify='space-between'>
+              <Grid container direction='row'>
                 <Grid item>
                   <Typography className={classes.recentTxTitle} >
                     Recent Transactions
                   </Typography>
                 </Grid>
-                <Grid item>
-                  <Typography className={classes.viewAllTxTitle} >
-                    View all Transactions
-                  </Typography>
-                </Grid>
               </Grid>
             </Grid>
-            <Grid item>
-              <Scrollbars
-                autoHeight
-                autoHeightMin={300}
-                autoHeightMax={600}>
+            <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
+              <InfiniteScroll
+                loader={
+                  actionsPending.getTransferHistory &&
+                  <Grid container direction='row' justify='center' key={0} alignItems='center'>
+                    <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                  </Grid>
+                }
+                threshold={300}
+                pageStart={0}
+                loadMore={() => {
+                  if (!actionsPending.getTransferHistory) {
+                    loadMoreTransferHistory(transferHistory.history.length)
+                  }
+                }}
+                useWindow={false}
+                hasMore={transferHistory.hasMore}
+                initialLoad={false}
+              >
                 <Grid item className={classes.txHistoryTitleContainer}>
                   <Grid container direction='row' alignItems='center' >
                     <Grid item xs={8}>
@@ -425,20 +434,15 @@ class LandingPageComponent extends Component {
                   </Grid>
                 </Grid>
                 <Divider />
-                {actionsPending.getTransferHistory &&
-                  <Grid container direction='row' justify='center' alignItems='center'>
-                    <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                {!actionsPending.getTransferHistory && transferHistory.history.length === 0 &&
+                  <Grid container justify='center'>
+                    <Typography className={classes.noTxText}>
+                      It seems you don't have any transaction yet
+                    </Typography>
                   </Grid>
                 }
-                {!actionsPending.getTransferHistory && transferHistory && transferHistory.length === 0 &&
-                <Grid container justify='center'>
-                  <Typography className={classes.noTxText}>
-                    It seems you don't have any transaction yet
-                  </Typography>
-                </Grid>
-                }
-                {transferHistory && transferHistory.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
-              </Scrollbars>
+                {transferHistory.history.map((transfer, i) => this.renderRecentTransferItem(transfer, i))}
+              </InfiniteScroll>
             </Grid>
           </Grid>
         </Grid>
