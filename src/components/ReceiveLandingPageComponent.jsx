@@ -207,7 +207,7 @@ class ReceiveLandingPageComponent extends Component {
 
 const styles = theme => ({
   leftColumn: {
-    backgroundColor: '#F8F8F8'
+    backgroundColor: 'white'
   },
   leftContainer: {
     margin: '60px',
