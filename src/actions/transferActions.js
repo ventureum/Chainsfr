@@ -299,7 +299,7 @@ async function _getTransfer (sendingId: ?string, receivingId: ?string) {
 }
 
 async function _getTransferHistory (offset: number = 0) {
-  const ITEM_PER_FETCH = 10
+  const ITEM_PER_FETCH = 20
   let transfersDict = await getAllTransfers()
 
   // convert dict to array
@@ -311,14 +311,18 @@ async function _getTransferHistory (offset: number = 0) {
   // sort transfers by sendTimestamp in descending order
   transfers.sort((a, b) => b.sendTimestamp - a.sendTimestamp)
 
-  // pick most recent 10 transfers
+  // pick most recent 20 transfers
   let hasMore = true
+  let newOffset
   if (offset + ITEM_PER_FETCH < transfers.length) {
-    transfers = transfers.slice(offset, Math.min(transfers.length, offset + ITEM_PER_FETCH))
+    newOffset = offset + ITEM_PER_FETCH
+    transfers = transfers.slice(offset, offset + ITEM_PER_FETCH)
   } else {
     hasMore = false
+    newOffset = transfers.length
     transfers = transfers.slice(offset)
   }
+
   // identify transfer state
   const sendingIds = transfers.map(t => t.sendingId)
   let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
@@ -388,7 +392,7 @@ async function _getTransferHistory (offset: number = 0) {
     }
   })
 
-  return { hasMore, transferData, offset }
+  return { hasMore, transferData, PrevOffset: offset, newOffset }
 }
 
 function submitTx (txRequest: {

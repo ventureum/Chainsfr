@@ -58,9 +58,10 @@ export default function (state = initialState, action) {
         ...state,
         transferHistory: {
           hasMore: action.payload.hasMore,
-          history: action.payload.offset === 0
+          history: action.payload.PrevOffset === 0
             ? action.payload.transferData
-            : [...state.transferHistory.history, ...action.payload.transferData]
+            : [...state.transferHistory.history, ...action.payload.transferData],
+          offset: action.payload.newOffset
         }
       }
     default: // need this for default case

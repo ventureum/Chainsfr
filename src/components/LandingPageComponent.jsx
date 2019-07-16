@@ -403,7 +403,7 @@ class LandingPageComponent extends Component {
                 pageStart={0}
                 loadMore={() => {
                   if (!actionsPending.getTransferHistory) {
-                    loadMoreTransferHistory(transferHistory.history.length)
+                    loadMoreTransferHistory(transferHistory.offset)
                   }
                 }}
                 useWindow={false}
