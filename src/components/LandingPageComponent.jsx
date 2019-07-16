@@ -191,6 +191,28 @@ class LandingPageComponent extends Component {
 
   renderRecentTransferItem = (transfer, i) => {
     const { classes } = this.props
+    console.log(transfer)
+    if (transfer.error) {
+      return (
+        <ExpansionPanel
+          key={i + 1}
+          className={i % 2 !== 0 ? undefined : classes.coloredBackgrond}
+          classes={{
+            root: classes.expansionPanelRoot,
+            expanded: classes.expansionPanelExpanded
+          }}
+        >
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <Grid container direction='row' alignItems='center' justify='center' >
+              <Typography>
+                {transfer.data.error}
+              </Typography>
+            </Grid>
+          </ExpansionPanelSummary>
+        </ExpansionPanel>
+      )
+    }
+
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
       secondaryDesc = 'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
