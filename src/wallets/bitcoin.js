@@ -38,7 +38,12 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     }
   }
 
-  getWalletData = (): WalletDataBitcoin => this.walletData
+  getWalletData = (): WalletDataBitcoin => {
+    if (!this.walletData) {
+      throw new Error('walletData does not exist')
+    }
+    return this.walletData
+  }
 
   generateWallet = async ({
     walletType,
@@ -55,6 +60,9 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       walletType: walletType,
       cryptoType: cryptoType,
       accounts: [await this.createAccount({ xpriv: xpriv, accountIdx: 0 })]
+    }
+    if (this.walletData.walletType === 'ledger') {
+      this.ledger = new LedgerNanoS()
     }
   }
 
@@ -93,7 +101,8 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
         addresses: [
           {
             address: address,
-            path: path,
+            // mar bug !!!!!!!!!!!!!!!!!!
+            path: env.REACT_APP_BTC_PATH + `/${accountIdx}'/0/0`,
             utxos: []
           }
         ],
@@ -107,14 +116,19 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   // get account (default first account)
   getAccount = (accountIdx?: number): AccountBitcoin => {
-    return this.walletData.accounts[accountIdx || DEFAULT_ACCOUNT]
+    const walletData = this.getWalletData()
+    if (accountIdx === undefined) {
+      return walletData.accounts[DEFAULT_ACCOUNT]
+    }
+    return walletData.accounts[accountIdx]
   }
 
   encryptAccount = async (password: string) => {
-    let account = this.walletData.accounts[DEFAULT_ACCOUNT]
+    let account = this.getAccount(DEFAULT_ACCOUNT)
     if (!account.hdWalletVariables.xpriv) {
       throw new Error('PrivateKey does not exist')
     }
+    // shouldn't we delete privKey here?
     account.encryptedPrivateKey = await utils.encryptMessage(
       account.hdWalletVariables.xpriv,
       password
@@ -122,7 +136,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   decryptAccount = async (password: string): Promise<void> => {
-    let account = this.walletData.accounts[DEFAULT_ACCOUNT]
+    let account = this.getAccount(DEFAULT_ACCOUNT)
     if (!account.encryptedPrivateKey) {
       throw new Error('EncryptedPrivateKey does not exist')
     }
@@ -148,10 +162,10 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
   }
 
   retrieveAddress = async (): Promise<void> => {
-    let { walletType } = this.walletData
+    let { walletType } = this.getWalletData()
     if (walletType === 'ledger') {
       // retrieve the first address from ledger
-      let account = this.walletData.accounts[DEFAULT_ACCOUNT]
+      let account = this.getAccount(DEFAULT_ACCOUNT)
       let { address, xpub } = await this.ledger.getBtcAddresss(DEFAULT_ACCOUNT)
       account.address = address
       account.hdWalletVariables.xpub = xpub
@@ -162,7 +176,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
   sync = async (progress?: Function) => {
     let account = this.getAccount()
-    let { walletType } = this.walletData
+    let { walletType } = this.getWalletData()
     let { hdWalletVariables } = account
     let { xpub } = hdWalletVariables
     let addressPool = []
@@ -203,7 +217,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // append discovered addresses to the old address pool
       hdWalletVariables.addresses.push(...addressPool)
     }
-
+    // console.log(hdWalletVariables)
     // retrieve utxos and calcualte balance for each address
     let utxoData = await Promise.all(
       hdWalletVariables.addresses.map(async addressData => {
