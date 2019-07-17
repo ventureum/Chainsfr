@@ -19,7 +19,9 @@ type Props = {
   handleClose: Function,
   handleSubmit: Function,
   actionsPending: Object,
-  classes: Object
+  classes: Object,
+  error:any,
+  clearError: Function
 }
 
 type State = {
@@ -32,7 +34,11 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
   }
 
   handleChange = prop => event => {
+    const { error, clearError } = this.props
     this.setState({ [prop]: event.target.value })
+    if (error) {
+      clearError()
+    }
   }
 
   render () {
@@ -42,13 +48,16 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
       open,
       handleClose,
       handleSubmit,
-      classes
+      classes,
+      error,
+      clearError
     } = this.props
     return (
       <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby='form-dialog-title'
+        onEnter={clearError}
       >
         <DialogTitle id='form-dialog-title'>Unlock Drive Wallet</DialogTitle>
         <DialogContent>
@@ -66,10 +75,12 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
                 autoComplete='drive-wallet-independent-password'
                 variant='outlined'
                 fullWidth
+                error={!!error}
                 type={'password'}
                 label='Password'
                 value={this.state.password}
                 onChange={this.handleChange('password')}
+                helperText={error ? 'Incorrect password' : ''}
               />
             </form>
           }

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import CloudWalletUnlockComponent from '../components/CloudWalletUnlockComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { decryptCloudWallet, unlockCloudWallet } from '../actions/walletActions'
+import { decryptCloudWallet, unlockCloudWallet, clearDecryptCloudWalletError } from '../actions/walletActions'
 import WalletUtils from '../wallets/utils'
 
 /*
@@ -43,6 +43,10 @@ class CloudWalletUnlockContainer extends Component {
     }
   }
 
+  clearError = () => {
+    this.props.clearDecryptCloudWalletError()
+  }
+
   componentDidUpdate (prevProps) {
     let { wallet } = this.props
     let { unlockRequest } = wallet
@@ -65,7 +69,7 @@ class CloudWalletUnlockContainer extends Component {
   }
 
   render () {
-    let { wallet, actionsPending } = this.props
+    let { wallet, actionsPending, error } = this.props
     return (
       <CloudWalletUnlockComponent
         open={!!wallet && !!wallet.unlockRequest}
@@ -75,6 +79,8 @@ class CloudWalletUnlockContainer extends Component {
         handleClose={this.handleClose}
         handleSubmit={this.handleSubmit}
         actionsPending={actionsPending}
+        error={error}
+        clearError={this.clearError}
       />
     )
   }
@@ -96,7 +102,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     unlockCloudWallet: (unlockRequestParams) => dispatch(unlockCloudWallet(unlockRequestParams)),
-    decryptCloudWallet: (wallet) => dispatch(decryptCloudWallet(wallet))
+    decryptCloudWallet: (wallet) => dispatch(decryptCloudWallet(wallet)),
+    clearDecryptCloudWalletError: () => dispatch(clearDecryptCloudWalletError())
   }
 }
 

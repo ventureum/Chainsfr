@@ -265,6 +265,12 @@ function unlockCloudWallet (
   }
 }
 
+function clearDecryptCloudWalletError () {
+  return {
+    type: 'DECRYPT_CLOUD_WALLET_CLEAR'
+  }
+}
+
 async function _getLastUsedAddress (idToken: string) {
   let response = await API.getLastUsedAddress(idToken)
   let rv = {}
@@ -312,5 +318,6 @@ export {
   decryptCloudWallet,
   unlockCloudWallet,
   getLastUsedAddress,
-  notUseLastAddress
+  notUseLastAddress,
+  clearDecryptCloudWalletError
 }
