@@ -39,11 +39,11 @@ export const trackerMiddleware = store => next => action => {
   switch (action.type) {
     case 'persist/REHYDRATE':
       // init GA
-      ReactGA.initialize(env.REACT_APP_GA_TRACKING_ID, { debug: true })
+      ReactGA.initialize(env.REACT_APP_GA_TRACKING_ID, { debug: env.REACT_APP_ENV === 'test' })
 
       if (currentUserId === null) {
-        const profile = action.payload.userReducer.profile
-        if (profile) {
+        const profile = action.payload && action.payload.userReducer && action.payload.userReducer.profile
+        if (profile && profile.googleId) {
           currentUserId = profile.googleId
           trackUser(currentUserId)
         }
