@@ -8,6 +8,7 @@ import WalletFactory from '../wallets/factory'
 import API from '../apis'
 import WalletUtils from '../wallets/utils'
 import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
+import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
 
 async function _checkMetamaskConnection (
   cryptoType: string,
@@ -169,9 +170,19 @@ async function _createCloudWallet (password: string) {
 }
 
 function createCloudWallet (password: string) {
-  return {
-    type: 'CREATE_CLOUD_WALLET',
-    payload: _createCloudWallet(password)
+  return (dispatch: Function, getState: Function) => {
+    const key = new Date().getTime() + Math.random()
+    dispatch(enqueueSnackbar({
+      message: 'We are setting up your drive wallet. Please do not close the page.',
+      key,
+      options: { 'variant': 'info', persist: true }
+    }))
+    return dispatch({
+      type: 'CREATE_CLOUD_WALLET',
+      payload: _createCloudWallet(password)
+    }).then(() => {
+      dispatch(closeSnackbar(key))
+    })
   }
 }
 
@@ -210,7 +221,11 @@ function getCloudWallet () {
         localErrorHandling: true
       }
     }).catch(error => {
-      console.warn(error)
+      if (error.message === 'WALLET_NOT_EXIST') {
+        console.warn(error)
+      } else {
+        throw error
+      }
     })
   }
 }
