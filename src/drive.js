@@ -39,21 +39,9 @@ const TEMP_SEND_FILE_NAME: string = `__chainsfer_temp_send_${env.REACT_APP_ENV}_
  * A single file storing past transfer data
  * The password in the file will be used for cancellation
  *
- * Data format:
- *
- * {
- *   [sendingId]: { // [sendingId] is the key, retrieved from api response
- *     sender: [string],
- *     destination: [string],
- *     transferAmount: [string],
- *     cryptoType: [string],
- *     data: [string], // base64 encoded encrypted escrow wallet
- *     sendTxHash: [string]
- *     password: [string], // password for the escrow wallet
- *   }
- *  }
+ * Data format: see type TransferData
  */
-const SEND_FILE_NAME: string = `__chainsfer_send_${env.REACT_APP_ENV}__.json`
+const HISTORY_FILE_NAME: string = `__chainsfer_history_${env.REACT_APP_ENV}__.json`
 
 /*
  * A single file storing encrypted wallet data
@@ -104,14 +92,12 @@ type TempTransferData = {
 }
 
 type TransferData = {
-  sendingId: string,
-  sender: string,
-  destination: string,
-  transferAmount: string,
-  cryptoType: string,
-  data: string,
-  password: string,
-  sendTimestamp: number
+  sendingId?: string,
+  sendTimestamp?: number,
+  receivingId?: string,
+  receiveTimestamp?: number,
+  data?: string, // base64 encoded encrypted escrow wallet
+  password?: string, // password for the escrow wallet, undefined for receiver
 }
 
 // gapi.load does not support promise
@@ -392,25 +378,26 @@ async function saveTempSendFile (transferData: TempTransferData) {
 }
 
 /*
- * Save transferData into SEND_FILE_NAME
+ * Save transferData into HISTORY_FILE_NAME
  *
  * @param transferData [object]
  * see the object definition at the top
  */
-async function saveSendFile (transferData: TransferData) {
-  let transfers = await loadFileByNameFromAppData(SEND_FILE_NAME)
-
+async function saveHistoryFile (transferData: TransferData) {
+  let transfers = await loadFileByNameFromAppData(HISTORY_FILE_NAME)
+  let id = transferData.sendingId ? transferData.sendingId : transferData.receivingId
+  if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
-    transfers[transferData.sendingId] = transferData
+    transfers[id] = transferData
   } else {
     transfers = {
-      [transferData.sendingId]: transferData
+      [id]: transferData
     }
   }
 
   // update the send file with new content
   await saveFileByName('appDataFolder', null, {
-    name: SEND_FILE_NAME,
+    name: HISTORY_FILE_NAME,
     content: transfers
   })
 }
@@ -429,23 +416,23 @@ async function saveWallet (walletDataList: any) {
 }
 
 /*
- * Return the transfer data stored in SEND_FILE_NAME by sendingId
+ * Return the transfer data stored in HISTORY_FILE_NAME by sendingId | receivingId
  *
- * @param sendingId [string] sendingId of the transfer
+ * @param id [string] sendingId | receivingId of the transfer
  * @returns transferData
  * see the object definition at the top
  */
-async function getTransferData (sendingId: string): Promise<TransferData> {
-  let transfers: ?{[string]: TransferData} = await loadFileByNameFromAppData(SEND_FILE_NAME)
+async function getTransferData (id: string): Promise<TransferData> {
+  let transfers: ?{[string]: TransferData} = await loadFileByNameFromAppData(HISTORY_FILE_NAME)
   if (transfers) {
-    return transfers[sendingId]
+    return transfers[id]
   } else {
     return {}
   }
 }
 
 async function getAllTransfers (): Promise< {[string]: TransferData} > {
-  return loadFileByNameFromAppData(SEND_FILE_NAME)
+  return loadFileByNameFromAppData(HISTORY_FILE_NAME)
 }
 
 async function getWallet (): Promise<any> {
@@ -454,7 +441,7 @@ async function getWallet (): Promise<any> {
 
 export {
   saveTempSendFile,
-  saveSendFile,
+  saveHistoryFile,
   saveWallet,
   getTransferData,
   getAllTransfers,
