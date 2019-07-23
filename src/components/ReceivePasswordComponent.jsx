@@ -100,6 +100,7 @@ class ReceivePasswordComponent extends Component {
                   this.clearError()
                   this.props.goToStep(-1)
                 }}
+                disabled={actionsPending.verifyPassword}
               >
                   Cancel
               </Button>

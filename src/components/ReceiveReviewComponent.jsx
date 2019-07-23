@@ -115,6 +115,7 @@ class ReceiveReviewComponent extends Component {
                 size='large'
                 onClick={() => this.props.goToStep(-1)}
                 id='cancel'
+                disabled={actionsPending.acceptTransfer || actionsPending.getTxFee}
               >
                 Cancel
               </Button>
