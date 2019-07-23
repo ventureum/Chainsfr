@@ -101,7 +101,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
         addresses: [
           {
             address: address,
-            // mar bug !!!!!!!!!!!!!!!!!!
             path: env.REACT_APP_BTC_PATH + `/${accountIdx}'/0/0`,
             utxos: []
           }
