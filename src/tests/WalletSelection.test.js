@@ -53,7 +53,6 @@ let initialProps = {
   actionsPending: {
     checkWalletConnection: false,
     syncAccountInfo: false,
-    updateBtcAccountInfo: false,
     checkCloudWalletConnection: false
   },
   cryptoSelectionPrefilled: undefined,
@@ -250,31 +249,8 @@ describe('WalletSelectionComponent rendering', () => {
     expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
 
-  it('updateBtcAccountInfo', () => {
-    wrapper.setProps(update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'bitcoin' },
-      actionsPending: { updateBtcAccountInfo: { $set: true } },
-      wallet: { $set: mockWallet }
-    }))
-    expect(wrapper.find(LinearProgress)).toHaveLength(1)
-    expect(wrapper.find(Typography).filter('#updateAccInfo').text()).toEqual('Updating Acoount Info')
-    expect(wrapper.find(ListItem).filter('#bitcoin').prop('disabled')).toEqual(true)
-    expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
-  })
-
-  it('checkCloudWalletConnection', () => {
-    wrapper.setProps(update(initialProps, {
-      walletType: { $set: 'ledger' },
-      cryptoType: { $set: 'bitcoin' },
-      actionsPending: { checkCloudWalletConnection: { $set: true } },
-      wallet: { $set: emptyWallet }
-    }))
-    expect(wrapper.find(LinearProgress)).toHaveLength(1)
-  })
-
   // device not connected
-  it('checkCloudWalletConnection', () => {
+  it('check Ledger device not connected', () => {
     wrapper.setProps(update(initialProps, {
       walletType: { $set: 'ledger' },
       cryptoType: { $set: 'bitcoin' },

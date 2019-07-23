@@ -14,7 +14,7 @@ type Props = {
   logo: string,
   title: string,
   desc: string,
-  disabledReason:string
+  disabledReason: string
 }
 
 class SquareButtonComponent extends Component<Props> {
@@ -38,15 +38,24 @@ class SquareButtonComponent extends Component<Props> {
 
     return (
       <Tooltip
-        title={disabled ? <React.Fragment>
-          <Typography className={classes.tooltip}>
-            {disabledReason}
-          </Typography>
-        </React.Fragment>
-          : ''
+        title={
+          disabled ? (
+            <React.Fragment>
+              <Typography className={classes.tooltip}>{disabledReason}</Typography>
+            </React.Fragment>
+          ) : (
+            ''
+          )
         }
       >
-        <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
+        <Grid
+          className={btnStyle}
+          container
+          direction='column'
+          jutify='center'
+          alignItems='center'
+          onClick={disabled ? undefined : onClick}
+        >
           <Grid item className={classes.imgContainer}>
             <img className={classes.btnLogo} src={logo} alt='wallet-logo' />
           </Grid>

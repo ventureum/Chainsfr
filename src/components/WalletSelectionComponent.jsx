@@ -26,8 +26,8 @@ import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 
 const WalletConnectionErrorMessage = {
-  'metamask': 'Please make sure MetaMask is installed and authorization is accepted',
-  ledger: 'Please make sure your Ledger device is connected, and you are in correct crypto app'
+  metamask: 'Please make sure MetaMask is installed and authorization is accepted',
+  ledger: 'Please make sure your Ledger device is connected.'
 }
 
 type Props = {
@@ -47,15 +47,26 @@ type Props = {
 }
 
 class WalletSelectionComponent extends Component<Props> {
+  lock = () => {
+    const { actionsPending } = this.props
+    const {
+      checkWalletConnection,
+      checkLedgerDeviceConnection,
+      checkLedgerAppConnection,
+      sync
+    } = actionsPending
+    return checkWalletConnection || checkLedgerDeviceConnection || checkLedgerAppConnection || sync
+  }
+
   renderWalletSelection = () => {
     const { walletType, onWalletSelected } = this.props
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
-        {walletSelections.map((w: Object) =>
-          (<Grid item key={w.walletType}>
+        {walletSelections.map((w: Object) => (
+          <Grid item key={w.walletType}>
             <SquareButton
               id={w.walletType}
-              disabled={w.disabled}
+              disabled={w.disabled || this.lock()}
               onClick={() => onWalletSelected(w.walletType)}
               logo={w.logo}
               title={w.title}
@@ -63,20 +74,33 @@ class WalletSelectionComponent extends Component<Props> {
               selected={w.walletType === walletType}
               disabledReason={w.disabledReason}
             />
-          </Grid>))}
+          </Grid>
+        ))}
       </Grid>
     )
   }
 
   renderBalance = () => {
     const { classes, walletType, wallet, actionsPending, cryptoType } = this.props
-    if (actionsPending.checkCloudWalletConnection) {
-      // special case, only show progress indicator while loading the cloud wallet
+    if (actionsPending.checkLedgerDeviceConnection) {
       return (
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-              Loading Drive Wallet...
+              Please connect and unlock your Ledger device...
+            </Typography>
+          </Grid>
+          <Grid item>
+            <LinearProgress className={classes.linearProgress} />
+          </Grid>
+        </Grid>
+      )
+    } else if (actionsPending.checkLedgerAppConnection) {
+      return (
+        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+          <Grid item>
+            <Typography className={classes.connectedtext}>
+              Please navigate to selected crypto on your Ledger device...
             </Typography>
           </Grid>
           <Grid item>
@@ -89,7 +113,7 @@ class WalletSelectionComponent extends Component<Props> {
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext}>
-              Please connect and unlock your wallet with the selected coin.
+              Loading selected wallet data...
             </Typography>
           </Grid>
           <Grid item>
@@ -99,12 +123,15 @@ class WalletSelectionComponent extends Component<Props> {
       )
     } else if (!wallet.connected) {
       return (
-        <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
+        <Grid
+          container
+          direction='row'
+          alignItems='center'
+          className={classes.balanceSection}
+          justify='space-between'
+        >
           <Grid item>
-            <Typography
-              id='walletNotConnectedText'
-              className={classes.notConnectText}
-            >
+            <Typography id='walletNotConnectedText' className={classes.notConnectText}>
               {WalletConnectionErrorMessage[walletType]}
             </Typography>
           </Grid>
@@ -118,7 +145,7 @@ class WalletSelectionComponent extends Component<Props> {
         <Grid container direction='column' justify='center' className={classes.balanceSection}>
           <Grid item>
             <Typography className={classes.connectedtext} id='synchronizeAccInfo'>
-            Synchronizing Account Info
+              Synchronizing Account Info
             </Typography>
             <Grid item>
               <LinearProgress className={classes.linearProgress} />
@@ -126,22 +153,20 @@ class WalletSelectionComponent extends Component<Props> {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.updateBtcAccountInfo) {
+    } else if (
+      wallet &&
+      wallet.crypto[cryptoType] &&
+      wallet.crypto[cryptoType][0] &&
+      !this.lock()
+    ) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
-          <Grid item>
-            <Typography className={classes.connectedtext} id='updateAccInfo'>
-            Updating Acoount Info
-            </Typography>
-          </Grid>
-          <Grid item>
-            <LinearProgress className={classes.linearProgress} />
-          </Grid>
-        </Grid>
-      )
-    } else if (wallet && wallet.crypto[cryptoType] && wallet.crypto[cryptoType][0] && !actionsPending.syncAccountInfo) {
-      return (
-        <Grid container direction='row' alignItems='center' className={classes.balanceSection} justify='space-between'>
+        <Grid
+          container
+          direction='row'
+          alignItems='center'
+          className={classes.balanceSection}
+          justify='space-between'
+        >
           <Grid item>
             <Grid container direction='column'>
               <Grid item>
@@ -149,26 +174,28 @@ class WalletSelectionComponent extends Component<Props> {
                   {getWalletTitle(walletType)} wallet connected
                 </Typography>
               </Grid>
-              { (cryptoType !== 'bitcoin' || walletType !== 'ledger') &&
+              {(cryptoType !== 'bitcoin' || walletType !== 'ledger') && (
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Grid item>
                       <Typography className={classes.addressInfoText}>
-                      Wallet address: {wallet.crypto[cryptoType][0].address}
+                        Wallet address: {wallet.crypto[cryptoType][0].address}
                       </Typography>
                     </Grid>
                     <IconButton
                       className={classes.explorerButton}
                       aria-label='Explorer'
-                      target='_blank' href={
-                        url.getExplorerAddress(cryptoType, wallet.crypto[cryptoType][0].address)
-                      }
+                      target='_blank'
+                      href={url.getExplorerAddress(
+                        cryptoType,
+                        wallet.crypto[cryptoType][0].address
+                      )}
                     >
                       <OpenInNewIcon className={classes.explorerIcon} />
                     </IconButton>
                   </Grid>
                 </Grid>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item>
@@ -180,60 +207,77 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending, wallet, currencyAmount } = this.props
+    const {
+      classes,
+      walletType,
+      cryptoType,
+      onCryptoSelected,
+      actionsPending,
+      wallet,
+      currencyAmount
+    } = this.props
 
     return (
       <List className={classes.cryptoList}>
-        {cryptoSelections.filter(c => cryptoInWallet(c, walletType)).map(c =>
-          (<div key={c.cryptoType}>
-            <Divider />
-            <ListItem
-              button
-              onClick={() => onCryptoSelected(c.cryptoType)}
-              disabled={
-                cryptoDisabled(c, walletType) ||
-                actionsPending.syncAccountInfo ||
-                actionsPending.checkWalletConnection ||
-                actionsPending.updateBtcAccountInfo
-              }
-              id={c.cryptoType}
-              className={classes.cryptoListItem}
-            >
-              <Grid container direction='row' justify='space-between' alignItems='center'>
-                <Radio
-                  color='primary'
-                  checked={c.cryptoType === cryptoType}
-                  tabIndex={-1}
-                  disableRipple
-                  id={c.cryptoType}
-                />
-                <ListItemText primary={c.symbol} secondary={cryptoDisabled(c, walletType) ? 'Chrome Only' : c.title} />
-                {
-                  wallet &&
-                  c.cryptoType === cryptoType &&
-                  wallet.connected &&
-                  wallet.crypto[c.cryptoType] &&
-                  wallet.crypto[c.cryptoType][0] &&
-                  !actionsPending.syncAccountInfo &&
-                  <Grid item >
-                    <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
-                      {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
-                    </Typography>
-                    <Typography className={classes.balanceCurrencyText} id={`${c.cryptoType}CurrencyBalance`}>
-                      (≈ {currencyAmount[c.cryptoType]})
-                    </Typography>
-                  </Grid>
-                }
-              </Grid>
-            </ListItem>
-          </div>))}
+        {cryptoSelections
+          .filter(c => cryptoInWallet(c, walletType))
+          .map(c => (
+            <div key={c.cryptoType}>
+              <Divider />
+              <ListItem
+                button
+                onClick={() => onCryptoSelected(c.cryptoType)}
+                disabled={cryptoDisabled(c, walletType) || this.lock()}
+                id={c.cryptoType}
+                className={classes.cryptoListItem}
+              >
+                <Grid container direction='row' justify='space-between' alignItems='center'>
+                  <Radio
+                    color='primary'
+                    checked={c.cryptoType === cryptoType}
+                    tabIndex={-1}
+                    disableRipple
+                    id={c.cryptoType}
+                  />
+                  <ListItemText
+                    primary={c.symbol}
+                    secondary={cryptoDisabled(c, walletType) ? 'Chrome Only' : c.title}
+                  />
+                  {wallet &&
+                    c.cryptoType === cryptoType &&
+                    wallet.connected &&
+                    wallet.crypto[c.cryptoType] &&
+                    wallet.crypto[c.cryptoType][0] &&
+                    !actionsPending.syncAccountInfo && (
+                    <Grid item>
+                      <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
+                        {numeral(
+                          utils.toHumanReadableUnit(
+                            wallet.crypto[c.cryptoType][0].balance,
+                            getCryptoDecimals(c.cryptoType)
+                          )
+                        ).format('0.000a')}{' '}
+                        {getCryptoSymbol(cryptoType)}
+                      </Typography>
+                      <Typography
+                        className={classes.balanceCurrencyText}
+                        id={`${c.cryptoType}CurrencyBalance`}
+                      >
+                          (≈ {currencyAmount[c.cryptoType]})
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </ListItem>
+            </div>
+          ))}
         <Divider />
       </List>
     )
   }
 
   render () {
-    const { walletType, cryptoType, actionsPending, wallet, handleNext } = this.props
+    const { walletType, cryptoType, wallet, handleNext } = this.props
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
@@ -246,33 +290,21 @@ class WalletSelectionComponent extends Component<Props> {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item>
-          {this.renderWalletSelection()}
-        </Grid>
-        {walletType &&
-        <Grid item>
-          <Typography variant='h6' align='left'>
-             Choose the coin
-          </Typography>
-        </Grid>
-        }
-        {walletType &&
-        <Grid item>
-          {this.renderCryptoSelection()}
-        </Grid>}
-        {cryptoType &&
+        <Grid item>{this.renderWalletSelection()}</Grid>
+        {walletType && (
           <Grid item>
-            {this.renderBalance()}
-          </Grid>}
+            <Typography variant='h6' align='left'>
+              Choose the coin
+            </Typography>
+          </Grid>
+        )}
+        {walletType && <Grid item>{this.renderCryptoSelection()}</Grid>}
+        {cryptoType && <Grid item>{this.renderBalance()}</Grid>}
         <Grid item>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button
-                color='primary'
-                component={Link}
-                to={path.home}
-              >
-              Cancel Transfer
+              <Button color='primary' component={Link} to={path.home}>
+                Cancel Transfer
               </Button>
             </Grid>
             <Grid item>
@@ -287,14 +319,12 @@ class WalletSelectionComponent extends Component<Props> {
                   !walletType ||
                   !cryptoType ||
                   !wallet.connected ||
-                  actionsPending.checkWalletConnection ||
                   !wallet.crypto[cryptoType] ||
-                  actionsPending.syncAccountInfo ||
-                  actionsPending.updateBtcAccountInfo ||
-                  (new BN(wallet.crypto[cryptoType][0].balance)).lte(new BN(0))
+                  this.lock() ||
+                  new BN(wallet.crypto[cryptoType][0].balance).lte(new BN(0))
                 }
               >
-              Continue
+                Continue
               </Button>
             </Grid>
           </Grid>
