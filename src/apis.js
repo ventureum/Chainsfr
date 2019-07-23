@@ -69,11 +69,11 @@ async function getBatchTransfers ({ sendingId, receivingId }) {
       item.data = JSON.parse(Base64.decode(item.data))
       return item
     } else {
-      console.warn('Transfer item not found.')
-      return null
+      console.warn('Transfer detail not found.')
+      item.data = { error: 'Transfer detail not found.' }
+      return item
     }
-  }).filter(item => item !== null)
-
+  })
   return responseData
 }
 
