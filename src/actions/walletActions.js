@@ -62,6 +62,8 @@ function checkMetamaskConnection (crypoType: string) {
     return dispatch({
       type: 'CHECK_METAMASK_CONNECTION',
       payload: _checkMetamaskConnection(crypoType, dispatch)
+    }).catch(error => {
+      console.warn(error)
     })
   }
 }
