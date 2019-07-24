@@ -6,7 +6,7 @@
 
 import env from './typedEnv'
 
-const ROOT_FOLDER_NAME: string = '__ChainsferData__'
+const ROOT_FOLDER_NAME: string = '__ChainsfrData__'
 
 /*
  * Stores encrypted escrow wallet and password before sending out the TX
@@ -33,7 +33,7 @@ const ROOT_FOLDER_NAME: string = '__ChainsferData__'
  *   tempTimestamp: [int], // unix timestamp of the saving action
  *  } ...]
  */
-const TEMP_SEND_FILE_NAME: string = `__chainsfer_temp_send_${env.REACT_APP_ENV}__.json`
+const TEMP_SEND_FILE_NAME: string = `__chainsfr_temp_send_${env.REACT_APP_ENV}__.json`
 
 /*
  * A single file storing past transfer data
@@ -41,7 +41,7 @@ const TEMP_SEND_FILE_NAME: string = `__chainsfer_temp_send_${env.REACT_APP_ENV}_
  *
  * Data format: see type TransferData
  */
-const HISTORY_FILE_NAME: string = `__chainsfer_history_${env.REACT_APP_ENV}__.json`
+const HISTORY_FILE_NAME: string = `__chainsfr_history_${env.REACT_APP_ENV}__.json`
 
 /*
  * A single file storing encrypted wallet data
@@ -52,7 +52,7 @@ const HISTORY_FILE_NAME: string = `__chainsfer_history_${env.REACT_APP_ENV}__.js
  *   bitcoin: Base58 encoded BIP38 encrypted privateKey
  * }
  */
-const WALLET_FILE_NAME: string = `__chainsfer_wallet_${env.REACT_APP_ENV}__.json`
+const WALLET_FILE_NAME: string = `__chainsfr_wallet_${env.REACT_APP_ENV}__.json`
 
 // flow type definitions
 
