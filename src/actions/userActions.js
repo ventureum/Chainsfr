@@ -8,9 +8,16 @@ function onLogin (loginData: any) {
 }
 
 function refreshAccessToken () {
-  return {
-    type: 'REFRESH_ACCESS_TOKEN',
-    payload: _refreshAccessToken()
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'REFRESH_ACCESS_TOKEN',
+      payload: _refreshAccessToken()
+    }).catch(error => {
+      console.warn('Refresh login session failed')
+      console.warn(error)
+      // logout user
+      dispatch(onLogout())
+    })
   }
 }
 
@@ -43,9 +50,11 @@ async function _refreshAccessToken () {
 }
 
 async function _onLogout () {
-  let googleAuth = await window.gapi.auth2.getAuthInstance()
-  if (googleAuth && googleAuth.isSignedIn.get()) {
-    await googleAuth.signOut()
+  if (window.gapi && window.gapi.auth2) {
+    let googleAuth = await window.gapi.auth2.getAuthInstance()
+    if (googleAuth && googleAuth.isSignedIn.get()) {
+      await googleAuth.signOut()
+    }
   }
 }
 
