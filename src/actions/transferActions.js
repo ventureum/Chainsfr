@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import axios from 'axios'
 import utils from '../utils'
 import { goToStep } from './navigationActions'
-import { saveTempSendFile, saveSendFile, getAllTransfers } from '../drive.js'
+import { saveTempSendFile, saveHistoryFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
@@ -175,11 +175,12 @@ async function _transactionHashRetrieved (txRequest: {
 
   let data = await API.transfer(transferData)
 
-  // TX is now sent and server is notified, we save a copy of transfer data in drive's appDataFolder
-  transferData.password = Base64.encode(password)
-  transferData.sendingId = data.sendingId
-  transferData.sendTimestamp = data.sendTimestamp
-  await saveSendFile(transferData)
+  await saveHistoryFile({
+    sendingId: data.sendingId,
+    sendTimestamp: data.sendTimestamp,
+    data: transferData.data,
+    password: Base64.encode(password)
+  })
 
   return data
 }
@@ -228,6 +229,10 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {
     receiveTxHash: receiveTxHash
   })
 
+  await saveHistoryFile({
+    receivingId: receivingId,
+    receiveTimestamp: data.receiveTimestamp
+  })
   return data
 }
 
@@ -308,10 +313,17 @@ async function _getTransferHistory (offset: number = 0) {
     transfers.push(transfersDict[key])
   }
 
-  // sort transfers by sendTimestamp in descending order
-  transfers.sort((a, b) => b.sendTimestamp - a.sendTimestamp)
+  transfers = transfers.sort((a, b) => {
+    // sort transfers by timestamp in descending order
+    let getTimestamp = (item) => {
+      let rv = item.sendTimestamp ? item.sendTimestamp : item.receiveTimestamp
+      if (!rv) throw new Error('Missing timestamp in transfer history data')
+      return rv
+    }
+    return getTimestamp(b) - getTimestamp(a)
+  })
 
-  // pick most recent 10 transfers
+  // pick most recent X transfers
   let hasMore = true
   if (offset + ITEM_PER_FETCH < transfers.length) {
     transfers = transfers.slice(offset, Math.min(transfers.length, offset + ITEM_PER_FETCH))
@@ -320,10 +332,34 @@ async function _getTransferHistory (offset: number = 0) {
     transfers = transfers.slice(offset)
   }
   // identify transfer state
-  const sendingIds = transfers.map(t => t.sendingId)
-  let transferData = await API.getBatchTransfers({ sendingId: sendingIds })
-  transferData = transferData.map(item => {
+  const sendingIds = transfers.filter(t => !!t.sendingId).map(t => t.sendingId)
+  const receivingIds = transfers.filter(t => !!t.receivingId).map(t => t.receivingId)
+
+  // for quick transferType (sender, receiver) lookup
+  const sendingIdsSet = new Set(sendingIds)
+  const receivingIdsSet = new Set(receivingIds)
+
+  let transferData = await API.getBatchTransfers({ sendingId: sendingIds, receivingId: receivingIds })
+
+  transferData = transferData.sort((a, b) => {
+    // we have to re-sort since API.getBatchTransfers does not persist order
+    // sort transfers by timestamp in descending order
+    let getTimestamp = (item) => {
+      let rv = item.sendTimestamp ? item.sendTimestamp : item.receiveTimestamp
+      if (!rv) throw new Error('Missing timestamp in transfer history data')
+      return rv
+    }
+    return getTimestamp(b) - getTimestamp(a)
+  }).map(item => {
     let state = null
+    let transferType: ?string = null
+    if (sendingIdsSet.has(item.sendingId)) {
+      transferType = 'SENDER'
+    } else if (receivingIdsSet.has(item.receivingId)) {
+      transferType = 'RECEIVER'
+    } else {
+      throw new Error(`Cannot identify transferType for item ${JSON.stringify(item)}`)
+    }
     const { sendTxState, receiveTxState, cancelTxState } = item
     switch (sendTxState) {
       case 'Pending': {
@@ -384,6 +420,7 @@ async function _getTransferHistory (offset: number = 0) {
     }
     return {
       ...item,
+      transferType,
       state
     }
   })

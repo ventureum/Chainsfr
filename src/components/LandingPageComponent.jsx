@@ -191,7 +191,6 @@ class LandingPageComponent extends Component {
 
   renderRecentTransferItem = (transfer, i) => {
     const { classes } = this.props
-    console.log(transfer)
     if (transfer.error) {
       return (
         <ExpansionPanel
@@ -260,7 +259,12 @@ class LandingPageComponent extends Component {
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Grid container direction='row' alignItems='center' >
             <Grid xs={8} item>
-              <ListItemText primary={`To ${transfer.destination}`} secondary={secondaryDesc} />
+              <ListItemText
+                primary={
+                  `${transfer.transferType === 'SENDER' ? 'To' : 'From'} ${transfer.destination}`
+                }
+                secondary={secondaryDesc}
+              />
             </Grid>
             <Grid xs={4} item>
               <Grid container direction='row' justify='space-between' alignItems='center'>
@@ -271,7 +275,8 @@ class LandingPageComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Typography className={classes.recentTransferItemTransferAmount}>
-                    - {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
+                    {transfer.transferType === 'SENDER' ? '-' : '+'}
+                    {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
                   </Typography>
                 </Grid>
               </Grid>
@@ -282,7 +287,7 @@ class LandingPageComponent extends Component {
           <Grid container direction='column' justify='center' alignItems='flex-start'>
             <Grid item>
               <Typography className={classes.recentTransferItemTransferId}>
-                Transfer ID: {transfer.sendingId}
+                Transfer ID: {transfer.transferType === 'SENDER' ? transfer.sendingId : transfer.receivingId}
               </Typography>
             </Grid>
             {[transferStates.SEND_PENDING,
