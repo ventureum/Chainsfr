@@ -11,8 +11,16 @@ export default function errorMiddleware (store) {
       }
 
       return next(action).catch(error => {
+        let message
+        if (typeof error === 'string') {
+          message = error
+        } else if (typeof error === 'object') {
+          message = `Unknow error: ${JSON.stringify(error)}`
+        } else {
+          message = error.message
+        }
         store.dispatch(enqueueSnackbar({
-          message: (typeof error === 'string') ? error : error.message,
+          message: message,
           options: {
             variant: 'error',
             autoHideDuration: 60000
