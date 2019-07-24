@@ -20,7 +20,7 @@ export const walletCryptoSupports = {
 
 if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
   // only enable libra for testnet
-  walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
+  // walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
 }
 
 function browserSupported () {
