@@ -290,6 +290,13 @@ class LandingPageComponent extends Component {
                 Transfer ID: {transfer.transferType === 'SENDER' ? transfer.sendingId : transfer.receivingId}
               </Typography>
             </Grid>
+            {transfer.password &&
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferId}>
+                Security Answer: {transfer.password}
+              </Typography>
+            </Grid>
+            }
             {[transferStates.SEND_PENDING,
               transferStates.SEND_FAILURE,
               transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
