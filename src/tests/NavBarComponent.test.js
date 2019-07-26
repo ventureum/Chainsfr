@@ -1,6 +1,4 @@
 import Avatar from '@material-ui/core/Avatar'
-import MenuItem from '@material-ui/core/MenuItem'
-import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 
 import NavBar from '../components/NavBarComponent'
@@ -43,8 +41,8 @@ describe('NavBarComponent', () => {
       }
     })
     expect(wrapper.find(Avatar)).toHaveLength(1)
-    wrapper.find(IconButton).filter('#avatarBtn').simulate('click')
-    expect(wrapper.find(MenuItem).filter('#logout')).toHaveLength(1)
+    wrapper.find(Button).filter('#avatarBtn').simulate('click')
+    expect(wrapper.find(Button).filter('#logout')).toHaveLength(1)
 
     wrapper.setProps({
       profile: {
@@ -52,7 +50,7 @@ describe('NavBarComponent', () => {
         profileObj: profileObjWithoutAvatar
       }
     })
-    expect(wrapper.find(MenuItem).filter('#logout')).toHaveLength(1)
+    expect(wrapper.find(Button).filter('#logout')).toHaveLength(1)
   })
 
   it('should handle logout', () => {
@@ -64,8 +62,8 @@ describe('NavBarComponent', () => {
         profileObj: profileObjWithoutAvatar
       }
     })
-    wrapper.find(IconButton).filter('#avatarBtn').simulate('click')
-    wrapper.find(MenuItem).filter('#logout').simulate('click')
+    wrapper.find(Button).filter('#avatarBtn').simulate('click')
+    wrapper.find(Button).filter('#logout').simulate('click')
     expect(mockFunction.mock.calls.length).toEqual(1)
   })
 
