@@ -5,8 +5,12 @@
  */
 
 import env from './typedEnv'
+import moment from 'moment'
 
-const ROOT_FOLDER_NAME: string = '__ChainsfrData__'
+const APP_DATA_FOLDER_SPACE: string = 'appDataFolder'
+const DRIVE_SPACE: string = 'drive'
+
+const ROOT_FOLDER_NAME: string = 'ChainsfrData'
 
 /*
  * Stores encrypted escrow wallet and password before sending out the TX
@@ -33,16 +37,16 @@ const ROOT_FOLDER_NAME: string = '__ChainsfrData__'
  *   tempTimestamp: [int], // unix timestamp of the saving action
  *  } ...]
  */
-const TEMP_SEND_FILE_NAME: string = `__chainsfr_temp_send_${env.REACT_APP_ENV}__.json`
-
+const TEMP_SEND_FILE_NAME: string = `__temp_send_${env.REACT_APP_ENV}__.json`
+const TEMP_SEND_FOLDER_NAME: string = 'TempSend'
 /*
  * A single file storing past transfer data
  * The password in the file will be used for cancellation
  *
  * Data format: see type TransferData
  */
-const HISTORY_FILE_NAME: string = `__chainsfr_history_${env.REACT_APP_ENV}__.json`
-
+const HISTORY_FILE_NAME: string = `__transaction_history_${env.REACT_APP_ENV}__.json`
+const HISTORY_FOLDER_NAME: string = 'TransactionHistory'
 /*
  * A single file storing encrypted wallet data
  *
@@ -52,7 +56,8 @@ const HISTORY_FILE_NAME: string = `__chainsfr_history_${env.REACT_APP_ENV}__.jso
  *   bitcoin: Base58 encoded BIP38 encrypted privateKey
  * }
  */
-const WALLET_FILE_NAME: string = `__chainsfr_wallet_${env.REACT_APP_ENV}__.json`
+const WALLET_FILE_NAME: string = `__wallet_${env.REACT_APP_ENV}__.json`
+const WALLET_FOLDER_NAME: string = 'Wallet'
 
 // flow type definitions
 
@@ -237,7 +242,7 @@ async function createFolder (
     let resource: FileResource = {
       name: folder,
       mimeType: 'application/vnd.google-apps.folder',
-      parents: (space === 'appDataFolder' && !parents) ? ['appDataFolder'] : parents
+      parents: (space === APP_DATA_FOLDER_SPACE && !parents) ? [APP_DATA_FOLDER_SPACE] : parents
     }
 
     let resp: {
@@ -305,6 +310,8 @@ async function saveFileByName (
   // create a sub-folder
   let folderId = null
   if (folder) {
+    // Do not backup data in appDataFolder, duplicated folders will be deleted
+    // Backup data in drive, duplicated folders will be renamed
     folderId = await createFolder(space, [rootFolderId], folder)
   } else {
     folderId = rootFolderId
@@ -339,11 +346,21 @@ async function saveFileByName (
  * @param fileName [string] name of the file
  * @returns content of the file
  */
-async function loadFileByNameFromAppData (fileName: FileName): Promise<any> {
-  // appDataFolder is the default location
+async function loadFileByName (space: DriveSpace, fileName: FileName, folderName: ?FileName): Promise<any> {
+  let rootFolder = await listFiles(space, null, true, ROOT_FOLDER_NAME)
+  if (rootFolder.length === 0) return null
+  // get folder fileId if folder name is provided
+  let parent = rootFolder[0].id
+  if (folderName) {
+    let folders = await listFiles(space, [parent], true, folderName)
+    if (folders.length > 0) {
+      parent = folders[0].id
+      if (folders.length > 1) console.warn(`Multiple folder with ${folderName} exist`)
+    }
+  }
 
   // get fileId first
-  let files = await listFiles('appDataFolder', null, false, fileName)
+  let files = await listFiles(space, parent ? [parent] : null, false, fileName)
 
   if (files.length >= 1) {
     // always use the first file
@@ -374,7 +391,7 @@ async function saveTempSendFile (transferData: TempTransferData) {
     content: transferData
   }
 
-  await saveFileByName('drive', null, file)
+  await saveFileByName(DRIVE_SPACE, TEMP_SEND_FOLDER_NAME, file)
 }
 
 /*
@@ -384,7 +401,7 @@ async function saveTempSendFile (transferData: TempTransferData) {
  * see the object definition at the top
  */
 async function saveHistoryFile (transferData: TransferData) {
-  let transfers = await loadFileByNameFromAppData(HISTORY_FILE_NAME)
+  let transfers = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
   let id = transferData.sendingId ? transferData.sendingId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
@@ -396,20 +413,45 @@ async function saveHistoryFile (transferData: TransferData) {
   }
 
   // update the send file with new content
-  await saveFileByName('appDataFolder', null, {
+  await saveFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FOLDER_NAME, {
+    name: HISTORY_FILE_NAME,
+    content: transfers
+  })
+
+  await saveFileByName(DRIVE_SPACE, HISTORY_FOLDER_NAME, {
     name: HISTORY_FILE_NAME,
     content: transfers
   })
 }
 
+async function backupData (rootFolderId: FileId) {
+  const timestamp = moment().format('MMMM Do YYYY, h:mm:ss a')
+  for (let folderName of [WALLET_FOLDER_NAME, HISTORY_FOLDER_NAME, TEMP_SEND_FOLDER_NAME]) {
+    let files = await listFiles(DRIVE_SPACE, [rootFolderId], true, folderName)
+    if (files.length > 0) {
+      await window.gapi.client.drive.files.update({
+        fileId: files[0].id,
+        name: `${folderName}_Backup_${timestamp}`
+      })
+    }
+  }
+}
+
 async function saveWallet (walletDataList: any) {
+  let files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
+  if (files.length > 0) {
+    // root folder exists
+    // backup existing data
+    await backupData(files[0].id)
+  }
+
   // update the wallet
-  await saveFileByName('appDataFolder', null, {
+  await saveFileByName(APP_DATA_FOLDER_SPACE, WALLET_FOLDER_NAME, {
     name: WALLET_FILE_NAME,
     content: walletDataList
   })
 
-  await saveFileByName('drive', null, {
+  await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
     name: WALLET_FILE_NAME,
     content: walletDataList
   })
@@ -423,7 +465,7 @@ async function saveWallet (walletDataList: any) {
  * see the object definition at the top
  */
 async function getTransferData (id: string): Promise<TransferData> {
-  let transfers: ?{[string]: TransferData} = await loadFileByNameFromAppData(HISTORY_FILE_NAME)
+  let transfers: ?{[string]: TransferData} = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
   if (transfers) {
     return transfers[id]
   } else {
@@ -432,11 +474,11 @@ async function getTransferData (id: string): Promise<TransferData> {
 }
 
 async function getAllTransfers (): Promise< {[string]: TransferData} > {
-  return loadFileByNameFromAppData(HISTORY_FILE_NAME)
+  return loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
 }
 
 async function getWallet (): Promise<any> {
-  return loadFileByNameFromAppData(WALLET_FILE_NAME)
+  return loadFileByName(APP_DATA_FOLDER_SPACE, WALLET_FILE_NAME, WALLET_FOLDER_NAME)
 }
 
 export {
