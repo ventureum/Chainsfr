@@ -331,6 +331,7 @@ async function _getTransferHistory (offset: number = 0) {
     hasMore = false
     transfers = transfers.slice(offset)
   }
+
   // identify transfer state
   const sendingIds = transfers.filter(t => !!t.sendingId).map(t => t.sendingId)
   const receivingIds = transfers.filter(t => !!t.receivingId).map(t => t.receivingId)
@@ -353,7 +354,9 @@ async function _getTransferHistory (offset: number = 0) {
   }).map(item => {
     let state = null
     let transferType: ?string = null
+    let password: ?string = null
     if (sendingIdsSet.has(item.sendingId)) {
+      password = Base64.decode(transfersDict[item.sendingId].password).split(item.sender)[0]
       transferType = 'SENDER'
     } else if (receivingIdsSet.has(item.receivingId)) {
       transferType = 'RECEIVER'
@@ -421,6 +424,7 @@ async function _getTransferHistory (offset: number = 0) {
     return {
       ...item,
       transferType,
+      password,
       state
     }
   })
