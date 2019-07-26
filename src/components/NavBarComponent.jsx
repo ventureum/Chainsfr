@@ -35,7 +35,7 @@ class NavBarComponent extends Component {
   }
 
   render () {
-    const { classes, backToHome, profile } = this.props
+    const { classes, backToHome, profile, disabled } = this.props
     const { anchorEl } = this.state
 
     return (
@@ -58,6 +58,7 @@ class NavBarComponent extends Component {
                       backToHome()
                     }}
                     id='back'
+                    disabled={disabled}
                   >
                     <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
                   </Button>
@@ -70,6 +71,7 @@ class NavBarComponent extends Component {
                       onClick={this.handleToggle}
                       id='avatarBtn'
                       style={{ textTransform: 'none' }}
+                      disabled={disabled}
                     >
                       {profile &&
                         profile.profileObj &&

@@ -13,6 +13,7 @@ const initState = {
     drive: {
       unlockRequest: null,
       connected: false,
+      notFound: false,
       crypto: {}
     },
     ledger: {
@@ -40,7 +41,7 @@ const initState = {
   }
 }
 
-function updateWalletState (state, walletDataList, extra) {
+function updateWalletState (state, walletDataList, extra = {}) {
   let _state = state
   if (!Array.isArray(walletDataList)) walletDataList = [walletDataList]
   // de-duplicated walletType list
@@ -60,7 +61,13 @@ function updateWalletState (state, walletDataList, extra) {
       _state = update(_state, { wallet: { [walletType]: { $set: {} } } })
     }
     _state = update(_state, { wallet: { [walletType]: { $merge: extra || {} } } })
-    _state = update(_state, { wallet: { [walletType]: { crypto: { $merge: cryptoList } } } })
+    // if extra.override is true
+    // override existing walletData instead of merging
+    if (extra.override) {
+      _state = update(_state, { wallet: { [walletType]: { crypto: { $set: cryptoList } } } })
+    } else {
+      _state = update(_state, { wallet: { [walletType]: { crypto: { $merge: cryptoList } } } })
+    }
   })
   return _state
 }
@@ -74,10 +81,14 @@ export default function (state = initState, action) {
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
     case 'GET_CLOUD_WALLET_FULFILLED':
-      return updateWalletState(state, action.payload, { connected: true })
+      return updateWalletState(state, action.payload, { connected: true, notFound: false })
+    case 'GET_CLOUD_WALLET_REJECTED':
+      return updateWalletState(state, [{ walletType: 'drive' }], { notFound: true, connected: false })
     case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return updateWalletState(state, [], { connected: false })
+      return updateWalletState(state, [{ walletType: 'ledger' }], { connected: false })
+    case 'LOGOUT_FULFILLED':
+      return updateWalletState(state, [{ walletType: 'drive' }], { notFound: false, connected: false, override: true })
     case 'SYNC_FULFILLED':
     case 'VERIFY_PASSWORD_FULFILLED':
     case 'CLEAR_DECRYPTED_WALLET':

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
-import OnboardingComponent from '../components/OnboardingComponent'
 import { onLogin, setNewUserTag } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -13,9 +12,9 @@ class LoginContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    let { error, profile, actionsPending, cloudWalletConnected, onLogin } = this.props
+    let { error, actionsPending, cloudWalletConnected, onLogin } = this.props
 
-    if (cloudWalletConnected && this.state.loginData) {
+    if (this.state.loginData && prevProps.actionsPending.getCloudWallet && !actionsPending.getCloudWallet) {
       // we have logged in and wallet has been retrieved from drive
       // now invoke onLogin() to register loginData in redux
       onLogin(this.state.loginData)
@@ -29,8 +28,6 @@ class LoginContainer extends Component {
           this.props.getCloudWallet()
         }
       }
-    } else if (error === 'WALLET_NOT_EXIST') {
-      if (!profile.newUser) { this.props.setNewUserTag(true) }
     }
   }
 
@@ -39,26 +36,15 @@ class LoginContainer extends Component {
   }
 
   render () {
-    let { loginData } = this.state
-    let { profile, actionsPending, createCloudWallet } = this.props
+    let { actionsPending } = this.props
 
-    if (loginData &&
-        profile.newUser &&
-        (!actionsPending.getCloudWallet || actionsPending.createCloudWallet)
-    ) {
-      return (
-        <OnboardingComponent
-          createCloudWallet={createCloudWallet}
-          profile={loginData}
-          actionsPending={actionsPending}
-        />)
-    }
     return (
       <LoginComponent
         onLogin={this.onLogin}
         actionsPending={actionsPending}
         isMainNet={env.REACT_APP_ENV === 'prod'}
-      />)
+      />
+    )
   }
 }
 

@@ -8,7 +8,8 @@ const initialProps = {
   profile: {
     isAuthenticated: false
   },
-  onLogout: () => {}
+  onLogout: () => {},
+  actionsPending: { createCloudWallet: false }
 }
 const profileObjWithAvatar = {
   imageUrl: 'https://images.pexels.com/photos/2341290/pexels-photo-2341290.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
