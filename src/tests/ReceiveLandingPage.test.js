@@ -55,7 +55,6 @@ describe('ReceiveLandingPageComponent render', () => {
 
   it('Not logined, not received', () => {
     expect(wrapper.find(Button).filter('#loginGoogle')).toHaveLength(1)
-    expect(wrapper.find(Button).filter('#guest')).toHaveLength(1)
   })
 
   it('Logined, not received', () => {
@@ -157,14 +156,5 @@ describe('ReceiveLandingPageComponent interaction', () => {
     })
     wrapper.find(Button).filter('#accept').simulate('click')
     expect(mockCallback.mock.calls.length).toEqual(1)
-  })
-
-  it('guest btn', () => {
-    const mockCallback = jest.fn()
-    wrapper.setProps({
-      goToStep: mockCallback
-    })
-    wrapper.find(Button).filter('#guest').simulate('click')
-    expect(mockCallback.mock.calls[0][0]).toEqual(1)
   })
 })

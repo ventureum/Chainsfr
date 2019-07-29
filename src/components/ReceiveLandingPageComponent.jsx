@@ -32,31 +32,18 @@ class ReceiveLandingPageComponent extends Component {
         </Grid>
       )
     } else {
-      // show two buttons, one for guest, one for logging in
       return (
-        <>
-          <Grid item>
-            <Button
-              variant='outlined'
-              color='primary'
-              onClick={() => this.props.goToStep(1)}
-              id='guest'
-            >
-              Guest
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant='contained'
-              color='primary'
-              component={Link}
-              to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
-              id='loginGoogle'
-            >
-              Login with Google
-            </Button>
-          </Grid>
-        </>
+        <Grid item>
+          <Button
+            variant='contained'
+            color='primary'
+            component={Link}
+            to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
+            id='loginGoogle'
+          >
+            Login with Google To Accept
+          </Button>
+        </Grid>
       )
     }
   }
