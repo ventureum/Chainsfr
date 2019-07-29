@@ -21,6 +21,7 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import FAQContainer from './containers/FAQContainer'
 import { theme } from './styles/theme'
+import CookieConsent from 'react-cookie-consent'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -63,10 +64,19 @@ const componentStyle = {
   flexDirection: 'column'
 }
 
+const StyledCookieConsent = () => {
+  return (
+    <CookieConsent buttonText='Accept' buttonStyle={{ background: '#4285F4', color: 'white' }}>
+      This website uses cookies to enhance the user experience.
+    </CookieConsent>
+  )
+}
+
 const DefaultLayout = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={matchProps => (
       <div style={defaultLayoutStyle}>
+        <StyledCookieConsent />
         <NaviBar {...matchProps} />
         <div style={componentStyle}>
           <Component {...matchProps} />
@@ -83,6 +93,7 @@ const LoginLayout = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={matchProps => (
       <div style={loginLayoutStyle}>
+        <StyledCookieConsent />
         <Component {...matchProps} />
         <NotifierComponent />
       </div>
