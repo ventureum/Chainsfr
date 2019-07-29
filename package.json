@@ -44,6 +44,7 @@
     "query-string": "^6.2.0",
     "randombytes": "^2.0.6",
     "react": "^16.8.2",
+    "react-cookie-consent": "^2.3.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-device-detect": "^1.6.2",
     "react-dom": "^16.8.2",
