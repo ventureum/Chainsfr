@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
+import OnboardingComponent from '../components/OnboardingComponent'
 import { onLogin, setNewUserTag } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -12,9 +13,9 @@ class LoginContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    let { error, actionsPending, cloudWalletConnected, onLogin } = this.props
+    let { error, profile, actionsPending, cloudWalletConnected, onLogin } = this.props
 
-    if (this.state.loginData && prevProps.actionsPending.getCloudWallet && !actionsPending.getCloudWallet) {
+    if (cloudWalletConnected && this.state.loginData) {
       // we have logged in and wallet has been retrieved from drive
       // now invoke onLogin() to register loginData in redux
       onLogin(this.state.loginData)
@@ -28,6 +29,8 @@ class LoginContainer extends Component {
           this.props.getCloudWallet()
         }
       }
+    } else if (error === 'WALLET_NOT_EXIST') {
+      if (!profile.newUser) { this.props.setNewUserTag(true) }
     }
   }
 
@@ -36,15 +39,26 @@ class LoginContainer extends Component {
   }
 
   render () {
-    let { actionsPending } = this.props
+    let { loginData } = this.state
+    let { profile, actionsPending, createCloudWallet } = this.props
 
+    if (loginData &&
+        profile.newUser &&
+        (!actionsPending.getCloudWallet || actionsPending.createCloudWallet)
+    ) {
+      return (
+        <OnboardingComponent
+          createCloudWallet={createCloudWallet}
+          profile={loginData}
+          actionsPending={actionsPending}
+        />)
+    }
     return (
       <LoginComponent
         onLogin={this.onLogin}
         actionsPending={actionsPending}
         isMainNet={env.REACT_APP_ENV === 'prod'}
-      />
-    )
+      />)
   }
 }
 
@@ -67,7 +81,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: loginData => dispatch(onLogin(loginData)),
-    createCloudWallet: password => dispatch(createCloudWallet(password)),
+    createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),
     setNewUserTag: (isNewUser) => dispatch(setNewUserTag(isNewUser))
   }
