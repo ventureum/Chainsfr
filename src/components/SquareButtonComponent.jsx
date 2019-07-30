@@ -13,12 +13,13 @@ type Props = {
   selected: boolean,
   logo: string,
   title: string,
-  desc: string
+  desc: string,
+  disabledReason:string
 }
 
 class SquareButtonComponent extends Component<Props> {
   render () {
-    const { classes, disabled, selected, onClick, logo, title, desc } = this.props
+    const { classes, disabled, selected, onClick, logo, title, desc, disabledReason } = this.props
     let btnStyle = classes.btn
     let btnTitleStyle = classes.btnTitle
     let btnDescStyle = classes.btnDesc
@@ -37,14 +38,13 @@ class SquareButtonComponent extends Component<Props> {
 
     return (
       <Tooltip
-        title={disabled
-          ? <React.Fragment>
-            <Typography className={classes.tooltip}>
-              Chrome version 73 and above
-            </Typography>
-          </React.Fragment>
-
-          : ''}
+        title={disabled ? <React.Fragment>
+          <Typography className={classes.tooltip}>
+            {disabledReason}
+          </Typography>
+        </React.Fragment>
+          : ''
+        }
       >
         <Grid className={btnStyle} container direction='column' jutify='center' alignItems='center' onClick={disabled ? undefined : onClick}>
           <Grid item className={classes.imgContainer}>

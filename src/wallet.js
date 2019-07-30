@@ -4,6 +4,7 @@ import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import { detect } from 'detect-browser'
 import env from './typedEnv'
+import { isMobile } from 'react-device-detect'
 
 const browser = detect()
 
@@ -23,14 +24,31 @@ if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
   // walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
 }
 
-function browserSupported () {
-  if (browser && browser.name === 'chrome') {
+function getWalletStatus () {
+  if (isMobile) {
+    return {
+      disabled: true,
+      disabledReason: 'Not supported in mobile device'
+    }
+  } else if (browser && browser.name === 'chrome') {
     let v = browser.version.split('.')[0]
-    if (parseInt(v) >= 73) {
-      return true
+    if (parseInt(v) <= 73) {
+      return {
+        disabled: true,
+        disabledReason: 'Chrome version 73 or above needed'
+      }
+    }
+  } else if (browser && browser.name !== 'chrome') {
+    return {
+      disabled: true,
+      disabledReason: 'Chrome browser needed'
+    }
+  } else {
+    return {
+      disabled: false,
+      disabledReason: ''
     }
   }
-  return false
 }
 
 export const walletSelections = [
@@ -46,14 +64,14 @@ export const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskLogo,
-    disabled: !browserSupported()
+    ...getWalletStatus()
   },
   {
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: LedgerWalletLogo,
-    disabled: !browserSupported()
+    ...getWalletStatus()
   }
 ]
 
