@@ -22,6 +22,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import FAQContainer from './containers/FAQContainer'
 import { theme } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
+import { getCryptoPrice } from './actions/cryptoPriceActions'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -108,6 +109,13 @@ class App extends Component {
       auth: false
     }
     console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
+  }
+
+  componentDidMount () {
+    // refresh price immediately
+    store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
+    // refresh price every 60 seconds
+    setInterval(() => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai'])), 60000)
   }
 
   render () {

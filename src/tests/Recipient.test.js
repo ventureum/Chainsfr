@@ -32,10 +32,7 @@ const mockWallet = {
 const mockValidEmail = 'abc@gmail.com'
 const mockInvalidEmail = 'abccom'
 const mockValidAmount = '0.001'
-const mockInvalidAmountETH = '0.01'
-const mockInvalidAmountBTC = '0.344'
 const largeAmount = '100000'
-const mockInvalidAmount = '0.0001'
 const mockValidPassword = '123456'
 const mockInvalidPassword = '123'
 
@@ -57,6 +54,11 @@ let initialProps = {
   clearSecurityAnswer: () => {},
   goToStep: () => {},
   getTxFee: () => {},
+  handleTransferFormChange: () => {},
+  validateForm: jest.fn(),
+  balanceAmount: '0.000',
+  balanceCurrencyAmount: '2323.2 USD',
+  currency: 'USD',
   cryptoSelection: 'ethereum',
   walletSelection: 'metamask',
   transferForm: mockTransferForm,
@@ -91,7 +93,7 @@ describe('RecipientComponent render', () => {
     expect(toJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find(TextField).filter('#sender').prop('value')).toEqual(mockValidEmail)
     expect(wrapper.find(TextField).filter('#destination').prop('value')).toEqual(mockValidEmail)
-    expect(wrapper.find(TextField).filter('#amount').prop('value')).toEqual(mockValidAmount)
+    expect(wrapper.find(TextField).filter('#cryptoAmount').prop('value')).toEqual(mockValidAmount)
     expect(wrapper.find(TextField).filter('#password').prop('value')).toEqual(mockValidPassword)
   })
 
@@ -113,7 +115,7 @@ describe('RecipientComponent render', () => {
     expect(toJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find(TextField).filter('#sender').prop('helperText')).toEqual(errorMsg)
     expect(wrapper.find(TextField).filter('#destination').prop('helperText')).toEqual(errorMsg)
-    expect(wrapper.find(TextField).filter('#amount').prop('helperText')).toEqual(errorMsg)
+    expect(wrapper.find(TextField).filter('#cryptoAmount').prop('helperText')).toEqual(errorMsg)
     expect(wrapper.find(TextField).filter('#password').prop('error')).toEqual(true)
     expect(wrapper.find(Button).filter('#continue').prop('disabled')).toEqual(true)
   })
@@ -121,20 +123,33 @@ describe('RecipientComponent render', () => {
   // balance does not exist
   it('balance undefined', () => {
     wrapper.setProps(update(initialProps, { wallet: { crypto: { ethereum: { 0: { balance: { $set: undefined } } } } } }))
-    expect(wrapper.find(TextField).filter('#amount').prop('helperText')).toEqual('Balance: 0 ETH')
+    expect(wrapper.find(TextField).filter('#cryptoAmount').prop('helperText')).toEqual('Balance: 0.000 ETH')
   })
 })
 
 describe('RecipientComponent Interactions:', () => {
   let mockUpdateTransferForm
   let mockGoToStep
+  let mockHandleTransferFormChangeEvent
+  let mockHandleTransferFormChangeName
   beforeEach(() => {
     mockUpdateTransferForm = jest.fn()
     mockGoToStep = jest.fn()
+    mockHandleTransferFormChangeEvent = {
+      sender: jest.fn((event) => {}),
+      destination: jest.fn((event) => {}),
+      transferCurrencyAmount: jest.fn((event) => {}),
+      transferAmount: jest.fn((event) => {}),
+      password: jest.fn((event) => {})
+    }
+    mockHandleTransferFormChangeName = jest.fn((name) => {
+      return mockHandleTransferFormChangeEvent[name]
+    })
     wrapper = mount(
       <Recipient {...{
         ...initialProps,
         updateTransferForm: mockUpdateTransferForm,
+        handleTransferFormChange: mockHandleTransferFormChangeName,
         goToStep: mockGoToStep
       }
       } />
@@ -142,24 +157,21 @@ describe('RecipientComponent Interactions:', () => {
   })
 
   it('sender input field change', () => {
-    wrapper.find(TextField).filter('#sender').props().onChange({ target: { value: mockValidEmail } })
-    expect(wrapper.find(TextField).filter('#sender').prop('error')).toEqual(false)
-
-    wrapper.find(TextField).filter('#sender').props().onChange({ target: { value: mockInvalidEmail } })
-    expect(mockUpdateTransferForm.mock.calls[1][0].formError.sender).toEqual('Invalid email')
+    const event = { target: { value: mockValidEmail } }
+    wrapper.find(TextField).filter('#sender').props().onChange(event)
+    expect(mockHandleTransferFormChangeEvent.sender.mock.calls[0][0]).toEqual(event)
   })
 
   it('destination input field change', () => {
-    wrapper.find(TextField).filter('#destination').props().onChange({ target: { value: mockValidEmail } })
-    expect(wrapper.find(TextField).filter('#destination').prop('error')).toEqual(false)
-
-    wrapper.find(TextField).filter('#destination').props().onChange({ target: { value: mockInvalidEmail } })
-    expect(mockUpdateTransferForm.mock.calls[1][0].formError.destination).toEqual('Invalid email')
+    const event = { target: { value: mockValidEmail } }
+    wrapper.find(TextField).filter('#destination').props().onChange(event)
+    expect(mockHandleTransferFormChangeEvent.destination.mock.calls[0][0]).toEqual(event)
   })
 
-  it('amount input field change (valid)', () => {
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockValidAmount } })
-    expect(wrapper.find(TextField).filter('#amount').prop('error')).toEqual(false)
+  it('cryptoAmount input field change (valid)', () => {
+    const event = { target: { value: mockValidAmount } }
+    wrapper.find(TextField).filter('#cryptoAmount').props().onChange(event)
+    expect(wrapper.find(TextField).filter('#cryptoAmount').prop('error')).toEqual(false)
 
     // This is for the second check on transferAmount when getTxCost finish
     wrapper.setProps({ actionsPending: { getTxFee: true } })
@@ -167,49 +179,14 @@ describe('RecipientComponent Interactions:', () => {
       txFee: { costInBasicUnit: '99999999999999999' },
       actionsPending: { getTxFee: false }
     })
-    expect(mockUpdateTransferForm.mock.calls.length).toEqual(2)
-  })
 
-  it('amount input field change (large amount)', () => {
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: largeAmount } })
-    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('The amount cannot exceed your current balance 0.01')
-  })
-
-  it('amount input field change (<0.001)', () => {
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmount } })
-    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('The amount must be greater than 0.001')
-  })
-
-  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) ETH', () => {
-    wrapper.setProps({ txFee: { costInBasicUnit: '99999999999999999' } })
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
-    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
-  })
-
-  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) DAI', () => {
-    wrapper.setProps({
-      txFee: { costInBasicUnit: '99999999999999999' },
-      cryptoSelection: 'dai'
-    })
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountETH } })
-    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
-  })
-
-  it('amount input field change (INSUFFICIENT_FUNDS_FOR_TX_FEES) BTC', () => {
-    wrapper.setProps({
-      txFee: { costInBasicUnit: '99999999999999999' },
-      cryptoSelection: 'bitcoin'
-    })
-    wrapper.find(TextField).filter('#amount').props().onChange({ target: { value: mockInvalidAmountBTC } })
-    expect(mockUpdateTransferForm.mock.calls[0][0].formError.transferAmount).toEqual('Insufficient funds for paying transaction fees')
+    expect(mockHandleTransferFormChangeEvent.transferAmount.mock.calls[0][0]).toEqual(event)
   })
 
   it('password input field change', () => {
-    wrapper.find(TextField).filter('#password').props().onChange({ target: { value: mockValidPassword } })
-    expect(wrapper.find(TextField).filter('#password').prop('error')).toEqual(false)
-
-    wrapper.find(TextField).filter('#password').props().onChange({ target: { value: mockInvalidPassword } })
-    expect(mockUpdateTransferForm.mock.calls[1][0].formError.password).toEqual('Length must be greater or equal than 6')
+    const event = { target: { value: mockValidPassword } }
+    wrapper.find(TextField).filter('#password').props().onChange(event)
+    expect(mockHandleTransferFormChangeEvent.password.mock.calls[0][0]).toEqual(event)
   })
 
   it('back button', () => {
@@ -225,7 +202,8 @@ describe('RecipientComponent Interactions:', () => {
         destination: mockValidEmail,
         transferAmount: mockValidAmount,
         password: mockValidPassword
-      }
+      },
+      validateForm: jest.fn(() => true) // form validation passed
     })
     wrapper.find(Button).filter('#continue').simulate('click')
     expect(mockGoToStep.mock.calls[0][0]).toEqual(1)

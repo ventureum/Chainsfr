@@ -25,7 +25,11 @@ const initialProps = {
     transferAmount: '0.001'
   },
   password: '123456',
-  sendTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss')
+  sendTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss'),
+  currencyAmount: {
+    transferAmount: '100.2 USD',
+    txFee: '2.1 USD'
+  }
 }
 
 jest.mock('react-router-dom', () => () => ({

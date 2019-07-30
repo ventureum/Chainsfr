@@ -26,7 +26,13 @@ const initialProps = {
     transferAmount: '0.001'
   },
   password: '123456',
-  receiveTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss')
+  receiveTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss'),
+  currencyAmount: {
+    transferAmount: '100.2 USD',
+    receiveAmount: '10.44 USD',
+    txFee: '2.1 USD'
+  },
+  receiveAmount: '12333'
 }
 
 jest.mock('react-router-dom', () => () => ({
@@ -46,23 +52,18 @@ describe('ReceiptComponent render:', () => {
   })
 
   it('Receipt render:', () => {
-    const { receipt, txFee } = initialProps
-    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txFee.costInStandardUnit)
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} ETH`)
+    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} ETH`)
   })
 
   it('ERC20 render:', () => {
-    const { receipt } = initialProps
-    const receiveAmount = parseFloat(receipt.transferAmount)
     wrapper.setProps({ receipt: { ...initialProps.receipt, cryptoType: 'dai' } })
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} DAI`)
+    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} DAI`)
   })
 
   it('bitcoin render', () => {
-    const { receipt, txFee } = initialProps
-    const receiveAmount = parseFloat(receipt.transferAmount) - parseFloat(txFee.costInStandardUnit)
+    const { receipt } = initialProps
     wrapper.setProps({ receipt: { ...initialProps.receipt, cryptoType: 'bitcoin' } })
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} BTC`)
+    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} BTC`)
     expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(receipt.receiveTxHash))))
       .toEqual(true)
   })

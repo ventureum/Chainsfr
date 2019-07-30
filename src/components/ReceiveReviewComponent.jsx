@@ -16,21 +16,28 @@ class ReceiveReviewComponent extends Component {
     this.props.acceptTransfer({
       receivingId: receivingId,
       escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-      receiveWallet: WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, lastUsedWallet || wallet),
+      receiveWallet: WalletUtils.toWalletDataFromState(
+        walletSelection,
+        transfer.cryptoType,
+        lastUsedWallet || wallet
+      ),
       transferAmount: transferAmount,
       txFee: txFee
     })
   }
 
   render () {
-    const { classes, transfer, actionsPending, txFee, destinationAddress, sentOn } = this.props
+    const {
+      classes,
+      transfer,
+      actionsPending,
+      txFee,
+      destinationAddress,
+      sentOn,
+      receiveAmount,
+      currencyAmount
+    } = this.props
     const { transferAmount, sender, destination, cryptoType } = transfer
-
-    if (!actionsPending.getTxFee && txFee) {
-      var receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-        ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
-        : parseFloat(transferAmount)
-    }
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
@@ -71,7 +78,11 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Wallet Address
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='destinationAddress'>
+                  <Typography
+                    className={classes.reviewContent}
+                    align='left'
+                    id='destinationAddress'
+                  >
                     {destinationAddress}
                   </Typography>
                 </Grid>
@@ -79,29 +90,65 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
-                  <Typography className={classes.reviewContentAmount} align='left' id='transferAmount'>
-                    {transferAmount} {getCryptoSymbol(cryptoType)}
-                  </Typography>
+                  <Grid container direction='column'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                      id='transferAmount'
+                    >
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                    <Typography
+                      className={classes.reviewContentCurrencyAmount}
+                      align='left'
+                      id='transferCurrencyAmount'
+                    >
+                      ≈ {currencyAmount.transferAmount}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  {!actionsPending.getTxFee && txFee
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />}
+                  {!actionsPending.getTxFee && txFee ? (
+                    <Grid container direction='column'>
+                      <Typography className={classes.reviewContentAmount} align='left'>
+                        {txFee.costInStandardUnit}{' '}
+                        {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                      </Typography>
+                      <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                        ≈ {currencyAmount.txFee}
+                      </Typography>
+                    </Grid>
+                  ) : (
+                    <CircularProgress size={18} color='primary' />
+                  )}
                 </Grid>
                 <Grid item>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  {!actionsPending.getTxFee && txFee
-                    ? <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
-                      {receiveAmount} {getCryptoSymbol(cryptoType)}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />}
+                  {!actionsPending.getTxFee && txFee ? (
+                    <Grid container direction='column'>
+                      <Typography
+                        className={classes.reviewContentAmount}
+                        align='left'
+                        id='receiveAmount'
+                      >
+                        {receiveAmount} {getCryptoSymbol(cryptoType)}
+                      </Typography>
+                      <Typography
+                        className={classes.reviewContentCurrencyAmount}
+                        align='left'
+                        id='receiveCurrencyAmount'
+                      >
+                        ≈ {currencyAmount.receiveAmount}
+                      </Typography>
+                    </Grid>
+                  ) : (
+                    <CircularProgress size={18} color='primary' />
+                  )}
                 </Grid>
               </Paper>
             </Grid>
@@ -133,7 +180,9 @@ class ReceiveReviewComponent extends Component {
                 >
                   Complete
                 </Button>
-                {actionsPending.acceptTransfer && <CircularProgress size={24} color='primary' className={classes.buttonProgress} />}
+                {actionsPending.acceptTransfer && (
+                  <CircularProgress size={24} color='primary' className={classes.buttonProgress} />
+                )}
               </div>
             </Grid>
           </Grid>
@@ -173,6 +222,13 @@ const styles = theme => ({
     fontSize: '18px',
     lineHeight: '24px',
     fontWeight: 'bold'
+  },
+  reviewContentCurrencyAmount: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold',
+    marginLeft: '5px'
   },
   reviewItem: {
     marginBottom: '30px'

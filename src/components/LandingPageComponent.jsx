@@ -32,7 +32,7 @@ import MuiLink from '@material-ui/core/Link'
 import url from '../url'
 import { spacing, fontSize } from '../styles/base'
 import { uiColors } from '../styles/color'
-import { headers } from '../styles/typography'
+import { headers, textValues } from '../styles/typography'
 
 const toUserReadableState = {
   SEND_PENDING: 'Sending',
@@ -274,9 +274,13 @@ class LandingPageComponent extends Component {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography className={classes.recentTransferItemTransferAmount}>
+                  <Typography align='right' className={classes.recentTransferItemTransferAmount}>
                     {transfer.transferType === 'SENDER' ? '-' : '+'}
                     {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
+                  </Typography>
+                  <Typography align='right' className={classes.recentTransferItemTransferCurrencyAmount}>
+                    {transfer.transferType === 'SENDER' ? '-' : '+'}
+                    {transfer.transferCurrencyAmount}
                   </Typography>
                 </Grid>
               </Grid>
@@ -334,7 +338,7 @@ class LandingPageComponent extends Component {
   }
 
   renderWalletSection = (props) => {
-    const { classes, actionsPending, cloudWallet } = this.props
+    const { classes, actionsPending, cloudWallet, walletBalanceCurrencyAmount } = this.props
     // Do not remove <div style={{ padding: 10 }}>
     // See https://material-ui.com/components/grid/#limitations
     return (
@@ -358,9 +362,16 @@ class LandingPageComponent extends Component {
                           <SpotlightTarget name={c.cryptoType === 'ethereum' ? 'two' : undefined}>
                             <Grid item>
                               {cloudWallet.crypto[c.cryptoType] && !actionsPending.getCloudWallet
-                                ? <Typography align='center' className={classes.balanceText}>
-                                  {numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')}
-                                </Typography>
+                                ? <>
+                                  <Grid container direction='row' alignItems='center' justify='center'>
+                                    <Typography align='left' className={classes.balanceText}>
+                                      {numeral(utils.toHumanReadableUnit(cloudWallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000[000]')}
+                                    </Typography>
+                                    <Typography align='right' className={classes.balanceCurrencyText}>
+                                      (≈ {walletBalanceCurrencyAmount[c.cryptoType]})
+                                    </Typography>
+                                  </Grid>
+                                </>
                                 : <CircularProgress color='primary' />
                               }
                               <Typography className={classes.cryptoTypeText} align='center'>{c.symbol}</Typography>
@@ -533,6 +544,11 @@ const styles = theme => ({
     fontWeight: '600',
     color: '#333333'
   },
+  balanceCurrencyText: {
+    ...textValues.textSmall,
+    marginLeft: '5px',
+    color: '#777777'
+  },
   verticalMarginL: {
     marginTop: spacing.l,
     marginBottom: spacing.l
@@ -601,6 +617,11 @@ const styles = theme => ({
     fontWeight: '500',
     fontSize: '14px',
     color: '#333333'
+  },
+  recentTransferItemTransferCurrencyAmount: {
+    fontWeight: '500',
+    fontSize: '14px',
+    color: '#777777'
   },
   startTransferBtn: {
     backgroundColor: '#393386',

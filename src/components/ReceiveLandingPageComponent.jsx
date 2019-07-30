@@ -49,7 +49,7 @@ class ReceiveLandingPageComponent extends Component {
   }
 
   render () {
-    const { actionsPending, transfer, classes, sendTime, receiveTime, cancelTime } = this.props
+    const { actionsPending, transfer, classes, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
     if (transfer) {
       var { receivingId, receiveTxHash, cancelTxHash, sender, destination, transferAmount, cryptoType } = transfer
       var hasReceived = !!receiveTxHash
@@ -138,6 +138,9 @@ class ReceiveLandingPageComponent extends Component {
                   </Typography>
                   <Typography className={classes.reviewContent} align='left'>
                     {transferAmount} {getCryptoSymbol(cryptoType)}
+                  </Typography>
+                  <Typography className={classes.reviewContentCurrency} align='left'>
+                    ≈ { currencyAmount.transferAmount }
                   </Typography>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
@@ -253,6 +256,13 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentCurrency: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold',
+    marginLeft: '5px'
   },
   reviewItem: {
     marginTop: '30px'

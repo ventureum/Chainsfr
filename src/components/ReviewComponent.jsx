@@ -21,6 +21,7 @@ type Props = {
   walletSelection: string,
   wallet: Object,
   txFee: Object,
+  currencyAmount: Object,
   actionsPending: {
     submitTx: boolean,
     getTxFee: boolean
@@ -28,16 +29,18 @@ type Props = {
 }
 
 const BASE_WALLET_INSTRUCTION = {
-  ledger: 'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
-          'Press the right button to confirm and sign the transaction if everything is correct. ' +
-          'The transaction is then signed and sent to the network for confirmation.',
+  ledger:
+    'Please keep your Ledger connected and carefully verify all transaction details on your device. ' +
+    'Press the right button to confirm and sign the transaction if everything is correct. ' +
+    'The transaction is then signed and sent to the network for confirmation.',
   metamask: 'Please confirm transaction in the Metamask popup window.',
   drive: 'Please wait while we are broadcasting your transaction to the network.'
 }
 
 const BASE_CRYPTO_INSTRUCTION = {
-  dai: 'Two consecutive transactions will be sent: The first one prepays the transaction fees for receiving or cancellation.' +
-       'The second one sends DAI tokens.'
+  dai:
+    'Two consecutive transactions will be sent: The first one prepays the transaction fees for receiving or cancellation.' +
+    'The second one sends DAI tokens.'
 }
 
 const WALLET_INSTRUCTION = {
@@ -54,7 +57,7 @@ const WALLET_INSTRUCTION = {
   },
   metamask: {
     ethereum: (
-      <div> 
+      <div>
         {BASE_WALLET_INSTRUCTION.metamask}
         <br /> <br />
         Look for <img src={MetamaskPendingIcon} alt='metamask pending icon' />
@@ -62,7 +65,7 @@ const WALLET_INSTRUCTION = {
       </div>
     ),
     dai: (
-      <div> 
+      <div>
         {BASE_WALLET_INSTRUCTION.metamask}
         <br /> <br />
         {BASE_CRYPTO_INSTRUCTION.dai}
@@ -97,7 +100,15 @@ class ReviewComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, transferForm, cryptoSelection, actionsPending, txFee, walletSelection } = this.props
+    const {
+      classes,
+      transferForm,
+      cryptoSelection,
+      actionsPending,
+      txFee,
+      walletSelection,
+      currencyAmount
+    } = this.props
     const { transferAmount, sender, destination, password } = transferForm
 
     return (
@@ -106,6 +117,7 @@ class ReviewComponent extends Component<Props> {
           <Grid container direction='column' justify='center'>
             <Grid item>
               <Grid item>
+                `
                 <Typography className={classes.title} variant='h6' align='center'>
                   Please review details of your transfer
                 </Typography>
@@ -139,22 +151,35 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
-                  <Typography className={classes.reviewContentAmount} align='left'>
-                    {transferAmount} {getCryptoSymbol(cryptoSelection)}
-                  </Typography>
+                  <Grid container direction='column'>
+                    <Typography className={classes.reviewContentAmount} align='left'>
+                      {transferAmount} {getCryptoSymbol(cryptoSelection)}
+                    </Typography>
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                      ≈ {currencyAmount.transferAmount}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  {!actionsPending.getTxFee && txFee
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
-                    </Typography>
-                    : <CircularProgress size={18} color='primary' />}
+                  {!actionsPending.getTxFee && txFee ? (
+                    <Grid container direction='column'>
+                      <Typography className={classes.reviewContentAmount} align='left'>
+                        {txFee.costInStandardUnit}{' '}
+                        {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
+                      </Typography>
+                      <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                        ≈ {currencyAmount.txFee}
+                      </Typography>
+                    </Grid>
+                  ) : (
+                    <CircularProgress size={18} color='primary' />
+                  )}
                 </Grid>
               </Paper>
-              { actionsPending.submitTx &&
+              {actionsPending.submitTx && (
                 <Grid item>
                   <Grid container direction='column' className={classes.instructionContainer}>
                     <Grid item>
@@ -172,37 +197,33 @@ class ReviewComponent extends Component<Props> {
                     </Grid>
                   </Grid>
                 </Grid>
-              }
+              )}
             </Grid>
           </Grid>
         </Grid>
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button
-                color='primary'
-                size='large'
-                onClick={() => this.props.goToStep(-1)}
-              >
+              <Button color='primary' size='large' onClick={() => this.props.goToStep(-1)}>
                 Back to previous
               </Button>
             </Grid>
-            {!actionsPending.submitTx &&
-            <Grid item>
-              <div className={classes.wrapper}>
-                <Button
-                  fullWidth
-                  variant='contained'
-                  color='primary'
-                  size='large'
-                  disabled={actionsPending.submitTx}
-                  onClick={this.handleReviewNext}
-                >
-                  Confirm and transfer
-                </Button>
-              </div>
-            </Grid>
-            }
+            {!actionsPending.submitTx && (
+              <Grid item>
+                <div className={classes.wrapper}>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    color='primary'
+                    size='large'
+                    disabled={actionsPending.submitTx}
+                    onClick={this.handleReviewNext}
+                  >
+                    Confirm and transfer
+                  </Button>
+                </div>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -240,6 +261,13 @@ const styles = theme => ({
     fontSize: '18px',
     lineHeight: '24px',
     fontWeight: 'bold'
+  },
+  reviewContentCurrencyAmount: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold',
+    marginLeft: '5px'
   },
   reviewItem: {
     marginBottom: '30px'

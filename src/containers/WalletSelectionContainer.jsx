@@ -14,6 +14,8 @@ import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import WalletUtils from '../wallets/utils'
+import utils from '../utils'
+import * as Tokens from '../tokens'
 
 type Props = {
   checkMetamaskConnection: Function,
@@ -29,6 +31,8 @@ type Props = {
   walletSelectionPrefilled: string,
   cryptoSelectionPrefilled: string,
   wallet: Object,
+  cryptoPrice: Object,
+  currency: string,
   actionsPending: Object,
   error: any
 }
@@ -151,7 +155,30 @@ class WalletSelectionContainer extends Component<Props, State> {
   }
 
   render () {
-    const { selectCrypto, walletSelection, cryptoSelection, selectWallet, ...other } = this.props
+    const {
+      selectCrypto,
+      walletSelection,
+      cryptoSelection,
+      selectWallet,
+      wallet,
+      cryptoPrice,
+      currency,
+      ...other
+    } = this.props
+
+    // iterate through all cryptoTypes in the wallet
+    // and convert the value into currency value
+    let currencyAmount = {}
+    if (wallet && wallet.crypto) {
+      for (const cryptoType of Object.keys(wallet.crypto)) {
+        currencyAmount[cryptoType] = utils.toCurrencyAmount(
+          utils.toHumanReadableUnit(wallet.crypto[cryptoType][0].balance, Tokens.getCryptoDecimals(cryptoType)),
+          cryptoPrice[cryptoType],
+          currency
+        )
+      }
+    }
+
     return (
       <>
         <WalletSelection
@@ -159,8 +186,10 @@ class WalletSelectionContainer extends Component<Props, State> {
           cryptoType={cryptoSelection}
           onCryptoSelected={this.onCryptoSelected}
           onWalletSelected={selectWallet}
+          wallet={wallet}
           syncProgress={this.state.syncProgress}
           handleNext={this.handleNext}
+          currencyAmount={currencyAmount}
           {...other}
         />
         <CloudWalletUnlockContainer />
@@ -199,6 +228,8 @@ const mapStateToProps = state => {
     walletSelection: state.formReducer.walletSelection,
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
+    cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
+    currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
       sync: syncSelector(state)

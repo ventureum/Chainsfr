@@ -5,6 +5,7 @@ import Review from '../components/ReviewComponent'
 import { submitTx } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
+import utils from '../utils'
 
 type Props = {
   submitTx: Function,
@@ -15,6 +16,8 @@ type Props = {
   walletSelection: string,
   wallet: Object,
   txFee: Object,
+  cryptoPrice: Object,
+  currency: string,
   actionsPending: {
     submitTx: boolean,
     getTxFee: boolean
@@ -24,9 +27,16 @@ type Props = {
 
 class ReviewContainer extends Component<Props> {
   render () {
+    const { cryptoPrice, cryptoSelection, txFee, transferForm, currency } = this.props
+    const toCurrencyAmount = (cryptoAmount) =>
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection], currency)
     return (
       <Review
         {...this.props}
+        currencyAmount={{
+          transferAmount: transferForm && toCurrencyAmount(transferForm.transferAmount),
+          txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit)
+        }}
       />
     )
   }
@@ -50,6 +60,8 @@ const mapStateToProps = state => {
     walletSelection: state.formReducer.walletSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
+    cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
+    currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       submitTx: submitTxSelector(state)
     },

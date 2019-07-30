@@ -37,6 +37,10 @@ const initialProps = {
   goToStep: () => {},
   transfer: transfer,
   isAuthenticated: false,
+  currency: 'USD',
+  currencyAmount: {
+    transferAmount: '100.2 USD'
+  },
   actionsPending: {
     getTransfer: false
   }

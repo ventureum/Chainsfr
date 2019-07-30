@@ -13,12 +13,8 @@ import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txFee, receipt, backToHome, receiveTime } = this.props
+    const { classes, txFee, receipt, backToHome, receiveTime, receiveAmount, currencyAmount } = this.props
     const { receivingId, transferAmount, sender, destination, cryptoType, receiveTxHash } = receipt
-
-    const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
-      ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
-      : parseFloat(transferAmount)
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -57,25 +53,40 @@ class ReceiveReceiptComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {transferAmount} {getCryptoSymbol(cryptoType)}
-                  </Typography>
+                  <Grid container direction='column'>
+                    <Typography className={classes.reviewContentAmount} align='left'>
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                      ≈ {currencyAmount.transferAmount}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
-                  </Typography>
+                  <Grid container direction='column'>
+                    <Typography className={classes.reviewContentAmount} align='left'>
+                      {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                    </Typography>
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                      ≈ {currencyAmount.txFee}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     You will receive*
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='receiveAmount'>
-                    {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
-                  </Typography>
+                  <Grid container direction='column'>
+                    <Typography className={classes.reviewContentAmount} align='left' id='receiveAmount'>
+                      {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
+                    </Typography>
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left' id='receiveCurrencyAmount'>
+                      ≈ {currencyAmount.receiveAmount}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
@@ -146,6 +157,19 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentAmount: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
+  },
+  reviewContentCurrencyAmount: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold',
+    marginLeft: '5px'
   },
   reviewItem: {
     marginTop: '30px'
