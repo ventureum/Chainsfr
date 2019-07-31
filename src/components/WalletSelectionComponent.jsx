@@ -50,7 +50,7 @@ class WalletSelectionComponent extends Component<Props> {
     const { walletType, onWalletSelected } = this.props
     return (
       <Grid container direction='row' justify='center' alignItems='center'>
-        {walletSelections.map(w =>
+        {walletSelections.map((w: Object) =>
           (<Grid item key={w.walletType}>
             <SquareButton
               id={w.walletType}
@@ -60,6 +60,7 @@ class WalletSelectionComponent extends Component<Props> {
               title={w.title}
               desc={w.desc}
               selected={w.walletType === walletType}
+              disabledReason={w.disabledReason}
             />
           </Grid>))}
       </Grid>

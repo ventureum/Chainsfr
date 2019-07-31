@@ -5,7 +5,6 @@ import { onLogout, refreshAccessToken } from '../actions/userActions'
 import { backToHome } from '../actions/navigationActions'
 import path from '../Paths.js'
 import moment from 'moment'
-import { createLoadingSelector } from '../selectors'
 
 class NavBarContainer extends Component {
   backToHome=() => {
@@ -38,17 +37,15 @@ class NavBarContainer extends Component {
   }
 
   render () {
-    let { onLogout, profile, actionsPending } = this.props
+    let { onLogout, profile } = this.props
     return (
       <NavBarComponent
         onLogout={onLogout}
         profile={profile}
         backToHome={this.backToHome}
-        disabled={actionsPending.createCloudWallet}
       />)
   }
 }
-const createCloudWalletSelector = createLoadingSelector(['CREATE_CLOUD_WALLET'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -60,10 +57,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    profile: state.userReducer.profile,
-    actionsPending: {
-      createCloudWallet: createCloudWalletSelector(state)
-    }
+    profile: state.userReducer.profile
   }
 }
 

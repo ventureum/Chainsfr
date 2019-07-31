@@ -13,7 +13,6 @@ const initState = {
     drive: {
       unlockRequest: null,
       connected: false,
-      notFound: false,
       crypto: {}
     },
     ledger: {
@@ -81,14 +80,14 @@ export default function (state = initState, action) {
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
     case 'GET_CLOUD_WALLET_FULFILLED':
-      return updateWalletState(state, action.payload, { connected: true, notFound: false })
+      return updateWalletState(state, action.payload, { connected: true })
     case 'GET_CLOUD_WALLET_REJECTED':
-      return updateWalletState(state, [{ walletType: 'drive' }], { notFound: true, connected: false })
+      return updateWalletState(state, [{ walletType: 'drive' }], { connected: false })
     case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
     case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
       return updateWalletState(state, [{ walletType: 'ledger' }], { connected: false })
     case 'LOGOUT_FULFILLED':
-      return updateWalletState(state, [{ walletType: 'drive' }], { notFound: false, connected: false, override: true })
+      return updateWalletState(state, [{ walletType: 'drive' }], { connected: false, override: true })
     case 'SYNC_FULFILLED':
     case 'VERIFY_PASSWORD_FULFILLED':
     case 'CLEAR_DECRYPTED_WALLET':

@@ -146,8 +146,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
   it('receive DAI before select wallet', () => {
     wrapper.setProps({ transfer: { cryptoType: 'dai' } })
     expect(wrapper.find(SquareButton).filter('#drive').prop('disabled')).toEqual(false)
-    expect(wrapper.find(SquareButton).filter('#metamask').prop('disabled')).toEqual(true)
-    expect(wrapper.find(SquareButton).filter('#ledger').prop('disabled')).toEqual(true)
+    expect(wrapper.find(SquareButton).filter('#metamask').prop('disabled')).toEqual(false)
+    expect(wrapper.find(SquareButton).filter('#ledger').prop('disabled')).toEqual(false)
   })
 
   it('select drive to receive DAI', () => {
@@ -216,7 +216,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
     wrapper.setProps({ transfer: { cryptoType: 'bitcoin' } })
     expect(wrapper.find(SquareButton).filter('#drive').prop('disabled')).toEqual(false)
     expect(wrapper.find(SquareButton).filter('#metamask').prop('disabled')).toEqual(true)
-    expect(wrapper.find(SquareButton).filter('#ledger').prop('disabled')).toEqual(true)
+    expect(wrapper.find(SquareButton).filter('#ledger').prop('disabled')).toEqual(false)
   })
 
   it('select drive to receive BTC', () => {

@@ -6,10 +6,16 @@ import TextField from '@material-ui/core/TextField'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import LinearProgress from '@material-ui/core/LinearProgress'
+
+const CREATE_WALLET_PROGRESS = {
+  'CREATE': 'Creating Drive Wallet...',
+  'STORE': 'Encrypt and store safely into your Google Drive...'
+}
 
 class OnboardingComponent extends Component {
   state = {
+    step: '',
     password: '',
     passwordConfirmation: '',
     termsAccepted: false
@@ -32,7 +38,7 @@ class OnboardingComponent extends Component {
   }
 
   onSubmit = () => {
-    this.props.createCloudWallet(this.state.password)
+    this.props.createCloudWallet(this.state.password, (step) => { this.setState({ step: step }) })
   }
 
   renderTermsAndConditionsLabel = () => {
@@ -80,6 +86,7 @@ class OnboardingComponent extends Component {
                     label='Password'
                     value={this.state.password}
                     onChange={this.handleChange('password')}
+                    disabled={actionsPending.createCloudWallet}
                   />
                 </Grid>
                 <Grid item>
@@ -93,6 +100,7 @@ class OnboardingComponent extends Component {
                     onChange={this.handleChange('passwordConfirmation')}
                     error={!this.isPasswordMatched()}
                     helperText={!this.isPasswordMatched() && 'Passwords must match'}
+                    disabled={actionsPending.createCloudWallet}
                   />
                 </Grid>
                 <Grid item>
@@ -102,31 +110,39 @@ class OnboardingComponent extends Component {
                         checked={this.state.termsAccepted}
                         onChange={this.handleCheckboxChange}
                         color='primary'
+                        disabled={actionsPending.createCloudWallet}
                       />
                     }
                     label={this.renderTermsAndConditionsLabel()}
                   />
                 </Grid>
+                {actionsPending.createCloudWallet &&
+                  <Grid item >
+                    <Grid container direction='column' justify='center' className={classes.loadingSection}>
+                      <Grid item>
+                        <Typography className={classes.progressTitle} >
+                          This may take up to one minute.
+                        </Typography>
+                        <Typography className={classes.progressSubtext} >
+                          {CREATE_WALLET_PROGRESS[this.state.step]}
+                        </Typography>
+                        <LinearProgress className={classes.linearProgress} />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                }
                 <Grid item align='center'>
-                  <div className={classes.wrapper}>
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      disabled={!this.state.termsAccepted ||
-                                !this.isPasswordMatched() ||
-                                this.state.password === '' ||
-                                actionsPending.createCloudWallet}
-                      onClick={this.onSubmit}
-                    >
-                      Start Using Chainsfr
-                    </Button>
-                    {actionsPending.createCloudWallet &&
-                    <CircularProgress
-                      size={24}
-                      color='primary'
-                      className={classes.buttonProgress}
-                    />}
-                  </div>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    disabled={!this.state.termsAccepted ||
+                      !this.isPasswordMatched() ||
+                      this.state.password === '' ||
+                      actionsPending.createCloudWallet}
+                    onClick={this.onSubmit}
+                  >
+                    Start Using Chainsfr
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>
@@ -170,12 +186,23 @@ const styles = theme => ({
     margin: theme.spacing(1),
     position: 'relative'
   },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12
+  loadingSection: {
+    backgroundColor: 'rgba(66,133,244,0.05)',
+    padding: '20px',
+    margin: '20px 0px 20px 0px',
+    borderRadius: '4px'
+  },
+  progressTitle: {
+    color: '#333333',
+    fontSize: '14px',
+    fontWeight: 600
+  },
+  progressSubtext: {
+    color: '#777777',
+    fontSize: '14px'
+  },
+  linearProgress: {
+    marginTop: '20px'
   }
 })
 

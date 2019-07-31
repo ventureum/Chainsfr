@@ -43,6 +43,7 @@ class ReceiveWalletSelectionComponent extends Component {
               desc={w.desc}
               selected={w.walletType === walletType}
               id={w.walletType}
+              disabledReason={w.disabledReason}
             />
           </Grid>))}
       </Grid>

@@ -383,8 +383,7 @@ class LandingPageComponent extends Component {
                         variant='contained'
                         component={Link}
                         to={path.wallet}
-                        className={actionsPending.createCloudWallet ? classes.viewDriveWalletBtnDisabled : classes.viewDriveWalletBtn}
-                        disabled={actionsPending.createCloudWallet}
+                        className={classes.viewDriveWalletBtn}
                       >
                         View Drive Wallet
                       </Button>
@@ -397,7 +396,6 @@ class LandingPageComponent extends Component {
                         component={Link}
                         to={path.transfer}
                         className={classes.startTransferBtn}
-                        disabled={actionsPending.createCloudWallet}
                       >
                         Start Transfer
                       </Button>
@@ -618,15 +616,6 @@ const styles = theme => ({
     borderRadius: '4px',
     backgroundColor: '#FAFBFE',
     color: '#393386',
-    boxShadow: 'none',
-    textTransform: 'none',
-    fontWeight: '600'
-  },
-  viewDriveWalletBtnDisabled: {
-    border: '1px solid #FAFBFE',
-    boxSizing: 'border-box',
-    borderRadius: '4px',
-    backgroundColor: '#FAFBFE',
     boxShadow: 'none',
     textTransform: 'none',
     fontWeight: '600'

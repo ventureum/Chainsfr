@@ -137,9 +137,10 @@ function clearDecryptedWallet (walletData: WalletData) {
 }
 
 // cloud wallet actions
-async function _createCloudWallet (password: string) {
+async function _createCloudWallet (password: string, progress: ?Function) {
   var walletFileData = {}
   let ethereumBasedWalletData = null
+  if (progress) progress('CREATE')
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
     if (!disabled) {
       let wallet = await WalletFactory.generateWallet({
@@ -165,11 +166,12 @@ async function _createCloudWallet (password: string) {
   }
 
   // save the encrypted wallet into drive
+  if (progress) progress('STORE')
   await saveWallet(walletFileData)
   return _getCloudWallet()
 }
 
-function createCloudWallet (password: string) {
+function createCloudWallet (password: string, progress: ?Function) {
   return (dispatch: Function, getState: Function) => {
     const key = new Date().getTime() + Math.random()
     dispatch(enqueueSnackbar({
@@ -179,7 +181,7 @@ function createCloudWallet (password: string) {
     }))
     return dispatch({
       type: 'CREATE_CLOUD_WALLET',
-      payload: _createCloudWallet(password)
+      payload: _createCloudWallet(password, progress)
     }).then(() => {
       dispatch(closeSnackbar(key))
     })
