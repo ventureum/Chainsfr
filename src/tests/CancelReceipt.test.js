@@ -25,7 +25,8 @@ const initialProps = {
     sendingId: 'e1981151-b951-467f-81e4-e9f87dfa44a8',
     transferAmount: '0.001'
   },
-  cancelTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss')
+  cancelTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss'),
+  toCurrencyAmount: (cryptoAmount) => '100.234 USD'
 }
 
 jest.mock('react-router-dom', () => () => ({

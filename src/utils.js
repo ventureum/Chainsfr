@@ -5,6 +5,8 @@ import wordlist from './wordlist.js'
 import axios from 'axios'
 import bcrypt from 'bcryptjs'
 import url from './url'
+import numeral from 'numeral'
+import type { StandardTokenUnit } from './types/token.flow'
 /*
  * @param val string, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
@@ -178,11 +180,25 @@ async function decryptMessage (encryptedMessage: string, password: string): Prom
   return message
 }
 
+function toCurrencyAmount (cryptoAmount: StandardTokenUnit, price: number, symbol: ?string): string {
+  let rv = numeral(parseFloat(cryptoAmount) * price).format('0.00[0]')
+  if (symbol) rv = rv + ` ${symbol}`
+  return rv
+}
+
+function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbol: ?string): string {
+  let rv = numeral(parseFloat(currencyAmount) / price).format('0.000[000]')
+  if (symbol) rv = rv + ` ${symbol}`
+  return rv
+}
+
 export default {
   toHumanReadableUnit,
   toBasicTokenUnit,
   generatePassphrase,
   getBtcTxFeePerByte,
   encryptMessage,
-  decryptMessage
+  decryptMessage,
+  toCurrencyAmount,
+  toCryptoAmount
 }

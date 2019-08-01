@@ -8,6 +8,7 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword, sync } from '../actions/walletActions'
 import WalletUtils from '../wallets/utils'
+import utils from '../utils'
 
 class CancelReviewContainer extends Component {
   componentDidMount () {
@@ -43,7 +44,7 @@ class CancelReviewContainer extends Component {
   }
 
   render () {
-    const { transfer } = this.props
+    const { transfer, cryptoPrice, currency } = this.props
     let sendTime, receiveTime, cancelTime
     if (transfer) sendTime = moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     if (transfer && transfer.receiveTxHash) receiveTime = moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
@@ -54,6 +55,9 @@ class CancelReviewContainer extends Component {
         sendTime={sendTime}
         receiveTime={receiveTime}
         cancelTime={cancelTime}
+        toCurrencyAmount={cryptoAmount =>
+          utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
+        }
       />
     )
   }
@@ -83,6 +87,8 @@ const mapStateToProps = state => {
     escrowWallet: state.walletReducer.wallet.escrow,
     txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt,
+    cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
+    currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       getTransfer: getTransferSelector(state),
       verifyPassword: verifyPasswordSelector(state),

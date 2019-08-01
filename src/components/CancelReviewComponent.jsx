@@ -46,24 +46,26 @@ class CancelReviewComponent extends Component {
         onClose={this.handleClose}
       >
         <DialogTitle id='cancel-dialog-title'>
-          <Typography className={classes.modalTitle}>
-            Cancel Transfer
-          </Typography>
+          <Typography className={classes.modalTitle}>Cancel Transfer</Typography>
         </DialogTitle>
-        <Grid container direction='column' justify='center' alignItems='center' className={classes.modalContainer}>
+        <Grid
+          container
+          direction='column'
+          justify='center'
+          alignItems='center'
+          className={classes.modalContainer}
+        >
           <Grid item className={classes.modalDescSection}>
             <Typography className={classes.modalDesc}>
-              You are going to cancel the arranged transfer. Recepient will receive an email notification and won’t be able to accept the transfer anymore. Gas fee will be applied.
+              You are going to cancel the arranged transfer. Recepient will receive an email
+              notification and won’t be able to accept the transfer anymore. Gas fee will be
+              applied.
             </Typography>
           </Grid>
           <Grid item className={classes.modalBtnSection}>
             <Grid container direction='row' justify='flex-end' alignItems='center'>
               <Grid item>
-                <Button
-                  color='primary'
-                  onClick={this.handleModalClose}
-                  id='close'
-                >
+                <Button color='primary' onClick={this.handleModalClose} id='close'>
                   Let me think again
                 </Button>
               </Grid>
@@ -78,12 +80,13 @@ class CancelReviewComponent extends Component {
                   >
                     Cancel Transfer
                   </Button>
-                  {(actionsPending.verifyPassword || actionsPending.cancelTransfer) &&
-                  <CircularProgress
-                    size={24}
-                    color='primary'
-                    className={classes.buttonProgress}
-                  />}
+                  {(actionsPending.verifyPassword || actionsPending.cancelTransfer) && (
+                    <CircularProgress
+                      size={24}
+                      color='primary'
+                      className={classes.buttonProgress}
+                    />
+                  )}
                 </div>
               </Grid>
             </Grid>
@@ -94,27 +97,37 @@ class CancelReviewComponent extends Component {
   }
 
   render () {
-    const { classes, transfer, escrowWallet, actionsPending, txFee, sendTime, receiveTime, cancelTime } = this.props
+    const {
+      classes,
+      transfer,
+      escrowWallet,
+      actionsPending,
+      txFee,
+      sendTime,
+      receiveTime,
+      cancelTime,
+      toCurrencyAmount
+    } = this.props
 
     if (transfer) {
-      var { sendingId, transferAmount, receiveTxHash, cancelTxHash, sender, destination, cryptoType } = transfer
+      var {
+        sendingId,
+        transferAmount,
+        receiveTxHash,
+        cancelTxHash,
+        sender,
+        destination,
+        cryptoType
+      } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
     }
 
-    if (
-      actionsPending.getTransfer ||
-      actionsPending.verifyPassword ||
-      !transfer ||
-      !escrowWallet
-    ) {
+    if (actionsPending.getTransfer || actionsPending.verifyPassword || !transfer || !escrowWallet) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>
-            <CircularProgress
-              color='primary'
-              className={classes.transferProgress}
-            />
+            <CircularProgress color='primary' className={classes.transferProgress} />
           </Grid>
         </Grid>
       )
@@ -140,7 +153,7 @@ class CancelReviewComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                     From
+                    From
                   </Typography>
                   <Typography className={classes.reviewContent} align='left' id='sender'>
                     {sender}
@@ -148,7 +161,7 @@ class CancelReviewComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                     To
+                    To
                   </Typography>
                   <Typography className={classes.reviewContent} align='left' id='destination'>
                     {destination}
@@ -156,75 +169,94 @@ class CancelReviewComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                     Amount
+                    Amount
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='transferAmount'>
-                    {transferAmount} {getCryptoSymbol(cryptoType)}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                      Transaction Fee
-                  </Typography>
-                  {!actionsPending.getTxFee && txFee
-                    ? <Typography className={classes.reviewContent} align='left'>
-                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                  <Grid container direction='column'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                      id='transferAmount'
+                    >
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
-                    : <CircularProgress size={18} color='primary' />}
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                      ≈ {toCurrencyAmount(transferAmount)}
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
-                     Sent on
+                    Transaction Fee
+                  </Typography>
+                  {!actionsPending.getTxFee && txFee ? (
+                    <Grid container direction='column'>
+                      <Typography className={classes.reviewContentAmount} align='left'>
+                        {txFee.costInStandardUnit}{' '}
+                        {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                      </Typography>
+                      <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                        ≈ {toCurrencyAmount(txFee.costInStandardUnit)}
+                      </Typography>
+                    </Grid>
+                  ) : (
+                    <CircularProgress size={18} color='primary' />
+                  )}
+                </Grid>
+                <Grid item className={classes.reviewItem}>
+                  <Typography className={classes.reviewSubtitle} align='left'>
+                    Sent on
                   </Typography>
                   <Typography className={classes.reviewContent} align='left' id='sendTime'>
                     {sendTime}
                   </Typography>
                 </Grid>
-                {(hasReceived || hasCancelled) &&
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    {hasReceived && 'Received on'}
-                    {hasCancelled && 'Cancelled on'}
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='actionTime'>
-                    {hasReceived && receiveTime}
-                    {hasCancelled && cancelTime}
-                  </Typography>
-                </Grid>
-                }
-                {(hasReceived || hasCancelled) &&
-                <Grid item>
-                  <Typography color='primary' className={classes.etherscanLink} align='left'>
-                    <MuiLink
-                      target='_blank'
-                      rel='noopener'
-                      href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
+                {(hasReceived || hasCancelled) && (
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      {hasReceived && 'Received on'}
+                      {hasCancelled && 'Cancelled on'}
+                    </Typography>
+                    <Typography className={classes.reviewContent} align='left' id='actionTime'>
+                      {hasReceived && receiveTime}
+                      {hasCancelled && cancelTime}
+                    </Typography>
+                  </Grid>
+                )}
+                {(hasReceived || hasCancelled) && (
+                  <Grid item>
+                    <Typography color='primary' className={classes.etherscanLink} align='left'>
+                      <MuiLink
+                        target='_blank'
+                        rel='noopener'
+                        href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) ||
+                          (hasCancelled && cancelTxHash)}`}
+                      >
                         Check status on Etherscan
-                    </MuiLink>
-                  </Typography>
-                </Grid>
-                }
+                      </MuiLink>
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
             </Grid>
           </Paper>
         </Grid>
-        {!hasReceived && !hasCancelled &&
-        <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={3}>
-            <Grid item>
-              <Button
-                fullWidth
-                color='primary'
-                size='large'
-                onClick={this.handleModalOpen}
-                id='cancel'
-              >
-                Cancel Transfer
-              </Button>
+        {!hasReceived && !hasCancelled && (
+          <Grid item className={classes.btnSection}>
+            <Grid container direction='row' justify='center' spacing={3}>
+              <Grid item>
+                <Button
+                  fullWidth
+                  color='primary'
+                  size='large'
+                  onClick={this.handleModalOpen}
+                  id='cancel'
+                >
+                  Cancel Transfer
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-        }
+        )}
         {this.state.open && this.renderModal()}
       </Grid>
     )
@@ -253,6 +285,19 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentAmount: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
+  },
+  reviewContentCurrencyAmount: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold',
+    marginLeft: '5px'
   },
   reviewItem: {
     marginTop: '30px'

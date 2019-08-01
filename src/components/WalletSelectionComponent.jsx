@@ -42,7 +42,8 @@ type Props = {
   cryptoType: string,
   wallet: Object,
   handleNext: Function,
-  actionsPending: Object
+  actionsPending: Object,
+  currencyAmount: Object
 }
 
 class WalletSelectionComponent extends Component<Props> {
@@ -179,7 +180,7 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderCryptoSelection = () => {
-    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending, wallet } = this.props
+    const { classes, walletType, cryptoType, onCryptoSelected, actionsPending, wallet, currencyAmount } = this.props
 
     return (
       <List className={classes.cryptoList}>
@@ -217,6 +218,9 @@ class WalletSelectionComponent extends Component<Props> {
                   <Grid item >
                     <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
                       {numeral(utils.toHumanReadableUnit(wallet.crypto[c.cryptoType][0].balance, getCryptoDecimals(c.cryptoType))).format('0.000a')} {getCryptoSymbol(cryptoType)}
+                    </Typography>
+                    <Typography className={classes.balanceCurrencyText} id={`${c.cryptoType}CurrencyBalance`}>
+                      (≈ {currencyAmount[c.cryptoType]})
                     </Typography>
                   </Grid>
                 }
@@ -342,6 +346,10 @@ const styles = theme => ({
   balanceText: {
     fontSize: '18px',
     color: '#333333'
+  },
+  balanceCurrencyText: {
+    fontSize: '14px',
+    color: '#777777'
   },
   explorerIcon: {
     fontSize: '16px'

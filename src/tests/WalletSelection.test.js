@@ -64,7 +64,12 @@ let initialProps = {
   onCryptoSelected: () => {},
   onWalletSelected: () => {},
   wallet: undefined,
-  walletType: null
+  walletType: null,
+  currencyAmount: {
+    'ethereum': '123.23 USD',
+    'bitcoin': '9999.11 USD',
+    'dai': '100002.223 USD'
+  }
 }
 
 let wrapper

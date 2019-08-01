@@ -1,136 +1,32 @@
 // @flow
 import React, { Component } from 'react'
+import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import update from 'immutability-helper'
-import utils from '../utils'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import Icon from '@material-ui/core/Icon'
 import numeral from 'numeral'
-import validator from 'validator'
-import { getCryptoDecimals, getCryptoSymbol } from '../tokens'
-import BN from 'bn.js'
-import WalletUtils from '../wallets/utils'
+import { getCryptoSymbol } from '../tokens'
 
 type Props = {
-  updateTransferForm: Function,
   generateSecurityAnswer: Function,
-  clearSecurityAnswer: Function,
   goToStep: Function,
-  getTxFee: Function,
+  handleTransferFormChange: Function,
+  validateForm: Function,
+  balanceAmount: string,
+  balanceCurrencyAmount: string,
   cryptoSelection: string,
-  walletSelection: string,
   transferForm: Object,
-  wallet: Object,
+  currency: string,
   classes: Object,
-  txFee: any,
   actionsPending: Object
 }
 
-const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
-
 class RecipientComponent extends Component<Props> {
-  componentDidMount () {
-    this.props.clearSecurityAnswer()
-  }
-
-  componentDidUpdate (prevProps) {
-    const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
-    if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
-      this.props.getTxFee({
-        fromWallet: WalletUtils.toWalletDataFromState(
-          walletSelection,
-          cryptoSelection,
-          wallet
-        ),
-        transferAmount: transferForm.transferAmount,
-        options: {
-          prepayTxFee: true
-        }
-      })
-    } else if (
-      !actionsPending.getTxFee &&
-      prevProps.actionsPending.getTxFee
-    ) {
-      this.props.updateTransferForm(update(transferForm, {
-        formError: { transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) } }
-      }))
-    }
-  }
-
-  validateForm = () => {
-    const { transferForm } = this.props
-    const { formError } = transferForm
-
-    // form must be filled without errors
-    return (transferForm.sender &&
-            transferForm.destination &&
-            transferForm.transferAmount &&
-            transferForm.password &&
-            !formError.sender &&
-            !formError.destination &&
-            !formError.transferAmount &&
-            !formError.password)
-  }
-
-  handleTransferFormChange = name => event => {
-    const { transferForm } = this.props
-
-    this.props.updateTransferForm(update(transferForm, {
-      [name]: { $set: event.target.value },
-      formError: { [name]: { $set: this.validate(name, event.target.value) } }
-    }))
-  }
-
-  validate = (name, value) => {
-    const { wallet, cryptoSelection, txFee } = this.props
-    let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
-    const decimals = getCryptoDecimals(cryptoSelection)
-    if (name === 'transferAmount') {
-      if (!validator.isFloat(value, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })) {
-        if (value === '-' || parseFloat(value) < 0.001) {
-          return 'The amount must be greater than 0.001'
-        } else {
-          return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
-        }
-      } else if (txFee) {
-        // balance check passed
-        if (['ethereum', 'dai'].includes(cryptoSelection)) {
-          // ethereum based coins
-          // now check if ETH balance is sufficient for paying tx fees
-          if (
-            cryptoSelection === 'ethereum' &&
-            new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
-          ) {
-            return INSUFFICIENT_FUNDS_FOR_TX_FEES
-          }
-          if (cryptoSelection === 'dai') {
-            let ethBalance = wallet.crypto.dai[0].ethBalance
-            if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
-              return INSUFFICIENT_FUNDS_FOR_TX_FEES
-            }
-          }
-        } else if (
-          cryptoSelection === 'bitcoin' &&
-          new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
-        ) {
-          return INSUFFICIENT_FUNDS_FOR_TX_FEES
-        }
-      }
-    } else if (name === 'sender' || name === 'destination') {
-      if (!validator.isEmail(value)) {
-        return 'Invalid email'
-      }
-    } else if (name === 'password') {
-      if (!validator.isLength(value, { min: 6, max: undefined })) {
-        return 'Length must be greater or equal than 6'
-      }
-    }
-    return null
-  }
-
-  securityAnswerHelperText = (validationErrMsg) => {
+  securityAnswerHelperText = validationErrMsg => {
     const { classes, generateSecurityAnswer } = this.props
     return (
       // this section resides in <p>, thus cannot have <div>
@@ -140,29 +36,49 @@ class RecipientComponent extends Component<Props> {
           onClick={generateSecurityAnswer}
           className={classes.generateSecurityAnswerBtn}
         >
-          <Typography component={'span'} color='primary' className={classes.generateSecurityAnswerBtnText}>
+          <Typography
+            component={'span'}
+            color='primary'
+            className={classes.generateSecurityAnswerBtnText}
+          >
             Generate Security Answer
           </Typography>
         </Button>
-        {validationErrMsg &&
-        <Typography component={'span'} className={classes.securityAnswerBtnHelperTextError}>
-          {validationErrMsg}
-        </Typography>
-        }
-        {!validationErrMsg &&
-        <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
-          We recommend you to use auto-generated security password for better security
-        </Typography>
-        }
+        {validationErrMsg && (
+          <Typography component={'span'} className={classes.securityAnswerBtnHelperTextError}>
+            {validationErrMsg}
+          </Typography>
+        )}
+        {!validationErrMsg && (
+          <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
+            We recommend you to use auto-generated security password for better security
+          </Typography>
+        )}
       </span>
     )
   }
 
   render () {
-    const { classes, transferForm, wallet, cryptoSelection, actionsPending } = this.props
-    const { transferAmount, destination, password, sender, formError } = transferForm
+    const {
+      classes,
+      transferForm,
+      cryptoSelection,
+      handleTransferFormChange,
+      validateForm,
+      currency,
+      balanceAmount,
+      balanceCurrencyAmount,
+      actionsPending
+    } = this.props
+    const {
+      transferAmount,
+      transferCurrencyAmount,
+      destination,
+      password,
+      sender,
+      formError
+    } = transferForm
 
-    let balance = wallet.crypto[cryptoSelection][0].balance ? numeral(utils.toHumanReadableUnit(wallet.crypto[cryptoSelection][0].balance, getCryptoDecimals(cryptoSelection))).format('0.000a') : '0'
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
@@ -176,8 +92,11 @@ class RecipientComponent extends Component<Props> {
               margin='normal'
               variant='outlined'
               error={!!formError.sender}
-              helperText={formError.sender || 'A tracking number will be sent to this email. It will also be shown to the recipient'}
-              onChange={this.handleTransferFormChange('sender')}
+              helperText={
+                formError.sender ||
+                'A tracking number will be sent to this email. It will also be shown to the recipient'
+              }
+              onChange={handleTransferFormChange('sender')}
               value={sender}
             />
           </Grid>
@@ -192,23 +111,59 @@ class RecipientComponent extends Component<Props> {
               variant='outlined'
               error={!!formError.destination}
               helperText={formError.destination}
-              onChange={this.handleTransferFormChange('destination')}
+              onChange={handleTransferFormChange('destination')}
               value={destination}
             />
           </Grid>
           <Grid item>
-            <TextField
-              fullWidth
-              id='amount'
-              label='Amount'
-              className={classes.textField}
-              margin='normal'
-              variant='outlined'
-              error={!!formError.transferAmount}
-              helperText={formError.transferAmount || `Balance: ${balance} ${getCryptoSymbol(cryptoSelection)}`}
-              onChange={this.handleTransferFormChange('transferAmount')}
-              value={transferAmount}
-            />
+            <Grid container direction='row' justify='center' alignItems='center'>
+              <Grid item md={5}>
+                <TextField
+                  margin='normal'
+                  fullWidth
+                  id='currencyAmount'
+                  variant='outlined'
+                  label={`Amount (${currency})`}
+                  error={!!formError.transferCurrencyAmount}
+                  helperText={
+                    formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`
+                  }
+                  onChange={handleTransferFormChange('transferCurrencyAmount')}
+                  value={transferCurrencyAmount}
+                  InputProps={{
+                    startAdornment: <InputAdornment position='start'>{currency}</InputAdornment>
+                  }}
+                />
+              </Grid>
+              <Grid item md={2} align='center'>
+                <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
+              </Grid>
+              <Grid item md={5}>
+                <TextField
+                  margin='normal'
+                  fullWidth
+                  id='cryptoAmount'
+                  variant='outlined'
+                  label={`Amount (${getCryptoSymbol(cryptoSelection)})`}
+                  error={!!formError.transferAmount}
+                  helperText={
+                    formError.transferAmount ||
+                    `Balance: ${numeral(balanceAmount).format('0.000[000]')} ${getCryptoSymbol(
+                      cryptoSelection
+                    )}`
+                  }
+                  onChange={handleTransferFormChange('transferAmount')}
+                  value={transferAmount}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        {getCryptoSymbol(cryptoSelection)}
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item>
             <TextField
@@ -220,7 +175,7 @@ class RecipientComponent extends Component<Props> {
               variant='outlined'
               error={!!formError.password}
               helperText={this.securityAnswerHelperText(formError.password)}
-              onChange={this.handleTransferFormChange('password')}
+              onChange={handleTransferFormChange('password')}
               value={password || ''}
             />
           </Grid>
@@ -244,7 +199,7 @@ class RecipientComponent extends Component<Props> {
                   color='primary'
                   size='large'
                   onClick={() => this.props.goToStep(1)}
-                  disabled={!this.validateForm() || actionsPending.getTxFee}
+                  disabled={!validateForm() || actionsPending.getTxFee}
                 >
                   Continue
                 </Button>
@@ -284,6 +239,9 @@ const styles = theme => ({
   },
   btnSection: {
     marginTop: '60px'
+  },
+  icon: {
+    color: '#777777'
   }
 })
 

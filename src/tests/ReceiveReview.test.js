@@ -36,7 +36,13 @@ const initialProps = {
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
   acceptTransfer: () => {},
-  goToStep: () => {}
+  goToStep: () => {},
+  currencyAmount: {
+    transferAmount: '100.2 USD',
+    receiveAmount: '10.44 USD',
+    txFee: '2.1 USD'
+  },
+  receiveAmount: '0.001'
 }
 let wrapper
 
@@ -50,19 +56,17 @@ describe('ReceiveReviewComponent render', () => {
   })
 
   it('Initial render', () => {
-    const receiveAmount = parseFloat(initialProps.transfer.transferAmount) - parseFloat(initialProps.txFee.costInStandardUnit)
     expect(wrapper.find(Typography).filter('#sender').text()).toEqual(initialProps.transfer.sender)
     expect(wrapper.find(Typography).filter('#destination').text()).toEqual(initialProps.transfer.destination)
     expect(wrapper.find(Typography).filter('#sentOn').text()).toEqual(initialProps.sentOn)
     expect(wrapper.find(Typography).filter('#destinationAddress').text()).toEqual(initialProps.destinationAddress)
     expect(wrapper.find(Typography).filter('#transferAmount').text()).toEqual(`${initialProps.transfer.transferAmount} ETH`)
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} ETH`)
+    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} ETH`)
   })
 
   it('ERC 20', () => {
-    const receiveAmount = parseFloat(initialProps.transfer.transferAmount)
     wrapper.setProps(update(initialProps, { transfer: { cryptoType: { $set: 'dai' } } }))
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${receiveAmount} DAI`)
+    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} DAI`)
   })
 
   // actionsPending

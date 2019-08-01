@@ -37,7 +37,8 @@ const initialProps = {
   sendTime: 'May 27th 2019, 12:43:06',
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
-  cancelTransfer: () => {}
+  cancelTransfer: () => {},
+  toCurrencyAmount: (cryptoAmount) => '100.234 USD'
 }
 let wrapper
 

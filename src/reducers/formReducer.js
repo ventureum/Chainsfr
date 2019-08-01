@@ -9,6 +9,7 @@ const initialState = {
   cryptoSelection: null,
   transferForm: {
     transferAmount: '',
+    transferCurrencyAmount: '',
     password: '',
     destination: '',
     sender: '',
