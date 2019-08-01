@@ -9,14 +9,17 @@ import { isMobile } from 'react-device-detect'
 const browser = detect()
 
 export const walletCryptoSupports = {
-  'drive': [{ cryptoType: 'ethereum', disabled: false },
+  drive: [
+    { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }],
-  'metamask': [{ cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false }],
-  'ledger': [{ cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'bitcoin', disabled: false }
+  ],
+  metamask: [{ cryptoType: 'ethereum', disabled: false }, { cryptoType: 'dai', disabled: false }],
+  ledger: [
+    { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }]
+    { cryptoType: 'bitcoin', disabled: false }
+  ]
 }
 
 if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
@@ -32,7 +35,7 @@ function getWalletStatus () {
     }
   } else if (browser && browser.name === 'chrome') {
     let v = browser.version.split('.')[0]
-    if (parseInt(v) <= 73) {
+    if (parseInt(v) < 73) {
       return {
         disabled: true,
         disabledReason: 'Chrome version 73 or above needed'
