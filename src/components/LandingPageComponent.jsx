@@ -35,16 +35,23 @@ import { uiColors } from '../styles/color'
 import { headers, textValues } from '../styles/typography'
 
 const toUserReadableState = {
-  SEND_PENDING: 'Sending',
-  SEND_FAILURE: 'Send Failed',
-  SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
-  SEND_CONFIRMED_RECEIVE_PENDING: 'Sent',
-  SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
-  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted',
-  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Sent',
-  SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
-  SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
-  SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+  SENDER: {
+    SEND_PENDING: 'Sending',
+    SEND_FAILURE: 'Send Failed',
+    SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
+    SEND_CONFIRMED_RECEIVE_PENDING: 'Sent',
+    SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted',
+    SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Sent',
+    SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
+    SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
+    SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+  },
+  RECEIVER: {
+    SEND_CONFIRMED_RECEIVE_PENDING: 'Receiving',
+    SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted'
+  }
 }
 
 class LandingPageComponent extends Component {
@@ -270,7 +277,7 @@ class LandingPageComponent extends Component {
               <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
                   <Typography align='center' className={classes[stateClassName]}>
-                    {toUserReadableState[transfer.state]}
+                    {toUserReadableState[transfer.transferType][transfer.state]}
                   </Typography>
                 </Grid>
                 <Grid item>
