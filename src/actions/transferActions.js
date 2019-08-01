@@ -73,9 +73,17 @@ async function _submitTx (txRequest: {
   destination: string,
   sender: string,
   password: string,
+  message: string,
   txFee: TxFee
 }) {
-  let { fromWallet, transferAmount, password, sender, destination, txFee } = txRequest
+  let {
+    fromWallet,
+    transferAmount,
+    password,
+    sender,
+    destination,
+    txFee
+  } = txRequest
 
   let { cryptoType } = fromWallet
   // add destination to password to enhance security
@@ -136,6 +144,7 @@ async function _submitTx (txRequest: {
     encryptedEscrow: encryptedPrivateKey,
     sendTxHash: sendTxHash,
     password: _password,
+    message: txRequest.message,
     sendTxFeeTxHash: sendTxFeeTxHash
   })
 }
@@ -148,6 +157,7 @@ async function _transactionHashRetrieved (txRequest: {
   encryptedEscrow: any,
   sendTxHash: TxHash,
   password: string,
+  message: string,
   sendTxFeeTxHash: ?TxHash
 }) {
   let {
@@ -158,6 +168,7 @@ async function _transactionHashRetrieved (txRequest: {
     encryptedEscrow,
     sendTxHash,
     password,
+    message,
     sendTxFeeTxHash
   } = txRequest
 
@@ -166,6 +177,7 @@ async function _transactionHashRetrieved (txRequest: {
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
+    message: message,
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
     data: Base64.encode(JSON.stringify(encryptedEscrow))
@@ -438,6 +450,7 @@ function submitTx (txRequest: {
   password: string,
   sender: string,
   destination: string,
+  message: string,
   txFee: TxFee
 }) {
   return (dispatch: Function, getState: Function) => {

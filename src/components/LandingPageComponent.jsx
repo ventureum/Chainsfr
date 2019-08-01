@@ -301,6 +301,13 @@ class LandingPageComponent extends Component {
               </Typography>
             </Grid>
             }
+            {transfer.message &&
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferMessage}>
+                Message: {transfer.message}
+              </Typography>
+            </Grid>
+            }
             {[transferStates.SEND_PENDING,
               transferStates.SEND_FAILURE,
               transferStates.SEND_CONFIRMED_CANCEL_PENDING].includes(transfer.state) &&
@@ -622,6 +629,15 @@ const styles = theme => ({
     fontWeight: '500',
     fontSize: '14px',
     color: '#777777'
+  },
+  recentTransferItemTransferMessage: {
+    color: '#777777',
+    fontSize: '12px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word',
+    // additional margin to make message boundary clearer
+    marginBottom: '20px'
   },
   startTransferBtn: {
     backgroundColor: '#393386',

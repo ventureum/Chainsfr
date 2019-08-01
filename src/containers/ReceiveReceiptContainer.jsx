@@ -9,7 +9,7 @@ class ReceiveReceiptContainer extends Component {
   render () {
     const { receipt, txFee, cryptoPrice, currency } = this.props
     const receiveTime = moment.unix(this.props.receipt.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    const toCurrencyAmount = (cryptoAmount) => 
+    const toCurrencyAmount = (cryptoAmount) =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[receipt.cryptoType], currency)
     let receiveAmount
     if (receipt) {

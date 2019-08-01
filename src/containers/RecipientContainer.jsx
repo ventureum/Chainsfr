@@ -72,7 +72,8 @@ class RecipientContainer extends Component<Props> {
       !formError.sender &&
       !formError.destination &&
       !formError.transferAmount &&
-      !formError.password
+      !formError.password &&
+      !formError.message
     )
   }
 
@@ -146,6 +147,11 @@ class RecipientContainer extends Component<Props> {
       [name]: { $set: event.target.value },
       formError: { [name]: { $set: this.validate(name, event.target.value) } }
     })
+
+    if (name === 'message') {
+      // removes whitespaces at the beginning
+      _transferForm[name] = _transferForm[name].replace(/^\s+/g, '')
+    }
 
     if (name === 'transferAmount') {
       // sync transferCurrencyAmount

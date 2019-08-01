@@ -86,7 +86,7 @@ const WALLET_INSTRUCTION = {
 class ReviewComponent extends Component<Props> {
   handleReviewNext = () => {
     const { wallet, transferForm, cryptoSelection, walletSelection, txFee } = this.props
-    const { transferAmount, sender, destination, password } = transferForm
+    const { transferAmount, sender, destination, password, message } = transferForm
 
     // submit tx
     this.props.submitTx({
@@ -95,6 +95,7 @@ class ReviewComponent extends Component<Props> {
       destination: destination,
       sender: sender,
       password: password,
+      message: message,
       txFee: txFee
     })
   }
@@ -109,7 +110,7 @@ class ReviewComponent extends Component<Props> {
       walletSelection,
       currencyAmount
     } = this.props
-    const { transferAmount, sender, destination, password } = transferForm
+    const { transferAmount, sender, destination, password, message } = transferForm
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -117,7 +118,6 @@ class ReviewComponent extends Component<Props> {
           <Grid container direction='column' justify='center'>
             <Grid item>
               <Grid item>
-                `
                 <Typography className={classes.title} variant='h6' align='center'>
                   Please review details of your transfer
                 </Typography>
@@ -147,6 +147,16 @@ class ReviewComponent extends Component<Props> {
                     {password}
                   </Typography>
                 </Grid>
+                { message && message.length > 0 && // only show message when available
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Message
+                    </Typography>
+                    <Typography paragraph className={classes.reviewContentMessage} align='left'>
+                      {message}
+                    </Typography>
+                  </Grid>
+                }
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
@@ -255,6 +265,13 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentMessage: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    maxWidth: '300px',
+    wordWrap: 'break-word'
   },
   reviewContentAmount: {
     color: '#333333',

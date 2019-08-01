@@ -46,7 +46,7 @@ class ReceiptComponent extends Component<Props, State> {
       sendTime,
       currencyAmount
     } = this.props
-    const { sendingId, transferAmount, sender, destination } = receipt
+    const { sendingId, transferAmount, sender, destination, message } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
@@ -138,6 +138,16 @@ class ReceiptComponent extends Component<Props, State> {
                     </CopyToClipboard>
                   </Typography>
                 </Grid>
+                { message && message.length > 0 && // only show message when available
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Message
+                    </Typography>
+                    <Typography className={classes.reviewContentMessage} align='left'>
+                      {message}
+                    </Typography>
+                  </Grid>
+                }
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
                     Please inform receiver the security answer to complete the transaction.
@@ -192,6 +202,14 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentMessage: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word'
   },
   reviewContentAmount: {
     color: '#333333',

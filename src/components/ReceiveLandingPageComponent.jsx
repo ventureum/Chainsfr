@@ -51,7 +51,16 @@ class ReceiveLandingPageComponent extends Component {
   render () {
     const { actionsPending, transfer, classes, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
     if (transfer) {
-      var { receivingId, receiveTxHash, cancelTxHash, sender, destination, transferAmount, cryptoType } = transfer
+      var {
+        receivingId,
+        receiveTxHash,
+        cancelTxHash,
+        sender,
+        destination,
+        transferAmount,
+        message,
+        cryptoType
+      } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
     }
@@ -143,6 +152,16 @@ class ReceiveLandingPageComponent extends Component {
                     ≈ { currencyAmount.transferAmount }
                   </Typography>
                 </Grid>
+                { message && message && message.length > 0 &&
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                    Message
+                    </Typography>
+                    <Typography className={classes.reviewContentMessage} align='left'>
+                      {message}
+                    </Typography>
+                  </Grid>
+                }
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                    Sent on
@@ -256,6 +275,14 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentMessage: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word'
   },
   reviewContentCurrency: {
     color: '#777777',

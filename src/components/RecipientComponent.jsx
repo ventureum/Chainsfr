@@ -76,6 +76,7 @@ class RecipientComponent extends Component<Props> {
       destination,
       password,
       sender,
+      message,
       formError
     } = transferForm
 
@@ -177,6 +178,21 @@ class RecipientComponent extends Component<Props> {
               helperText={this.securityAnswerHelperText(formError.password)}
               onChange={handleTransferFormChange('password')}
               value={password || ''}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              fullWidth
+              id='message'
+              label='Message (Optional)'
+              className={classes.textField}
+              margin='normal'
+              variant='outlined'
+              error={!!formError.message}
+              helperText={formError.message}
+              onChange={handleTransferFormChange('message')}
+              value={message || ''}
+              inputProps={{ maxLength: 72 }} // message max length
             />
           </Grid>
           <Grid item className={classes.btnSection}>
