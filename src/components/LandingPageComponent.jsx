@@ -35,16 +35,23 @@ import { uiColors } from '../styles/color'
 import { headers, textValues } from '../styles/typography'
 
 const toUserReadableState = {
-  SEND_PENDING: 'Sending',
-  SEND_FAILURE: 'Send Failed',
-  SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
-  SEND_CONFIRMED_RECEIVE_PENDING: 'Sent',
-  SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
-  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Accepted',
-  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Sent',
-  SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
-  SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
-  SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+  SENDER: {
+    SEND_PENDING: 'Sending',
+    SEND_FAILURE: 'Send Failed',
+    SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
+    SEND_CONFIRMED_RECEIVE_PENDING: 'Accepting',
+    SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Completed',
+    SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Pending',
+    SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
+    SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
+    SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+  },
+  RECEIVER: {
+    SEND_CONFIRMED_RECEIVE_PENDING: 'Receiving',
+    SEND_CONFIRMED_RECEIVE_FAILURE: 'Receive Failed',
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Completed'
+  }
 }
 
 class LandingPageComponent extends Component {
@@ -270,7 +277,7 @@ class LandingPageComponent extends Component {
               <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
                   <Typography align='center' className={classes[stateClassName]}>
-                    {toUserReadableState[transfer.state]}
+                    {toUserReadableState[transfer.transferType][transfer.state]}
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -298,6 +305,13 @@ class LandingPageComponent extends Component {
             <Grid item>
               <Typography className={classes.recentTransferItemTransferId}>
                 Security Answer: {transfer.password}
+              </Typography>
+            </Grid>
+            }
+            {transfer.message &&
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferMessage}>
+                Message: {transfer.message}
               </Typography>
             </Grid>
             }
@@ -622,6 +636,15 @@ const styles = theme => ({
     fontWeight: '500',
     fontSize: '14px',
     color: '#777777'
+  },
+  recentTransferItemTransferMessage: {
+    color: '#777777',
+    fontSize: '12px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word',
+    // additional margin to make message boundary clearer
+    marginBottom: '20px'
   },
   startTransferBtn: {
     backgroundColor: '#393386',

@@ -10,13 +10,23 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({ clientId, sender, destination, transferAmount, cryptoType, data, sendTxHash }) {
+async function transfer ({
+  clientId,
+  sender,
+  destination,
+  transferAmount,
+  message,
+  cryptoType,
+  data,
+  sendTxHash
+}) {
   let apiResponse = await apiTransfer.post('/transfer', {
     action: 'SEND',
     clientId: clientId,
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
+    message: message,
     cryptoType: cryptoType,
     data: data,
     sendTxHash: sendTxHash
@@ -128,4 +138,13 @@ async function getLastUsedAddress (idToken, wallet) {
   }
 }
 
-export default { transfer, accept, cancel, getTransfer, getPrefilledAccount, getBatchTransfers, setLastUsedAddress, getLastUsedAddress }
+export default {
+  transfer,
+  accept,
+  cancel,
+  getTransfer,
+  getPrefilledAccount,
+  getBatchTransfers,
+  setLastUsedAddress,
+  getLastUsedAddress
+}
