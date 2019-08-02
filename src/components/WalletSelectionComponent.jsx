@@ -220,14 +220,14 @@ class WalletSelectionComponent extends Component<Props> {
     return (
       <List className={classes.cryptoList}>
         {cryptoSelections
-          .filter(c => cryptoInWallet(c, walletType))
+          .filter(c => cryptoInWallet(c.cryptoType, walletType))
           .map(c => (
             <div key={c.cryptoType}>
               <Divider />
               <ListItem
                 button
                 onClick={() => onCryptoSelected(c.cryptoType)}
-                disabled={cryptoDisabled(c, walletType) || this.lock()}
+                disabled={cryptoDisabled(c.cryptoType, walletType) || this.lock()}
                 id={c.cryptoType}
                 className={classes.cryptoListItem}
               >
@@ -241,7 +241,7 @@ class WalletSelectionComponent extends Component<Props> {
                   />
                   <ListItemText
                     primary={c.symbol}
-                    secondary={cryptoDisabled(c, walletType) ? 'Chrome Only' : c.title}
+                    secondary={cryptoDisabled(c.cryptoType, walletType) ? 'Chrome Only' : c.title}
                   />
                   {wallet &&
                     c.cryptoType === cryptoType &&

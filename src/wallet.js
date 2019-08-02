@@ -78,16 +78,16 @@ export const walletSelections = [
   }
 ]
 
-export function cryptoInWallet (crypto: Object, walletType: string): boolean {
+export function cryptoInWallet (cryptoType: string, walletType: string): boolean {
   for (let item of walletCryptoSupports[walletType]) {
-    if (item.cryptoType === crypto.cryptoType) return true
+    if (item.cryptoType === cryptoType) return true
   }
   return false
 }
 
-export function cryptoDisabled (crypto: Object, walletType: string): boolean {
+export function cryptoDisabled (cryptoType: string, walletType: string): boolean {
   for (let item of walletCryptoSupports[walletType]) {
-    if (item.cryptoType === crypto.cryptoType && item.disabled) return true
+    if (item.cryptoType === cryptoType && item.disabled) return true
   }
   return false
 }

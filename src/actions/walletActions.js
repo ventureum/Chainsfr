@@ -121,7 +121,7 @@ function checkLedgerAppConnection (cryptoType: string) {
           }, time)
         })
       }
-      if (!cryptoInWallet({ cryptoType }, 'ledger')) {
+      if (!cryptoInWallet(cryptoType, 'ledger')) {
         throw new Error('Invalid cryptoType for Ledger')
       }
       let ledger = new LedgerNanoS()
