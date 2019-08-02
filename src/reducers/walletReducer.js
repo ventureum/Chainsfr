@@ -76,18 +76,23 @@ export default function (state = initState, action) {
     // metamask
     case 'CHECK_METAMASK_CONNECTION_FULFILLED':
     case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED':
-    case 'CHECK_LEDGER_NANOS_CONNECTION_FULFILLED':
+    case 'GET_LEDGER_WALLET_DATA_FULFILLED':
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
     case 'GET_CLOUD_WALLET_FULFILLED':
       return updateWalletState(state, action.payload, { connected: true })
     case 'GET_CLOUD_WALLET_REJECTED':
       return updateWalletState(state, [{ walletType: 'drive' }], { connected: false })
-    case 'CHECK_LEDGER_NANOS_CONNECTION_PENDING':
-    case 'CHECK_LEDGER_NANOS_CONNECTION_REJECTED':
-      return updateWalletState(state, [{ walletType: 'ledger' }], { connected: false })
     case 'LOGOUT_FULFILLED':
-      return updateWalletState(state, [{ walletType: 'drive' }], { connected: false, override: true })
+      return updateWalletState(state, [{ walletType: 'drive' }], {
+        connected: false,
+        override: true
+      })
+    case 'CHECK_LEDGER_DEVICE_CONNECTION_FULFILLED':
+      return updateWalletState(state, [{ walletType: 'ledger' }], { connected: true })
+    case 'CHECK_LEDGER_DEVICE_CONNECTION_PENDING':
+    case 'CHECK_LEDGER_DEVICE_CONNECTION_REJECTED':
+      return updateWalletState(state, [{ walletType: 'ledger' }], { connected: false })
     case 'SYNC_FULFILLED':
     case 'VERIFY_PASSWORD_FULFILLED':
     case 'CLEAR_DECRYPTED_WALLET':

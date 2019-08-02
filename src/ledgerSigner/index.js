@@ -29,12 +29,18 @@ class LedgerNanoS {
   btcLedger: any
 
   getWebUsbTransport = async (): Promise<any> => {
-    if (!LedgerNanoS.webUsbTransport || !LedgerNanoS.webUsbTransport.device || !LedgerNanoS.webUsbTransport.device.opened) {
+    if (
+      !LedgerNanoS.webUsbTransport ||
+      !LedgerNanoS.webUsbTransport.device ||
+      !LedgerNanoS.webUsbTransport.device.opened
+    ) {
       LedgerNanoS.webUsbTransport = await WebUsbTransport.create()
       LedgerNanoS.webUsbTransport.setExchangeTimeout(300000) // 5 mins
       setTimeout(async () => {
-        await LedgerNanoS.webUsbTransport.close()
-        LedgerNanoS.webUsbTransport = null
+        if (LedgerNanoS.webUsbTransport !== null || LedgerNanoS.webUsbTransport !== undefined) {
+          await LedgerNanoS.webUsbTransport.close()
+          LedgerNanoS.webUsbTransport = null
+        }
       }, 300000)
     }
     return LedgerNanoS.webUsbTransport
@@ -78,7 +84,7 @@ class LedgerNanoS {
     const accountIndex = 0 // default first account
     const accountPath = baseEtherPath + `/${accountIndex}`
 
-    txObj.nonce = txObj.nonce || await web3.eth.getTransactionCount(txObj.from)
+    txObj.nonce = txObj.nonce || (await web3.eth.getTransactionCount(txObj.from))
     txObj.gas = web3.utils.numberToHex(txObj.gas)
     txObj.gasPrice = web3.utils.numberToHex(txObj.gasPrice)
     txObj.value = web3.utils.numberToHex(txObj.value)
@@ -88,10 +94,7 @@ class LedgerNanoS {
 
     let tx = new EthTx(txObj, { chain: env.REACT_APP_ETHEREUM_NETWORK })
 
-    const rv = await ethLedger.signTransaction(
-      accountPath,
-      tx.serialize().toString('hex')
-    )
+    const rv = await ethLedger.signTransaction(accountPath, tx.serialize().toString('hex'))
 
     tx.v = getBufferFromHex(rv.v)
     tx.r = getBufferFromHex(rv.r)
@@ -100,10 +103,7 @@ class LedgerNanoS {
     const signedChainId = calculateChainIdFromV(tx.v)
     if (signedChainId !== networkId) {
       console.error(
-        'Invalid networkId signature returned. Expected: ' +
-        networkId +
-        ', Got: ' +
-        signedChainId,
+        'Invalid networkId signature returned. Expected: ' + networkId + ', Got: ' + signedChainId,
         'InvalidNetworkId'
       )
     }
@@ -117,7 +117,13 @@ class LedgerNanoS {
     return details.data[0].hex
   }
 
-  createNewBtcPaymentTransaction = async (inputs: Array<Object>, to: string, amount: number, fee: number, changeIndex: number) => {
+  createNewBtcPaymentTransaction = async (
+    inputs: Array<Object>,
+    to: string,
+    amount: number,
+    fee: number,
+    changeIndex: number
+  ) => {
     const btcLedger = await this.getBtcLedger()
     const changeAddressPath = `${baseBtcPath}/0'/1/${changeIndex}`
 
@@ -146,14 +152,17 @@ class LedgerNanoS {
 
     let changeBuffer = Buffer.alloc(8, 0)
     changeBuffer.writeUIntLE(change, 0, 8)
-    const changeAddress = (await btcLedger.getWalletPublicKey(changeAddressPath, false, true)).bitcoinAddress
+    const changeAddress = (await btcLedger.getWalletPublicKey(changeAddressPath, false, true))
+      .bitcoinAddress
     const changeOutput = {
       amount: changeBuffer,
       script: address.toOutputScript(changeAddress, networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
     }
     outputs.push(changeOutput)
 
-    const outputScriptHex = btcLedger.serializeTransactionOutputs({ outputs: outputs }).toString('hex')
+    const outputScriptHex = btcLedger
+      .serializeTransactionOutputs({ outputs: outputs })
+      .toString('hex')
     const signedTxRaw = await btcLedger.createPaymentTransactionNew(
       finalInputs,
       associatedKeysets,
@@ -168,9 +177,7 @@ class LedgerNanoS {
   }
 
   broadcastBtcRawTx = async (txRaw: string) => {
-    const rv = await axios.post(
-      `${url.LEDGER_API_URL}/transactions/send`,
-      { tx: txRaw })
+    const rv = await axios.post(`${url.LEDGER_API_URL}/transactions/send`, { tx: txRaw })
     return rv.data.result
   }
 }

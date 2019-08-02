@@ -5,10 +5,12 @@ import WalletSelection from '../components/WalletSelectionComponent'
 import CloudWalletUnlockContainer from './CloudWalletUnlockContainer'
 import {
   checkMetamaskConnection,
-  checkLedgerNanoSConnection,
+  getLedgerWalletData,
   checkCloudWalletConnection,
   unlockCloudWallet,
-  sync
+  sync,
+  checkLedgerDeviceConnection,
+  checkLedgerAppConnection
 } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -19,8 +21,10 @@ import * as Tokens from '../tokens'
 
 type Props = {
   checkMetamaskConnection: Function,
-  checkLedgerNanoSConnection: Function,
+  getLedgerWalletData: Function,
+  checkLedgerDeviceConnection: Function,
   checkCloudWalletConnection: Function,
+  checkLedgerAppConnection: Function,
   selectCrypto: Function,
   selectWallet: Function,
   goToStep: Function,
@@ -84,7 +88,7 @@ class WalletSelectionContainer extends Component<Props, State> {
     const {
       wallet,
       checkMetamaskConnection,
-      checkLedgerNanoSConnection,
+      checkLedgerDeviceConnection,
       checkCloudWalletConnection,
       selectCrypto,
       walletSelection,
@@ -92,7 +96,7 @@ class WalletSelectionContainer extends Component<Props, State> {
     } = this.props
     if (walletSelection === 'ledger' && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
-      checkLedgerNanoSConnection(cryptoType)
+      checkLedgerDeviceConnection()
     } else if (walletSelection === 'metamask' && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
       checkMetamaskConnection(cryptoType)
@@ -113,11 +117,20 @@ class WalletSelectionContainer extends Component<Props, State> {
       walletSelection,
       cryptoSelection,
       actionsPending,
-      error
+      error,
+      checkLedgerAppConnection,
+      getLedgerWalletData
     } = this.props
-
     const prevActionsPending = prevProps.actionsPending
     if (
+      prevActionsPending.checkLedgerDeviceConnection &&
+      !actionsPending.checkLedgerDeviceConnection &&
+        wallet.connected
+    ) {
+      checkLedgerAppConnection(cryptoSelection)
+    } else if (prevActionsPending.checkLedgerAppConnection && !actionsPending.checkLedgerAppConnection) {
+      getLedgerWalletData(cryptoSelection)
+    } else if (
       wallet &&
       wallet.connected &&
       (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
@@ -201,25 +214,30 @@ class WalletSelectionContainer extends Component<Props, State> {
 const checkWalletConnectionSelector = createLoadingSelector([
   'CHECK_CLOUD_WALLET_CONNECTION',
   'CHECK_METAMASK_CONNECTION',
-  'CHECK_LEDGER_NANOS_CONNECTION'
+  'GET_LEDGER_WALLET_DATA',
+  'CHECK_LEDGER_DEVICE_CONNECTION'
 ])
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'SYNC_LEDGER_ACCOUNT_INFO',
-  'CHECK_LEDGER_NANOS_CONNECTION'
+  'GET_LEDGER_WALLET_DATA'
 ])
+const checkLedgerDeviceConnectionSelector = createLoadingSelector(['CHECK_LEDGER_DEVICE_CONNECTION'])
+const checkLedgerAppConnectionSelector = createLoadingSelector(['CHECK_LEDGER_APP_CONNECTION'])
 const syncSelector = createLoadingSelector(['SYNC'])
 
 const mapDispatchToProps = dispatch => {
   return {
     checkMetamaskConnection: cryptoType => dispatch(checkMetamaskConnection(cryptoType)),
-    checkLedgerNanoSConnection: cryptoType => dispatch(checkLedgerNanoSConnection(cryptoType)),
+    getLedgerWalletData: cryptoType => dispatch(getLedgerWalletData(cryptoType)),
     checkCloudWalletConnection: cryptoType => dispatch(checkCloudWalletConnection(cryptoType)),
     selectCrypto: c => dispatch(selectCrypto(c)),
     selectWallet: w => dispatch(selectWallet(w)),
     goToStep: n => dispatch(goToStep('send', n)),
     sync: (walletData, progress) => dispatch(sync(walletData, progress)),
-    unlockCloudWallet: unlockRequestParams => dispatch(unlockCloudWallet(unlockRequestParams))
+    unlockCloudWallet: unlockRequestParams => dispatch(unlockCloudWallet(unlockRequestParams)),
+    checkLedgerDeviceConnection: () => dispatch(checkLedgerDeviceConnection()),
+    checkLedgerAppConnection: (cryptoType) => dispatch(checkLedgerAppConnection(cryptoType))
   }
 }
 
@@ -232,6 +250,8 @@ const mapStateToProps = state => {
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
+      checkLedgerDeviceConnection: checkLedgerDeviceConnectionSelector(state),
+      checkLedgerAppConnection: checkLedgerAppConnectionSelector(state),
       sync: syncSelector(state)
     },
     error: errorSelector(state)

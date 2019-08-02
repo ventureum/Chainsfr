@@ -3,12 +3,13 @@ import Web3 from 'web3'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
 import { getTransferData, saveWallet, getWallet } from '../drive.js'
-import { walletCryptoSupports } from '../wallet.js'
+import { walletCryptoSupports, cryptoInWallet } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
 import WalletUtils from '../wallets/utils'
 import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
+import LedgerNanoS from '../ledgerSigner'
 
 async function _checkMetamaskConnection (
   cryptoType: string,
@@ -28,7 +29,7 @@ async function _checkMetamaskConnection (
   }
 }
 
-async function _checkLedgerNanoSConnection (cryptoType: string, walletState: Object, throwError: ?boolean = true) {
+async function _getLedgerWalletData (cryptoType: string, walletState: Object) {
   let wallet = WalletFactory.createWallet(WalletUtils.toWalletDataFromState('ledger', cryptoType, walletState))
   await wallet.retrieveAddress()
   return wallet.getWalletData()
@@ -81,13 +82,64 @@ function onMetamaskAccountsChanged (accounts: Array<string>, cryptoType: string)
   }
 }
 
-function checkLedgerNanoSConnection (cryptoType: string, throwError: ?boolean) {
+function getLedgerWalletData (cryptoType: string) {
   return (dispatch: Function, getState: Function) => {
     let walletState = getState().walletReducer.wallet.ledger
     return dispatch({
-      type: 'CHECK_LEDGER_NANOS_CONNECTION',
-      payload: _checkLedgerNanoSConnection(cryptoType, walletState, throwError)
+      type: 'GET_LEDGER_WALLET_DATA',
+      payload: _getLedgerWalletData(cryptoType, walletState)
     })
+  }
+}
+
+function checkLedgerDeviceConnection () {
+  return {
+    type: 'CHECK_LEDGER_DEVICE_CONNECTION',
+    payload: async () => {
+      let ledger = new LedgerNanoS()
+      try {
+        if (!LedgerNanoS.webUsbTransport) {
+          await ledger.getWebUsbTransport()
+        }
+      } catch (e) {
+        if (e.name !== 'TransportInterfaceNotAvailable') {
+          return Promise.reject(e)
+        }
+      }
+    }
+  }
+}
+
+function checkLedgerAppConnection (cryptoType: string) {
+  return {
+    type: 'CHECK_LEDGER_APP_CONNECTION',
+    payload: async () => {
+      function sleep (time) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve()
+          }, time)
+        })
+      }
+      if (!cryptoInWallet(cryptoType, 'ledger')) {
+        throw new Error('Invalid cryptoType for Ledger')
+      }
+      let ledger = new LedgerNanoS()
+      while (true) {
+        try {
+          if (['ethereum', 'dai'].includes(cryptoType)) {
+            await ledger.getEthAddress(0)
+            break
+          } else {
+            await ledger.getBtcAddresss(0)
+            break
+          }
+        } catch (e) {
+          console.warn(e)
+          await sleep(2000)
+        }
+      }
+    }
   }
 }
 
@@ -327,7 +379,7 @@ function notUseLastAddress () {
 export {
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
-  checkLedgerNanoSConnection,
+  getLedgerWalletData,
   sync,
   verifyPassword,
   clearDecryptedWallet,
@@ -338,5 +390,7 @@ export {
   unlockCloudWallet,
   getLastUsedAddress,
   notUseLastAddress,
-  clearDecryptCloudWalletError
+  clearDecryptCloudWalletError,
+  checkLedgerDeviceConnection,
+  checkLedgerAppConnection
 }
