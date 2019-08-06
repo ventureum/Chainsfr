@@ -138,6 +138,44 @@ async function getLastUsedAddress (idToken, wallet) {
   }
 }
 
+async function getRecipients (idToken) {
+  try {
+    let rv = await apiTransfer.post('/user', {
+      action: 'GET_RECIPIENTS',
+      idToken: idToken
+    })
+    return rv.data.recipients
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+async function addRecipient (idToken, recipient) {
+  try {
+    let rv = await apiTransfer.post('/user', {
+      action: 'ADD_RECIPIENT',
+      idToken: idToken,
+      recipient: recipient
+    })
+    return rv.data.recipients
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+async function removeRecipient (idToken, recipient) {
+  try {
+    let rv = await apiTransfer.post('/user', {
+      action: 'REMOVE_RECIPIENT',
+      idToken: idToken,
+      recipient: recipient
+    })
+    return rv.data.recipients
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -146,5 +184,8 @@ export default {
   getPrefilledAccount,
   getBatchTransfers,
   setLastUsedAddress,
-  getLastUsedAddress
+  getLastUsedAddress,
+  getRecipients,
+  addRecipient,
+  removeRecipient
 }

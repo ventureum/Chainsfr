@@ -1,5 +1,11 @@
 // @flow
 import { gapiLoad } from '../drive'
+import API from '../apis.js'
+import type { Recipient } from '../types/transfer.flow.js'
+import { enqueueSnackbar } from './notificationActions.js'
+import { updateTransferForm } from '../actions/formActions'
+import update from 'immutability-helper'
+
 function onLogin (loginData: any) {
   return {
     type: 'LOGIN',
@@ -72,4 +78,59 @@ function setNewUserTag (isNewUser: boolean) {
   }
 }
 
-export { onLogin, onLogout, setNewUserTag, refreshAccessToken }
+function getRecipients () {
+  return (dispatch: Function, getState: Function) => {
+    const { idToken } = getState().userReducer.profile
+    return dispatch({
+      type: 'GET_RECIPIENTS',
+      payload: API.getRecipients(idToken)
+    })
+  }
+}
+
+function addRecipient (recipient: Recipient) {
+  return (dispatch: Function, getState: Function) => {
+    const { idToken } = getState().userReducer.profile
+    const { transferForm } = getState().formReducer
+    return dispatch({
+      type: 'ADD_RECIPIENT',
+      payload: API.addRecipient(idToken, recipient)
+    }).then(() => {
+      dispatch(
+        enqueueSnackbar({
+          message: 'Recipient added successfully.',
+          key: new Date().getTime() + Math.random(),
+          options: { variant: 'info', autoHideDuration: 3000 }
+        })
+      )
+      dispatch(
+        updateTransferForm(
+          update(transferForm, {
+            destination: { $set: recipient.email },
+            formError: { destination: { $set: null } }
+          })
+        )
+      )
+    })
+  }
+}
+
+function removeRecipient (recipient: Recipient) {
+  return (dispatch: Function, getState: Function) => {
+    const { idToken } = getState().userReducer.profile
+    return dispatch({
+      type: 'REMOVE_RECIPIENT',
+      payload: API.removeRecipient(idToken, recipient)
+    })
+  }
+}
+
+export {
+  onLogin,
+  onLogout,
+  setNewUserTag,
+  refreshAccessToken,
+  getRecipients,
+  addRecipient,
+  removeRecipient
+}
