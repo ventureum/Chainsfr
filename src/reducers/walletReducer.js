@@ -53,7 +53,9 @@ function updateWalletState (state, walletDataList, extra = {}) {
     let cryptoList = walletDataList
       .filter(walletData => walletData.walletType === walletType)
       .reduce((accum, walletData) => {
-        accum[walletData.cryptoType] = walletData.accounts
+        if (walletData.cryptoType) {
+          accum[walletData.cryptoType] = walletData.accounts
+        }
         return accum
       }, {})
     if (!_state.wallet[walletType]) {
