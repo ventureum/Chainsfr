@@ -9,7 +9,8 @@ const initState = {
   profile: {
     isAuthenticated: false,
     newUser: null
-  }
+  },
+  recipients: []
 }
 
 export default function (state = initState, action) {
@@ -36,7 +37,16 @@ export default function (state = initState, action) {
       return initState
     case 'SET_NEW_USER_TAG':
       return update(state, { profile: { newUser: { $set: action.payload } } })
-    default: // need this for default case
+    case 'GET_RECIPIENTS_FULFILLED':
+    case 'ADD_RECIPIENT_FULFILLED':
+    case 'REMOVE_RECIPIENT_FULFILLED':
+      return update(state, {
+        recipients: {
+          $set: action.payload.sort((itemA, itemB) => (itemA.name <= itemB.name ? -1 : 1))
+        }
+      })
+    default:
+      // need this for default case
       return state
   }
 }

@@ -496,7 +496,7 @@ class LandingPageComponent extends Component {
                 {!actionsPending.getTransferHistory && transferHistory.history.length === 0 &&
                   <Grid container justify='center'>
                     <Typography className={classes.noTxText}>
-                      It seems you don't have any transaction yet
+                      It seems you don't have any transactions yet
                     </Typography>
                   </Grid>
                 }

@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
 import WalletSelection from '../containers/WalletSelectionContainer'
-import Recipient from '../containers/RecipientContainer'
+import TransferForm from '../containers/TransferFormContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
 import queryString from 'query-string'
@@ -44,7 +44,7 @@ class TransferComponent extends React.Component<Props> {
                     walletSelectionPrefilled={urlParams && urlParams.walletSelection}
                     cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
                   />}
-                  {step === 1 && <Recipient />}
+                  {step === 1 && <TransferForm />}
                   {step === 2 && <Review />}
                   {step === 3 && <Receipt />}
                 </Grid>

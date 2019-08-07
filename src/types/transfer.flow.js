@@ -24,3 +24,8 @@ export type TxEthereum = {
   value: BasicTokenUnit,
   data?: string
 }
+
+export type Recipient = {
+  name: string,
+  email: string
+}

@@ -1,16 +1,22 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Recipient from '../components/RecipientComponent'
-import { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer } from '../actions/formActions'
+import TransferForm from '../components/TransferFormComponent'
+import {
+  updateTransferForm,
+  generateSecurityAnswer,
+  clearSecurityAnswer
+} from '../actions/formActions'
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getTxFee } from '../actions/transferActions'
+import { getRecipients } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import WalletUtils from '../wallets/utils'
+import AddRecipientDialog from './AddRecipientDialogContainer'
 
 type Props = {
   updateTransferForm: Function,
@@ -23,18 +29,24 @@ type Props = {
   txFee: any,
   wallet: Object,
   actionsPending: Object,
-  error: any,
+  error: any
 }
 
+type State = {
+  openAddNewRecipient: boolean
+}
 const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
-class RecipientContainer extends Component<Props> {
+class TransferFormContainer extends Component<Props, State> {
+  state = { openAddNewRecipient: false }
+
   componentDidMount () {
-    let { profile, transferForm, updateTransferForm } = this.props
+    let { profile, transferForm, updateTransferForm, getRecipients } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
       // prefill sender's email address for authenticated user
       updateTransferForm(update(transferForm, { sender: { $set: profile.profileObj.email } }))
+      getRecipients()
     }
   }
 
@@ -160,17 +172,24 @@ class RecipientContainer extends Component<Props> {
 
       _transferForm = update(_transferForm, {
         transferCurrencyAmount: { $set: transferCurrencyAmountVal.toString() },
-        formError: { 'transferCurrencyAmount': { $set: this.validate('transferCurrencyAmount', transferCurrencyAmountVal.toString()) } }
+        formError: {
+          transferCurrencyAmount: {
+            $set: this.validate('transferCurrencyAmount', transferCurrencyAmountVal.toString())
+          }
+        }
       })
     }
 
     if (name === 'transferCurrencyAmount') {
       // sync transferAmount
-      const transferCurrencyAmountVal = event.target.value === '' ? 0.0 : parseFloat(event.target.value)
+      const transferCurrencyAmountVal =
+        event.target.value === '' ? 0.0 : parseFloat(event.target.value)
       const transferAmountVal = toCryptoAmount(transferCurrencyAmountVal)
       _transferForm = update(_transferForm, {
         transferAmount: { $set: transferAmountVal.toString() },
-        formError: { 'transferAmount': { $set: this.validate('transferAmount', transferAmountVal.toString()) } }
+        formError: {
+          transferAmount: { $set: this.validate('transferAmount', transferAmountVal.toString()) }
+        }
       })
     }
 
@@ -181,29 +200,42 @@ class RecipientContainer extends Component<Props> {
     const { wallet, cryptoPrice, cryptoSelection, currency } = this.props
     const balance = wallet.crypto[cryptoSelection][0].balance || '0'
     const balanceAmount = utils.toHumanReadableUnit(balance, getCryptoDecimals(cryptoSelection))
-    const balanceCurrencyAmount = utils.toCurrencyAmount(balanceAmount, cryptoPrice[cryptoSelection], currency)
+    const balanceCurrencyAmount = utils.toCurrencyAmount(
+      balanceAmount,
+      cryptoPrice[cryptoSelection],
+      currency
+    )
     return (
-      <Recipient
-        {...this.props}
-        handleTransferFormChange={this.handleTransferFormChange}
-        validate={this.validate}
-        validateForm={this.validateForm}
-        balanceAmount={balanceAmount}
-        balanceCurrencyAmount={balanceCurrencyAmount}
-      />
+      <>
+        <TransferForm
+          {...this.props}
+          handleTransferFormChange={this.handleTransferFormChange}
+          validate={this.validate}
+          validateForm={this.validateForm}
+          balanceAmount={balanceAmount}
+          balanceCurrencyAmount={balanceCurrencyAmount}
+          addRecipient={() => this.setState({ openAddNewRecipient: true })}
+        />
+        <AddRecipientDialog
+          open={this.state.openAddNewRecipient}
+          onClose={() => this.setState({ openAddNewRecipient: false })}
+        />
+      </>
     )
   }
 }
 const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const errorSelector = createErrorSelector(['GET_TX_COST'])
+const getRecipientsSelector = createLoadingSelector(['GET_RECIPIENTS'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateTransferForm: (form) => dispatch(updateTransferForm(form)),
+    updateTransferForm: form => dispatch(updateTransferForm(form)),
     generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
     clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
-    goToStep: (n) => dispatch(goToStep('send', n)),
-    getTxFee: (txRequest) => dispatch(getTxFee(txRequest))
+    goToStep: n => dispatch(goToStep('send', n)),
+    getTxFee: txRequest => dispatch(getTxFee(txRequest)),
+    getRecipients: () => dispatch(getRecipients())
   }
 }
 
@@ -217,8 +249,10 @@ const mapStateToProps = state => {
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
+    recipients: state.userReducer.recipients,
     actionsPending: {
-      getTxFee: gettxFeeSelector(state)
+      getTxFee: gettxFeeSelector(state),
+      getRecipients: getRecipientsSelector(state)
     },
     error: errorSelector(state)
   }
@@ -227,4 +261,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RecipientContainer)
+)(TransferFormContainer)

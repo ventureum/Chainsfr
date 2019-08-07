@@ -10,6 +10,12 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import Icon from '@material-ui/core/Icon'
 import numeral from 'numeral'
 import { getCryptoSymbol } from '../tokens'
+import Select from '@material-ui/core/Select'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import FormControl from '@material-ui/core/FormControl'
+import OutlinedInput from '@material-ui/core/OutlinedInput'
 
 type Props = {
   generateSecurityAnswer: Function,
@@ -22,10 +28,12 @@ type Props = {
   transferForm: Object,
   currency: string,
   classes: Object,
-  actionsPending: Object
+  actionsPending: Object,
+  recipients: Array<Object>,
+  addRecipient: Function
 }
 
-class RecipientComponent extends Component<Props> {
+class TransferFormComponent extends Component<Props> {
   securityAnswerHelperText = validationErrMsg => {
     const { classes, generateSecurityAnswer } = this.props
     return (
@@ -68,7 +76,9 @@ class RecipientComponent extends Component<Props> {
       currency,
       balanceAmount,
       balanceCurrencyAmount,
-      actionsPending
+      actionsPending,
+      recipients,
+      addRecipient
     } = this.props
     const {
       transferAmount,
@@ -102,19 +112,49 @@ class RecipientComponent extends Component<Props> {
             />
           </Grid>
           <Grid item>
-            <TextField
-              fullWidth
-              id='destination'
-              label='Recipient Email'
-              placeholder='john@gmail.com'
-              className={classes.textField}
-              margin='normal'
-              variant='outlined'
-              error={!!formError.destination}
-              helperText={formError.destination}
-              onChange={handleTransferFormChange('destination')}
-              value={destination}
-            />
+            <FormControl className={classes.formControl} variant='outlined'>
+              <InputLabel htmlFor='destination-helper'>Destination</InputLabel>
+              <Select
+                value={destination}
+                onChange={handleTransferFormChange('destination')}
+                input={<OutlinedInput labelWidth={85} name='destination' />}
+                error={!!formError.destination}
+                id={'destination'}
+              >
+                {recipients.length === 0 ? (
+                  <MenuItem value=''>
+                    <em>None</em>
+                  </MenuItem>
+                ) : (
+                  recipients.map(recipient => {
+                    return (
+                      <MenuItem key={recipient.name} value={recipient.email}>
+                        <div>
+                          <Typography>{recipient.name}</Typography>
+                          <Typography className={classes.securityAnswerBtnHelperText}>
+                            {recipient.email}
+                          </Typography>
+                        </div>
+                      </MenuItem>
+                    )
+                  })
+                )}
+              </Select>
+              <FormHelperText id='destination-helper'>
+                <span>
+                  <Button
+                    onClick={() => {
+                      addRecipient()
+                    }}
+                    className={classes.addNewRecipientBtn}
+                  >
+                    <Typography color='primary' className={classes.addNewRecipientBtnText}>
+                      Add New Recipient
+                    </Typography>
+                  </Button>
+                </span>
+              </FormHelperText>
+            </FormControl>
           </Grid>
           <Grid item>
             <Grid container direction='row' justify='center' alignItems='center'>
@@ -258,7 +298,17 @@ const styles = theme => ({
   },
   icon: {
     color: '#777777'
+  },
+  formControl: {
+    width: '100%',
+    margin: '5px 0px 5px 0px'
+  },
+  addNewRecipientBtn: {
+    margin: '0px 0px 0px 0px'
+  },
+  addNewRecipientBtnText: {
+    fontSize: '14px'
   }
 })
 
-export default withStyles(styles)(RecipientComponent)
+export default withStyles(styles)(TransferFormComponent)
