@@ -54,7 +54,7 @@ export const intercomLogin = (userId, profile) => {
   if (window.Intercom) {
     window.Intercom('boot', {
       user_id: userId,
-      emaill: profile.email,
+      email: profile.email,
       name: profile.name,
       familyName: profile.familyName,
       givenName: profile.givenName,
