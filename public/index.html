@@ -27,6 +27,46 @@
   </head>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
   <script src="https://apis.google.com/js/platform.js"></script>
+  	<!-- Start of Intercom messenger script -->
+	<script>
+		window.intercomSettings = {
+			app_id: "gjd0qon8"
+    };
+	</script>
+	<script>
+		(function () {
+			var w = window;
+			var ic = w.Intercom;
+			if (typeof ic === "function") {
+				ic('reattach_activator');
+				ic('update', w.intercomSettings);
+			} else {
+				var d = document;
+				var i = function () {
+					i.c(arguments);
+				};
+				i.q = [];
+				i.c = function (args) {
+					i.q.push(args);
+				};
+				w.Intercom = i;
+				var l = function () {
+					var s = d.createElement('script');
+					s.type = 'text/javascript';
+					s.async = true;
+					s.src = 'https://widget.intercom.io/widget/gjd0qon8';
+					var x = d.getElementsByTagName('script')[0];
+					x.parentNode.insertBefore(s, x);
+				};
+				if (w.attachEvent) {
+					w.attachEvent('onload', l);
+				} else {
+					w.addEventListener('load', l, false);
+				}
+			}
+		})();
+	</script>
+	<!-- End of Intercom messenger script -->
   <body>
     <div id="root"></div>
     <!--

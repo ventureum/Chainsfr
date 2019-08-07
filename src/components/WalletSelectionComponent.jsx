@@ -335,9 +335,6 @@ class WalletSelectionComponent extends Component<Props> {
 }
 
 const styles = theme => ({
-  faqIcon: {
-    marginRight: theme.spacing(1)
-  },
   cryptoList: {
     width: '100%',
     backgroundColor: theme.palette.background
