@@ -1,4 +1,4 @@
-import Recipient from '../components/RecipientComponent'
+import TransferForm from '../components/TransferFormComponent'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import update from 'immutability-helper'
@@ -75,9 +75,9 @@ let initialProps = {
   recipients: []
 }
 let wrapper
-describe('RecipientComponent render', () => {
+describe('TransferFormComponent render', () => {
   beforeEach(() => {
-    wrapper = mount(<Recipient {...initialProps} />)
+    wrapper = mount(<TransferForm {...initialProps} />)
   })
 
   it('initial render', () => {
@@ -183,7 +183,7 @@ describe('RecipientComponent render', () => {
   })
 })
 
-describe('RecipientComponent Interactions:', () => {
+describe('TransferFormComponent Interactions:', () => {
   let mockUpdateTransferForm
   let mockGoToStep
   let mockHandleTransferFormChangeEvent
@@ -202,7 +202,7 @@ describe('RecipientComponent Interactions:', () => {
       return mockHandleTransferFormChangeEvent[name]
     })
     wrapper = mount(
-      <Recipient
+      <TransferForm
         {...{
           ...initialProps,
           updateTransferForm: mockUpdateTransferForm,

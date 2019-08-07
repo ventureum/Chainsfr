@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Recipient from '../components/RecipientComponent'
+import TransferForm from '../components/TransferFormComponent'
 import {
   updateTransferForm,
   generateSecurityAnswer,
@@ -16,7 +16,7 @@ import { getRecipients } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import WalletUtils from '../wallets/utils'
-import AddRecipientDialog from '../containers/AddRecipientDialogContainer'
+import AddRecipientDialog from './AddRecipientDialogContainer'
 
 type Props = {
   updateTransferForm: Function,
@@ -37,7 +37,7 @@ type State = {
 }
 const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
-class RecipientContainer extends Component<Props, State> {
+class TransferFormContainer extends Component<Props, State> {
   state = { openAddNewRecipient: false }
 
   componentDidMount () {
@@ -207,7 +207,7 @@ class RecipientContainer extends Component<Props, State> {
     )
     return (
       <>
-        <Recipient
+        <TransferForm
           {...this.props}
           handleTransferFormChange={this.handleTransferFormChange}
           validate={this.validate}
@@ -261,4 +261,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RecipientContainer)
+)(TransferFormContainer)

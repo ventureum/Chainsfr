@@ -33,7 +33,7 @@ type Props = {
   addRecipient: Function
 }
 
-class RecipientComponent extends Component<Props> {
+class TransferFormComponent extends Component<Props> {
   securityAnswerHelperText = validationErrMsg => {
     const { classes, generateSecurityAnswer } = this.props
     return (
@@ -311,4 +311,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(RecipientComponent)
+export default withStyles(styles)(TransferFormComponent)
