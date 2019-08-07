@@ -55,6 +55,7 @@ class ReceiveLandingPageComponent extends Component {
         receivingId,
         receiveTxHash,
         cancelTxHash,
+        senderName,
         sender,
         destination,
         transferAmount,
@@ -129,7 +130,10 @@ class ReceiveLandingPageComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                    From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='senderName'>
+                    {senderName}
+                  </Typography>
+                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -275,6 +279,12 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentEmail: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
   },
   reviewContentMessage: {
     color: '#333333',

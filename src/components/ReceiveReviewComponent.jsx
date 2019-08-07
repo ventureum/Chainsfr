@@ -37,7 +37,7 @@ class ReceiveReviewComponent extends Component {
       receiveAmount,
       currencyAmount
     } = this.props
-    const { transferAmount, sender, destination, cryptoType } = transfer
+    const { transferAmount, senderName, sender, destination, cryptoType } = transfer
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
@@ -54,7 +54,10 @@ class ReceiveReviewComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='sender'>
+                  <Typography className={classes.reviewContent} align='left' id='senderName'>
+                    {senderName}
+                  </Typography>
+                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -216,6 +219,12 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentEmail: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
   },
   reviewContentAmount: {
     color: '#333333',

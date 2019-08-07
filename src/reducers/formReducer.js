@@ -16,6 +16,7 @@ const initialState = {
     message: '',
     formError: {
       sender: null,
+      senderName: null,
       destination: null,
       transferAmount: null,
       password: null,

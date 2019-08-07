@@ -86,13 +86,14 @@ const WALLET_INSTRUCTION = {
 class ReviewComponent extends Component<Props> {
   handleReviewNext = () => {
     const { wallet, transferForm, cryptoSelection, walletSelection, txFee } = this.props
-    const { transferAmount, sender, destination, password, message } = transferForm
+    const { transferAmount, sender, senderName, destination, password, message } = transferForm
 
     // submit tx
     this.props.submitTx({
       fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
       transferAmount: transferAmount,
       destination: destination,
+      senderName: senderName,
       sender: sender,
       password: password,
       message: message,
@@ -110,7 +111,7 @@ class ReviewComponent extends Component<Props> {
       walletSelection,
       currencyAmount
     } = this.props
-    const { transferAmount, sender, destination, password, message } = transferForm
+    const { transferAmount, sender, senderName, destination, password, message } = transferForm
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -127,7 +128,10 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='senderName'>
+                    {senderName}
+                  </Typography>
+                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -265,6 +269,12 @@ const styles = theme => ({
     color: '#333333',
     fontSize: '18px',
     lineHeight: '24px'
+  },
+  reviewContentEmail: {
+    color: '#777777',
+    fontSize: '14px',
+    lineHeight: '24px',
+    fontWeight: 'bold'
   },
   reviewContentMessage: {
     color: '#333333',

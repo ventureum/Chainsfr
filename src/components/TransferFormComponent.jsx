@@ -86,6 +86,7 @@ class TransferFormComponent extends Component<Props> {
       destination,
       password,
       sender,
+      senderName,
       message,
       formError
     } = transferForm
@@ -93,6 +94,21 @@ class TransferFormComponent extends Component<Props> {
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
         <form className={classes.recipientSettingForm} noValidate autoComplete='off'>
+          <Grid item>
+            <TextField
+              fullWidth
+              id='sender_name'
+              label='Your Name'
+              placeholder='John Doe'
+              className={classes.textField}
+              margin='normal'
+              variant='outlined'
+              error={!!formError.senderName}
+              helperText={formError.senderName}
+              onChange={handleTransferFormChange('senderName')}
+              value={senderName}
+            />
+          </Grid>
           <Grid item>
             <TextField
               fullWidth
