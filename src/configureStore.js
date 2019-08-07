@@ -10,15 +10,13 @@ import reducers from './reducers'
 import { routerMiddleware } from 'connected-react-router'
 import { createBrowserHistory } from 'history'
 import { trackerMiddleware } from './trackerMiddleware'
-import env from './typedEnv'
 
 const history = createBrowserHistory()
 
 function configureStore (reducers) {
   const middlewares = [
     routerMiddleware(history),
-    // only add trackerMiddleware if tracking id exists
-    ...(env.REACT_APP_GA_TRACKING_ID ? [trackerMiddleware] : []),
+    trackerMiddleware,
     errorMiddleware,
     promiseMiddleware(),
     thunk

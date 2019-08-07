@@ -19,7 +19,6 @@ import { SnackbarProvider } from 'notistack'
 import NotifierComponent from './components/NotifierComponent'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
-import FAQContainer from './containers/FAQContainer'
 import { theme } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
@@ -83,7 +82,6 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
           <Component {...matchProps} />
         </div>
         <NotifierComponent />
-        <FAQContainer />
         <Footer />
       </div>
     )} />

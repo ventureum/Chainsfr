@@ -1,10 +1,19 @@
 import ReactGA from 'react-ga'
 import isPromise from 'is-promise'
 import env from './typedEnv'
+import moment from 'moment'
 
 const options = {}
+const GA_ENABLED = !!env.REACT_APP_GA_TRACKING_ID
+
+export const initTracker = () => {
+  // init GA
+  if (!GA_ENABLED) return
+  ReactGA.initialize(env.REACT_APP_GA_TRACKING_ID, { debug: env.REACT_APP_ENV === 'test' })
+}
 
 export const trackPage = (page) => {
+  if (!GA_ENABLED) return
   ReactGA.set({
     page,
     ...options
@@ -13,6 +22,7 @@ export const trackPage = (page) => {
 }
 
 export const trackEvent = ({ category, action, label, value }) => {
+  if (!GA_ENABLED) return
   ReactGA.event({
     category: category,
     action: action,
@@ -22,14 +32,39 @@ export const trackEvent = ({ category, action, label, value }) => {
 }
 
 export const trackUser = (userId) => {
+  if (!GA_ENABLED) return
   ReactGA.set({ userId })
 }
 
 export const trackException = ({ description, fatal = true }) => {
+  if (!GA_ENABLED) return
   ReactGA.exception({
     description,
     fatal
   })
+}
+
+export const intercomBoot = () => {
+  if (window.Intercom) {
+    window.Intercom('boot', {})
+  }
+}
+
+export const intercomLogin = (userId, profile) => {
+  if (window.Intercom) {
+    window.Intercom('boot', {
+      user_id: userId,
+      emaill: profile.email,
+      name: profile.name,
+      familyName: profile.familyName,
+      givenName: profile.givenName,
+      avatar: {
+        type: 'avatar',
+        image_url: profile.imageUrl
+      },
+      created_at: moment().unix()
+    })
+  }
 }
 
 let currentPage = ''
@@ -38,14 +73,14 @@ var currentUserId = null
 export const trackerMiddleware = store => next => action => {
   switch (action.type) {
     case 'persist/REHYDRATE':
-      // init GA
-      ReactGA.initialize(env.REACT_APP_GA_TRACKING_ID, { debug: env.REACT_APP_ENV === 'test' })
-
+      initTracker()
+      intercomBoot()
       if (currentUserId === null) {
         const profile = action.payload && action.payload.userReducer && action.payload.userReducer.profile
         if (profile && profile.googleId) {
           currentUserId = profile.googleId
           trackUser(currentUserId)
+          intercomLogin(currentUserId, profile.profileObj)
         }
       }
       break
@@ -59,8 +94,10 @@ export const trackerMiddleware = store => next => action => {
       break
     case 'LOGIN':
       // register user
-      trackUser(action.payload.googleId)
       currentUserId = action.payload.googleId
+      const profile = action.payload.profileObj
+      trackUser(currentUserId)
+      intercomLogin(currentUserId, profile)
       break
     case 'LOGOUT_FULFILLED':
       trackEvent({
