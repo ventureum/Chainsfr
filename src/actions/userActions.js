@@ -115,12 +115,43 @@ function addRecipient (recipient: Recipient) {
   }
 }
 
+function editRecipient (oldRecipient: Recipient, newRecipient: Recipient) {
+  return (dispatch: Function, getState: Function) => {
+    const { idToken } = getState().userReducer.profile
+    return dispatch({
+      type: 'EDIT_RECIPIENT',
+      payload: async () => {
+        await API.removeRecipient(idToken, oldRecipient)
+        const result = await API.addRecipient(idToken, newRecipient)
+        console.log('sha', result)
+        return result
+      }
+    }).then(() => {
+      dispatch(
+        enqueueSnackbar({
+          message: 'Recipient modified successfully.',
+          key: new Date().getTime() + Math.random(),
+          options: { variant: 'info', autoHideDuration: 3000 }
+        })
+      )
+    })
+  }
+}
+
 function removeRecipient (recipient: Recipient) {
   return (dispatch: Function, getState: Function) => {
     const { idToken } = getState().userReducer.profile
     return dispatch({
       type: 'REMOVE_RECIPIENT',
       payload: API.removeRecipient(idToken, recipient)
+    }).then(() => {
+      dispatch(
+        enqueueSnackbar({
+          message: 'Recipient removed successfully.',
+          key: new Date().getTime() + Math.random(),
+          options: { variant: 'info', autoHideDuration: 3000 }
+        })
+      )
     })
   }
 }
@@ -132,5 +163,6 @@ export {
   refreshAccessToken,
   getRecipients,
   addRecipient,
-  removeRecipient
+  removeRecipient,
+  editRecipient
 }

@@ -29,22 +29,22 @@ class TransferComponent extends React.Component<Props> {
       >
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column'>
-            <Grid item>
-              {step <= 2 && <Stepper actionType='transfer' step={step} />}
-            </Grid>
+            <Grid item>{step <= 2 && <Stepper actionType='transfer' step={step} />}</Grid>
             <Grid item>
               {/* receipt page requires a different background color */}
-              <Grid
-                container
-                direction='column'
-                alignItems='center'
-              >
+              <Grid container direction='column' alignItems='center'>
                 <Grid item className={classes.subComponent}>
-                  {step === 0 && <WalletSelection
-                    walletSelectionPrefilled={urlParams && urlParams.walletSelection}
-                    cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
-                  />}
-                  {step === 1 && <TransferForm />}
+                  {step === 0 && (
+                    <WalletSelection
+                      walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+                      cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
+                    />
+                  )}
+                  {step === 1 && (
+                    <TransferForm
+                      destinationPrefilled={urlParams && (urlParams.destination || '')}
+                    />
+                  )}
                   {step === 2 && <Review />}
                   {step === 3 && <Receipt />}
                 </Grid>

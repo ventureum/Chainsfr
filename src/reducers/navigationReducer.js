@@ -17,6 +17,7 @@ export default function (state = initialState, action) {
       let idx = state[transferAction] + n
       return update(state, { [transferAction]: { $set: idx } })
     case 'BACK_TO_HOME':
+    case 'CLEAR_TRANSFER_FORM':
       return initialState
     default:
       return state

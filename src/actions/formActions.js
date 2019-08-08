@@ -15,20 +15,18 @@ function selectCrypto (cryptoSelected: string) {
   }
 }
 
-function updateTransferForm (
-  form: {
-    transferAmount: string,
-    password: string,
-    destination: string,
-    sender: string,
-    formError: {
-      sender: ?string,
-      destination: ?string,
-      transferAmount: ?string,
-      password: ?string
-    }
+function updateTransferForm (form: {
+  transferAmount: string,
+  password: string,
+  destination: string,
+  sender: string,
+  formError: {
+    sender: ?string,
+    destination: ?string,
+    transferAmount: ?string,
+    password: ?string
   }
-) {
+}) {
   return {
     type: 'UPDATE_TRANSFER_FORM',
     payload: form
@@ -50,10 +48,17 @@ function clearSecurityAnswer () {
   }
 }
 
+function clearTransferForm () {
+  return {
+    type: 'CLEAR_TRANSFER_FORM'
+  }
+}
+
 export {
   selectWallet,
   selectCrypto,
   updateTransferForm,
   generateSecurityAnswer,
-  clearSecurityAnswer
+  clearSecurityAnswer,
+  clearTransferForm
 }
