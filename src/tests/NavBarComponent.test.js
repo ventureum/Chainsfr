@@ -9,6 +9,7 @@ const initialProps = {
     isAuthenticated: false
   },
   onLogout: () => {},
+  clearWalleState: () => {},
   actionsPending: { createCloudWallet: false }
 }
 const profileObjWithAvatar = {

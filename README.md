@@ -7,7 +7,7 @@
 
 <img src="https://i.imgur.com/yzyOeWC.png" />
 
-- 📚 Read the [FAQ](https://faq.chainsfr.com) first, if you have any questions as a user.
+- 📚 Read the [FAQ](https://help.chainsfr.com) first, if you have any questions as a user.
 - 📝 Please report any issues and feedback in the [Chainsfr Chat #General](https://chat.chainsfr.com/channel/general) channel.
 - 🔧 For technical stuff, use this project's [issues](http://github.com/ventureum/Chainsfr/issues).
 - 🚢 For an overview of changes in each release, check the [releases](https://github.com/ventureum/Chainsfr/releases)

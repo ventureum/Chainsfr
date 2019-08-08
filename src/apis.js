@@ -12,6 +12,7 @@ const apiTransfer = axios.create({
 
 async function transfer ({
   clientId,
+  senderName,
   sender,
   destination,
   transferAmount,
@@ -23,6 +24,7 @@ async function transfer ({
   let apiResponse = await apiTransfer.post('/transfer', {
     action: 'SEND',
     clientId: clientId,
+    senderName: senderName,
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,

@@ -46,6 +46,11 @@ class TransferFormContainer extends Component<Props, State> {
     if (profile.isAuthenticated) {
       // prefill sender's email address for authenticated user
       updateTransferForm(update(transferForm, { sender: { $set: profile.profileObj.email } }))
+      // prefill sender's name and email address for authenticated user
+      updateTransferForm(update(transferForm, {
+        sender: { $set: profile.profileObj.email },
+        senderName: { $set: profile.profileObj.name }
+      }))
       getRecipients()
     }
   }
@@ -77,10 +82,12 @@ class TransferFormContainer extends Component<Props, State> {
 
     // form must be filled without errors
     return (
+      transferForm.senderName &&
       transferForm.sender &&
       transferForm.destination &&
       transferForm.transferAmount &&
       transferForm.password &&
+      !formError.senderName &&
       !formError.sender &&
       !formError.destination &&
       !formError.transferAmount &&
@@ -141,6 +148,10 @@ class TransferFormContainer extends Component<Props, State> {
     } else if (name === 'password') {
       if (!validator.isLength(value, { min: 6, max: undefined })) {
         return 'Length must be greater or equal than 6'
+      }
+    } else if (name === 'senderName') {
+      if (!validator.isLength(value, { min: 1, max: undefined })) {
+        return 'Name is required'
       }
     }
     return null

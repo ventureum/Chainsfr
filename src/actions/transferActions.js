@@ -71,6 +71,7 @@ async function _submitTx (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
   destination: string,
+  senderName: string,
   sender: string,
   password: string,
   message: string,
@@ -137,6 +138,7 @@ async function _submitTx (txRequest: {
 
   // update tx data
   return _transactionHashRetrieved({
+    senderName: txRequest.senderName,
     sender: txRequest.sender,
     destination: txRequest.destination,
     transferAmount: txRequest.transferAmount,
@@ -150,6 +152,7 @@ async function _submitTx (txRequest: {
 }
 
 async function _transactionHashRetrieved (txRequest: {
+  senderName: string,
   sender: string,
   destination: string,
   transferAmount: StandardTokenUnit,
@@ -161,6 +164,7 @@ async function _transactionHashRetrieved (txRequest: {
   sendTxFeeTxHash: ?TxHash
 }) {
   let {
+    senderName,
     sender,
     destination,
     transferAmount,
@@ -174,6 +178,7 @@ async function _transactionHashRetrieved (txRequest: {
 
   let transferData: Object = {
     clientId: 'test-client',
+    senderName: senderName,
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
@@ -448,6 +453,7 @@ function submitTx (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
   password: string,
+  senderName: string,
   sender: string,
   destination: string,
   message: string,
