@@ -44,12 +44,7 @@ class NavBarComponent extends Component {
         <Toolbar>
           <Grid container justify='center' alignItems='center'>
             <Grid item className={classes.sectionContainer}>
-              <Grid
-                container
-                direction='row'
-                justify='space-between'
-                alignItems='center'
-              >
+              <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
                   <Button
                     classes={{ root: classes.homeButton }}
@@ -66,52 +61,77 @@ class NavBarComponent extends Component {
                 </Grid>
                 {profile.isAuthenticated && (
                   <Grid item>
-                    <Button
-                      aria-owns={anchorEl ? 'simple-menu' : undefined}
-                      aria-haspopup='true'
-                      onClick={this.handleToggle}
-                      id='avatarBtn'
-                      style={{ textTransform: 'none' }}
-                      disabled={disabled}
-                    >
-                      {profile &&
-                        profile.profileObj &&
-                        profile.profileObj.imageUrl
-                        ? <Avatar
-                          alt=''
-                          src={profile.profileObj.imageUrl}
-                          className={classes.avatar}
-                        />
-                        : <AccountCircle className={classes.userIcon} id='accountCircle' />
-                      }
-                      <Typography className={classes.userName}>{profile.profileObj.name}</Typography>
-                    </Button>
-                    <Menu
-                      id='simple-menu'
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={this.handleClose()}
-                    >
-                      <Container className={classes.menuContainer}>
-                        {profile &&
-                          profile.profileObj &&
-                          profile.profileObj.imageUrl
-                          ? <Avatar
-                            alt=''
-                            src={profile.profileObj.imageUrl}
-                            className={classes.avatar}
-                          />
-                          : <AccountCircle className={classes.userIcon} id='accountCircle' />
-                        }
-                        <Typography className={classes.menuItemUserName}>{profile.profileObj.name}</Typography>
-                        <Typography className={classes.menuItemEmail}>{profile.profileObj.email}</Typography>
-                        <Divider />
-                        <Button onClick={this.handleClose('logout')} id='logout' className={classes.logoutBtn}>
-                          <ExitIcon className={classes.logoutIcon} id='exitIcon' />
-                          <Typography>Logout</Typography>
+                    <Grid container alignItems='center'>
+                      <Grid item xs={12} sm='auto'>
+                        <Button className={classes.NaviBtn} component={Link} to={path.home}>
+                          Home
                         </Button>
-                      </Container>
-                    </Menu>
+                      </Grid>
+                      <Grid item xs={12} sm='auto'>
+                        <Button className={classes.NaviBtn} component={Link} to={path.recipients}>
+                          Recipients
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12} sm='auto'>
+                        <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
+                          Drive Wallet
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12} sm='auto'>
+                        <Button
+                          aria-owns={anchorEl ? 'simple-menu' : undefined}
+                          aria-haspopup='true'
+                          onClick={this.handleToggle}
+                          id='avatarBtn'
+                          style={{ textTransform: 'none' }}
+                          disabled={disabled}
+                        >
+                          {profile && profile.profileObj && profile.profileObj.imageUrl ? (
+                            <Avatar
+                              alt=''
+                              src={profile.profileObj.imageUrl}
+                              className={classes.avatar}
+                            />
+                          ) : (
+                            <AccountCircle className={classes.userIcon} id='accountCircle' />
+                          )}
+                          <Typography>{profile.profileObj.name}</Typography>
+                        </Button>
+                        <Menu
+                          id='simple-menu'
+                          anchorEl={anchorEl}
+                          open={Boolean(anchorEl)}
+                          onClose={this.handleClose()}
+                        >
+                          <Container className={classes.menuContainer}>
+                            {profile && profile.profileObj && profile.profileObj.imageUrl ? (
+                              <Avatar
+                                alt=''
+                                src={profile.profileObj.imageUrl}
+                                className={classes.avatar}
+                              />
+                            ) : (
+                              <AccountCircle className={classes.userIcon} id='accountCircle' />
+                            )}
+                            <Typography className={classes.menuItemUserName}>
+                              {profile.profileObj.name}
+                            </Typography>
+                            <Typography className={classes.menuItemEmail}>
+                              {profile.profileObj.email}
+                            </Typography>
+                            <Divider />
+                            <Button
+                              onClick={this.handleClose('logout')}
+                              id='logout'
+                              className={classes.logoutBtn}
+                            >
+                              <ExitIcon className={classes.logoutIcon} id='exitIcon' />
+                              <Typography>Logout</Typography>
+                            </Button>
+                          </Container>
+                        </Menu>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 )}
               </Grid>
@@ -156,9 +176,11 @@ const styles = theme => ({
     direction: 'row',
     alignItems: 'center'
   },
-  userName: {
+  NaviBtn: {
     color: baseColors.blue.b400,
-    fontWeight: '400'
+    fontWeight: '500',
+    textTransform: 'none',
+    fontSize: '14px'
   },
   menuItemUserName: {
     color: '#3a4b6c',

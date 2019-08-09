@@ -46,9 +46,11 @@ export default function (state = initialState, action) {
       }
     case 'GENERATE_SECURITY_ANSWER':
       return update(state, { transferForm: { password: { $set: action.payload } } })
+    case 'CLEAR_TRANSFER_FORM':
     case 'BACK_TO_HOME':
       return initialState
-    default: // need this for default case
+    default:
+      // need this for default case
       return state
   }
 }

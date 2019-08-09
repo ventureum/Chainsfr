@@ -40,9 +40,12 @@ export default function (state = initState, action) {
     case 'GET_RECIPIENTS_FULFILLED':
     case 'ADD_RECIPIENT_FULFILLED':
     case 'REMOVE_RECIPIENT_FULFILLED':
+    case 'EDIT_RECIPIENT_FULFILLED':
       return update(state, {
         recipients: {
-          $set: action.payload.sort((itemA, itemB) => (itemA.name <= itemB.name ? -1 : 1))
+          $set: Array.isArray(action.payload)
+            ? action.payload.sort((itemA, itemB) => (itemA.name <= itemB.name ? -1 : 1))
+            : []
         }
       })
     default:

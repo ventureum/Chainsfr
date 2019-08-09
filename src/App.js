@@ -9,6 +9,7 @@ import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
 import WalletContainer from './containers/WalletContainer'
+import RecipientsContainer from './containers/RecipientsContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
@@ -74,29 +75,35 @@ const StyledCookieConsent = () => {
 
 const DefaultLayout = ({ component: Component, ...rest }) => {
   return (
-    <Route {...rest} render={matchProps => (
-      <div style={defaultLayoutStyle}>
-        <StyledCookieConsent />
-        <NaviBar {...matchProps} />
-        <div style={componentStyle}>
-          <Component {...matchProps} />
+    <Route
+      {...rest}
+      render={matchProps => (
+        <div style={defaultLayoutStyle}>
+          <StyledCookieConsent />
+          <NaviBar {...matchProps} />
+          <div style={componentStyle}>
+            <Component {...matchProps} />
+          </div>
+          <NotifierComponent />
+          <Footer />
         </div>
-        <NotifierComponent />
-        <Footer />
-      </div>
-    )} />
+      )}
+    />
   )
 }
 
 const LoginLayout = ({ component: Component, ...rest }) => {
   return (
-    <Route {...rest} render={matchProps => (
-      <div style={loginLayoutStyle}>
-        <StyledCookieConsent />
-        <Component {...matchProps} />
-        <NotifierComponent />
-      </div>
-    )} />
+    <Route
+      {...rest}
+      render={matchProps => (
+        <div style={loginLayoutStyle}>
+          <StyledCookieConsent />
+          <Component {...matchProps} />
+          <NotifierComponent />
+        </div>
+      )}
+    />
   )
 }
 
@@ -120,23 +127,42 @@ class App extends Component {
     return (
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <SnackbarProvider action={[
-            <IconButton
-              key='close'
-              aria-label='Close'
-              color='inherit'
-            >
-              <CloseIcon />
-            </IconButton>
-          ]}>
+          <SnackbarProvider
+            action={[
+              <IconButton key='close' aria-label='Close' color='inherit'>
+                <CloseIcon />
+              </IconButton>
+            ]}
+          >
             <ConnectedRouter history={history}>
               <Switch>
-                <LoginLayout path={paths.login} component={userIsNotAuthenticated(LoginContainer)} />
-                <DefaultLayout exact path={paths.home} component={userIsAuthenticated(LandingPage)} />
-                <DefaultLayout exact path={paths.wallet} component={userIsAuthenticated(WalletContainer)} />
-                <DefaultLayout path={`${paths.transfer}`} component={userIsAuthenticated(TransferContainer)} />
+                <LoginLayout
+                  path={paths.login}
+                  component={userIsNotAuthenticated(LoginContainer)}
+                />
+                <DefaultLayout
+                  exact
+                  path={paths.home}
+                  component={userIsAuthenticated(LandingPage)}
+                />
+                <DefaultLayout
+                  exact
+                  path={paths.wallet}
+                  component={userIsAuthenticated(WalletContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.transfer}`}
+                  component={userIsAuthenticated(TransferContainer)}
+                />
                 <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
-                <DefaultLayout path={`${paths.cancel}`} component={userIsAuthenticated(CancelContainer)} />
+                <DefaultLayout
+                  path={`${paths.cancel}`}
+                  component={userIsAuthenticated(CancelContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.recipients}`}
+                  component={userIsAuthenticated(RecipientsContainer)}
+                />
               </Switch>
             </ConnectedRouter>
           </SnackbarProvider>

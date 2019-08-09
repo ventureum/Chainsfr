@@ -12,11 +12,11 @@ import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getTxFee } from '../actions/transferActions'
-import { getRecipients } from '../actions/userActions'
+import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import WalletUtils from '../wallets/utils'
-import AddRecipientDialog from './AddRecipientDialogContainer'
+import { AddRecipientDialog } from '../components/RecipientActionComponents'
 
 type Props = {
   updateTransferForm: Function,
@@ -33,26 +33,39 @@ type Props = {
 }
 
 type State = {
-  openAddNewRecipient: boolean
+  openAddRecipientDialog: boolean
 }
 const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
 class TransferFormContainer extends Component<Props, State> {
-  state = { openAddNewRecipient: false }
+  state = { openAddRecipientDialog: false }
 
   componentDidMount () {
-    let { profile, transferForm, updateTransferForm, getRecipients } = this.props
+    let {
+      profile,
+      transferForm,
+      updateTransferForm,
+      getRecipients,
+      destinationPrefilled
+    } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
-      // prefill sender's email address for authenticated user
-      updateTransferForm(update(transferForm, { sender: { $set: profile.profileObj.email } }))
       // prefill sender's name and email address for authenticated user
-      updateTransferForm(update(transferForm, {
-        sender: { $set: profile.profileObj.email },
-        senderName: { $set: profile.profileObj.name }
-      }))
+      updateTransferForm(
+        update(transferForm, {
+          sender: { $set: profile.profileObj.email },
+          senderName: { $set: profile.profileObj.name },
+          destination: { $set: destinationPrefilled }
+        })
+      )
       getRecipients()
     }
+  }
+
+  toggleAddRecipientDialog = action => {
+    this.setState({
+      openAddRecipientDialog: !this.state.openAddRecipientDialog
+    })
   }
 
   componentDidUpdate (prevProps) {
@@ -73,6 +86,13 @@ class TransferFormContainer extends Component<Props, State> {
           }
         })
       )
+    }
+    if (
+      prevProps.actionsPending.addRecipient &&
+      !this.props.actionsPending.addRecipient &&
+      !this.props.error
+    ) {
+      this.toggleAddRecipientDialog()
     }
   }
 
@@ -208,7 +228,14 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   render () {
-    const { wallet, cryptoPrice, cryptoSelection, currency } = this.props
+    const {
+      wallet,
+      cryptoPrice,
+      cryptoSelection,
+      currency,
+      actionsPending,
+      addRecipient
+    } = this.props
     const balance = wallet.crypto[cryptoSelection][0].balance || '0'
     const balanceAmount = utils.toHumanReadableUnit(balance, getCryptoDecimals(cryptoSelection))
     const balanceCurrencyAmount = utils.toCurrencyAmount(
@@ -225,19 +252,22 @@ class TransferFormContainer extends Component<Props, State> {
           validateForm={this.validateForm}
           balanceAmount={balanceAmount}
           balanceCurrencyAmount={balanceCurrencyAmount}
-          addRecipient={() => this.setState({ openAddNewRecipient: true })}
+          addRecipient={() => this.toggleAddRecipientDialog()}
         />
         <AddRecipientDialog
-          open={this.state.openAddNewRecipient}
-          onClose={() => this.setState({ openAddNewRecipient: false })}
+          open={this.state.openAddRecipientDialog}
+          handleClose={() => this.toggleAddRecipientDialog()}
+          handleSubmit={addRecipient}
+          loading={actionsPending.addRecipient}
         />
       </>
     )
   }
 }
 const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
-const errorSelector = createErrorSelector(['GET_TX_COST'])
+const errorSelector = createErrorSelector(['GET_TX_COST', 'ADD_RECIPIENT'])
 const getRecipientsSelector = createLoadingSelector(['GET_RECIPIENTS'])
+const addRecipientSelector = createLoadingSelector(['ADD_RECIPIENT'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -246,7 +276,8 @@ const mapDispatchToProps = dispatch => {
     clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
     goToStep: n => dispatch(goToStep('send', n)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
-    getRecipients: () => dispatch(getRecipients())
+    getRecipients: () => dispatch(getRecipients()),
+    addRecipient: recipient => dispatch(addRecipient(recipient))
   }
 }
 
@@ -263,7 +294,8 @@ const mapStateToProps = state => {
     recipients: state.userReducer.recipients,
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
-      getRecipients: getRecipientsSelector(state)
+      getRecipients: getRecipientsSelector(state),
+      addRecipient: addRecipientSelector(state)
     },
     error: errorSelector(state)
   }

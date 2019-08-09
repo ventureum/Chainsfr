@@ -4,7 +4,8 @@ const paths = {
   wallet: '/wallet',
   transfer: '/send',
   receive: '/receive',
-  cancel: '/cancel'
+  cancel: '/cancel',
+  recipients: '/recipients'
 }
 
 export default paths
