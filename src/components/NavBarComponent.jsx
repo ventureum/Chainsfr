@@ -28,7 +28,6 @@ class NavBarComponent extends Component {
 
   handleClose = action => event => {
     if (action === 'logout') {
-      this.props.clearWalleState()
       this.props.onLogout()
     }
 
