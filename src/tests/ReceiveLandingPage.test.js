@@ -57,10 +57,6 @@ describe('ReceiveLandingPageComponent render', () => {
     expect(toJson(wrapper.render())).toMatchSnapshot()
   })
 
-  it('Not logined, not received', () => {
-    expect(wrapper.find(Button).filter('#loginGoogle')).toHaveLength(1)
-  })
-
   it('Logined, not received', () => {
     wrapper.setProps({ isAuthenticated: true })
     expect(wrapper.find(Button).filter('#accept')).toHaveLength(1)

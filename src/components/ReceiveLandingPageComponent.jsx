@@ -8,44 +8,22 @@ import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import MuiLink from '@material-ui/core/Link'
-import { Link } from 'react-router-dom'
-import Paths from '../Paths.js'
 import { getCryptoSymbol } from '../tokens'
 
 class ReceiveLandingPageComponent extends Component {
   renderBtnSection = () => {
-    let { isAuthenticated, transfer } = this.props
-    let { receivingId } = transfer
-
-    if (isAuthenticated) {
-      // show 'Accept' button only for authenticated users
-      return (
-        <Grid item>
-          <Button
-            variant='outlined'
-            color='primary'
-            onClick={() => this.props.goToStep(1)}
-            id='accept'
-          >
-            Accept
-          </Button>
-        </Grid>
-      )
-    } else {
-      return (
-        <Grid item>
-          <Button
-            variant='contained'
-            color='primary'
-            component={Link}
-            to={`${Paths.login}/?redirect=%2Freceive?id=${receivingId}`}
-            id='loginGoogle'
-          >
-            Login with Google To Accept
-          </Button>
-        </Grid>
-      )
-    }
+    return (
+      <Grid item>
+        <Button
+          variant='outlined'
+          color='primary'
+          onClick={() => this.props.goToStep(1)}
+          id='accept'
+        >
+          Accept
+        </Button>
+      </Grid>
+    )
   }
 
   render () {
