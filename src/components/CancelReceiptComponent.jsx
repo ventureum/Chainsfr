@@ -14,7 +14,7 @@ import url from '../url'
 class CancelReceiptComponent extends Component {
   render () {
     const { classes, receipt, txFee, backToHome, cancelTime, toCurrencyAmount } = this.props
-    const { sendingId, transferAmount, cryptoType, cancelTxHash } = receipt
+    const { sendingId, transferAmount, cryptoType, cancelTxHash, cancelMessage } = receipt
 
     const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
       ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
@@ -56,7 +56,9 @@ class CancelReceiptComponent extends Component {
                   </Typography>
                   <Grid container direction='column'>
                     <Typography className={classes.reviewContentAmount} align='left'>
-                      {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                      {`${txFee.costInStandardUnit} ${getCryptoSymbol(
+                        getTxFeesCryptoType(cryptoType)
+                      )}`}
                     </Typography>
                     <Typography className={classes.reviewContentCurrencyAmount} align='left'>
                       ≈ {toCurrencyAmount(txFee.costInStandardUnit)}
@@ -68,11 +70,19 @@ class CancelReceiptComponent extends Component {
                     You will receive*
                   </Typography>
                   <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left' id='receiveAmount'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                      id='receiveAmount'
+                    >
                       {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left' id='receiveCurrencyAmount'>
-                        ≈ { toCurrencyAmount(receiveAmount) }
+                    <Typography
+                      className={classes.reviewContentCurrencyAmount}
+                      align='left'
+                      id='receiveCurrencyAmount'
+                    >
+                      ≈ {toCurrencyAmount(receiveAmount)}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -84,10 +94,24 @@ class CancelReceiptComponent extends Component {
                     {cancelTime}
                   </Typography>
                 </Grid>
+                {cancelMessage &&
+                cancelMessage.length > 0 && ( // only show message when available
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                        Cancel message
+                    </Typography>
+                    <Typography className={classes.reviewContentMessage} align='left'>
+                      {cancelMessage}
+                    </Typography>
+                  </Grid>
+                )}
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
-                    It may takes a few minutes to complete the transaction. You can track the transaction
-                    <MuiLink target='_blank' rel='noopener'
+                    It may takes a few minutes to complete the transaction. You can track the
+                    transaction
+                    <MuiLink
+                      target='_blank'
+                      rel='noopener'
                       href={url.getExplorerTx(receipt.cryptoType, cancelTxHash)}
                     >
                       {' here'}
@@ -117,7 +141,8 @@ class CancelReceiptComponent extends Component {
             </Grid>
           </Grid>
         </Grid>
-      </Grid>)
+      </Grid>
+    )
   }
 }
 
@@ -179,6 +204,14 @@ const styles = theme => ({
   iconBtn: {
     padding: '0',
     marginLeft: '16px'
+  },
+  reviewContentMessage: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word'
   }
 })
 

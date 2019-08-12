@@ -1,4 +1,3 @@
-
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
@@ -31,14 +30,15 @@ const initialProps = {
     sendTxState: 'Confirmed',
     sender: 'clzhong@ventureum.io',
     transferAmount: '0.001',
-    cryptoType: 'ethereum'
+    cryptoType: 'ethereum',
+    cancelMessage: ''
   },
-  escrowWallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
+  escrowWallet: { crypto: { ethereum: [{ address: '0x0' }] } },
   sendTime: 'May 27th 2019, 12:43:06',
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
   cancelTransfer: () => {},
-  toCurrencyAmount: (cryptoAmount) => '100.234 USD'
+  toCurrencyAmount: cryptoAmount => '100.234 USD'
 }
 let wrapper
 
@@ -53,30 +53,89 @@ describe('CancelReviewComponent render', () => {
 
   it('initial render', () => {
     const { transferAmount, sender, destination } = initialProps.transfer
-    expect(wrapper.find(Typography).filter('#sender').text()).toEqual(sender)
-    expect(wrapper.find(Typography).filter('#destination').text()).toEqual(destination)
-    expect(wrapper.find(Typography).filter('#transferAmount').text()).toEqual(`${transferAmount} ETH`)
-    expect(wrapper.find(Typography).filter('#sendTime').text()).toEqual(initialProps.sendTime)
-    expect(wrapper.find(Typography).filter('#title').text()).toEqual('Transfer details')
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#sender')
+        .text()
+    ).toEqual(sender)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#destination')
+        .text()
+    ).toEqual(destination)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#transferAmount')
+        .text()
+    ).toEqual(`${transferAmount} ETH`)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#sendTime')
+        .text()
+    ).toEqual(initialProps.sendTime)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#title')
+        .text()
+    ).toEqual('Transfer details')
   })
 
   it('received', () => {
     const receiveTime = 'May 27th 2019, 12:43:06'
     const receiveTxHash = '0x55f72c0e1fff27d70569bc369f49ca7c2f1f27b59a57c538fcd70ac55719b1c5'
-    wrapper.setProps(update(initialProps, { receiveTime: { $set: receiveTime }, transfer: { receiveTxHash: { $set: receiveTxHash } } }))
-    expect(wrapper.find(Typography).filter('#title').text()).toEqual('Transfer has been received')
-    expect(wrapper.find(Typography).filter('#actionTime').text()).toEqual(receiveTime)
-    expect(wrapper.find(MuiLink).prop('href')).toEqual(`https://rinkeby.etherscan.io/tx/${receiveTxHash}`)
+    wrapper.setProps(
+      update(initialProps, {
+        receiveTime: { $set: receiveTime },
+        transfer: { receiveTxHash: { $set: receiveTxHash } }
+      })
+    )
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#title')
+        .text()
+    ).toEqual('Transfer has been received')
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#actionTime')
+        .text()
+    ).toEqual(receiveTime)
+    expect(wrapper.find(MuiLink).prop('href')).toEqual(
+      `https://rinkeby.etherscan.io/tx/${receiveTxHash}`
+    )
     expect(wrapper.find(Button).filter('#cancel')).toHaveLength(0)
   })
 
   it('cancel', () => {
     const cancelTime = 'May 27th 2019, 12:43:06'
     const cancelTxHash = '0x55f72c0e1fff27d70569bc369f49ca7c2f1f27b59a57c538fcd70ac55719b1c5'
-    wrapper.setProps(update(initialProps, { cancelTime: { $set: cancelTime }, transfer: { cancelTxHash: { $set: cancelTxHash } } }))
-    expect(wrapper.find(Typography).filter('#title').text()).toEqual('Transfer has already been cancelled')
-    expect(wrapper.find(Typography).filter('#actionTime').text()).toEqual(cancelTime)
-    expect(wrapper.find(MuiLink).prop('href')).toEqual(`https://rinkeby.etherscan.io/tx/${cancelTxHash}`)
+    wrapper.setProps(
+      update(initialProps, {
+        cancelTime: { $set: cancelTime },
+        transfer: { cancelTxHash: { $set: cancelTxHash } }
+      })
+    )
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#title')
+        .text()
+    ).toEqual('Transfer has already been cancelled')
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#actionTime')
+        .text()
+    ).toEqual(cancelTime)
+    expect(wrapper.find(MuiLink).prop('href')).toEqual(
+      `https://rinkeby.etherscan.io/tx/${cancelTxHash}`
+    )
     expect(wrapper.find(Button).filter('#cancel')).toHaveLength(0)
   })
 
@@ -111,27 +170,41 @@ describe('CancelReviewComponent interaction', () => {
     const props = { ...initialProps, cancelTransfer: mockFunction }
     wrapper = mount(shallow(<CancelReview {...props} />).get(0))
 
-    wrapper.find(Button).filter('#cancel').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#cancel')
+      .simulate('click')
     // force update
     wrapper.update()
     expect(wrapper.state('open')).toEqual(true)
     // check if the modal is rendered
     expect(wrapper.find(Button).someWhere(b => b.text() === 'Let me think again')).toEqual(true)
 
-    wrapper.find(Button).filter('#confirmCancel').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#confirmCancel')
+      .simulate('click')
     expect(mockFunction.mock.calls[0][0]).toEqual({
-      escrowWallet: WalletUtils.toWalletDataFromState('escrow', initialProps.transfer.cryptoType, initialProps.escrowWallet),
+      escrowWallet: WalletUtils.toWalletDataFromState(
+        'escrow',
+        initialProps.transfer.cryptoType,
+        initialProps.escrowWallet
+      ),
       sendingId: initialProps.transfer.sendingId,
       sendTxHash: initialProps.transfer.sendTxHash,
       transferAmount: initialProps.transfer.transferAmount,
-      txFee: initialProps.txFee
+      txFee: initialProps.txFee,
+      cancelMessage: ''
     })
 
     wrapper.setProps(update(initialProps, { actionsPending: { cancelTransfer: { $set: true } } }))
     expect(wrapper.find(CircularProgress)).toHaveLength(1)
 
     // close modal
-    wrapper.find(Button).filter('#close').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#close')
+      .simulate('click')
     expect(wrapper.state('open')).toEqual(false)
   })
 })

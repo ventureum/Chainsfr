@@ -46,12 +46,13 @@ async function accept ({ clientId, receivingId, receiveTxHash }) {
   return apiResponse.data
 }
 
-async function cancel ({ clientId, sendingId, cancelTxHash }) {
+async function cancel ({ clientId, sendingId, cancelTxHash, cancelMessage }) {
   let apiResponse = await apiTransfer.post('/transfer', {
     action: 'CANCEL',
     clientId: clientId,
     sendingId: sendingId,
-    cancelTxHash: cancelTxHash
+    cancelTxHash: cancelTxHash,
+    cancelMessage: cancelMessage
   })
   return apiResponse.data
 }
