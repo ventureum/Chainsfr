@@ -11,21 +11,26 @@ export default function errorMiddleware (store) {
       }
 
       return next(action).catch(error => {
-        let message
+        let message = ''
         if (typeof error === 'string') {
           message = error
-        } else if (typeof error === 'object') {
-          message = `Unknow error: ${JSON.stringify(error)}`
+        } else if (error instanceof Error) {
+          message = error.toString()
         } else {
-          message = error.message
+          message = `Unknow error: ${error}`
         }
-        store.dispatch(enqueueSnackbar({
-          message: message,
-          options: {
-            variant: 'error',
-            autoHideDuration: 60000
-          }
-        }))
+        if (message.length > 120) {
+          message = message.slice(0, 120) + '...'
+        }
+        store.dispatch(
+          enqueueSnackbar({
+            message: message,
+            options: {
+              variant: 'error',
+              autoHideDuration: 60000
+            }
+          })
+        )
         throw error
       })
     } else {

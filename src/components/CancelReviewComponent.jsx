@@ -9,23 +9,37 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import TextField from '@material-ui/core/TextField'
 import WalletUtils from '../wallets/utils'
 
 class CancelReviewComponent extends Component {
   state = {
-    open: false
+    open: false,
+    cancelMessage: ''
   }
 
   handleReviewNext = () => {
     const { transfer, escrowWallet, txFee } = this.props
     const { sendingId, sendTxHash, transferAmount, cryptoType } = transfer
+    const { cancelMessage } = this.state
     this.props.cancelTransfer({
       escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
       sendingId: sendingId,
       sendTxHash: sendTxHash,
       transferAmount: transferAmount,
-      txFee: txFee
+      txFee: txFee,
+      cancelMessage: cancelMessage
     })
+  }
+
+  handleInputChange = name => event => {
+    let _cancelMessage = this.state.cancelMessage
+    if (name === 'message') {
+      _cancelMessage = event.target.value
+      // removes whitespaces at the beginning
+      _cancelMessage = _cancelMessage.replace(/^\s+/g, '')
+    }
+    this.setState({ cancelMessage: _cancelMessage })
   }
 
   handleModalOpen = () => {
@@ -38,7 +52,7 @@ class CancelReviewComponent extends Component {
 
   renderModal = () => {
     let { classes, actionsPending } = this.props
-
+    let { cancelMessage } = this.state
     return (
       <Dialog
         aria-labelledby='cancel-dialog-title'
@@ -48,19 +62,27 @@ class CancelReviewComponent extends Component {
         <DialogTitle id='cancel-dialog-title'>
           <Typography className={classes.modalTitle}>Cancel Transfer</Typography>
         </DialogTitle>
-        <Grid
-          container
-          direction='column'
-          justify='center'
-          alignItems='center'
-          className={classes.modalContainer}
-        >
+        <Grid container direction='column' justify='center' className={classes.modalContainer}>
           <Grid item className={classes.modalDescSection}>
             <Typography className={classes.modalDesc}>
               You are going to cancel the arranged transfer. Recepient will receive an email
               notification and won’t be able to accept the transfer anymore. Gas fee will be
               applied.
             </Typography>
+          </Grid>
+          <Grid item>
+            <TextField
+              fullWidth
+              id='message'
+              label='Message (Optional)'
+              className={classes.textField}
+              margin='normal'
+              variant='outlined'
+              error={cancelMessage.length > 72}
+              onChange={this.handleInputChange('message')}
+              value={cancelMessage || ''}
+              inputProps={{ maxLength: 72 }} // message max length
+            />
           </Grid>
           <Grid item className={classes.modalBtnSection}>
             <Grid container direction='row' justify='flex-end' alignItems='center'>
@@ -118,7 +140,8 @@ class CancelReviewComponent extends Component {
         senderName,
         sender,
         destination,
-        cryptoType
+        cryptoType,
+        cancelMessage
       } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
@@ -223,6 +246,17 @@ class CancelReviewComponent extends Component {
                     <Typography className={classes.reviewContent} align='left' id='actionTime'>
                       {hasReceived && receiveTime}
                       {hasCancelled && cancelTime}
+                    </Typography>
+                  </Grid>
+                )}
+                {cancelMessage &&
+                cancelMessage.length > 0 && ( // only show message when available
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                        Cancel message
+                    </Typography>
+                    <Typography className={classes.reviewContentMessage} align='left'>
+                      {cancelMessage}
                     </Typography>
                   </Grid>
                 )}
@@ -363,6 +397,15 @@ const styles = theme => ({
   wrapper: {
     margin: theme.spacing(1),
     position: 'relative'
+  },
+
+  reviewContentMessage: {
+    color: '#333333',
+    fontSize: '18px',
+    lineHeight: '24px',
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word'
   }
 })
 

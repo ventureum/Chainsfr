@@ -23,7 +23,7 @@ class CancelReceiptContainer extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    goToStep: (n) => dispatch(goToStep('cancel', n)),
+    goToStep: n => dispatch(goToStep('cancel', n)),
     backToHome: () => dispatch(backToHome())
   }
 }
