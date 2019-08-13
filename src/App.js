@@ -154,7 +154,10 @@ class App extends Component {
                   path={`${paths.transfer}`}
                   component={userIsAuthenticated(TransferContainer)}
                 />
-                <DefaultLayout path={`${paths.receive}`} component={ReceiveContainer} />
+                <DefaultLayout
+                  path={`${paths.receive}`}
+                  component={userIsAuthenticated(ReceiveContainer)}
+                />
                 <DefaultLayout
                   path={`${paths.cancel}`}
                   component={userIsAuthenticated(CancelContainer)}
