@@ -1,5 +1,10 @@
-import { fontFamily, fontWeight, fontSize } from './base'
+import { fontFamily, fontWeight, fontSize, textTransform } from './base'
 import { fontColors, uiColors } from './color'
+
+export const baseFont = {
+  fontFamily: fontFamily.fontFamily,
+  fontSize: fontSize.base
+}
 
 export const headers = {
   h1: {
@@ -7,7 +12,8 @@ export const headers = {
     fontWeight: fontWeight.semiBold,
     fontSize: fontSize.xl.size,
     lineHeight: fontSize.xl.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.titleCase
   },
 
   h2: {
@@ -15,7 +21,8 @@ export const headers = {
     fontWeight: fontWeight.semiBold,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.titleCase
   },
 
   h3: {
@@ -23,7 +30,8 @@ export const headers = {
     fontWeight: fontWeight.semiBold,
     fontSize: fontSize.m.size,
     lineHeight: fontSize.m.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.titleCase
   },
 
   h4: {
@@ -31,7 +39,18 @@ export const headers = {
     fontWeight: fontWeight.semiBold,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.titleCase
+  },
+
+  // table header
+  h6: {
+    fontFamily: fontFamily.fontFamily,
+    fontWeight: fontWeight.semiBold,
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.titleCase
   }
 
 }
@@ -43,15 +62,17 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
-    color: fontColors.secondary
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   },
 
   d2: {
     fontFamily: fontFamily.fontFamily,
     fontWeight: fontWeight.regular,
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
-    color: fontColors.primary
+    fontSize: fontSize.m.size,
+    lineHeight: fontSize.m.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   },
 
   d3: {
@@ -59,7 +80,8 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.m.size,
     lineHeight: fontSize.m.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.default
   },
 
   d4: {
@@ -67,56 +89,53 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
-    color: fontColors.primary
+    color: fontColors.primary,
+    textTransform: textTransform.default
+  },
+
+  d5: {
+    fontFamily: fontFamily.fontFamily,
+    fontWeight: fontWeight.regular,
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
+    color: fontColors.secondary,
+    textTransform: textTransform.default
   }
 }
 
 export const textValues = {
-  textDefault: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
-    color: fontColors.secondary
-  },
-
-  textLarge: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
-    fontSize: fontSize.l.size,
-    lineHeight: fontSize.l.lineHeight,
+  fontFamily: fontFamily.fontFamily,
+  fontWeight: fontWeight.regular,
+  default: {
+    fontSize: fontSize.s.size,
+    lineHeight: fontSize.s.lineHeight,
     color: fontColors.primary
   },
-
-  textSmall: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
-    fontSize: fontSize.m.size,
-    lineHeight: fontSize.m.lineHeight,
+  large: {
+  },
+  small: {
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
     color: fontColors.primary
   }
 }
 
 export const labels = {
+  fontFamily: fontFamily.fontFamily,
+  fontWeight: fontWeight.regular,
   labelDefault: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
     color: fontColors.secondary
   },
 
   labelLarge: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
     color: fontColors.secondary
   },
 
   labelSmall: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.regular,
     fontSize: fontSize.l.size,
     lineHeight: fontSize.l.lineHeight,
     color: fontColors.primary
@@ -124,40 +143,32 @@ export const labels = {
 }
 
 export const btnTexts = {
+  fontFamily: fontFamily.fontFamily,
+  fontWeight: fontWeight.semiBold,
+  textTransform: textTransform.titleCase,
   btnTextLight: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.semiBold,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
     color: fontColors.white
   },
   btnTextLightSmall: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.semiBold,
     fontSize: fontSize.xs.size,
     lineHeight: fontSize.xs.lineHeight,
     color: fontColors.white
   },
   btnTextDark: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.semiBold,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
     color: fontColors.black
   },
   btnTextLink: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.semiBold,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
     color: uiColors.primary
   },
   btnTextPrimary: {
-    fontFamily: fontFamily.fontFamily,
-    fontWeight: fontWeight.semiBold,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
     color: uiColors.primary
   }
-
 }
