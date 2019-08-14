@@ -17,6 +17,7 @@ import type {
 } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
+import WalletUtils from './utils'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
@@ -166,8 +167,17 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       // retrieve the first address from ledger
       let account = this.getAccount(DEFAULT_ACCOUNT)
       let { address, xpub } = await this.ledger.getBtcAddresss(DEFAULT_ACCOUNT)
-      account.address = address
-      account.hdWalletVariables.xpub = xpub
+      if (account.hdWalletVariables.xpub !== xpub) {
+        // if xpub does not match, reset watllet data
+        // $FlowFixMe
+        let newWalletData: WalletDataBitcoin = WalletUtils.toWalletData(walletType, 'bitcoin', [])
+        this.walletData = newWalletData
+        this.walletData.accounts[DEFAULT_ACCOUNT].address = address
+        this.walletData.accounts[DEFAULT_ACCOUNT].hdWalletVariables.xpub = xpub
+      } else {
+        account.address = address
+        account.hdWalletVariables.xpub = xpub
+      }
     } else {
       throw new Error(`Cannot retrieve address for ${walletType}`)
     }

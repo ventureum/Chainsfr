@@ -116,7 +116,16 @@ class TransferFormContainer extends Component<Props, State> {
     )
   }
 
-  validate = (name, value) => {
+  crossCheck = (stringA, stringB) => {
+    let _stringA = stringA.split(' ')
+    let _stringB = stringB.split(' ')
+    // check if there is a word in stringA appears in stringB
+    return _stringA.reduce((accumulator, currentValue) => {
+      return accumulator || (_stringB.includes(currentValue) && currentValue !== '')
+    }, false)
+  }
+
+  validate = (name, value, transferForm) => {
     const { wallet, cryptoSelection, txFee } = this.props
     let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
     const decimals = getCryptoDecimals(cryptoSelection)
@@ -169,9 +178,16 @@ class TransferFormContainer extends Component<Props, State> {
       if (!validator.isLength(value, { min: 6, max: undefined })) {
         return 'Length must be greater or equal than 6'
       }
+      if (this.crossCheck(value, transferForm['message'])) {
+        return 'Security answer cannot contain words from the message'
+      }
     } else if (name === 'senderName') {
       if (!validator.isLength(value, { min: 1, max: undefined })) {
         return 'Name is required'
+      }
+    } else if (name === 'message') {
+      if (this.crossCheck(value, transferForm['password'])) {
+        return 'Message cannot contain words from the security answer'
       }
     }
     return null
@@ -188,7 +204,7 @@ class TransferFormContainer extends Component<Props, State> {
 
     let _transferForm = update(transferForm, {
       [name]: { $set: event.target.value },
-      formError: { [name]: { $set: this.validate(name, event.target.value) } }
+      formError: { [name]: { $set: this.validate(name, event.target.value, transferForm) } }
     })
 
     if (name === 'message') {
@@ -220,6 +236,24 @@ class TransferFormContainer extends Component<Props, State> {
         transferAmount: { $set: transferAmountVal.toString() },
         formError: {
           transferAmount: { $set: this.validate('transferAmount', transferAmountVal.toString()) }
+        }
+      })
+    }
+
+    if (name === 'message') {
+      const password = _transferForm['password']
+      _transferForm = update(_transferForm, {
+        formError: {
+          password: { $set: this.validate('password', password, _transferForm) }
+        }
+      })
+    }
+
+    if (name === 'password') {
+      const message = _transferForm['message']
+      _transferForm = update(_transferForm, {
+        formError: {
+          message: { $set: this.validate('message', message, _transferForm) }
         }
       })
     }
