@@ -125,6 +125,7 @@ class TransferFormComponent extends Component<Props> {
               }
               onChange={handleTransferFormChange('sender')}
               value={sender}
+              disabled
             />
           </Grid>
           <Grid item>
