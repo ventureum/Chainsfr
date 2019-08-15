@@ -130,11 +130,11 @@ class TransferFormComponent extends Component<Props> {
           </Grid>
           <Grid item>
             <FormControl className={classes.formControl} variant='outlined'>
-              <InputLabel htmlFor='destination-helper'>Destination</InputLabel>
+              <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>
               <Select
                 value={destination}
                 onChange={handleTransferFormChange('destination')}
-                input={<OutlinedInput labelWidth={85} name='destination' />}
+                input={<OutlinedInput labelWidth={125} name='Select Recipient' />}
                 error={!!formError.destination}
                 id={'destination'}
               >
