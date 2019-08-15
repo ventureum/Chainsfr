@@ -107,7 +107,9 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
           }
         ],
         lastBlockHeight: 0,
-        lastUpdate: 0
+        lastUpdate: 0,
+        endAddressIndex: 0,
+        endChangeIndex: 0
       }
     }
 
@@ -219,14 +221,27 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       )
 
       // 2. update addresses
+      const firstSync = hdWalletVariables.addresses.length === 0
+
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
+      hdWalletVariables.endAddressIndex = externalAddressData.endIndex
+
       hdWalletVariables.nextChangeIndex = internalAddressData.nextIndex
-      addressPool = [...externalAddressData.addresses, ...internalAddressData.addresses]
+      hdWalletVariables.endChangeIndex = internalAddressData.endIndex
+
+      addressPool = [
+        ...externalAddressData.addresses.slice(
+          externalAddressData.endIndex - externalAddressData.nextIndex - (firstSync ? 20 : 0)
+        ),
+        ...internalAddressData.addresses.slice(
+          internalAddressData.endIndex - internalAddressData.nextIndex - (firstSync ? 20 : 0)
+        )
+      ]
 
       // append discovered addresses to the old address pool
       hdWalletVariables.addresses.push(...addressPool)
     }
-    // console.log(hdWalletVariables)
+
     // retrieve utxos and calcualte balance for each address
     let utxoData = await Promise.all(
       hdWalletVariables.addresses.map(async addressData => {
@@ -473,7 +488,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     change: number,
     offset: number,
     progress: ?Function
-  ): Promise<{ nextIndex: number, addresses: Array<Address> }> => {
+  ): Promise<{ nextIndex: number, addresses: Array<Address>, endIndex: number }> => {
     let gap = 0
     let addresses: Array<AddressBitcoin> = []
     let currentIdx = offset
@@ -494,11 +509,13 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       }
       addresses.push({ address: address, path: addressPath, utxos: [] })
       currentIdx++
+
       if (progress) progress(lastUsedIdx, change)
     }
     return {
       nextIndex: lastUsedIdx + 1,
-      addresses
+      addresses,
+      endIndex: currentIdx
     }
   }
 
