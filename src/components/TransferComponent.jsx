@@ -33,13 +33,15 @@ class TransferComponent extends React.Component<Props> {
             <Grid item>
               {/* receipt page requires a different background color */}
               <Grid container direction='column' alignItems='center'>
-                <Grid item className={classes.subComponent}>
-                  {step === 0 && (
+                {step === 0 && (
+                  <Grid item className={classes.walletSelectionContainer}>
                     <WalletSelection
                       walletSelectionPrefilled={urlParams && urlParams.walletSelection}
                       cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
                     />
-                  )}
+                  </Grid>
+                )}
+                <Grid item className={classes.subComponent}>
                   {step === 1 && (
                     <TransferForm
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
@@ -67,9 +69,14 @@ const styles = theme => ({
     maxWidth: '680px',
     margin: '0px 0px 16px 0px'
   },
+  walletSelectionContainer: {
+    width: '100%',
+    maxWidth: '1080px',
+    margin: '0px 0px 16px 0px'
+  },
   sectionContainer: {
     width: '100%',
-    maxWidth: '1200px'
+    maxWidth: '1080px'
   }
 })
 

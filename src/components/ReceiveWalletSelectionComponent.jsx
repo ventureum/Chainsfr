@@ -3,16 +3,18 @@ import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
-import SquareButton from './SquareButtonComponent'
 import Button from '@material-ui/core/Button'
-import { walletSelections, walletDisabledByCrypto, getWalletTitle } from '../wallet'
+import { getWalletTitle } from '../wallet'
 import ErrorIcon from '@material-ui/icons/Error'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CheckIcon from '@material-ui/icons/CheckCircle'
 import url from '../url'
 import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
+import WalletSelectionButtons, { WalletButton } from './WalletSelectionButtons'
 
 const WalletConnectionErrorMessage = {
   metamask: 'Please make sure MetaMask is installed and authorization is accepted',
@@ -43,29 +45,46 @@ class ReceiveWalletSelectionComponent extends Component {
     )
   }
 
-  renderWalletSelection = () => {
-    const { walletType, onWalletSelected, transfer } = this.props
+  renderWalletSection = () => {
+    const { walletType, onWalletSelected, classes, transfer } = this.props
     return (
-      <Grid container direction='row' justify='center' alignItems='center'>
-        {walletSelections.map(w => (
-          <Grid item key={w.walletType}>
-            <SquareButton
-              disabled={
-                w.disabled ||
-                walletDisabledByCrypto(w.walletType, transfer.cryptoType) ||
-                this.lock()
-              }
-              onClick={() => onWalletSelected(w.walletType)}
-              logo={w.logo}
-              title={w.title}
-              desc={w.desc}
-              selected={w.walletType === walletType}
-              id={w.walletType}
-              disabledReason={w.disabledReason}
-            />
+      <Container className={classes.topSectionContainer}>
+        <Typography variant='h3' style={{ marginBottom: '10px' }}>
+          Deposit with
+        </Typography>
+        {walletType ? (
+          <Grid container spacing={3} justify='center'>
+            <Grid item className={classes.walletBtnContainer}>
+              <Grid container direction='column'>
+                <WalletButton walletType={walletType} id={walletType} />
+                <Button
+                  color='primary'
+                  style={{ alignSelf: 'center' }}
+                  onClick={() => onWalletSelected('')}
+                  disabled={this.lock()}
+                >
+                  Change
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid item xs>
+              <Grid container direction='column' alignItems='center'>
+                <Grid item style={{ width: '90%' }}>
+                  <Paper className={classes.balanceSection}>
+                    {this.renderWalletConnectionNotification()}
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Grid>
           </Grid>
-        ))}
-      </Grid>
+        ) : (
+          <WalletSelectionButtons
+            handleClick={onWalletSelected}
+            walletSelection={walletType}
+            cryptoType={transfer.cryptoType}
+          />
+        )}
+      </Container>
     )
   }
 
@@ -82,17 +101,11 @@ class ReceiveWalletSelectionComponent extends Component {
     const { cryptoType } = transfer
     if (walletType && lastUsedAddressByWalletType) {
       return (
-        <Grid
-          container
-          direction='row'
-          alignItems='center'
-          className={classes.balanceSection}
-          justify='space-between'
-        >
+        <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
               <Grid item>
-                <Typography className={classes.connectedtext}>
+                <Typography variant='body2'>
                   Last used {getWalletTitle(walletType)}{' '}
                   {walletType === 'ledger' ? 'Device' : 'Account'}
                 </Typography>
@@ -138,11 +151,9 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (actionsPending.checkLedgerDeviceConnection) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+        <Grid container direction='column' justify='center'>
           <Grid item>
-            <Typography className={classes.connectedtext}>
-              Please connect and unlock your Ledger device...
-            </Typography>
+            <Typography variant='body2'>Please connect and unlock your Ledger device...</Typography>
           </Grid>
           <Grid item>
             <LinearProgress className={classes.linearProgress} />
@@ -151,9 +162,9 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (actionsPending.checkLedgerAppConnection) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+        <Grid container direction='column' justify='center'>
           <Grid item>
-            <Typography className={classes.connectedtext}>
+            <Typography variant='body2'>
               Please navigate to selected crypto on your Ledger device...
             </Typography>
           </Grid>
@@ -164,11 +175,9 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (actionsPending.checkWalletConnection) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+        <Grid container direction='column' justify='center'>
           <Grid item>
-            <Typography className={classes.connectedtext}>
-              Loading selected wallet data...
-            </Typography>
+            <Typography variant='body2'>Loading selected wallet data...</Typography>
           </Grid>
           <Grid item>
             <LinearProgress className={classes.linearProgress} />
@@ -177,9 +186,9 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (actionsPending.sync) {
       return (
-        <Grid container direction='column' justify='center' className={classes.balanceSection}>
+        <Grid container direction='column' justify='center'>
           <Grid item>
-            <Typography className={classes.connectedtext}>Synchronizing Account Info</Typography>
+            <Typography variant='body2'>Synchronizing Account Info</Typography>
             <Grid item>
               <LinearProgress className={classes.linearProgress} />
             </Grid>
@@ -188,12 +197,12 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     } else if (wallet && !wallet.connected && !wallet.crypto[cryptoType]) {
       return (
-        <Grid container direction='row' alignItems='center' className={classes.balanceSection}>
+        <Grid container direction='row' alignItems='center'>
           <Grid item>
             <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
           <Grid item>
-            <Typography id='walletNotConnectedText' className={classes.notConnectText}>
+            <Typography id='walletNotConnectedText' variant='body2'>
               {WalletConnectionErrorMessage[walletType]}
             </Typography>
           </Grid>
@@ -206,17 +215,11 @@ class ReceiveWalletSelectionComponent extends Component {
       !this.lock()
     ) {
       return (
-        <Grid
-          container
-          direction='row'
-          alignItems='center'
-          className={classes.balanceSection}
-          justify='space-between'
-        >
+        <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
               <Grid item>
-                <Typography className={classes.connectedtext}>
+                <Typography variant='body2'>
                   {getWalletTitle(walletType)} wallet connected
                 </Typography>
               </Grid>
@@ -250,49 +253,45 @@ class ReceiveWalletSelectionComponent extends Component {
     }
   }
 
-  render () {
+  render() {
     const { classes, walletType, transfer, wallet, lastUsedAddressByWalletType } = this.props
     const { cryptoType } = transfer
     return (
-      <Grid container direction='column' justify='center' spacing={3}>
-        <Grid item>
-          <Typography align='left' className={classes.title}>
-            Connect with your wallet
-          </Typography>
-        </Grid>
-        <Grid item>{this.renderWalletSelection()}</Grid>
-        <Grid item>{this.renderWalletConnectionNotification()}</Grid>
-        <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' alignItems='center' spacing={3}>
-            <Grid item>
-              <Button
-                color='primary'
-                onClick={() => {
-                  this.props.onWalletSelected(null)
-                  this.props.goToStep(-2)
-                }}
-                id='cancel'
-              >
-                Cancel
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                fullWidth
-                variant='contained'
-                color='primary'
-                onClick={() => this.props.goToStep(1)}
-                disabled={
-                  !walletType || (!wallet.crypto[cryptoType] && !lastUsedAddressByWalletType)
-                }
-                id='continue'
-              >
-                Continue
-              </Button>
+      <div style={{ padding: '10px' }}>
+        <Grid container direction='column' justify='center' spacing={3}>
+          <Grid item>{this.renderWalletSection()}</Grid>
+          <Grid item className={classes.btnSection}>
+            <Grid container direction='row' justify='center' alignItems='center' spacing={3}>
+              <Grid item>
+                <Button
+                  color='primary'
+                  onClick={() => {
+                    this.props.onWalletSelected(null)
+                    this.props.goToStep(-2)
+                  }}
+                  id='cancel'
+                >
+                  Cancel
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='primary'
+                  onClick={() => this.props.goToStep(1)}
+                  disabled={
+                    !walletType || (!wallet.crypto[cryptoType] && !lastUsedAddressByWalletType)
+                  }
+                  id='continue'
+                >
+                  Continue
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </div>
     )
   }
 }
@@ -329,7 +328,6 @@ const styles = theme => ({
     width: '100%'
   },
   balanceSection: {
-    backgroundColor: 'rgba(66,133,244,0.05)',
     padding: '20px',
     margin: '30px 0px 30px 0px',
     borderRadius: '4px'
@@ -376,6 +374,19 @@ const styles = theme => ({
   explorerButton: {
     padding: '0px 0px 0px 0px',
     marginLeft: '10px'
+  },
+  topSectionContainer: {
+    backgroundColor: '#FAFBFE',
+    paddingBottom: '20px',
+    paddingTop: '20px',
+    borderRadius: '10px'
+  },
+  paper: {
+    padding: '10px',
+    marginTop: '10px'
+  },
+  walletBtnContainer: {
+    width: '220px'
   }
 })
 

@@ -10,7 +10,7 @@ import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
 import ReceiveLandingPage from '../containers/ReceiveLandingPageContainer'
 
 class ReceiveComponent extends React.Component {
-  render () {
+  render() {
     const { classes, step, history } = this.props
 
     return (
@@ -18,32 +18,33 @@ class ReceiveComponent extends React.Component {
         container
         direction='column'
         alignItems='center'
-        className={step === 4 ? classes.rootReceipt : undefined}>
+        className={step === 4 ? classes.rootReceipt : undefined}
+      >
         <Grid item className={classes.sectionContainer}>
-          {step === 0
-            ? <ReceiveLandingPage location={history.location} />
-            : <Grid container direction='column'>
+          {step === 0 ? (
+            <ReceiveLandingPage location={history.location} />
+          ) : (
+            <Grid container direction='column'>
               <Grid item>
                 {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
               </Grid>
               <Grid item>
                 {/* receipt page requires a different background color */}
-                <Grid
-                  container
-                  direction='column'
-                  alignItems='center'
-                  className={step === 4 ? classes.receiptContainer : undefined}
-                >
+                <Grid container direction='column' alignItems='center'>
+                  {step === 2 && (
+                    <Grid item className={classes.walletSelectionContainer}>
+                      <ReceiveWalletSelection />
+                    </Grid>
+                  )}
                   <Grid item className={classes.subComponent}>
                     {step === 1 && <ReceivePassword />}
-                    {step === 2 && <ReceiveWalletSelection />}
                     {step === 3 && <ReceiveReview />}
                     {step === 4 && <ReceiveReceipt />}
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          }
+          )}
         </Grid>
       </Grid>
     )
@@ -63,6 +64,11 @@ const styles = theme => ({
   sectionContainer: {
     width: '100%',
     maxWidth: '1200px'
+  },
+  walletSelectionContainer: {
+    width: '100%',
+    maxWidth: '1080px',
+    margin: '0px 0px 16px 0px'
   }
 })
 
