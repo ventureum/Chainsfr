@@ -87,7 +87,7 @@ class TransferFormComponent extends Component<Props> {
       password,
       sender,
       senderName,
-      message,
+      sendMessage,
       formError
     } = transferForm
 
@@ -245,10 +245,10 @@ class TransferFormComponent extends Component<Props> {
               className={classes.textField}
               margin='normal'
               variant='outlined'
-              error={!!formError.message}
-              helperText={formError.message}
-              onChange={handleTransferFormChange('message')}
-              value={message || ''}
+              error={!!formError.sendMessage}
+              helperText={formError.sendMessage}
+              onChange={handleTransferFormChange('sendMessage')}
+              value={sendMessage || ''}
               inputProps={{ maxLength: 72 }} // message max length
             />
           </Grid>

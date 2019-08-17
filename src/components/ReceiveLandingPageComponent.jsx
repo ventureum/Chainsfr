@@ -36,8 +36,9 @@ class ReceiveLandingPageComponent extends Component {
         senderName,
         sender,
         destination,
+        receiverName,
         transferAmount,
-        message,
+        sendMessage,
         cryptoType
       } = transfer
       var hasReceived = !!receiveTxHash
@@ -119,7 +120,10 @@ class ReceiveLandingPageComponent extends Component {
                   <Typography className={classes.reviewSubtitle} align='left'>
                    To
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography className={classes.reviewContent} align='left' id='receiverName'>
+                    {receiverName}
+                  </Typography>
+                  <Typography className={classes.reviewContentEmail} align='left'>
                     {destination}
                   </Typography>
                 </Grid>
@@ -134,13 +138,13 @@ class ReceiveLandingPageComponent extends Component {
                     ≈ { currencyAmount.transferAmount }
                   </Typography>
                 </Grid>
-                { message && message && message.length > 0 &&
+                { sendMessage && sendMessage.length > 0 &&
                   <Grid item className={classes.reviewItem}>
                     <Typography className={classes.reviewSubtitle} align='left'>
                     Message
                     </Typography>
                     <Typography className={classes.reviewContentMessage} align='left'>
-                      {message}
+                      {sendMessage}
                     </Typography>
                   </Grid>
                 }

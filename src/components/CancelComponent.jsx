@@ -23,7 +23,7 @@ class CancelComponent extends React.Component {
             alignItems='center'
           >
             <Grid item className={classes.subComponent}>
-              {step === 0 && <CancelReview sendingId={value && value.id} />}
+              {step === 0 && <CancelReview transferId={value && value.id} />}
               {step === 1 && <CancelReceipt />}
             </Grid>
           </Grid>

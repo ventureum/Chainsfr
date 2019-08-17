@@ -55,6 +55,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
+    userProfile: state.userReducer.profile.profileObj,
     transferForm: state.formReducer.transferForm,
     cryptoSelection: state.formReducer.cryptoSelection,
     walletSelection: state.formReducer.walletSelection,

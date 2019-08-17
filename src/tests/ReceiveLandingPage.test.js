@@ -27,7 +27,7 @@ const transfer = {
   sendTxHash: '0x6cc3dac8a4df6e27d43701aea5223ae3a56414c564d9764b96dfe855b0120c34',
   sendTxState: 'Confirmed',
   sender: 'clzhong@ventureum.io',
-  sendingId: null,
+  transferId: null,
   transferAmount: '0.001'
 }
 

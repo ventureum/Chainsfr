@@ -42,16 +42,16 @@ async function _sync (walletData: WalletData, progress: function) {
 }
 
 async function _verifyPassword (transferInfo: {
-  sendingId: ?string,
+  transferId: ?string,
   fromWallet: WalletData,
   password: string
 }) {
-  let { sendingId, fromWallet, password } = transferInfo
+  let { transferId, fromWallet, password } = transferInfo
   let wallet = WalletFactory.createWallet(fromWallet)
 
-  if (sendingId) {
+  if (transferId) {
     // retrieve password from drive
-    let transferData = await getTransferData(sendingId)
+    let transferData = await getTransferData(transferId)
     password = Base64.decode(transferData.password)
   }
 
@@ -152,7 +152,7 @@ function sync (walletData: WalletData, progress?: function) {
 
 function verifyPassword (
   transferInfo: {
-    sendingId: ?string,
+    transferId: ?string,
     fromWallet: WalletData,
     password: string
   },
@@ -343,23 +343,25 @@ function clearDecryptCloudWalletError () {
 }
 
 async function _getLastUsedAddress (idToken: string) {
-  let response = await API.getLastUsedAddress(idToken)
+  let response = await API.getLastUsedAddress({ idToken })
   let rv = {}
   const walletTypeList = ['drive', 'metamask', 'ledger']
   const cryptoTypeList = ['bitcoin', 'ethereum', 'dai', 'libra']
   // convert response to our wallet struct
-  walletTypeList.forEach((walletType) => {
-    if (response[walletType]) {
-      rv[walletType] = { crypto: {} }
-      cryptoTypeList.forEach((cryptoType) => {
-        if (response[walletType].crypto && response[walletType].crypto[cryptoType]) {
-          rv[walletType].crypto[cryptoType] = [
-            response[walletType].crypto[cryptoType]
-          ]
-        }
-      })
-    }
-  })
+  if (response) {
+    walletTypeList.forEach((walletType) => {
+      if (response[walletType]) {
+        rv[walletType] = { crypto: {} }
+        cryptoTypeList.forEach((cryptoType) => {
+          if (response[walletType][cryptoType]) {
+            rv[walletType].crypto[cryptoType] = [
+              response[walletType][cryptoType]
+            ]
+          }
+        })
+      }
+    })
+  }
   return rv
 }
 

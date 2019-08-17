@@ -41,7 +41,7 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
-    receipt: state.transferReducer.receipt,
+    receipt: {...state.formReducer.transferForm, ...state.transferReducer.receipt},
     password: state.formReducer.transferForm.password,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency

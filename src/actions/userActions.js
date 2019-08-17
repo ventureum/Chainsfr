@@ -83,7 +83,7 @@ function getRecipients () {
     const { idToken } = getState().userReducer.profile
     return dispatch({
       type: 'GET_RECIPIENTS',
-      payload: API.getRecipients(idToken)
+      payload: API.getRecipients({ idToken })
     })
   }
 }
@@ -94,7 +94,7 @@ function addRecipient (recipient: Recipient) {
     const { transferForm } = getState().formReducer
     return dispatch({
       type: 'ADD_RECIPIENT',
-      payload: API.addRecipient(idToken, recipient)
+      payload: API.addRecipient({ idToken, recipient })
     }).then(() => {
       dispatch(
         enqueueSnackbar({
@@ -121,8 +121,8 @@ function editRecipient (oldRecipient: Recipient, newRecipient: Recipient) {
     return dispatch({
       type: 'EDIT_RECIPIENT',
       payload: async () => {
-        await API.removeRecipient(idToken, oldRecipient)
-        const result = await API.addRecipient(idToken, newRecipient)
+        await API.removeRecipient({ idToken, recipient: oldRecipient })
+        const result = await API.addRecipient({ idToken, recipient: newRecipient })
         console.log('sha', result)
         return result
       }
@@ -143,7 +143,7 @@ function removeRecipient (recipient: Recipient) {
     const { idToken } = getState().userReducer.profile
     return dispatch({
       type: 'REMOVE_RECIPIENT',
-      payload: API.removeRecipient(idToken, recipient)
+      payload: API.removeRecipient({ idToken, recipient })
     }).then(() => {
       dispatch(
         enqueueSnackbar({

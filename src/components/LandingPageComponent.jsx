@@ -300,7 +300,7 @@ class LandingPageComponent extends Component {
           <Grid container direction='column' justify='center' alignItems='flex-start' >
             <Grid item>
               <Typography className={classes.recentTransferItemTransferId}>
-                Transfer ID: {transfer.transferType === 'SENDER' ? transfer.sendingId : transfer.receivingId}
+                Transfer ID: {transfer.transferType === 'SENDER' ? transfer.transferId : transfer.receivingId}
               </Typography>
             </Grid>
             {transfer.password &&
@@ -310,10 +310,17 @@ class LandingPageComponent extends Component {
               </Typography>
             </Grid>
             }
-            {transfer.message &&
+            {transfer.sendMessage &&
             <Grid item>
               <Typography className={classes.recentTransferItemTransferMessage}>
-                Message: {transfer.message}
+                Message: {transfer.sendMessage}
+              </Typography>
+            </Grid>
+            }
+            {transfer.cancelMessage &&
+            <Grid item>
+              <Typography className={classes.recentTransferItemTransferMessage}>
+                Cancellation Reason: {transfer.cancelMessage}
               </Typography>
             </Grid>
             }
@@ -341,7 +348,7 @@ class LandingPageComponent extends Component {
                   color='primary'
                   component={Link}
                   target='_black'
-                  to={`cancel?id=${transfer.sendingId}`}
+                  to={`cancel?id=${transfer.transferId}`}
                   className={classes.recentTransferItemCancelBtn}
                 >
                   Cancel Transfer

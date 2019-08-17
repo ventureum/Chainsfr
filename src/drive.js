@@ -97,7 +97,7 @@ type TempTransferData = {
 }
 
 type TransferData = {
-  sendingId?: string,
+  transferId?: string,
   sendTimestamp?: number,
   receivingId?: string,
   receiveTimestamp?: number,
@@ -175,7 +175,7 @@ async function listFiles (
   parents: ?Array<FileId>,
   isFolder: boolean,
   fileName: FileName
-): Promise< Array<FileResourceResponse> > {
+): Promise<Array<FileResourceResponse>> {
   await loadApi()
 
   // build a query string
@@ -402,7 +402,7 @@ async function saveTempSendFile (transferData: TempTransferData) {
  */
 async function saveHistoryFile (transferData: TransferData) {
   let transfers = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
-  let id = transferData.sendingId ? transferData.sendingId : transferData.receivingId
+  let id = transferData.transferId ? transferData.transferId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
     transfers[id] = transferData
@@ -458,9 +458,9 @@ async function saveWallet (walletDataList: any) {
 }
 
 /*
- * Return the transfer data stored in HISTORY_FILE_NAME by sendingId | receivingId
+ * Return the transfer data stored in HISTORY_FILE_NAME by transferId | receivingId
  *
- * @param id [string] sendingId | receivingId of the transfer
+ * @param id [string] transferId | receivingId of the transfer
  * @returns transferData
  * see the object definition at the top
  */
@@ -473,7 +473,7 @@ async function getTransferData (id: string): Promise<TransferData> {
   }
 }
 
-async function getAllTransfers (): Promise< {[string]: TransferData} > {
+async function getAllTransfers (): Promise<{[string]: TransferData}> {
   return loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
 }
 

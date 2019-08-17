@@ -12,9 +12,9 @@ import utils from '../utils'
 
 class CancelReviewContainer extends Component {
   componentDidMount () {
-    let { sendingId } = this.props
-    if (sendingId) {
-      this.props.getTransfer(sendingId)
+    let { transferId } = this.props
+    if (transferId) {
+      this.props.getTransfer(transferId)
     }
   }
 
@@ -30,7 +30,7 @@ class CancelReviewContainer extends Component {
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
         // transfer data retrieved, now decrypt escrow wallet
         this.props.verifyPassword({
-          sendingId: transfer.sendingId,
+          transferId: transfer.transferId,
           fromWallet: walletData
         })
       } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
@@ -72,7 +72,7 @@ const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'C
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransfer: (id) => dispatch(getTransfer(id)), // here we use sendingId
+    getTransfer: (id) => dispatch(getTransfer(id)), // here we use transferId
     verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
     getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
     cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),

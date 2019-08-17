@@ -1,7 +1,8 @@
+// @flow
 import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
-import { walletCryptoSupports } from './wallet.js'
+import type { TxHash, Recipient } from './types/transfer.flow.js'
 
 const apiTransfer = axios.create({
   baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
@@ -10,75 +11,112 @@ const apiTransfer = axios.create({
   }
 })
 
-async function transfer ({
-  clientId,
-  senderName,
-  sender,
-  destination,
-  transferAmount,
-  message,
-  cryptoType,
-  data,
-  sendTxHash
-}) {
+async function transfer (request: {|
+  senderName: string,
+  senderAvatar: string,
+  sender: string,
+  destination: string,
+  receiverName: string,
+  transferAmount: string,
+  transferFiatAmountSpot: string,
+  fiatType: string,
+  sendMessage: ?string,
+  cryptoType: string,
+  data: string,
+  sendTxHash: Array<TxHash> | TxHash
+|}) {
   let apiResponse = await apiTransfer.post('/transfer', {
+    clientId: 'test-client',
     action: 'SEND',
-    clientId: clientId,
-    senderName: senderName,
-    sender: sender,
-    destination: destination,
-    transferAmount: transferAmount,
-    message: message,
-    cryptoType: cryptoType,
-    data: data,
-    sendTxHash: sendTxHash
+    ...request
   })
   return apiResponse.data
 }
 
-async function accept ({ clientId, receivingId, receiveTxHash }) {
+async function accept (request: {|
+  receivingId: string,
+  receiveMessage: ?string,
+  receiveTxHash: string
+|}) {
   let apiResponse = await apiTransfer.post('/transfer', {
+    clientId: 'test-client',
     action: 'RECEIVE',
-    clientId: clientId,
-    receivingId: receivingId,
-    receiveTxHash: receiveTxHash
+    ...request
   })
   return apiResponse.data
 }
 
-async function cancel ({ clientId, sendingId, cancelTxHash, cancelMessage }) {
+async function cancel (request: {|
+  transferId: string,
+  cancelMessage: ?string,
+  cancelTxHash: string
+ |}) {
   let apiResponse = await apiTransfer.post('/transfer', {
+    clientId: 'test-client',
     action: 'CANCEL',
-    clientId: clientId,
-    sendingId: sendingId,
-    cancelTxHash: cancelTxHash,
-    cancelMessage: cancelMessage
+    ...request
   })
   return apiResponse.data
 }
 
-async function getTransfer ({ sendingId, receivingId }) {
+function normalizeTransferData (transferData) {
+  transferData.sendTxState = null
+  transferData.receiveTxState = null
+  transferData.cancelTxState = null
+
+  if (transferData['senderToChainsfer']) {
+    const stage = transferData['senderToChainsfer']
+    transferData.sendTimestamp = stage.txTimestamp
+    transferData.sendTxState = stage.txState
+    transferData.sendTxHash = stage.txHash
+  }
+
+  if (transferData['chainsferToReceiver']) {
+    const stage = transferData['chainsferToReceiver']
+    transferData.receiveTimestamp = stage.txTimestamp
+    transferData.receiveTxState = stage.txState
+    transferData.receiveTxHash = stage.txHash
+  }
+
+  if (transferData['chainsferToSender']) {
+    const stage = transferData['chainsferToSender']
+    transferData.cancelTimestamp = stage.txTimestamp
+    transferData.cancelTxState = stage.txState
+    transferData.cancelTxHash = stage.txHash
+  }
+
+  return transferData
+}
+
+async function getTransfer (request: {
+  transferId: ?string,
+  receivingId: ?string
+}) {
   let rv = await apiTransfer.post('/transfer', {
+    clientId: 'test-client',
     action: 'GET',
-    sendingId: sendingId,
-    receivingId: receivingId
+    ...request
   })
 
-  let responseData = rv.data
+  let responseData = normalizeTransferData(rv.data)
   responseData.data = JSON.parse(Base64.decode(responseData.data))
   return responseData
 }
 
-async function getBatchTransfers ({ sendingId, receivingId }) {
+async function getBatchTransfers (request: {
+  transferIds: Array<string>,
+  receivingIds: Array<string>
+  }) {
   let rv = await apiTransfer.post('/transfer', {
+    clientId: 'test-client',
     action: 'BATCH_GET',
-    sendingId: sendingId,
-    receivingId: receivingId
+    ...request
   })
 
   let responseData = rv.data
   responseData = responseData.map(item => {
     if (!item.error) {
+      item = normalizeTransferData(item)
       item.data = JSON.parse(Base64.decode(item.data))
       return item
     } else {
@@ -100,52 +138,43 @@ async function getPrefilledAccount () {
   }
 }
 
-async function setLastUsedAddress ({ idToken, cryptoType, walletType, address }) {
+async function setLastUsedAddress (request: {
+  idToken: string,
+  walletType: string,
+  cryptoType: string,
+  address: string
+}) {
   try {
     var rv = await apiTransfer.post('/transfer', {
+      clientId: 'test-client',
       action: 'SET_LAST_USED_ADDRESS',
-      idToken: idToken,
-      walletType: walletType,
-      address: address,
-      cryptoType: cryptoType
+      ...request
     })
+    return rv.data
   } catch (e) {
     console.warn(e)
   }
-  return rv.data
 }
 
-async function getLastUsedAddress (idToken, wallet) {
+async function getLastUsedAddress (request: { idToken: string }) {
   try {
     let rv = await apiTransfer.post('/transfer', {
+      clientId: 'test-client',
       action: 'GET_LAST_USED_ADDRESS',
-      idToken: idToken
+      ...request
     })
-    const { data } = rv
-    let lastUsedAddress = ['metamask', 'ledger'].reduce((lastUsedAddressObj, walletType) => {
-      let addressByCryptoType = walletCryptoSupports[walletType]
-        .map(cryptoTypeData => cryptoTypeData.cryptoType)
-        .reduce((obj, cryptoType) => {
-          if (!!data[walletType] && !!data[walletType][cryptoType]) {
-            obj[cryptoType] = { address: data[walletType][cryptoType].address }
-          }
-          return obj
-        }, {})
-
-      lastUsedAddressObj[walletType] = { crypto: addressByCryptoType }
-      return lastUsedAddressObj
-    }, {})
-    return lastUsedAddress
+    return rv.data
   } catch (e) {
     console.warn(e)
   }
 }
 
-async function getRecipients (idToken) {
+async function getRecipients (request: { idToken: string }) {
   try {
     let rv = await apiTransfer.post('/user', {
+      clientId: 'test-client',
       action: 'GET_RECIPIENTS',
-      idToken: idToken
+      ...request
     })
     return rv.data.recipients
   } catch (e) {
@@ -153,12 +182,15 @@ async function getRecipients (idToken) {
   }
 }
 
-async function addRecipient (idToken, recipient) {
+async function addRecipient (request: {
+  idToken: string,
+  recipient: Recipient
+}) {
   try {
     let rv = await apiTransfer.post('/user', {
+      clientId: 'test-client',
       action: 'ADD_RECIPIENT',
-      idToken: idToken,
-      recipient: recipient
+      ...request
     })
     return rv.data.recipients
   } catch (e) {
@@ -166,12 +198,15 @@ async function addRecipient (idToken, recipient) {
   }
 }
 
-async function removeRecipient (idToken, recipient) {
+async function removeRecipient (request: {
+  idToken: string,
+  recipient: Recipient
+}) {
   try {
     let rv = await apiTransfer.post('/user', {
+      clientId: 'test-client',
       action: 'REMOVE_RECIPIENT',
-      idToken: idToken,
-      recipient: recipient
+      ...request
     })
     return rv.data.recipients
   } catch (e) {
