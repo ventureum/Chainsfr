@@ -34,33 +34,55 @@ class ReceiptComponent extends Component<Props, State> {
     copied: false
   }
 
-  render () {
+  render() {
     const { copied } = this.state
     const {
       classes,
-      cryptoSelection,
       password,
+      cryptoSelection,
       txFee,
       receipt,
       backToHome,
       sendTime,
       currencyAmount
     } = this.props
-    const { sendingId, transferAmount, sender, senderName, destination, message } = receipt
+    const {
+      transferId,
+      transferAmount,
+      sender,
+      senderName,
+      destination,
+      receiverName,
+      sendMessage
+    } = receipt
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
         <Grid item>
           <Paper className={classes.receiptPaper} elevation={1}>
-            <Grid container direction='column' justify='center' alignItems='stretch'>
+            <Grid
+              container
+              direction='column'
+              justify='center'
+              alignItems='stretch'
+            >
               <Grid item>
                 <Grid item className={classes.titleSection}>
-                  <Grid container direction='column' justify='center' alignItems='center'>
+                  <Grid
+                    container
+                    direction='column'
+                    justify='center'
+                    alignItems='center'
+                  >
                     <CheckCircleIcon className={classes.checkCircleIcon} />
-                    <Typography className={classes.title} variant='h6' align='center'>
+                    <Typography
+                      className={classes.title}
+                      variant='h6'
+                      align='center'
+                    >
                       Transfer Sent
                     </Typography>
                     <Typography className={classes.transferId} align='center'>
-                      {`Transfer ID: ${sendingId}`}
+                      {`Transfer ID: ${transferId}`}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -68,10 +90,18 @@ class ReceiptComponent extends Component<Props, State> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     From
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='senderName'>
+                  <Typography
+                    className={classes.reviewContent}
+                    align='left'
+                    id='senderName'
+                  >
                     {senderName}
                   </Typography>
-                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
+                  <Typography
+                    className={classes.reviewContentEmail}
+                    align='left'
+                    id='sender'
+                  >
                     {sender}
                   </Typography>
                 </Grid>
@@ -79,7 +109,14 @@ class ReceiptComponent extends Component<Props, State> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     To
                   </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
+                  <Typography
+                    className={classes.reviewContent}
+                    align='left'
+                    id='receiverName'
+                  >
+                    {receiverName}
+                  </Typography>
+                  <Typography className={classes.reviewContentEmail} align='left'>
                     {destination}
                   </Typography>
                 </Grid>
@@ -88,10 +125,16 @@ class ReceiptComponent extends Component<Props, State> {
                     Amount
                   </Typography>
                   <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                    >
                       {transferAmount} {getCryptoSymbol(cryptoSelection)}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                    <Typography
+                      className={classes.reviewContentCurrencyAmount}
+                      align='left'
+                    >
                       ≈ {currencyAmount.transferAmount}
                     </Typography>
                   </Grid>
@@ -101,12 +144,18 @@ class ReceiptComponent extends Component<Props, State> {
                     Transaction Fee
                   </Typography>
                   <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                    >
                       {`${txFee.costInStandardUnit} ${getCryptoSymbol(
                         getTxFeesCryptoType(cryptoSelection)
                       )}`}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                    <Typography
+                      className={classes.reviewContentCurrencyAmount}
+                      align='left'
+                    >
                       ≈ {currencyAmount.txFee}
                     </Typography>
                   </Grid>
@@ -129,7 +178,10 @@ class ReceiptComponent extends Component<Props, State> {
                       text={password}
                       onCopy={() => {
                         this.setState({ copied: true }, () =>
-                          setTimeout(() => this.setState({ copied: false }), 1500)
+                          setTimeout(
+                            () => this.setState({ copied: false }),
+                            1500
+                          )
                         )
                       }}
                     >
@@ -141,19 +193,31 @@ class ReceiptComponent extends Component<Props, State> {
                     </CopyToClipboard>
                   </Typography>
                 </Grid>
-                { message && message.length > 0 && // only show message when available
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Message
-                    </Typography>
-                    <Typography className={classes.reviewContentMessage} align='left'>
-                      {message}
-                    </Typography>
-                  </Grid>
-                }
+                {sendMessage &&
+                sendMessage.length > 0 && ( // only show message when available
+                    <Grid item className={classes.reviewItem}>
+                      <Typography
+                        className={classes.reviewSubtitle}
+                        align='left'
+                      >
+                        Message
+                      </Typography>
+                      <Typography
+                        className={classes.reviewContentMessage}
+                        align='left'
+                      >
+                        {sendMessage}
+                      </Typography>
+                    </Grid>
+                  )}
                 <Grid item className={classes.reviewItem}>
-                  <Typography variant='body2' className={classes.informReceiverText} align='left'>
-                    Please inform receiver the security answer to complete the transaction.
+                  <Typography
+                    variant='body2'
+                    className={classes.informReceiverText}
+                    align='left'
+                  >
+                    Please inform receiver the security answer to complete the
+                    transaction.
                   </Typography>
                 </Grid>
               </Grid>

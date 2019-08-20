@@ -22,6 +22,9 @@ module.exports = {
     'ecmaVersion': 2018,
     'sourceType': 'module'
   },
+  "extends": [
+    "plugin:flowtype/recommended"
+  ],
   'plugins': [
     'react',
     'standard',
@@ -32,6 +35,7 @@ module.exports = {
   ],
   'rules': {
     "react/prop-types": 'off',
+    "flowtype/no-types-missing-file-annotation": 'off',
     'code': 100
   }
 }

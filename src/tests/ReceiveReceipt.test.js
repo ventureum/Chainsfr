@@ -17,6 +17,9 @@ const initialProps = {
     price: '1000000000'
   },
   receipt: {
+    receiveTimestamp: '1558022548',
+  },
+  transfer: {
     cryptoType: 'ethereum',
     destination: 'abc@gmail.com',
     receiveTimestamp: '1558022548',
@@ -56,15 +59,15 @@ describe('ReceiptComponent render:', () => {
   })
 
   it('ERC20 render:', () => {
-    wrapper.setProps({ receipt: { ...initialProps.receipt, cryptoType: 'dai' } })
+    wrapper.setProps({ receipt: {...initialProps.receipt}, transfer: { ...initialProps.transfer, cryptoType: 'dai' } })
     expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} DAI`)
   })
 
   it('bitcoin render', () => {
-    const { receipt } = initialProps
-    wrapper.setProps({ receipt: { ...initialProps.receipt, cryptoType: 'bitcoin' } })
+    const { receipt, transfer } = initialProps
+    wrapper.setProps({ receipt: {...initialProps.receipt}, transfer: { ...initialProps.transfer, cryptoType: 'bitcoin' } })
     expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} BTC`)
-    expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(receipt.receiveTxHash))))
+    expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(transfer.receiveTxHash))))
       .toEqual(true)
   })
 })

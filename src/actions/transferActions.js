@@ -75,14 +75,31 @@ async function _directTransfer (txRequest: {
 async function _submitTx (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
+  transferFiatAmountSpot: string,
+  fiatType: string,
   destination: string,
+  receiverName: string,
   senderName: string,
+  senderAvatar: string,
   sender: string,
   password: string,
-  message: string,
+  sendMessage: ?string,
   txFee: TxFee
 }) {
-  let { fromWallet, transferAmount, password, sender, destination, txFee } = txRequest
+  let {
+    fromWallet,
+    transferAmount,
+    transferFiatAmountSpot,
+    fiatType,
+    password,
+    sender,
+    senderName,
+    senderAvatar,
+    sendMessage,
+    destination,
+    receiverName,
+    txFee
+  } = txRequest
 
   let { cryptoType } = fromWallet
   // add destination to password to enhance security
@@ -100,8 +117,8 @@ async function _submitTx (txRequest: {
   if (!escrowAccount.privateKey) throw new Error('PrivateKey missing in escrow account')
   let encryptedPrivateKey = await utils.encryptMessage(escrowAccount.privateKey, _password)
 
-  let sendTxHash: TxHash
-  let sendTxFeeTxHash: TxHash
+  let sendTxHash
+  let sendTxFeeTxHash
 
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
@@ -136,70 +153,53 @@ async function _submitTx (txRequest: {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
+  if (sendTxFeeTxHash) sendTxHash = [sendTxHash, sendTxFeeTxHash]
+
   // update tx data
   return _transactionHashRetrieved({
-    senderName: txRequest.senderName,
-    sender: txRequest.sender,
-    destination: txRequest.destination,
-    transferAmount: txRequest.transferAmount,
+    transferAmount,
+    transferFiatAmountSpot,
+    fiatType,
+    senderName,
+    senderAvatar,
+    sender,
+    sendMessage,
+    destination,
+    receiverName,
+    data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
     cryptoType: cryptoType,
-    encryptedEscrow: encryptedPrivateKey,
     sendTxHash: sendTxHash,
-    password: _password,
-    message: txRequest.message,
-    sendTxFeeTxHash: sendTxFeeTxHash
+    password: Base64.encode(_password)
   })
 }
 
-async function _transactionHashRetrieved (txRequest: {
+async function _transactionHashRetrieved (txRequest: {|
+  transferAmount: StandardTokenUnit,
+  transferFiatAmountSpot: string,
+  fiatType: string,
   senderName: string,
+  senderAvatar: string,
   sender: string,
   destination: string,
-  transferAmount: StandardTokenUnit,
+  receiverName: string,
   cryptoType: string,
-  encryptedEscrow: any,
-  sendTxHash: TxHash,
-  password: string,
-  message: string,
-  sendTxFeeTxHash: ?TxHash
-}) {
-  let {
-    senderName,
-    sender,
-    destination,
-    transferAmount,
-    cryptoType,
-    encryptedEscrow,
-    sendTxHash,
-    password,
-    message,
-    sendTxFeeTxHash
-  } = txRequest
-
-  let transferData: Object = {
-    clientId: 'test-client',
-    senderName: senderName,
-    sender: sender,
-    destination: destination,
-    transferAmount: transferAmount,
-    message: message,
-    cryptoType: cryptoType,
-    sendTxHash: sendTxHash,
-    data: Base64.encode(JSON.stringify(encryptedEscrow))
-  }
-
-  if (sendTxFeeTxHash) transferData.sendTxHash = [sendTxHash, sendTxFeeTxHash]
-
-  let data = await API.transfer(transferData)
+  sendMessage: ?string,
+  data: string,
+  sendTxHash: Array<TxHash> | TxHash,
+  password: string
+|}) {
+  // mask out password
+  const { password, ...request } = txRequest
+  let response = await API.transfer(request)
 
   await saveHistoryFile({
-    sendingId: data.sendingId,
-    sendTimestamp: data.sendTimestamp,
-    data: transferData.data,
-    password: Base64.encode(password)
+    transferId: response.transferId,
+    sendTimestamp: response.sendTimestamp,
+    data: txRequest.data,
+    password: txRequest.password
   })
 
-  return data
+  return response
 }
 
 async function _acceptTransfer (txRequest: {
@@ -207,9 +207,17 @@ async function _acceptTransfer (txRequest: {
   receiveWallet: WalletData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
-  receivingId: string
+  receivingId: string,
+  receiveMessage: ?string
 }) {
-  let { escrowWallet, txFee, receiveWallet, transferAmount, receivingId } = txRequest
+  let {
+    escrowWallet,
+    txFee,
+    receiveWallet,
+    transferAmount,
+    receivingId,
+    receiveMessage
+  } = txRequest
 
   let { cryptoType } = escrowWallet
   // convert transferAmount to basic token unit
@@ -226,38 +234,34 @@ async function _acceptTransfer (txRequest: {
 
   return _acceptTransferTransactionHashRetrieved({
     receiveTxHash: receiveTxHash,
-    receivingId: receivingId
+    receivingId: receivingId,
+    receiveMessage: receiveMessage
   })
 }
 
-async function _acceptTransferTransactionHashRetrieved (txRequest: {
+async function _acceptTransferTransactionHashRetrieved (txRequest: {|
   receiveTxHash: TxHash,
-  receivingId: string
-}) {
-  let { receivingId, receiveTxHash } = txRequest
-
-  let data = await API.accept({
-    clientId: 'test-client',
-    receivingId: receivingId,
-    receiveTxHash: receiveTxHash
-  })
+  receivingId: string,
+  receiveMessage: ?string
+|}) {
+  let response = await API.accept(txRequest)
 
   await saveHistoryFile({
-    receivingId: receivingId,
-    receiveTimestamp: data.receiveTimestamp
+    receivingId: txRequest.receivingId,
+    receiveTimestamp: response.receiveTimestamp
   })
-  return data
+  return response
 }
 
 async function _cancelTransfer (txRequest: {
   escrowWallet: WalletData,
-  sendingId: string,
+  transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   cancelMessage: ?string
 }) {
-  let { escrowWallet, sendingId, sendTxHash, transferAmount, txFee, cancelMessage } = txRequest
+  let { escrowWallet, transferId, sendTxHash, transferAmount, txFee, cancelMessage } = txRequest
   let { cryptoType } = escrowWallet
 
   // assuming wallet has been decrypted
@@ -290,31 +294,24 @@ async function _cancelTransfer (txRequest: {
   })
 
   return _cancelTransferTransactionHashRetrieved({
+    transferId: transferId,
     cancelTxHash: cancelTxHash,
-    sendingId: sendingId,
     cancelMessage: cancelMessage
   })
 }
 
-async function _cancelTransferTransactionHashRetrieved (txRequest: {
-  sendingId: string,
+async function _cancelTransferTransactionHashRetrieved (txRequest: {|
+  transferId: string,
   cancelTxHash: TxHash,
   cancelMessage: ?string
-}) {
-  let { sendingId, cancelTxHash, cancelMessage } = txRequest
-
-  let data = await API.cancel({
-    clientId: 'test-client',
-    sendingId: sendingId,
-    cancelTxHash: cancelTxHash,
-    cancelMessage: cancelMessage
-  })
-
-  return data
+|}) {
+  let response = await API.cancel(txRequest)
+  let { cancelMessage } = txRequest
+  return {...response, cancelMessage}
 }
 
-async function _getTransfer (sendingId: ?string, receivingId: ?string) {
-  let transferData = await API.getTransfer({ sendingId, receivingId })
+async function _getTransfer (transferId: ?string, receivingId: ?string) {
+  let transferData = await API.getTransfer({ transferId, receivingId })
   let walletData = WalletUtils.toWalletData('escrow', transferData.cryptoType, [
     {
       balance: transferData.balance,
@@ -328,6 +325,8 @@ async function _getTransfer (sendingId: ?string, receivingId: ?string) {
 
 async function _getTransferHistory (offset: number = 0) {
   const ITEM_PER_FETCH = 10
+  // https://github.com/facebook/flow/issues/6064
+  // $FlowFixMe
   let transfersDict = await getAllTransfers()
 
   // convert dict to array
@@ -337,7 +336,6 @@ async function _getTransferHistory (offset: number = 0) {
   }
 
   transfers = transfers.sort((a, b) => {
-    // sort transfers by timestamp in descending order
     let getTimestamp = item => {
       let rv = item.sendTimestamp ? item.sendTimestamp : item.receiveTimestamp
       if (!rv) throw new Error('Missing timestamp in transfer history data')
@@ -356,16 +354,16 @@ async function _getTransferHistory (offset: number = 0) {
   }
 
   // identify transfer state
-  const sendingIds = transfers.filter(t => !!t.sendingId).map(t => t.sendingId)
+  const transferIds = transfers.filter(t => !!t.transferId).map(t => t.transferId)
   const receivingIds = transfers.filter(t => !!t.receivingId).map(t => t.receivingId)
 
   // for quick transferType (sender, receiver) lookup
-  const sendingIdsSet = new Set(sendingIds)
+  const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
   let transferData = await API.getBatchTransfers({
-    sendingId: sendingIds,
-    receivingId: receivingIds
+    transferIds: transferIds,
+    receivingIds: receivingIds
   })
 
   transferData = transferData
@@ -383,10 +381,10 @@ async function _getTransferHistory (offset: number = 0) {
       let state = null
       let transferType: ?string = null
       let password: ?string = null
-      if (sendingIdsSet.has(item.sendingId)) {
-        password = Base64.decode(transfersDict[item.sendingId].password).split(item.sender)[0]
+      if (item.transferId && transferIdsSet.has(item.transferId) && transfersDict[item.transferId]) {
+        password = Base64.decode(transfersDict[item.transferId].password).split(item.sender)[0]
         transferType = 'SENDER'
-      } else if (receivingIdsSet.has(item.receivingId)) {
+      } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
         transferType = 'RECEIVER'
       } else {
         throw new Error(`Cannot identify transferType for item ${JSON.stringify(item)}`)
@@ -463,11 +461,15 @@ async function _getTransferHistory (offset: number = 0) {
 function submitTx (txRequest: {
   fromWallet: WalletData,
   transferAmount: StandardTokenUnit,
-  password: string,
-  senderName: string,
-  sender: string,
+  transferFiatAmountSpot: string,
+  fiatType: string,
   destination: string,
-  message: string,
+  receiverName: string,
+  senderName: string,
+  senderAvatar: string,
+  sender: string,
+  password: string,
+  sendMessage: ?string,
   txFee: TxFee
 }) {
   return (dispatch: Function, getState: Function) => {
@@ -504,7 +506,8 @@ function acceptTransfer (txRequest: {
   receiveWallet: WalletData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
-  receivingId: string
+  receivingId: string,
+  receiveMessage: ?string
 }) {
   return (dispatch: Function, getState: Function) => {
     const { receiveWallet } = txRequest
@@ -533,7 +536,7 @@ function acceptTransfer (txRequest: {
 
 function cancelTransfer (txRequest: {
   escrowWallet: WalletData,
-  sendingId: string,
+  transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
@@ -560,10 +563,10 @@ function getTxFee (txRequest: {
   }
 }
 
-function getTransfer (sendingId: ?string, receivingId: ?string) {
+function getTransfer (transferId: ?string, receivingId: ?string) {
   return {
     type: 'GET_TRANSFER',
-    payload: _getTransfer(sendingId, receivingId)
+    payload: _getTransfer(transferId, receivingId)
   }
 }
 

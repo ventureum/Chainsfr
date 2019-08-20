@@ -313,7 +313,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
-  getGasCost = async (txObj: any):Promise<TxFee> => {
+  getGasCost = async (txObj: any): Promise<TxFee> => {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let price = await _web3.eth.getGasPrice()
     let gas = (await _web3.eth.estimateGas(txObj)).toString()

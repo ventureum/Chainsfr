@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    receipt: state.transferReducer.receipt,
+    receipt: {...state.transferReducer.transfer, ...state.transferReducer.receipt},
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency

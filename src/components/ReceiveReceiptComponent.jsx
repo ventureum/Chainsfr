@@ -13,7 +13,7 @@ import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txFee, receipt, backToHome, receiveTime, receiveAmount, currencyAmount } = this.props
+    const { classes, txFee, transfer, backToHome, receiveTime, receiveAmount, currencyAmount } = this.props
     const {
       receivingId,
       transferAmount,
@@ -22,7 +22,7 @@ class ReceiveReceiptComponent extends Component {
       destination,
       cryptoType,
       receiveTxHash
-    } = receipt
+    } = transfer
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -113,7 +113,7 @@ class ReceiveReceiptComponent extends Component {
                     <MuiLink
                       target='_blank'
                       rel='noopener'
-                      href={url.getExplorerTx(receipt.cryptoType, receiveTxHash)}
+                      href={url.getExplorerTx(cryptoType, receiveTxHash)}
                     >
                       {' here'}
                     </MuiLink>

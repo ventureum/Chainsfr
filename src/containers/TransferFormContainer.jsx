@@ -112,7 +112,7 @@ class TransferFormContainer extends Component<Props, State> {
       !formError.destination &&
       !formError.transferAmount &&
       !formError.password &&
-      !formError.message
+      !formError.sendMessage
     )
   }
 
@@ -178,14 +178,14 @@ class TransferFormContainer extends Component<Props, State> {
       if (!validator.isLength(value, { min: 6, max: undefined })) {
         return 'Length must be greater or equal than 6'
       }
-      if (this.crossCheck(value, transferForm['message'])) {
+      if (this.crossCheck(value, transferForm['sendMessage'])) {
         return 'Security answer cannot contain words from the message'
       }
     } else if (name === 'senderName') {
       if (!validator.isLength(value, { min: 1, max: undefined })) {
         return 'Name is required'
       }
-    } else if (name === 'message') {
+    } else if (name === 'sendMessage') {
       if (this.crossCheck(value, transferForm['password'])) {
         return 'Message cannot contain words from the security answer'
       }
@@ -194,7 +194,7 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, cryptoPrice, cryptoSelection } = this.props
+    const { transferForm, cryptoPrice, cryptoSelection, recipients } = this.props
 
     // helper functions for converting currency
     const toCurrencyAmount = cryptoAmount =>
@@ -207,9 +207,16 @@ class TransferFormContainer extends Component<Props, State> {
       formError: { [name]: { $set: this.validate(name, event.target.value, transferForm) } }
     })
 
-    if (name === 'message') {
+    if (name === 'sendMessage') {
       // removes whitespaces at the beginning
       _transferForm[name] = _transferForm[name].replace(/^\s+/g, '')
+
+      const password = _transferForm['password']
+      _transferForm = update(_transferForm, {
+        formError: {
+          password: { $set: this.validate('password', password, _transferForm) }
+        }
+      })
     }
 
     if (name === 'transferAmount') {
@@ -240,22 +247,21 @@ class TransferFormContainer extends Component<Props, State> {
       })
     }
 
-    if (name === 'message') {
-      const password = _transferForm['password']
+    if (name === 'password') {
+      const sendMessage = _transferForm['sendMessage']
       _transferForm = update(_transferForm, {
         formError: {
-          password: { $set: this.validate('password', password, _transferForm) }
+          sendMessage: { $set: this.validate('sendMessage', sendMessage, _transferForm) }
         }
       })
     }
-
-    if (name === 'password') {
-      const message = _transferForm['message']
-      _transferForm = update(_transferForm, {
-        formError: {
-          message: { $set: this.validate('message', message, _transferForm) }
-        }
-      })
+    
+    if (name === 'destination') {
+      // update receiverName
+      const recipient = recipients.find((recipient) => recipient.email === event.target.value)
+      if (recipient) {
+        _transferForm = update(_transferForm, { receiverName: { $set: recipient.name } })
+      }
     }
 
     this.props.updateTransferForm(_transferForm)

@@ -22,7 +22,7 @@ const initialProps = {
     receiveTimestamp: '1558022548',
     cancelTxHash: '0xe1d591e4d59057550d4f41abd066b211c547c7ae643b9da1de2cc7fbb2659ce9',
     sender: 'abc@gmail.com',
-    sendingId: 'e1981151-b951-467f-81e4-e9f87dfa44a8',
+    transferId: 'e1981151-b951-467f-81e4-e9f87dfa44a8',
     transferAmount: '0.001'
   },
   cancelTime: moment.unix('1558022548').utc().format('MMM Do YYYY, HH:mm:ss'),

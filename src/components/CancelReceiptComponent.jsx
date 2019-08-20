@@ -14,7 +14,7 @@ import url from '../url'
 class CancelReceiptComponent extends Component {
   render () {
     const { classes, receipt, txFee, backToHome, cancelTime, toCurrencyAmount } = this.props
-    const { sendingId, transferAmount, cryptoType, cancelTxHash, cancelMessage } = receipt
+    const { transferId, transferAmount, cryptoType, cancelTxHash, cancelMessage } = receipt
 
     const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
       ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
@@ -33,7 +33,7 @@ class CancelReceiptComponent extends Component {
                       Cancellation Completed
                     </Typography>
                     <Typography className={classes.transferId} align='center'>
-                      {`Transfer ID: ${sendingId}`}
+                      {`Transfer ID: ${transferId}`}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -98,7 +98,7 @@ class CancelReceiptComponent extends Component {
                 cancelMessage.length > 0 && ( // only show message when available
                   <Grid item className={classes.reviewItem}>
                     <Typography className={classes.reviewSubtitle} align='left'>
-                        Cancel message
+                      Cancellation Reason
                     </Typography>
                     <Typography className={classes.reviewContentMessage} align='left'>
                       {cancelMessage}

@@ -13,7 +13,7 @@ describe('CancelComponent', () => {
     const wrapper = shallow(
       <Cancel step={0} history={history} />
     ).until(CancelReview)
-    expect(wrapper.find(CancelReview).props().sendingId).toEqual('9e9a520d-f364-4dc2-897e-cba51f37e78a')
+    expect(wrapper.find(CancelReview).props().transferId).toEqual('9e9a520d-f364-4dc2-897e-cba51f37e78a')
     expect(toJson(wrapper)).toMatchSnapshot()
   })
 

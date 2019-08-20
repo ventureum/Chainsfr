@@ -24,7 +24,7 @@ const initialProps = {
   },
   transfer: {
     destination: 'clzhong@ventureum.io',
-    sendingId: '9bfb6aa3-923a-44d5-aea0-a90def5c9e61',
+    transferId: '9bfb6aa3-923a-44d5-aea0-a90def5c9e61',
     sendTimestamp: '1558975386',
     sendTxHash: '0x55f72c0e1fff27d70569bc369f49ca7c2f1f27b59a57c538fcd70ac55719b1c5',
     sendTxState: 'Confirmed',
@@ -190,7 +190,7 @@ describe('CancelReviewComponent interaction', () => {
         initialProps.transfer.cryptoType,
         initialProps.escrowWallet
       ),
-      sendingId: initialProps.transfer.sendingId,
+      transferId: initialProps.transfer.transferId,
       sendTxHash: initialProps.transfer.sendTxHash,
       transferAmount: initialProps.transfer.transferAmount,
       txFee: initialProps.txFee,

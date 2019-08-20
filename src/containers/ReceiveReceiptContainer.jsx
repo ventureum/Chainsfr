@@ -7,15 +7,15 @@ import utils from '../utils'
 
 class ReceiveReceiptContainer extends Component {
   render () {
-    const { receipt, txFee, cryptoPrice, currency } = this.props
+    const { receipt, transfer, txFee, cryptoPrice, currency } = this.props
     const receiveTime = moment.unix(this.props.receipt.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
     const toCurrencyAmount = (cryptoAmount) =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[receipt.cryptoType], currency)
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
     let receiveAmount
-    if (receipt) {
-      receiveAmount = ['ethereum', 'bitcoin'].includes(receipt.cryptoType)
-        ? parseFloat(receipt.transferAmount) - parseFloat(txFee.costInStandardUnit)
-        : parseFloat(receipt.transferAmount)
+    if (transfer) {
+      receiveAmount = ['ethereum', 'bitcoin'].includes(transfer.cryptoType)
+        ? parseFloat(transfer.transferAmount) - parseFloat(txFee.costInStandardUnit)
+        : parseFloat(transfer.transferAmount)
     }
 
     return (
@@ -24,7 +24,7 @@ class ReceiveReceiptContainer extends Component {
         receiveAmount={receiveAmount}
         receiveTime={receiveTime}
         currencyAmount={{
-          transferAmount: receipt && toCurrencyAmount(receipt.transferAmount),
+          transferAmount: receipt && toCurrencyAmount(transfer.transferAmount),
           txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit),
           receiveAmount: receiveAmount && toCurrencyAmount(receiveAmount)
         }}
@@ -45,6 +45,7 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
+    transfer: state.transferReducer.transfer,
     receipt: state.transferReducer.receipt,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency
