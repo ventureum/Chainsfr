@@ -281,7 +281,9 @@ class ReceiveWalletSelectionComponent extends Component {
                   color='primary'
                   onClick={() => this.props.goToStep(1)}
                   disabled={
-                    !walletType || (!wallet.crypto[cryptoType] && !lastUsedAddressByWalletType)
+                    !walletType ||
+                    (!wallet.crypto[cryptoType] && !lastUsedAddressByWalletType) ||
+                    this.lock()
                   }
                   id='continue'
                 >
