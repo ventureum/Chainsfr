@@ -2,6 +2,7 @@
 import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
+import CoinbaseLogo from './images/coinbase.png'
 import { detect } from 'detect-browser'
 import env from './typedEnv'
 import { isMobile } from 'react-device-detect'
@@ -61,6 +62,14 @@ export const walletSelections = [
     desc: 'Use Drive Wallet',
     logo: DriveWalletLogo,
     disabled: false
+  },
+  {
+    walletType: 'coinbase',
+    title: 'Coinbase',
+    desc: 'Coinbase Wallet',
+    logo: CoinbaseLogo,
+    disabled: true,
+    disabledReason: 'Coming Soon'
   },
   {
     walletType: 'metamask',

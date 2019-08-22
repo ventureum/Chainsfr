@@ -9,6 +9,7 @@ import { getCloudWallet } from '../actions/walletActions'
 import { setNewUserTag } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
+import { push } from 'connected-react-router'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
@@ -25,12 +26,7 @@ class LandingPageContainer extends Component {
   }
 
   render () {
-    let {
-      cloudWallet,
-      cryptoPrice,
-      transferHistory,
-      currency
-    } = this.props
+    let { cloudWallet, cryptoPrice, transferHistory, currency } = this.props
 
     const toCurrencyAmount = (cryptoAmount, cryptoType) =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoType], currency)
@@ -90,7 +86,8 @@ const mapDispatchToProps = dispatch => {
     goToStep: n => dispatch(goToStep('send', n)),
     getCloudWallet: () => dispatch(getCloudWallet()),
     getTransferHistory: offset => dispatch(getTransferHistory(offset)),
-    setNewUserTag: isNewUser => dispatch(setNewUserTag(isNewUser))
+    setNewUserTag: isNewUser => dispatch(setNewUserTag(isNewUser)),
+    push: path => dispatch(push(path))
   }
 }
 

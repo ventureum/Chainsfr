@@ -20,7 +20,7 @@ type Props = {
   handleSubmit: Function,
   actionsPending: Object,
   classes: Object,
-  error:any,
+  error: any,
   clearError: Function
 }
 
@@ -41,7 +41,7 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
     }
   }
 
-  render () {
+  render() {
     let {
       actionsPending,
       cryptoType,
@@ -62,13 +62,10 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
         <DialogTitle id='form-dialog-title'>Unlock Drive Wallet</DialogTitle>
         <DialogContent>
           <DialogContentText className={classes.marginBottom20px}>
-            Unlocking { cryptoType } wallet using your
-            independent password
+            Unlocking {cryptoType} wallet using your independent password
           </DialogContentText>
-          {actionsPending && actionsPending.decryptCloudWallet &&
-            <LinearProgress />
-          }
-          {(!actionsPending || !actionsPending.decryptCloudWallet) &&
+          {actionsPending && actionsPending.decryptCloudWallet && <LinearProgress />}
+          {(!actionsPending || !actionsPending.decryptCloudWallet) && (
             <form noValidate autoComplete='drive-wallet-independent-password-form'>
               <TextField
                 id='drive-wallet-independent-password'
@@ -83,7 +80,7 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
                 helperText={error ? 'Incorrect password' : ''}
               />
             </form>
-          }
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color='primary' id='cancel'>
