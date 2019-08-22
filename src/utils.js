@@ -11,7 +11,7 @@ import type { StandardTokenUnit } from './types/token.flow'
  * @param val string, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
  */
-function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 8) {
+function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 6) {
   if (decimals === 0) return parseFloat(val)
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
@@ -23,7 +23,7 @@ function toHumanReadableUnit (val: any, decimals: number = 18, precision: number
  * @param val float number representing token units with precision [precision]
  * @return BN smallest token unit
  */
-function toBasicTokenUnit (val: any, decimals: number = 18, precision: number = 8) {
+function toBasicTokenUnit (val: any, decimals: number = 18, precision: number = 6) {
   if (decimals === 0) return new BN(val)
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))

@@ -1,21 +1,12 @@
 // @flow
-import env from '../typedEnv'
-import axios from 'axios'
 import utils from '../utils'
 
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
-
-const apiLibra = axios.create({
-  baseURL: env.REACT_APP_LIBRA_API_ENDPOINT,
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  validateStatus: function (status) {
-    return status === 200 // default
-  }
-})
+ // eslint-disable-next-line
+import { LibraWallet, LibraClient } from 'kulap-libra'
+import API from '../apis'
 
 // Proof-of-concept
 // use Ethereum data struct for quick implementation
@@ -46,14 +37,17 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
   }
 
   createAccount = async (): Promise<AccountEthereum> => {
-    let response = await apiLibra.post('/createWallet')
-    let { data } = response
+    const wallet = new LibraWallet()
+    const _account = wallet.newAccount()
+    const _config = wallet.getConfig()
     let account = {
-      balance: data.balance,
+      balance: '0',
       ethBalance: '0',
-      address: data.address,
-      privateKey: JSON.stringify({ mnemonic: data.mnemonic, address: data.address })
+      address: _account.getAddress().toHex(),
+      privateKey: _config.mnemonic.toString()
     }
+    // mint 100 libracoins to users accounts
+    await API.mintLibra({address: _account.getAddress().toHex(), amount: '100000000'})
     return account
   }
 
@@ -84,9 +78,10 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       password
     )
     if (!privateKey) throw new Error('Incorrect password')
-    let { mnemonic, address } = JSON.parse(privateKey)
-    this.walletData.accounts[accountIdx].privateKey = mnemonic
-    this.walletData.accounts[accountIdx].address = address
+    const wallet = new LibraWallet({mnemonic: privateKey})
+    const _account = wallet.newAccount()
+    this.walletData.accounts[accountIdx].privateKey = privateKey
+    this.walletData.accounts[accountIdx].address =  _account.getAddress().toHex()
   }
 
   clearPrivateKey = (): void => {
@@ -102,10 +97,14 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
   sync = async (progress: any) => {
     // use the first account only
     let account = this.walletData.accounts[0]
-    let response = await apiLibra.post(`/getBalance`, {
-      address: account.address
+    const client = new LibraClient({
+      transferProtocol: 'https',
+      host: 'ac-libra-testnet.kulap.io',
+      port: '443',
+      dataProtocol: 'grpc-web-text'
     })
-    account.balance = response.data.balance
+    const accountState = await client.getAccountState(account.address)
+    account.balance = accountState.balance.toString()
   }
 
   getTxFee = async ({
@@ -136,13 +135,23 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
     txFee?: TxFee,
     options?: Object
   }): Promise<TxHash | Array<TxHash>> => {
-    const account = this.getAccount()
-    const response = await apiLibra.post('/transfer', {
-      fromAddress: account.address,
-      mnemonic: account.privateKey,
-      toAddress: to,
-      amount: value
+    const client = new LibraClient({
+      transferProtocol: 'https',
+      host: 'ac-libra-testnet.kulap.io',
+      port: '443',
+      dataProtocol: 'grpc-web-text'
     })
-    return response.data.address
+    console.log(value)
+    const account = this.getAccount()
+    const wallet = new LibraWallet({mnemonic: account.privateKey})
+    const _account = wallet.newAccount()
+    // transfer may not be working right now due to
+    // https://github.com/perfectmak/libra-core/issues/3
+    // waiting for it to be fixed
+    const response = await client.transferCoins(_account, to, value);
+
+    // wait for transaction confirmation
+    await response.awaitConfirmation(client);
+    return to
   }
 }

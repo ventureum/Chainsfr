@@ -214,6 +214,22 @@ async function removeRecipient (request: {
   }
 }
 
+async function mintLibra (request: {
+  address: string,
+  amount: string // microlibra
+}) {
+  try {
+    let rv = await apiTransfer.post('/transfer', {
+      clientId: 'test-client',
+      action: 'MINT_LIBRA',
+      ...request
+    })
+    return rv.data
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -225,5 +241,6 @@ export default {
   getLastUsedAddress,
   getRecipients,
   addRecipient,
-  removeRecipient
+  removeRecipient,
+  mintLibra
 }
