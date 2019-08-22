@@ -3,7 +3,7 @@ notifications:
   slack: ventureum-team:DSE8wxmLTenq0Yz17BrYBWg9
 language: node_js
 node_js:
-- 8
+- 12
 fail_fast: true
 script:
 - npm run eslint

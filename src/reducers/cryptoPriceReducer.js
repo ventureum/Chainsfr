@@ -1,15 +1,15 @@
+import update from 'immutability-helper'
 const initState = {
-  cryptoPrice: {},
+  cryptoPrice: {
+    libra: 1
+  },
   currency: 'USD'
 }
 
 export default function (state = initState, action) {
   switch (action.type) {
     case 'GET_CRYPTO_PRICE_FULFILLED':
-      return {
-        ...state,
-        cryptoPrice: action.payload
-      }
+      return update(state, {cryptoPrice: {$merge: action.payload}})
     case 'SET_CURRENCY':
       return {
         ...state,

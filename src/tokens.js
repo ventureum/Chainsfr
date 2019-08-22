@@ -34,7 +34,7 @@ export const cryptoSelections = [
     title: 'Libra',
     symbol: 'Libra',
     logo: LibraLogo,
-    decimals: 0,
+    decimals: 6,
     txFeesCryptoType: 'libra'
   }
 ]
