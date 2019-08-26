@@ -36,6 +36,7 @@ module.exports = {
   'rules': {
     "react/prop-types": 'off',
     "flowtype/no-types-missing-file-annotation": 'off',
-    'code': 100
-  }
+    'code': 100,
+    "space-before-function-paren": ["error", "always"]
+    }
 }
