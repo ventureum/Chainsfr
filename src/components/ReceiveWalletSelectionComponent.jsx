@@ -46,7 +46,7 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletSection = () => {
-    const { walletType, onWalletSelected, classes, transfer } = this.props
+    const { walletType, onWalletSelected, classes, transfer, lastUsedWallet } = this.props
     return (
       <Container className={classes.topSectionContainer}>
         <Typography variant='h3' style={{ marginBottom: '10px' }}>
@@ -82,6 +82,7 @@ class ReceiveWalletSelectionComponent extends Component {
             handleClick={onWalletSelected}
             walletSelection={walletType}
             cryptoType={transfer.cryptoType}
+            lastUsedWallet={lastUsedWallet}
           />
         )}
       </Container>
@@ -96,7 +97,8 @@ class ReceiveWalletSelectionComponent extends Component {
       wallet,
       transfer,
       lastUsedAddressByWalletType,
-      useAnotherAddress
+      useAnotherAddress,
+      walletStatus
     } = this.props
     const { cryptoType } = transfer
     if (walletType && lastUsedAddressByWalletType) {
@@ -130,18 +132,20 @@ class ReceiveWalletSelectionComponent extends Component {
                   </IconButton>
                 </Grid>
               </Grid>
-              <Grid
-                item
-                onClick={() => {
-                  useAnotherAddress()
-                }}
-                className={classes.connectAnotherAddressContainer}
-                id='useAnotherAddress'
-              >
-                <Typography className={classes.connectAnotherAddressText}>
-                  Connect with another {getWalletTitle(walletType)} account
-                </Typography>
-              </Grid>
+              {!walletStatus.disabled && (
+                <Grid
+                  item
+                  onClick={() => {
+                    useAnotherAddress()
+                  }}
+                  className={classes.connectAnotherAddressContainer}
+                  id='useAnotherAddress'
+                >
+                  <Typography className={classes.connectAnotherAddressText}>
+                    Connect with another {getWalletTitle(walletType)} account
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
           </Grid>
           <Grid item>
@@ -253,7 +257,7 @@ class ReceiveWalletSelectionComponent extends Component {
     }
   }
 
-  render() {
+  render () {
     const { classes, walletType, transfer, wallet, lastUsedAddressByWalletType } = this.props
     const { cryptoType } = transfer
     return (

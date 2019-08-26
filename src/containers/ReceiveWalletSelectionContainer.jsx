@@ -16,18 +16,20 @@ import { selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import WalletUtils from '../wallets/utils'
+import { getWalletStatus } from '../wallet'
 
 class ReceiveWalletSelectionContainer extends Component {
-  getLastUsedAddressByWalletType = (walletType) => {
+  getLastUsedAddressByWalletType = walletType => {
     const { transfer, lastUsedWallet } = this.props
-    const _lastUsedWalletExist = !lastUsedWallet.notUsed &&
-    lastUsedWallet[walletType] &&
-    lastUsedWallet[walletType].crypto[transfer.cryptoType]
+    const _lastUsedWalletExist =
+      !lastUsedWallet.notUsed &&
+      lastUsedWallet[walletType] &&
+      lastUsedWallet[walletType].crypto[transfer.cryptoType]
     const lastUsedWalletByWalletType = _lastUsedWalletExist ? lastUsedWallet[walletType] : null
     return lastUsedWalletByWalletType
   }
 
-  onWalletSelected = (walletType) => {
+  onWalletSelected = walletType => {
     const {
       checkMetamaskConnection,
       checkCloudWalletConnection,
@@ -58,7 +60,8 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   useAnotherAddress = () => {
-    const { notUseLastAddress,
+    const {
+      notUseLastAddress,
       transfer,
       walletSelection,
       checkMetamaskConnection,
@@ -77,19 +80,28 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, actionsPending, error, transfer, checkLedgerAppConnection, getLedgerWalletData } = this.props
+    const {
+      wallet,
+      actionsPending,
+      error,
+      transfer,
+      checkLedgerAppConnection,
+      getLedgerWalletData
+    } = this.props
     let { cryptoType } = transfer
     const prevActionsPending = prevProps.actionsPending
     if (
       prevActionsPending.checkLedgerDeviceConnection &&
       !actionsPending.checkLedgerDeviceConnection &&
-        wallet.connected
+      wallet.connected
     ) {
       checkLedgerAppConnection(cryptoType)
-    } else if (prevActionsPending.checkLedgerAppConnection && !actionsPending.checkLedgerAppConnection) {
+    } else if (
+      prevActionsPending.checkLedgerAppConnection &&
+      !actionsPending.checkLedgerAppConnection
+    ) {
       getLedgerWalletData(cryptoType)
-    } else
-    if (
+    } else if (
       wallet &&
       wallet.connected &&
       (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
@@ -104,7 +116,11 @@ class ReceiveWalletSelectionContainer extends Component {
     let { wallet, walletSelection, transfer } = this.props
     const lastUsedWalletByWalletType = this.getLastUsedAddressByWalletType(walletSelection)
     this.props.sync(
-      WalletUtils.toWalletDataFromState(walletSelection, transfer.cryptoType, lastUsedWalletByWalletType || wallet),
+      WalletUtils.toWalletDataFromState(
+        walletSelection,
+        transfer.cryptoType,
+        lastUsedWalletByWalletType || wallet
+      ),
       (index, change) => {
         this.setState({ syncProgress: { index, change } })
       }
@@ -112,16 +128,15 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   render () {
-    const {
-      walletSelection,
-      ...other
-    } = this.props
+    const { walletSelection, ...other } = this.props
+    const walletStatus = getWalletStatus(walletSelection)
     return (
       <ReceiveWalletSelection
         walletType={walletSelection}
         onWalletSelected={this.onWalletSelected}
         useAnotherAddress={this.useAnotherAddress}
         lastUsedAddressByWalletType={this.getLastUsedAddressByWalletType(walletSelection)}
+        walletStatus={walletStatus}
         {...other}
       />
     )
@@ -134,7 +149,9 @@ const checkWalletConnectionSelector = createLoadingSelector([
 ])
 
 const syncSelector = createLoadingSelector(['SYNC'])
-const checkLedgerDeviceConnectionSelector = createLoadingSelector(['CHECK_LEDGER_DEVICE_CONNECTION'])
+const checkLedgerDeviceConnectionSelector = createLoadingSelector([
+  'CHECK_LEDGER_DEVICE_CONNECTION'
+])
 const checkLedgerAppConnectionSelector = createLoadingSelector(['CHECK_LEDGER_APP_CONNECTION'])
 
 const errorSelector = createErrorSelector([
@@ -147,16 +164,16 @@ const getLastUsedAddressSelector = createLoadingSelector(['GET_LAST_USED_ADDRESS
 
 const mapDispatchToProps = dispatch => {
   return {
-    checkMetamaskConnection: (cryptoType) => dispatch(checkMetamaskConnection(cryptoType)),
-    checkCloudWalletConnection: (cryptoType) => dispatch(checkCloudWalletConnection(cryptoType)),
-    getLedgerWalletData: (cryptoType) => dispatch(getLedgerWalletData(cryptoType)),
-    selectWallet: (w) => dispatch(selectWallet(w)),
-    goToStep: (n) => dispatch(goToStep('receive', n)),
+    checkMetamaskConnection: cryptoType => dispatch(checkMetamaskConnection(cryptoType)),
+    checkCloudWalletConnection: cryptoType => dispatch(checkCloudWalletConnection(cryptoType)),
+    getLedgerWalletData: cryptoType => dispatch(getLedgerWalletData(cryptoType)),
+    selectWallet: w => dispatch(selectWallet(w)),
+    goToStep: n => dispatch(goToStep('receive', n)),
     sync: (walletData, progress) => dispatch(sync(walletData, progress)),
-    getLastUsedAddress: (googleId) => dispatch(getLastUsedAddress(googleId)),
+    getLastUsedAddress: googleId => dispatch(getLastUsedAddress(googleId)),
     notUseLastAddress: () => dispatch(notUseLastAddress()),
     checkLedgerDeviceConnection: () => dispatch(checkLedgerDeviceConnection()),
-    checkLedgerAppConnection: (cryptoType) => dispatch(checkLedgerAppConnection(cryptoType))
+    checkLedgerAppConnection: cryptoType => dispatch(checkLedgerAppConnection(cryptoType))
   }
 }
 
