@@ -49,7 +49,7 @@ class AddRecipientDialog extends Component<Props, State> {
     } else if (prop === 'name') {
       this.setState({
         [prop]: event.target.value,
-        validName: !!event.target.value
+        validName: !!event.target.value && event.target.value === event.target.value.trim()
       })
     }
   }

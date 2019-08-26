@@ -123,7 +123,6 @@ function editRecipient (oldRecipient: Recipient, newRecipient: Recipient) {
       payload: async () => {
         await API.removeRecipient({ idToken, recipient: oldRecipient })
         const result = await API.addRecipient({ idToken, recipient: newRecipient })
-        console.log('sha', result)
         return result
       }
     }).then(() => {

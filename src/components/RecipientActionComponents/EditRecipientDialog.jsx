@@ -45,12 +45,9 @@ class EditRecipientDialog extends Component<Props, State> {
         validEmail: validator.isEmail(event.target.value)
       })
     } else if (prop === 'name') {
-      console.log(event.target.value)
-      console.log(!!event.target.value)
-
       this.setState({
         [prop]: event.target.value,
-        validName: !!event.target.value
+        validName: !!event.target.value && event.target.value === event.target.value.trim()
       })
     }
   }
