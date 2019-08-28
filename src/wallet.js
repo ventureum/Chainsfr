@@ -28,30 +28,35 @@ if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
   walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
 }
 
-function getWalletStatus () {
-  if (isMobile) {
-    return {
-      disabled: true,
-      disabledReason: 'Not supported in mobile device'
-    }
-  } else if (browser && browser.name === 'chrome') {
-    let v = browser.version.split('.')[0]
-    if (parseInt(v) < 73) {
+export function getWalletStatus (walletType: ?string) {
+  if (walletType !== 'drive') {
+    if (isMobile) {
       return {
         disabled: true,
-        disabledReason: 'Chrome version 73 or above needed'
+        disabledReason: 'Not supported in mobile device'
+      }
+    } else if (browser && browser.name === 'chrome') {
+      let v = browser.version.split('.')[0]
+      if (parseInt(v) < 73) {
+        return {
+          disabled: true,
+          disabledReason: 'Chrome version 73 or above needed'
+        }
+      }
+    } else if (browser && browser.name !== 'chrome') {
+      return {
+        disabled: true,
+        disabledReason: 'Chrome browser needed'
       }
     }
-  } else if (browser && browser.name !== 'chrome') {
-    return {
-      disabled: true,
-      disabledReason: 'Chrome browser needed'
-    }
-  } else {
     return {
       disabled: false,
       disabledReason: ''
     }
+  }
+  return {
+    disabled: false,
+    disabledReason: ''
   }
 }
 

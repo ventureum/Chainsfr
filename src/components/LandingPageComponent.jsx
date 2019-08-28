@@ -62,8 +62,8 @@ class LandingPageComponent extends Component {
           }}
         >
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Grid container direction="row" alignItems="center" justify="center">
-              <Typography>{transfer.data.error}</Typography>
+            <Grid container direction='row' alignItems='center' justify='center'>
+              <Typography>{transfer.error}</Typography>
             </Grid>
           </ExpansionPanelSummary>
         </ExpansionPanel>
@@ -118,7 +118,7 @@ class LandingPageComponent extends Component {
         }}
       >
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Grid container direction="row" alignItems="center">
+          <Grid container direction='row' alignItems='center'>
             <Grid xs={8} item>
               <ListItemText
                 primary={`${transfer.transferType === 'SENDER' ? 'To' : 'From'} ${
@@ -128,19 +128,19 @@ class LandingPageComponent extends Component {
               />
             </Grid>
             <Grid xs={4} item>
-              <Grid container direction="row" justify="space-between" alignItems="center">
+              <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
-                  <Typography align="center" className={classes[stateClassName]}>
+                  <Typography align='center' className={classes[stateClassName]}>
                     {toUserReadableState[transfer.transferType][transfer.state]}
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography align="right" className={classes.recentTransferItemTransferAmount}>
+                  <Typography align='right' className={classes.recentTransferItemTransferAmount}>
                     {transfer.transferType === 'SENDER' ? '-' : '+'}
                     {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
                   </Typography>
                   <Typography
-                    align="right"
+                    align='right'
                     className={classes.recentTransferItemTransferCurrencyAmount}
                   >
                     {transfer.transferType === 'SENDER' ? '-' : '+'}
@@ -152,7 +152,7 @@ class LandingPageComponent extends Component {
           </Grid>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <Grid container direction="column" justify="center" alignItems="flex-start">
+          <Grid container direction='column' justify='center' alignItems='flex-start'>
             <Grid item>
               <Typography className={classes.recentTransferItemTransferId}>
                 Transfer ID:{' '}
@@ -189,8 +189,8 @@ class LandingPageComponent extends Component {
                 <Typography className={classes.recentTransferItemTransferId}>
                   You can track the Transaction
                   <MuiLink
-                    target="_blank"
-                    rel="noopener"
+                    target='_blank'
+                    rel='noopener'
                     href={url.getExplorerTx(transfer.cryptoType, txHash)}
                   >
                     {' here'}
@@ -204,9 +204,9 @@ class LandingPageComponent extends Component {
             ].includes(transfer.state) && (
               <Grid item>
                 <Button
-                  color="primary"
+                  color='primary'
                   component={Link}
-                  target="_black"
+                  target='_black'
                   to={`cancel?id=${transfer.transferId}`}
                   className={classes.recentTransferItemCancelBtn}
                 >
@@ -226,20 +226,20 @@ class LandingPageComponent extends Component {
     // Do not remove <div style={{ padding: 10 }}>
     // See https://material-ui.com/components/grid/#limitations
     return (
-      <Grid container alignItems="center" justify="center" className={classes.coloredBackgrond}>
-        <Container maxWidth="lg">
+      <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
+        <Container maxWidth='lg'>
           <Box mb={2}>
-            <Typography variant="h2">Transfer From</Typography>
+            <Typography variant='h2'>Transfer From</Typography>
           </Box>
           <WalletSelectionButtons
             walletSelection={walletSelection}
             handleClick={walletType => this.setState({ walletSelection: walletType })}
           />
-          <Grid container direction="row" alignItems="center" justify="center">
+          <Grid container direction='row' alignItems='center' justify='center'>
             <Grid item>
               <Button
-                variant="contained"
-                color="primary"
+                variant='contained'
+                color='primary'
                 onClick={() => push(`${path.transfer}?walletSelection=${walletSelection}`)}
                 disabled={!walletSelection}
               >
@@ -257,16 +257,16 @@ class LandingPageComponent extends Component {
     return (
       <Grid
         container
-        alignItems="center"
-        justify="center"
+        alignItems='center'
+        justify='center'
         className={classes.transactionHistorySection}
       >
-        <Container maxWidth="lg">
-          <Grid container direction="column" justify="center" alignItems="stretch">
+        <Container maxWidth='lg'>
+          <Grid container direction='column' justify='center' alignItems='stretch'>
             <Grid item>
-              <Grid container direction="row">
+              <Grid container direction='row'>
                 <Grid item>
-                  <Typography variant="h2">Recent Transactions</Typography>
+                  <Typography variant='h2'>Recent Transactions</Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -274,8 +274,8 @@ class LandingPageComponent extends Component {
               <InfiniteScroll
                 loader={
                   actionsPending.getTransferHistory && (
-                    <Grid container direction="row" justify="center" key={0} alignItems="center">
-                      <CircularProgress color="primary" style={{ marginTop: '30px' }} />
+                    <Grid container direction='row' justify='center' key={0} alignItems='center'>
+                      <CircularProgress color='primary' style={{ marginTop: '30px' }} />
                     </Grid>
                   )
                 }
@@ -291,12 +291,12 @@ class LandingPageComponent extends Component {
                 initialLoad={false}
               >
                 <Grid item className={classes.txHistoryTitleContainer}>
-                  <Grid container direction="row" alignItems="center">
+                  <Grid container direction='row' alignItems='center'>
                     <Grid item xs={8}>
                       <Typography className={classes.txHistoryTitleText}>Transaction</Typography>
                     </Grid>
                     <Grid item xs={4}>
-                      <Grid container alignItems="center" justify="space-between">
+                      <Grid container alignItems='center' justify='space-between'>
                         <Grid item>
                           <Typography className={classes.txHistoryTitleText}>Status</Typography>
                         </Grid>
@@ -309,7 +309,7 @@ class LandingPageComponent extends Component {
                 </Grid>
                 <Divider />
                 {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
-                  <Grid container justify="center">
+                  <Grid container justify='center'>
                     <Typography className={classes.noTxText}>
                       It seems you don't have any transactions yet
                     </Typography>
@@ -326,9 +326,9 @@ class LandingPageComponent extends Component {
     )
   }
 
-  render() {
+  render () {
     return (
-      <Grid container direction="column">
+      <Grid container direction='column'>
         <Grid item>{this.renderWalletSection()}</Grid>
         <Grid item>{this.renderTransferHistorySection()}</Grid>
       </Grid>

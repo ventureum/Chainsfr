@@ -58,6 +58,7 @@ const initialProps = {
     updateBtcAccountInfo: false,
     getLastUsedAddress: false
   },
+  walletStatus: { disabled: false },
   goToStep: () => {}
 }
 let wrapper
