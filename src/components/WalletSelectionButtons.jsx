@@ -51,7 +51,7 @@ const useStyles = makeStyles({
   }
 })
 
-export function WalletButton(props) {
+export function WalletButton (props) {
   const { walletType, handleClick, selected, disabled, disabledReason } = props
   const wallet = walletSelections.find(w => w.walletType === walletType)
   const classes = useStyles()
@@ -74,7 +74,7 @@ export function WalletButton(props) {
   )
 }
 
-export default function WalletSelectionButtons(props) {
+export default function WalletSelectionButtons (props) {
   const { handleClick, walletSelection, cryptoType, lastUsedWallet } = props
   const classes = useStyles()
   return (
