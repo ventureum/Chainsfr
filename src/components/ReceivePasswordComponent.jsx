@@ -37,7 +37,7 @@ class ReceivePasswordComponent extends Component {
         transfer.cryptoType,
         escrowWallet
       ),
-      password: password + transfer.destination
+      password: password
     })
   }
 

@@ -102,8 +102,6 @@ async function _submitTx (txRequest: {
   } = txRequest
 
   let { cryptoType } = fromWallet
-  // add destination to password to enhance security
-  let _password = password + destination
 
   // generate an escrow wallet
   let escrowWallet: Wallet = await WalletFactory.generateWallet({
@@ -111,11 +109,9 @@ async function _submitTx (txRequest: {
     cryptoType: cryptoType
   })
 
+  await escrowWallet.encryptAccount(password)
   let escrowAccount = escrowWallet.getAccount()
-
-  // supress flow warning
-  if (!escrowAccount.privateKey) throw new Error('PrivateKey missing in escrow account')
-  let encryptedPrivateKey = await utils.encryptMessage(escrowAccount.privateKey, _password)
+  let encryptedPrivateKey = escrowAccount.encryptedPrivateKey
 
   let sendTxHash
   let sendTxFeeTxHash
@@ -127,7 +123,7 @@ async function _submitTx (txRequest: {
     transferAmount: transferAmount,
     cryptoType: fromWallet.cryptoType,
     data: Base64.encode(encryptedPrivateKey),
-    password: Base64.encode(_password),
+    password: Base64.encode(password),
     tempTimestamp: moment().unix()
   })
 
@@ -169,7 +165,7 @@ async function _submitTx (txRequest: {
     data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    password: Base64.encode(_password)
+    password: Base64.encode(password)
   })
 }
 
@@ -395,7 +391,7 @@ async function _getTransferHistory (offset: number = 0) {
           transferIdsSet.has(item.transferId) &&
           transfersDict[item.transferId]
         ) {
-          password = Base64.decode(transfersDict[item.transferId].password).split(item.sender)[0]
+          password = Base64.decode(transfersDict[item.transferId].password)
           transferType = 'SENDER'
         } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
           transferType = 'RECEIVER'

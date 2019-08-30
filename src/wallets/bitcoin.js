@@ -56,7 +56,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     const seed = bip39.mnemonicToSeedSync(bip39.generateMnemonic())
     const root = bip32.fromSeed(seed, NETWORK)
     let xpriv = root.toBase58()
-
     this.walletData = {
       walletType: walletType,
       cryptoType: cryptoType,
