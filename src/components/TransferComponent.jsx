@@ -67,7 +67,8 @@ const styles = theme => ({
   subComponent: {
     width: '100%',
     maxWidth: '680px',
-    margin: '0px 0px 16px 0px'
+    margin: '0px 0px 16px 0px',
+    padding: '30px'
   },
   walletSelectionContainer: {
     width: '100%',
