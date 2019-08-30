@@ -18,7 +18,6 @@ const basicWalletStyle = {
 
 const useStyles = makeStyles({
   walletLogo: {
-    width: '64px',
     height: '64px',
     alignSelf: 'center',
     marginBottom: spacing.base

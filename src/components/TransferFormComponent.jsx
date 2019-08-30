@@ -174,8 +174,8 @@ class TransferFormComponent extends Component<Props> {
             </FormControl>
           </Grid>
           <Grid item>
-            <Grid container direction='row' justify='center' alignItems='center'>
-              <Grid item md={5}>
+            <Grid container direction='row' justify='center' alignItems='center' spacing={3}>
+              <Grid item xs>
                 <TextField
                   margin='normal'
                   fullWidth
@@ -193,10 +193,10 @@ class TransferFormComponent extends Component<Props> {
                   }}
                 />
               </Grid>
-              <Grid item md={2} align='center'>
+              <Grid item align='center'>
                 <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
               </Grid>
-              <Grid item md={5}>
+              <Grid item xs>
                 <TextField
                   margin='normal'
                   fullWidth

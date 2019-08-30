@@ -284,7 +284,7 @@ class WalletSelectionComponent extends Component<Props> {
     )
   }
 
-  render() {
+  render () {
     const { walletType, cryptoType, wallet, handleNext } = this.props
 
     return (

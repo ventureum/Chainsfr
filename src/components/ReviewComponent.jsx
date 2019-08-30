@@ -36,8 +36,7 @@ const BASE_WALLET_INSTRUCTION = {
     'Press the right button to confirm and sign the transaction if everything is correct. ' +
     'The transaction is then signed and sent to the network for confirmation.',
   metamask: 'Please confirm transaction in the Metamask popup window.',
-  drive:
-    'Please wait while we are broadcasting your transaction to the network.'
+  drive: 'Please wait while we are broadcasting your transaction to the network.'
 }
 
 const BASE_CRYPTO_INSTRUCTION = {
@@ -110,11 +109,7 @@ class ReviewComponent extends Component<Props> {
 
     // submit tx
     this.props.submitTx({
-      fromWallet: WalletUtils.toWalletDataFromState(
-        walletSelection,
-        cryptoSelection,
-        wallet
-      ),
+      fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
       transferAmount: transferAmount,
       transferFiatAmountSpot: transferCurrencyAmount,
       fiatType: currency,
@@ -131,7 +126,7 @@ class ReviewComponent extends Component<Props> {
     })
   }
 
-  render() {
+  render () {
     const {
       classes,
       transferForm,
@@ -157,11 +152,7 @@ class ReviewComponent extends Component<Props> {
           <Grid container direction='column' justify='center'>
             <Grid item>
               <Grid item>
-                <Typography
-                  className={classes.title}
-                  variant='h6'
-                  align='center'
-                >
+                <Typography className={classes.title} variant='h6' align='center'>
                   Please review details of your transfer
                 </Typography>
               </Grid>
@@ -170,18 +161,10 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     From
                   </Typography>
-                  <Typography
-                    className={classes.reviewContent}
-                    align='left'
-                    id='senderName'
-                  >
+                  <Typography className={classes.reviewContent} align='left' id='senderName'>
                     {senderName}
                   </Typography>
-                  <Typography
-                    className={classes.reviewContentEmail}
-                    align='left'
-                    id='sender'
-                  >
+                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
                     {sender}
                   </Typography>
                 </Grid>
@@ -189,11 +172,7 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     To
                   </Typography>
-                  <Typography
-                    className={classes.reviewContent}
-                    align='left'
-                    id='receiverName'
-                  >
+                  <Typography className={classes.reviewContent} align='left' id='receiverName'>
                     {receiverName}
                   </Typography>
                   <Typography className={classes.reviewContentEmail} align='left'>
@@ -208,39 +187,26 @@ class ReviewComponent extends Component<Props> {
                     {password}
                   </Typography>
                 </Grid>
-                {sendMessage &&
-                sendMessage.length > 0 && ( // only show message when available
-                    <Grid item className={classes.reviewItem}>
-                      <Typography
-                        className={classes.reviewSubtitle}
-                        align='left'
-                      >
-                        Message
-                      </Typography>
-                      <Typography
-                        paragraph
-                        className={classes.reviewContentMessage}
-                        align='left'
-                      >
-                        {sendMessage}
-                      </Typography>
-                    </Grid>
-                  )}
+                {sendMessage && sendMessage.length > 0 && (
+                  // only show message when available
+                  <Grid item className={classes.reviewItem}>
+                    <Typography className={classes.reviewSubtitle} align='left'>
+                      Message
+                    </Typography>
+                    <Typography paragraph className={classes.reviewContentMessage} align='left'>
+                      {sendMessage}
+                    </Typography>
+                  </Grid>
+                )}
                 <Grid item className={classes.reviewItem}>
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Amount
                   </Typography>
                   <Grid container direction='column'>
-                    <Typography
-                      className={classes.reviewContentAmount}
-                      align='left'
-                    >
+                    <Typography className={classes.reviewContentAmount} align='left'>
                       {transferAmount} {getCryptoSymbol(cryptoSelection)}
                     </Typography>
-                    <Typography
-                      className={classes.reviewContentCurrencyAmount}
-                      align='left'
-                    >
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
                       ≈ {currencyAmount.transferAmount}
                     </Typography>
                   </Grid>
@@ -251,17 +217,11 @@ class ReviewComponent extends Component<Props> {
                   </Typography>
                   {!actionsPending.getTxFee && txFee ? (
                     <Grid container direction='column'>
-                      <Typography
-                        className={classes.reviewContentAmount}
-                        align='left'
-                      >
+                      <Typography className={classes.reviewContentAmount} align='left'>
                         {txFee.costInStandardUnit}{' '}
                         {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
                       </Typography>
-                      <Typography
-                        className={classes.reviewContentCurrencyAmount}
-                        align='left'
-                      >
+                      <Typography className={classes.reviewContentCurrencyAmount} align='left'>
                         ≈ {currencyAmount.txFee}
                       </Typography>
                     </Grid>
@@ -272,11 +232,7 @@ class ReviewComponent extends Component<Props> {
               </Paper>
               {actionsPending.submitTx && (
                 <Grid item>
-                  <Grid
-                    container
-                    direction='column'
-                    className={classes.instructionContainer}
-                  >
+                  <Grid container direction='column' className={classes.instructionContainer}>
                     <Grid item>
                       <Typography className={classes.instructionTitile}>
                         {getWalletTitle(walletSelection)} Transfer Instructions
@@ -303,6 +259,7 @@ class ReviewComponent extends Component<Props> {
                 color='primary'
                 size='large'
                 onClick={() => this.props.goToStep(-1)}
+                disabled={actionsPending.submitTx}
               >
                 Back to previous
               </Button>
