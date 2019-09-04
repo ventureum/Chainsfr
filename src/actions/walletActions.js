@@ -56,6 +56,7 @@ async function _verifyPassword (transferInfo: {
   }
 
   await wallet.decryptAccount(password)
+  await wallet.sync()
   return wallet.getWalletData()
 }
 

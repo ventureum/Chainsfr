@@ -146,6 +146,17 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     if (!xpriv) throw new Error('Incorrect password')
     account.hdWalletVariables.xpriv = xpriv
     const path = `m/${BASE_BTC_PATH}/${DEFAULT_ACCOUNT}'`
+    const firstAddressNode = bip32
+      .fromBase58(xpriv, NETWORK)
+      .derivePath(path + '/0/0')
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({
+        // change = 0, addressIdx = 0
+        pubkey: firstAddressNode.publicKey,
+        network: NETWORK
+      }),
+      network: NETWORK
+    })
     account.privateKey = bip32
       .fromBase58(xpriv, NETWORK)
       .derivePath(path + '/0/0')
@@ -155,6 +166,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       .derivePath(path)
       .neutered()
       .toBase58()
+    account.address = address
   }
 
   clearPrivateKey = (): void => {
@@ -326,7 +338,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       let signedTxRaw = await signer(
         utxosCollected,
         to,
-        Number(value),
+        Number(value), // actual value to be sent
         Number(fee),
         account.hdWalletVariables.nextChangeIndex
       )
