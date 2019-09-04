@@ -248,7 +248,7 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {|
     receivingId: txRequest.receivingId,
     receiveTimestamp: response.receiveTimestamp
   })
-  return response
+  return {...response, ...txRequest}
 }
 
 async function _cancelTransfer (txRequest: {
@@ -305,8 +305,7 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {|
   cancelMessage: ?string
 |}) {
   let response = await API.cancel(txRequest)
-  let { cancelMessage } = txRequest
-  return { ...response, cancelMessage }
+  return {...response, ...txRequest}
 }
 
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
