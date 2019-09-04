@@ -9,6 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import ReceiveLandingIllustration from '../images/receive-landing.svg'
 import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol } from '../tokens'
+import url from '../url'
 
 class ReceiveLandingPageComponent extends Component {
   renderBtnSection = () => {
@@ -174,8 +175,8 @@ class ReceiveLandingPageComponent extends Component {
                     <MuiLink
                       target='_blank'
                       rel='noopener'
-                      href={`https://rinkeby.etherscan.io/tx/${(hasReceived && receiveTxHash) || (hasCancelled && cancelTxHash)}`}>
-                      Check status on Etherscan
+                      href={url.getExplorerTx(cryptoType, receiveTxHash || cancelTxHash)}>
+                      Check transaction status
                     </MuiLink>
                   </Typography>
                 </Grid>

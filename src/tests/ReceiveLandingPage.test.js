@@ -73,7 +73,7 @@ describe('ReceiveLandingPageComponent render', () => {
         receiveTime: { $set: receiveTimestamp }
         })
     )
-    expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
+    expect(wrapper.find(MuiLink).props().children).toEqual('Check transaction status')
     expect(wrapper.find(Typography).someWhere(n => (n.text() === receiveTimestamp))).toEqual(true)
   })
 
@@ -88,7 +88,7 @@ describe('ReceiveLandingPageComponent render', () => {
         receiveTime: { $set: receiveTimestamp }
         })
     )
-    expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
+    expect(wrapper.find(MuiLink).props().children).toEqual('Check transaction status')
     expect(wrapper.find(Typography).someWhere(n => (n.text() === receiveTimestamp))).toEqual(true)
   })
 
@@ -104,7 +104,7 @@ describe('ReceiveLandingPageComponent render', () => {
         cancelTime: { $set: cancelTimestamp }
         })
     )
-    expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
+    expect(wrapper.find(MuiLink).props().children).toEqual('Check transaction status')
     expect(wrapper.find(Typography).someWhere(n => (n.text() === 'Transfer has been cancelled'))).toEqual(true)
     expect(wrapper.find(Typography).someWhere(n => (n.text() === cancelTimestamp))).toEqual(true)
   })
@@ -122,7 +122,7 @@ describe('ReceiveLandingPageComponent render', () => {
         isAuthenticated: { $set: true }
         })
     )
-    expect(wrapper.find(MuiLink).props().children).toEqual('Check status on Etherscan')
+    expect(wrapper.find(MuiLink).props().children).toEqual('Check transaction status')
     expect(wrapper.find(Typography).someWhere(n => (n.text() === 'Transfer has been cancelled'))).toEqual(true)
     expect(wrapper.find(Typography).someWhere(n => (n.text() === cancelTimestamp))).toEqual(true)
   })
