@@ -209,7 +209,8 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       hdWalletVariables.nextChangeIndex = 0
       hdWalletVariables.addresses = [
         {
-          address: this.getDerivedAddress(xpub, 0, 0),
+          // use default address if xpub is not provided
+          address: xpub !== '0x0' ? this.getDerivedAddress(xpub, 0, 0) : account.address,
           path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
           utxos: []
         }
