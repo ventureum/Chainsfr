@@ -18,6 +18,8 @@ const initialProps = {
   },
   receipt: {
     receiveTimestamp: '1558022548',
+    receiveTimestamp: '1558022548',
+    receiveTxHash: '0xe1d591e4d59057550d4f41abd066b211c547c7ae643b9da1de2cc7fbb2659ce9'
   },
   transfer: {
     cryptoType: 'ethereum',
@@ -67,7 +69,7 @@ describe('ReceiptComponent render:', () => {
     const { receipt, transfer } = initialProps
     wrapper.setProps({ receipt: {...initialProps.receipt}, transfer: { ...initialProps.transfer, cryptoType: 'bitcoin' } })
     expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} BTC`)
-    expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(transfer.receiveTxHash))))
+    expect(wrapper.find(MuiLink).someWhere(m => (m.prop('href') === url.getBtcExplorerTx(receipt.receiveTxHash))))
       .toEqual(true)
   })
 })

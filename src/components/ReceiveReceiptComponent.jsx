@@ -13,16 +13,18 @@ import url from '../url'
 
 class ReceiveReceiptComponent extends Component {
   render () {
-    const { classes, txFee, transfer, backToHome, receiveTime, receiveAmount, currencyAmount } = this.props
     const {
-      receivingId,
-      transferAmount,
-      senderName,
-      sender,
-      destination,
-      cryptoType,
-      receiveTxHash
-    } = transfer
+      classes,
+      txFee,
+      transfer,
+      receipt,
+      backToHome,
+      receiveTime,
+      receiveAmount,
+      currencyAmount
+    } = this.props
+    const { receivingId, transferAmount, senderName, sender, destination, cryptoType } = transfer
+    const { receiveTxHash } = receipt
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
@@ -79,7 +81,9 @@ class ReceiveReceiptComponent extends Component {
                   </Typography>
                   <Grid container direction='column'>
                     <Typography className={classes.reviewContentAmount} align='left'>
-                      {`${txFee.costInStandardUnit} ${getCryptoSymbol(getTxFeesCryptoType(cryptoType))}`}
+                      {`${txFee.costInStandardUnit} ${getCryptoSymbol(
+                        getTxFeesCryptoType(cryptoType)
+                      )}`}
                     </Typography>
                     <Typography className={classes.reviewContentCurrencyAmount} align='left'>
                       ≈ {currencyAmount.txFee}
@@ -91,10 +95,18 @@ class ReceiveReceiptComponent extends Component {
                     You will receive*
                   </Typography>
                   <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left' id='receiveAmount'>
+                    <Typography
+                      className={classes.reviewContentAmount}
+                      align='left'
+                      id='receiveAmount'
+                    >
                       {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left' id='receiveCurrencyAmount'>
+                    <Typography
+                      className={classes.reviewContentCurrencyAmount}
+                      align='left'
+                      id='receiveCurrencyAmount'
+                    >
                       ≈ {currencyAmount.receiveAmount}
                     </Typography>
                   </Grid>
@@ -109,7 +121,8 @@ class ReceiveReceiptComponent extends Component {
                 </Grid>
                 <Grid item className={classes.reviewItem}>
                   <Typography variant='body2' className={classes.informReceiverText} align='left'>
-                    It may takes a few minutes to complete the transaction. You can track the transaction
+                    It may takes a few minutes to complete the transaction. You can track the
+                    transaction
                     <MuiLink
                       target='_blank'
                       rel='noopener'
@@ -142,7 +155,8 @@ class ReceiveReceiptComponent extends Component {
             </Grid>
           </Grid>
         </Grid>
-      </Grid>)
+      </Grid>
+    )
   }
 }
 

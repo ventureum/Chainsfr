@@ -3,6 +3,7 @@ import API from '../apis'
 import Web3 from 'web3'
 import axios from 'axios'
 import utils from '../utils'
+import BN from 'bn.js'
 import { goToStep } from './navigationActions'
 import { saveTempSendFile, saveHistoryFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
@@ -223,7 +224,8 @@ async function _acceptTransfer (txRequest: {
 
   let receiveTxHash: any = await WalletFactory.createWallet(escrowWallet).sendTransaction({
     to: WalletFactory.createWallet(receiveWallet).getAccount().address,
-    value: value,
+    // actual value to be received = transferAmount - txFee
+    value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee
   })
   if (Array.isArray(receiveTxHash)) throw new Error('receiveTxHash should not be an array')
@@ -246,7 +248,7 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {|
     receivingId: txRequest.receivingId,
     receiveTimestamp: response.receiveTimestamp
   })
-  return response
+  return {...response, ...txRequest}
 }
 
 async function _cancelTransfer (txRequest: {
@@ -285,7 +287,8 @@ async function _cancelTransfer (txRequest: {
 
   let cancelTxHash: any = await wallet.sendTransaction({
     to: senderAddress,
-    value: value,
+    // actual value to be received = transferAmount - txFee
+    value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee
   })
 
@@ -302,8 +305,7 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {|
   cancelMessage: ?string
 |}) {
   let response = await API.cancel(txRequest)
-  let { cancelMessage } = txRequest
-  return { ...response, cancelMessage }
+  return {...response, ...txRequest}
 }
 
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
