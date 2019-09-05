@@ -8,14 +8,17 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Icon from '@material-ui/core/Icon'
+import IconButton from '@material-ui/core/IconButton'
+import RefreshIcon from '@material-ui/icons/Refresh'
 import numeral from 'numeral'
 import { getCryptoSymbol } from '../tokens'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
-import FormHelperText from '@material-ui/core/FormHelperText'
 import FormControl from '@material-ui/core/FormControl'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
+import Divider from '@material-ui/core/Divider'
+import Tooltip from '@material-ui/core/Tooltip'
 
 type Props = {
   generateSecurityAnswer: Function,
@@ -34,39 +37,7 @@ type Props = {
 }
 
 class TransferFormComponent extends Component<Props> {
-  securityAnswerHelperText = validationErrMsg => {
-    const { classes, generateSecurityAnswer } = this.props
-    return (
-      // this section resides in <p>, thus cannot have <div>
-      <span>
-        <Button
-          size='small'
-          onClick={generateSecurityAnswer}
-          className={classes.generateSecurityAnswerBtn}
-        >
-          <Typography
-            component={'span'}
-            color='primary'
-            className={classes.generateSecurityAnswerBtnText}
-          >
-            Generate Security Answer
-          </Typography>
-        </Button>
-        {validationErrMsg && (
-          <Typography component={'span'} className={classes.securityAnswerBtnHelperTextError}>
-            {validationErrMsg}
-          </Typography>
-        )}
-        {!validationErrMsg && (
-          <Typography component={'span'} className={classes.securityAnswerBtnHelperText}>
-            We recommend you to use auto-generated security password for better security
-          </Typography>
-        )}
-      </span>
-    )
-  }
-
-  render () {
+  render() {
     const {
       classes,
       transferForm,
@@ -78,7 +49,8 @@ class TransferFormComponent extends Component<Props> {
       balanceCurrencyAmount,
       actionsPending,
       recipients,
-      addRecipient
+      addRecipient,
+      generateSecurityAnswer
     } = this.props
     const {
       transferAmount,
@@ -138,39 +110,30 @@ class TransferFormComponent extends Component<Props> {
                 error={!!formError.destination}
                 id={'destination'}
               >
-                {recipients.length === 0 ? (
-                  <MenuItem value=''>
-                    <em>None</em>
-                  </MenuItem>
-                ) : (
-                  recipients.map(recipient => {
-                    return (
-                      <MenuItem key={recipient.name} value={recipient.email}>
-                        <div>
-                          <Typography>{recipient.name}</Typography>
-                          <Typography className={classes.securityAnswerBtnHelperText}>
-                            {recipient.email}
-                          </Typography>
-                        </div>
-                      </MenuItem>
-                    )
-                  })
-                )}
-              </Select>
-              <FormHelperText id='destination-helper'>
-                <span>
+                {recipients.map(recipient => {
+                  return (
+                    <MenuItem key={recipient.name} value={recipient.email}>
+                      <div>
+                        <Typography>{recipient.name}</Typography>
+                        <Typography className={classes.securityAnswerBtnHelperText}>
+                          {recipient.email}
+                        </Typography>
+                      </div>
+                    </MenuItem>
+                  )
+                })}
+                {recipients.length !== 0 && <Divider />}
+                <MenuItem value='AddRecipient'>
                   <Button
                     onClick={() => {
                       addRecipient()
                     }}
-                    className={classes.addNewRecipientBtn}
+                    style={{ width: '100%' }}
                   >
-                    <Typography color='primary' className={classes.addNewRecipientBtnText}>
-                      Add New Recipient
-                    </Typography>
+                    <Typography>Add Recipient</Typography>
                   </Button>
-                </span>
-              </FormHelperText>
+                </MenuItem>
+              </Select>
             </FormControl>
           </Grid>
           <Grid item>
@@ -232,9 +195,22 @@ class TransferFormComponent extends Component<Props> {
               margin='normal'
               variant='outlined'
               error={!!formError.password}
-              helperText={this.securityAnswerHelperText(formError.password)}
+              helperText={
+                'We recommend you to use auto-generated security password for better security'
+              }
               onChange={handleTransferFormChange('password')}
               value={password || ''}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position='end'>
+                    <Tooltip title='Generate Security Answer' position='left'>
+                      <IconButton color='primary' onClick={generateSecurityAnswer}>
+                        <RefreshIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                )
+              }}
             />
           </Grid>
           <Grid item>

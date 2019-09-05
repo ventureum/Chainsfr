@@ -201,11 +201,14 @@ class TransferFormContainer extends Component<Props, State> {
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection])
     const toCryptoAmount = currencyAmount =>
       utils.toCryptoAmount(currencyAmount, cryptoPrice[cryptoSelection])
+    let _transferForm = transferForm
 
-    let _transferForm = update(transferForm, {
-      [name]: { $set: event.target.value },
-      formError: { [name]: { $set: this.validate(name, event.target.value, transferForm) } }
-    })
+    if (!(name === 'destination' && event.target.value === 'AddRecipient')) {
+      _transferForm = update(transferForm, {
+        [name]: { $set: event.target.value },
+        formError: { [name]: { $set: this.validate(name, event.target.value, transferForm) } }
+      })
+    }
 
     if (name === 'sendMessage') {
       // removes whitespaces at the beginning
@@ -255,10 +258,10 @@ class TransferFormContainer extends Component<Props, State> {
         }
       })
     }
-    
-    if (name === 'destination') {
+
+    if (name === 'destination' && event.target.value !== 'AddRecipient') {
       // update receiverName
-      const recipient = recipients.find((recipient) => recipient.email === event.target.value)
+      const recipient = recipients.find(recipient => recipient.email === event.target.value)
       if (recipient) {
         _transferForm = update(_transferForm, { receiverName: { $set: recipient.name } })
       }
@@ -294,12 +297,14 @@ class TransferFormContainer extends Component<Props, State> {
           balanceCurrencyAmount={balanceCurrencyAmount}
           addRecipient={() => this.toggleAddRecipientDialog()}
         />
-        <AddRecipientDialog
-          open={this.state.openAddRecipientDialog}
-          handleClose={() => this.toggleAddRecipientDialog()}
-          handleSubmit={addRecipient}
-          loading={actionsPending.addRecipient}
-        />
+        {this.state.openAddRecipientDialog && (
+          <AddRecipientDialog
+            open={this.state.openAddRecipientDialog}
+            handleClose={() => this.toggleAddRecipientDialog()}
+            handleSubmit={addRecipient}
+            loading={actionsPending.addRecipient}
+          />
+        )}
       </>
     )
   }
