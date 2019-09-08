@@ -36,7 +36,9 @@ const BASE_WALLET_INSTRUCTION = {
     'Press the right button to confirm and sign the transaction if everything is correct. ' +
     'The transaction is then signed and sent to the network for confirmation.',
   metamask: 'Please confirm transaction in the Metamask popup window.',
-  drive: 'Please wait while we are broadcasting your transaction to the network.'
+  drive:
+    'Please wait while we are broadcasting your transaction to the network.',
+  metamaskWalletConnect: 'Please confirm transaction in the MetaMask Mobile on your phone'
 }
 
 const BASE_CRYPTO_INSTRUCTION = {
@@ -82,6 +84,48 @@ const WALLET_INSTRUCTION = {
     ethereum: BASE_WALLET_INSTRUCTION.drive,
     dai: BASE_WALLET_INSTRUCTION.drive,
     libra: BASE_WALLET_INSTRUCTION.drive
+  },
+  metamaskWalletConnect: {
+    ethereum: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+      </div>
+    ),
+    dai: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+        <br /> <br />
+        {BASE_CRYPTO_INSTRUCTION.dai}
+      </div>
+    )
+  },
+  trustWalletConnect: {
+    ethereum: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+      </div>
+    ),
+    dai: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+        <br /> <br />
+        {BASE_CRYPTO_INSTRUCTION.dai}
+      </div>
+    )
+  },
+  coinomiWalletConnect: {
+    ethereum: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+      </div>
+    ),
+    dai: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
+        <br /> <br />
+        {BASE_CRYPTO_INSTRUCTION.dai}
+      </div>
+    )
   }
 }
 

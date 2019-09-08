@@ -3,6 +3,8 @@ import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import CoinbaseLogo from './images/coinbase.png'
+/* import TrustWalletLogo from './images/trust-wallet.png'
+import CoinomiWalletLogo from './images/coinomi.png' */
 import { detect } from 'detect-browser'
 import env from './typedEnv'
 import { isMobile } from 'react-device-detect'
@@ -20,6 +22,18 @@ export const walletCryptoSupports = {
     { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: false }
+  ],
+  metamaskWalletConnect: [
+    { cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false }
+  ],
+  trustWalletConnect: [
+    { cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false }
+  ],
+  coinomiWalletConnect: [
+    { cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false }
   ]
 }
 
@@ -89,7 +103,28 @@ export const walletSelections = [
     desc: 'Ledger Hardware Wallet',
     logo: LedgerWalletLogo,
     ...getWalletStatus()
+  },
+  {
+    walletType: 'metamaskWalletConnect',
+    title: 'Metamask Mobile',
+    desc: 'MetaMask Mobile',
+    logo: MetamaskLogo,
+    disabled: false
   }
+  /* {
+    walletType: 'trustWalletConnect',
+    title: 'Trust Wallet',
+    desc: 'Trust Wallet',
+    logo: TrustWalletLogo,
+    disabled: false
+  },
+  {
+    walletType: 'coinomiWalletConnect',
+    title: 'Coinomi',
+    desc: 'Coinomi',
+    logo: CoinomiWalletLogo,
+    disabled: false
+  }, */
 ]
 
 export function cryptoInWallet (cryptoType: string, walletType: string): boolean {

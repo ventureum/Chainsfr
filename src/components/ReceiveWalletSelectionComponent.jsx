@@ -15,6 +15,7 @@ import url from '../url'
 import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import WalletSelectionButtons, { WalletButton } from './WalletSelectionButtons'
+import WalletConnectPaperContainer from '../containers/WalletConnectPaperContainer'
 
 const WalletConnectionErrorMessage = {
   metamask: 'Please make sure MetaMask is installed and authorization is accepted',
@@ -101,8 +102,21 @@ class ReceiveWalletSelectionComponent extends Component {
       walletStatus
     } = this.props
     const { cryptoType } = transfer
+
+    let notifications = []
+
+    if (walletType.endsWith('WalletConnect')) {
+      notifications.push(
+        <Grid container direction='column' justify='center'>
+          <Grid item>
+            <WalletConnectPaperContainer />
+          </Grid>
+        </Grid>
+      )
+    }
+
     if (walletType && lastUsedAddressByWalletType) {
-      return (
+      notifications.push(
         <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
@@ -154,7 +168,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkLedgerDeviceConnection) {
-      return (
+      notifications.push(
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>Please connect and unlock your Ledger device...</Typography>
@@ -165,7 +179,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkLedgerAppConnection) {
-      return (
+      notifications.push(
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>
@@ -178,7 +192,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkWalletConnection) {
-      return (
+      notifications.push(
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>Loading selected wallet data...</Typography>
@@ -188,8 +202,19 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
+    } else if (actionsPending.checkWalletConnectConnection) {
+      notifications.push(
+        <Grid container direction='column' justify='center'>
+          <Grid item>
+            <Typography variant='body2'>Connecting to mobile wallet</Typography>
+          </Grid>
+          <Grid item>
+            <LinearProgress className={classes.linearProgress} />
+          </Grid>
+        </Grid>
+      )
     } else if (actionsPending.sync) {
-      return (
+      notifications.push(
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>Synchronizing Account Info</Typography>
@@ -199,8 +224,14 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (wallet && !wallet.connected && !wallet.crypto[cryptoType]) {
-      return (
+    } else if (
+      wallet &&
+      !wallet.connected &&
+      !wallet.crypto[cryptoType] &&
+      // do not show error for WalletConnect
+      !walletType.endsWith('WalletConnect')
+    ) {
+      notifications.push(
         <Grid container direction='row' alignItems='center'>
           <Grid item>
             <ErrorIcon className={classes.notConnectIcon} />
@@ -218,7 +249,7 @@ class ReceiveWalletSelectionComponent extends Component {
       wallet.crypto[cryptoType][0] &&
       !this.lock()
     ) {
-      return (
+      notifications.push(
         <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
@@ -255,6 +286,12 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     }
+
+    return (
+      <Grid container direction='row' alignItems='center'>
+        {notifications}
+      </Grid>
+    )
   }
 
   render () {
