@@ -111,7 +111,7 @@ describe('constructor', () => {
     accounts: [{
       balance: '0',
       ethBalance: '0',
-      address: '0x0'
+      address: ''
     }]
   }
 

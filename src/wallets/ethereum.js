@@ -22,7 +22,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         walletData.accounts.push({
           balance: '0',
           ethBalance: '0',
-          address: '0x0'
+          address: ''
         })
       }
       this.walletData = walletData
@@ -136,6 +136,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         if (
           window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
         ) {
+          console.log(window.ethereum, window.ethereum.networkVersion, networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString())
           throw new Error('Incorrect Metamask network') // eslint-disable-line
         }
         let addresses = await window.ethereum.enable()
@@ -243,6 +244,25 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       return txHashList.length === 1 ? txHashList[0] : txHashList
     }
 
+    async function walletConnectSendTransactions (txObjs: Array<Object>) {
+      let txHashList = []
+      let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+      for (let txObj of txObjs) {
+        const _txObj = {
+            from: txObj.from, 
+            to: txObj.to, 
+            data: txObj.data ? txObj.data : '0x',
+            gasPrice: web3.utils.numberToHex(txObj.gasPrice),
+            gasLimit: web3.utils.numberToHex(txObj.gas),
+            value: web3.utils.numberToHex(txObj.value),
+            nonce: txObj.nonce ? web3.utils.numberToHex(txObj.nonce) : undefined
+        }
+        const txHash = await window.walletConnector.sendTransaction(_txObj)
+        txHashList.push(txHash)
+      }
+      return txHashList.length === 1 ? txHashList[0] : txHashList
+    }
+
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     const account = this.getAccount()
     const { walletType, cryptoType } = this.walletData
@@ -308,6 +328,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         _web3.eth.sendSignedTransaction,
         rawTxObjList
       )
+    } else if (walletType.endsWith('WalletConnect')) {
+      return walletConnectSendTransactions(txObjs)
     } else {
       throw new Error(`Invalid walletType: ${walletType}`)
     }

@@ -48,6 +48,15 @@ const initialProps = {
     },
     ledger: {
       crypto: {}
+    },
+    metamaskWalletConnect: {
+      crypto: {}
+    },
+    trustWalletConnect: {
+      crypto: {}
+    },
+    coinomiWalletConnect: {
+      crypto: {}
     }
   },
   transfer: transfer,

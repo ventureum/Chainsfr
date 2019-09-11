@@ -24,6 +24,28 @@ const initState = {
       connected: false,
       network: null,
       crypto: {}
+    },
+    metamaskWalletConnect: {
+      // peerId as a connection identifier
+      peerId: null,
+      connected: false,
+      network: null,
+      accounts: null,
+      crypto: {}
+    },
+    trustWalletConnect: {
+      peerId: null,
+      connected: false,
+      network: null,
+      accounts: null,
+      crypto: {}
+    },
+    coinomiWalletConnect: {
+      peerId: null,
+      connected: false,
+      network: null,
+      accounts: null,
+      crypto: {}
     }
   },
   lastUsedWallet: {
@@ -35,6 +57,15 @@ const initState = {
       crypto: {}
     },
     ledger: {
+      crypto: {}
+    },
+    metamaskWalletConnect: {
+      crypto: {}
+    },
+    trustWalletConnect: {
+      crypto: {}
+    },
+    coinomiWalletConnect: {
       crypto: {}
     }
   }
@@ -82,6 +113,7 @@ export default function (state = initState, action) {
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
     case 'GET_CLOUD_WALLET_FULFILLED':
+    case 'CHECK_WALLETCONNECT_CONNECTION_FULFILLED':
       return updateWalletState(state, action.payload, { connected: true })
     case 'GET_CLOUD_WALLET_REJECTED':
       return updateWalletState(state, [{ walletType: 'drive' }], { connected: false })
@@ -95,6 +127,20 @@ export default function (state = initState, action) {
     case 'CHECK_LEDGER_DEVICE_CONNECTION_PENDING':
     case 'CHECK_LEDGER_DEVICE_CONNECTION_REJECTED':
       return updateWalletState(state, [{ walletType: 'ledger' }], { connected: false })
+    case 'ON_WALLETCONNECT_CONNECTED_FULFILLED':
+      let { peerId, accounts, network } = action.payload
+      return update(state, {
+        wallet: {
+          [action.payload.walletType]: {
+            $merge: {
+              peerId: peerId,
+              connected: true,
+              accounts,
+              network
+            }
+          }
+        }
+      })
     case 'SYNC_FULFILLED':
     case 'VERIFY_PASSWORD_FULFILLED':
     case 'CLEAR_DECRYPTED_WALLET':
