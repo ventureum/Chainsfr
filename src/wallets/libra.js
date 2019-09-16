@@ -32,8 +32,11 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
     this.walletData = {
       walletType: walletType,
       cryptoType: cryptoType,
-      accounts: [await this.createAccount()]
+      accounts: []
     }
+    // createAccount may use walletType and cryptoType
+    // need to be done in two steps
+    this.walletData.accounts.push(await this.createAccount())
   }
 
   createAccount = async (): Promise<AccountEthereum> => {
@@ -46,8 +49,11 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       address: _account.getAddress().toHex(),
       privateKey: _config.mnemonic.toString()
     }
-    // mint 100 libracoins to users accounts
-    await API.mintLibra({address: _account.getAddress().toHex(), amount: '100000000'})
+    if (this.walletData.walletType !== 'escrow') {
+      // mint 100 libracoins to new accounts
+      await API.mintLibra({address: _account.getAddress().toHex(), amount: '100000000'})
+    }
+
     return account
   }
 
@@ -141,17 +147,13 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       port: '443',
       dataProtocol: 'grpc-web-text'
     })
-    console.log(value)
     const account = this.getAccount()
     const wallet = new LibraWallet({mnemonic: account.privateKey})
     const _account = wallet.newAccount()
-    // transfer may not be working right now due to
-    // https://github.com/perfectmak/libra-core/issues/3
-    // waiting for it to be fixed
     const response = await client.transferCoins(_account, to, value);
 
     // wait for transaction confirmation
     await response.awaitConfirmation(client);
-    return to
+    return account.address
   }
 }
