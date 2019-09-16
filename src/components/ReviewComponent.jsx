@@ -38,7 +38,8 @@ const BASE_WALLET_INSTRUCTION = {
   metamask: 'Please confirm transaction in the Metamask popup window.',
   drive:
     'Please wait while we are broadcasting your transaction to the network.',
-  metamaskWalletConnect: 'Please confirm transaction in the MetaMask Mobile on your phone'
+  metamaskWalletConnect: 'Please confirm transaction in the MetaMask Mobile on your phone',
+  walletLink: 'Please confirm transaction in the Mobile wallet on your phone'
 }
 
 const BASE_CRYPTO_INSTRUCTION = {
@@ -124,6 +125,13 @@ const WALLET_INSTRUCTION = {
         {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
         <br /> <br />
         {BASE_CRYPTO_INSTRUCTION.dai}
+      </div>
+    )
+  },
+  coinbaseWalletLink: {
+    ethereum: (
+      <div>
+        {BASE_WALLET_INSTRUCTION.walletLink}
       </div>
     )
   }

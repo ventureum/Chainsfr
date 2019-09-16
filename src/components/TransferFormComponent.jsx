@@ -37,7 +37,7 @@ type Props = {
 }
 
 class TransferFormComponent extends Component<Props> {
-  render() {
+  render () {
     const {
       classes,
       transferForm,

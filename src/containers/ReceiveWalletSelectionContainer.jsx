@@ -11,7 +11,8 @@ import {
   sync,
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
-  checkWalletConnectConnection
+  checkWalletConnectConnection,
+  checkWalletLinkConnection
 } from '../actions/walletActions'
 import { selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -49,8 +50,6 @@ class ReceiveWalletSelectionContainer extends Component {
         checkMetamaskConnection(cryptoType)
       } else if (walletType === 'drive') {
         checkCloudWalletConnection(cryptoType)
-      } else if (walletType.endsWith('WalletConnect') && walletType !== walletSelection) {
-        checkWalletConnectConnection(walletType, cryptoType)
       }
     }
   }
@@ -69,7 +68,9 @@ class ReceiveWalletSelectionContainer extends Component {
       walletSelection,
       checkMetamaskConnection,
       checkCloudWalletConnection,
-      checkLedgerDeviceConnection
+      checkLedgerDeviceConnection,
+      checkWalletConnectConnection,
+      checkWalletLinkConnection
     } = this.props
     let { cryptoType } = transfer
     notUseLastAddress()
@@ -79,6 +80,10 @@ class ReceiveWalletSelectionContainer extends Component {
       checkMetamaskConnection(cryptoType)
     } else if (walletSelection === 'drive') {
       checkCloudWalletConnection(cryptoType)
+    } else if (walletSelection.endsWith('WalletConnect')) {
+      checkWalletConnectConnection(walletSelection, cryptoType)
+    } else if (walletSelection.endsWith('WalletLink')) {
+      checkWalletLinkConnection(walletSelection, cryptoType)
     }
   }
 
@@ -91,7 +96,8 @@ class ReceiveWalletSelectionContainer extends Component {
       transfer,
       checkLedgerAppConnection,
       getLedgerWalletData,
-      checkWalletConnectConnection
+      checkWalletConnectConnection,
+      checkWalletLinkConnection
     } = this.props
     let { cryptoType } = transfer
     const prevActionsPending = prevProps.actionsPending
@@ -109,10 +115,18 @@ class ReceiveWalletSelectionContainer extends Component {
     } else if (
       prevActionsPending.onWalletConnectConnected &&
       !actionsPending.onWalletConnectConnected &&
-      wallet.connected) {
-        // retrieve wallet data once connected
-        checkWalletConnectConnection(walletSelection, cryptoType)
-      } else if (
+      wallet.connected
+    ) {
+      // retrieve wallet data once connected
+      checkWalletConnectConnection(walletSelection, cryptoType)
+    } else if (
+      prevActionsPending.onWalletLinkConnected &&
+      !actionsPending.onWalletLinkConnected &&
+      wallet.connected
+    ) {
+      // retrieve wallet data once connected
+      checkWalletLinkConnection(walletSelection, cryptoType)
+    } else if (
       wallet &&
       wallet.connected &&
       (prevActionsPending.checkWalletConnection && !actionsPending.checkWalletConnection) &&
@@ -157,7 +171,8 @@ const checkWalletConnectionSelector = createLoadingSelector([
   'CHECK_CLOUD_WALLET_CONNECTION',
   'CHECK_METAMASK_CONNECTION',
   'GET_LEDGER_WALLET_DATA',
-  'CHECK_WALLETCONNECT_CONNECTION'
+  'CHECK_WALLETCONNECT_CONNECTION',
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 
 const syncSelector = createLoadingSelector(['SYNC'])
@@ -165,16 +180,20 @@ const checkLedgerDeviceConnectionSelector = createLoadingSelector([
   'CHECK_LEDGER_DEVICE_CONNECTION'
 ])
 const checkLedgerAppConnectionSelector = createLoadingSelector(['CHECK_LEDGER_APP_CONNECTION'])
-const checkWalletConnectConnectionSelector = createLoadingSelector(['CHECK_WALLETCONNECT_CONNECTION'])
+const checkWalletConnectConnectionSelector = createLoadingSelector([
+  'CHECK_WALLETCONNECT_CONNECTION'
+])
 const onWalletConnectConnectedSelector = createLoadingSelector(['ON_WALLETCONNECT_CONNECTED'])
-
+const checkWalletLinkConnectionSelector = createLoadingSelector(['CHECK_WALLETLINK_CONNECTION'])
+const onWalletLinkConnectedSelector = createLoadingSelector(['ON_WALLETLINK_CONNECTED'])
 
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'CHECK_CLOUD_WALLET_CONNECTION',
   'SYNC_LEDGER_ACCOUNT_INFO',
   'UPDATE_BTC_ACCOUNT_INFO',
-  'CHECK_WALLETCONNECT_CONNECTION'
+  'CHECK_WALLETCONNECT_CONNECTION',
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 const getLastUsedAddressSelector = createLoadingSelector(['GET_LAST_USED_ADDRESS'])
 
@@ -190,7 +209,10 @@ const mapDispatchToProps = dispatch => {
     notUseLastAddress: () => dispatch(notUseLastAddress()),
     checkLedgerDeviceConnection: () => dispatch(checkLedgerDeviceConnection()),
     checkLedgerAppConnection: cryptoType => dispatch(checkLedgerAppConnection(cryptoType)),
-    checkWalletConnectConnection: (walletType, cryptoType) => dispatch(checkWalletConnectConnection(walletType, cryptoType))
+    checkWalletConnectConnection: (walletType, cryptoType) =>
+      dispatch(checkWalletConnectConnection(walletType, cryptoType)),
+    checkWalletLinkConnection: (walletType, cryptoType) =>
+      dispatch(checkWalletLinkConnection(walletType, cryptoType))
   }
 }
 
@@ -208,7 +230,9 @@ const mapStateToProps = state => {
       checkLedgerDeviceConnection: checkLedgerDeviceConnectionSelector(state),
       checkLedgerAppConnection: checkLedgerAppConnectionSelector(state),
       checkWalletConnectConnection: checkWalletConnectConnectionSelector(state),
-      onWalletConnectConnected: onWalletConnectConnectedSelector(state)
+      onWalletConnectConnected: onWalletConnectConnectedSelector(state),
+      checkWalletLinkConnection: checkWalletLinkConnectionSelector(state),
+      onWalletLinkConnected: onWalletLinkConnectedSelector(state)
     },
     error: errorSelector(state)
   }

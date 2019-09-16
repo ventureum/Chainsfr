@@ -2,7 +2,7 @@
 import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
-import CoinbaseLogo from './images/coinbase.png'
+import CoinbaseWalletLogo from './images/coinbase-wallet.png'
 /* import TrustWalletLogo from './images/trust-wallet.png'
 import CoinomiWalletLogo from './images/coinomi.png' */
 import { detect } from 'detect-browser'
@@ -23,6 +23,7 @@ export const walletCryptoSupports = {
     { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: false }
   ],
+  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false }],
   metamaskWalletConnect: [
     { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false }
@@ -83,11 +84,11 @@ export const walletSelections = [
     disabled: false
   },
   {
-    walletType: 'coinbase',
-    title: 'Coinbase',
+    walletType: 'coinbaseWalletLink',
+    title: 'Coinbase Wallet',
     desc: 'Coinbase Wallet',
-    logo: CoinbaseLogo,
-    disabled: true,
+    logo: CoinbaseWalletLogo,
+    disabled: false,
     disabledReason: 'Coming Soon'
   },
   {
