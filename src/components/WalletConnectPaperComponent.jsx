@@ -5,12 +5,8 @@ import { withStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-
-const ETH_NETWORK_ID = {
-  '1': 'Mainnet',
-  '3': 'Ropsten',
-  '4': 'Rinkeby'
-}
+import Grid from '@material-ui/core/Grid'
+import WalletConnectLogo from '../images/walletconnect.png'
 
 type Props = {
   classes: Object,
@@ -23,36 +19,48 @@ type Props = {
 class WalletConnectPaperComponent extends Component<Props> {
   render () {
     const { classes, walletConnector, createWalletConnect, reconnectWalletConnect } = this.props
-    console.log(walletConnector)
-    if (!walletConnector || !walletConnector.connected) {
-      return (
-        <Paper className={classes.paper}>
-          <Typography variant="body2">Connect using WalletConnect</Typography>
-          <Button variant="contained" color="primary" onClick={createWalletConnect}>
-            Connect
-          </Button>
-        </Paper>
-      )
-    } else {
-      // connected, show reconnect btn to user
-      const { chainId } = walletConnector
-
-      return (
-        <Paper className={classes.paper}>
-          <Typography variant="body2">Connected to Ethereum {ETH_NETWORK_ID[chainId]}</Typography>
-          <Button variant="contained" color="primary" onClick={reconnectWalletConnect}>
-            Reconnect
-          </Button>
-        </Paper>
-      )
-    }
+    const connected = walletConnector && walletConnector.connected
+    return (
+      <Grid container direction='row' alignItems='center' spacing={1}>
+        <Grid item>
+          <Paper className={classes.paper}>
+            <Grid container direction='row' alignItems='center'>
+              <img
+                src={WalletConnectLogo}
+                alt='wallet-connect-logo'
+                className={classes.connectorLogo}
+              />
+              <Typography variant='body2'>Connect your wallet via WalletConnect</Typography>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid item>
+          {!connected && (
+            <Button variant='contained' color='primary' onClick={createWalletConnect}>
+              Connect
+            </Button>
+          )}
+          {connected && (
+            <Button variant='contained' color='primary' onClick={reconnectWalletConnect}>
+              Reconnect
+            </Button>
+          )}
+        </Grid>
+      </Grid>
+    )
   }
 }
 
 const styles = theme => ({
   paper: {
-    padding: '10px',
-    marginTop: '10px'
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    paddingTop: '6px',
+    paddingBottom: '6px'
+  },
+  connectorLogo: {
+    width: '48px',
+    height: '48px'
   }
 })
 

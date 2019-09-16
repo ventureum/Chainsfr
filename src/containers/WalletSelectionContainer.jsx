@@ -12,8 +12,7 @@ import {
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
   checkWalletConnectConnection,
-  checkWalletLinkConnection,
-  checkReferralWalletConnection
+  checkWalletLinkConnection
 } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -30,7 +29,6 @@ type Props = {
   checkLedgerDeviceConnection: Function,
   checkCloudWalletConnection: Function,
   checkLedgerAppConnection: Function,
-  checkReferralWalletConnection: Function,
   selectCrypto: Function,
   selectWallet: Function,
   goToStep: Function,
@@ -62,7 +60,7 @@ class WalletSelectionContainer extends Component<Props, State> {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     let { selectWallet, walletSelection, walletSelectionPrefilled } = this.props
 
     if (walletSelection !== walletSelectionPrefilled && walletSelectionPrefilled) {
@@ -76,8 +74,7 @@ class WalletSelectionContainer extends Component<Props, State> {
 
     window.walletLink = new WalletLink({
       appName: 'Chainsfr',
-      appLogoUrl:
-        'https://ci6.googleusercontent.com/proxy/9qKr8MjuV_S5ii99FgfInXXzQcYl8Hi0ruZkWMugNt7Roc8WtUhWo5iagZZqdzX5rFF7ezuCoupLgrOCNwZjrANvE_k0-CCEPbnrGynEiWQlk6o3piV8=s0-d-e1-ft#https://chainsfr-public.s3.amazonaws.com/chainsfr_demo_white_300.png'
+      appLogoUrl: 'https://ci6.googleusercontent.com/proxy/9qKr8MjuV_S5ii99FgfInXXzQcYl8Hi0ruZkWMugNt7Roc8WtUhWo5iagZZqdzX5rFF7ezuCoupLgrOCNwZjrANvE_k0-CCEPbnrGynEiWQlk6o3piV8=s0-d-e1-ft#https://chainsfr-public.s3.amazonaws.com/chainsfr_demo_white_300.png'
     })
   }
 
@@ -104,7 +101,6 @@ class WalletSelectionContainer extends Component<Props, State> {
       checkLedgerDeviceConnection,
       checkCloudWalletConnection,
       checkWalletConnectConnection,
-      checkReferralWalletConnection,
       selectCrypto,
       walletSelection,
       cryptoSelection
@@ -126,13 +122,10 @@ class WalletSelectionContainer extends Component<Props, State> {
     } else if (walletSelection.endsWith('WalletLink') && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
       checkWalletLinkConnection(walletSelection, cryptoType)
-    } else if (walletSelection === 'referralWallet' && cryptoType !== cryptoSelection) {
-      selectCrypto(cryptoType)
-      checkReferralWalletConnection()
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     const {
       goToStep,
       wallet,
@@ -194,7 +187,7 @@ class WalletSelectionContainer extends Component<Props, State> {
     )
   }
 
-  render() {
+  render () {
     const {
       selectCrypto,
       walletSelection,
@@ -205,6 +198,15 @@ class WalletSelectionContainer extends Component<Props, State> {
       currency,
       ...other
     } = this.props
+
+    let address
+    if (wallet) {
+      if (wallet.accounts) {
+        address = wallet.accounts[0]
+      } else if (wallet.crypto[cryptoSelection]) {
+        address = wallet.crypto[cryptoSelection][0].address
+      }
+    }
 
     // iterate through all cryptoTypes in the wallet
     // and convert the value into currency value
@@ -233,6 +235,7 @@ class WalletSelectionContainer extends Component<Props, State> {
           syncProgress={this.state.syncProgress}
           handleNext={this.handleNext}
           currencyAmount={currencyAmount}
+          address={address}
           {...other}
         />
         <CloudWalletUnlockContainer />
@@ -247,16 +250,14 @@ const checkWalletConnectionSelector = createLoadingSelector([
   'GET_LEDGER_WALLET_DATA',
   'CHECK_LEDGER_DEVICE_CONNECTION',
   'CHECK_WALLETCONNECT_CONNECTION',
-  'CHECK_WALLETLINK_CONNECTION',
-  'CHECK_REFERRAL_WALLET_CONNECTION'
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'SYNC_LEDGER_ACCOUNT_INFO',
   'GET_LEDGER_WALLET_DATA',
   'CHECK_WALLETCONNECT_CONNECTION',
-  'CHECK_WALLETLINK_CONNECTION',
-  'CHECK_REFERRAL_WALLET_CONNECTION'
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 const checkLedgerDeviceConnectionSelector = createLoadingSelector([
   'CHECK_LEDGER_DEVICE_CONNECTION'
@@ -282,8 +283,7 @@ const mapDispatchToProps = dispatch => {
     checkWalletConnectConnection: (walletType, cryptoType) =>
       dispatch(checkWalletConnectConnection(walletType, cryptoType)),
     checkWalletLinkConnection: (walletType, cryptoType) =>
-      dispatch(checkWalletLinkConnection(walletType, cryptoType)),
-    checkReferralWalletConnection: () => dispatch(checkReferralWalletConnection())
+      dispatch(checkWalletLinkConnection(walletType, cryptoType))
   }
 }
 

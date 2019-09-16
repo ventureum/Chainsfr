@@ -393,7 +393,8 @@ describe('WalletSelectionComponent rendering', () => {
       update(initialProps, {
         walletType: { $set: 'ledger' },
         cryptoType: { $set: 'bitcoin' },
-        wallet: { $set: emptyWallet }
+        wallet: { $set: emptyWallet },
+        error: { $set: 'Sample Error' }
       })
     )
     expect(wrapper.find(Typography).filter('#walletNotConnectedText')).toHaveLength(1)
