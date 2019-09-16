@@ -46,7 +46,12 @@ const initState = {
       network: null,
       accounts: null,
       crypto: {}
-    }
+    },
+    coinbaseWalletLink: {
+      connected: false,
+      network: null,
+      crypto: {}
+    },
   },
   lastUsedWallet: {
     notUsed: false,
@@ -66,6 +71,9 @@ const initState = {
       crypto: {}
     },
     coinomiWalletConnect: {
+      crypto: {}
+    },
+    coinbaseWalletLink: {
       crypto: {}
     }
   }
@@ -106,14 +114,16 @@ function updateWalletState (state, walletDataList, extra = {}) {
 
 export default function (state = initState, action) {
   switch (action.type) {
-    // metamask
-    case 'CHECK_METAMASK_CONNECTION_FULFILLED':
-    case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED':
-    case 'GET_LEDGER_WALLET_DATA_FULFILLED':
-    case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED':
+    
+    case 'CHECK_METAMASK_CONNECTION_FULFILLED': // metamask
+    case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED': 
+    case 'GET_LEDGER_WALLET_DATA_FULFILLED': // ledger
+    case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED': // cloud wallet
     case 'CREATE_CLOUD_WALLET_FULFILLED':
     case 'GET_CLOUD_WALLET_FULFILLED':
-    case 'CHECK_WALLETCONNECT_CONNECTION_FULFILLED':
+    case 'CHECK_WALLETCONNECT_CONNECTION_FULFILLED': // walletConnect
+    case 'CHECK_WALLETLINK_CONNECTION_FULFILLED': // walletLink
+    case 'UPDATE_WALLETLINK_ACCOUNTS_FULFILLED':
       return updateWalletState(state, action.payload, { connected: true })
     case 'GET_CLOUD_WALLET_REJECTED':
       return updateWalletState(state, [{ walletType: 'drive' }], { connected: false })
@@ -137,6 +147,18 @@ export default function (state = initState, action) {
               connected: true,
               accounts,
               network
+            }
+          }
+        }
+      })
+    case 'ON_WALLETLINK_CONNECTED_FULFILLED':
+      return update(state, {
+        wallet: {
+          [action.payload.walletType]: {
+            $merge: {
+              connected: true,
+              accounts: action.payload.accounts,
+              network: action.payload.network
             }
           }
         }

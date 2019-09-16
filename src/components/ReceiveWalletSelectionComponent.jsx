@@ -16,6 +16,7 @@ import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import WalletSelectionButtons, { WalletButton } from './WalletSelectionButtons'
 import WalletConnectPaperContainer from '../containers/WalletConnectPaperContainer'
+import WalletLinkPaperContainer from '../containers/WalletLinkPaperContainer'
 
 const WalletConnectionErrorMessage = {
   metamask: 'Please make sure MetaMask is installed and authorization is accepted',
@@ -115,6 +116,16 @@ class ReceiveWalletSelectionComponent extends Component {
       )
     }
 
+    if (walletType.endsWith('WalletLink')) {
+      notifications.push(
+        <Grid container direction='column' justify='center'>
+          <Grid item>
+            <WalletLinkPaperContainer />
+          </Grid>
+        </Grid>
+      )
+    }
+
     if (walletType && lastUsedAddressByWalletType) {
       notifications.push(
         <Grid container direction='row' alignItems='center' justify='space-between'>
@@ -202,7 +213,7 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.checkWalletConnectConnection) {
+    } else if (actionsPending.checkWalletConnectConnection || actionsPending.checkWalletLinkConnection) {
       notifications.push(
         <Grid container direction='column' justify='center'>
           <Grid item>
@@ -229,7 +240,9 @@ class ReceiveWalletSelectionComponent extends Component {
       !wallet.connected &&
       !wallet.crypto[cryptoType] &&
       // do not show error for WalletConnect
-      !walletType.endsWith('WalletConnect')
+      !walletType.endsWith('WalletConnect') &&
+      // do not show error for WalletLink
+      !walletType.endsWith('WalletLink')
     ) {
       notifications.push(
         <Grid container direction='row' alignItems='center'>
@@ -255,7 +268,7 @@ class ReceiveWalletSelectionComponent extends Component {
             <Grid container direction='column'>
               <Grid item>
                 <Typography variant='body2'>
-                  {getWalletTitle(walletType)} wallet connected
+                  {getWalletTitle(walletType)} connected
                 </Typography>
               </Grid>
               <Grid item>

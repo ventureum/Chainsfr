@@ -10,7 +10,9 @@ import WalletUtils from '../wallets/utils'
 import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
 import LedgerNanoS from '../ledgerSigner'
+import env from '../typedEnv'
 
+// metamask
 async function _checkMetamaskConnection (
   cryptoType: string,
   dispatch: Function
@@ -29,6 +31,34 @@ async function _checkMetamaskConnection (
   }
 }
 
+function checkMetamaskConnection (crypoType: string) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'CHECK_METAMASK_CONNECTION',
+      payload: _checkMetamaskConnection(crypoType, dispatch)
+    }).catch(error => {
+      console.warn(error)
+    })
+  }
+}
+
+
+function onMetamaskAccountsChanged (accounts: Array<string>, cryptoType: string) {
+  return {
+    type: 'UPDATE_METAMASK_ACCOUNTS',
+    payload: async () => {
+      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
+      let newWallet = WalletFactory.createWallet(
+        WalletUtils.toWalletData('metamask', cryptoType, [account])
+      )
+      await newWallet.sync()
+      return newWallet.getWalletData()
+    }
+  }
+}
+
+
+// walletConnect
 async function _checkWalletConnectConnection (
   walletType: string,
   cryptoType: string,
@@ -47,6 +77,116 @@ async function _checkWalletConnectConnection (
 
   return wallet.getWalletData()
 }
+
+function checkWalletConnectConnection (walletType: string, crypoType: string) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'CHECK_WALLETCONNECT_CONNECTION',
+      payload: _checkWalletConnectConnection(
+        walletType,
+        crypoType,
+        // default first address
+        getState().walletReducer.wallet[walletType].accounts[0]
+      )
+    }).catch(error => {
+      console.warn(error)
+    })
+  }
+}
+
+// use async to ensure consistency for actionsPending values
+async function _onWalletConnectConnected (
+  walletType: string,
+  accounts: Array<string>,
+  network: number,
+  peerId: string
+) {
+  return {
+    walletType,
+    accounts,
+    network,
+    peerId
+  }
+}
+
+function onWalletConnectConnected (
+  walletType: string,
+  accounts: Array<string>,
+  network: number,
+  peerId: string
+) {
+  return {
+    type: 'ON_WALLETCONNECT_CONNECTED',
+    payload: _onWalletConnectConnected(walletType, accounts, network, peerId)
+  }
+}
+
+
+// walletLink
+async function _checkWalletLinkConnection (
+  walletType: string,
+  cryptoType: string,
+  dispatch: Function
+): Promise<WalletData> {
+  let wallet = WalletFactory.createWallet(WalletUtils.toWalletData(walletType, cryptoType, []))
+  window.walletLinkProvider.on('accountsChanged', accounts => {
+      dispatch(onWalletLinkAccountsChanged(accounts, walletType, cryptoType))
+  })
+  window._walletLinkWeb3 = new Web3(window.walletLinkProvider)
+  await wallet.retrieveAddress()
+  return wallet.getWalletData()
+}
+
+function checkWalletLinkConnection (walletType: string, crypoType: string) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'CHECK_WALLETLINK_CONNECTION',
+      payload: _checkWalletLinkConnection(walletType, crypoType, dispatch)
+    }).catch(error => {
+      console.warn(error)
+    })
+  }
+}
+
+// use async to ensure consistency for actionsPending values
+async function _onWalletLinkConnected (walletType: string) {
+  // Initialize a Web3 Provider object
+  window.walletLinkProvider = window.walletLink.makeWeb3Provider(
+    `https://mainnet.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`, 
+    env.REACT_APP_ETHEREUM_NETWORK !== 'mainnet' ? 4 :1
+  )
+  const accounts = await window.walletLinkProvider.enable()
+  const network = window.walletLinkProvider.networkVersion
+  return {
+    walletType,
+    accounts,
+    network
+  }
+}
+
+function onWalletLinkConnected (walletType: string) {
+  return {
+    type: 'ON_WALLETLINK_CONNECTED',
+    payload: _onWalletLinkConnected(walletType)
+  }
+}
+
+
+function onWalletLinkAccountsChanged (accounts: Array<string>, walletType: string, cryptoType: string) {
+  return {
+    type: 'UPDATE_WALLETLINK_ACCOUNTS',
+    payload: async () => {
+      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
+      let newWallet = WalletFactory.createWallet(
+        WalletUtils.toWalletData(walletType, cryptoType, [account])
+      )
+      await newWallet.sync()
+      return newWallet.getWalletData()
+    }
+  }
+}
+
+
 
 async function _getLedgerWalletData (cryptoType: string, walletState: Object) {
   let wallet = WalletFactory.createWallet(
@@ -81,73 +221,6 @@ async function _verifyPassword (transferInfo: {
   return wallet.getWalletData()
 }
 
-// use async to ensure consistency for actionsPending values
-async function _onWalletConnectConnected (
-  walletType: string,
-  accounts: Array<string>,
-  network: number,
-  peerId: string
-) {
-  return {
-    walletType,
-    accounts,
-    network,
-    peerId
-  }
-}
-
-function onWalletConnectConnected (
-  walletType: string,
-  accounts: Array<string>,
-  network: number,
-  peerId: string
-) {
-  return {
-    type: 'ON_WALLETCONNECT_CONNECTED',
-    payload: _onWalletConnectConnected(walletType, accounts, network, peerId)
-  }
-}
-
-function checkMetamaskConnection (crypoType: string) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'CHECK_METAMASK_CONNECTION',
-      payload: _checkMetamaskConnection(crypoType, dispatch)
-    }).catch(error => {
-      console.warn(error)
-    })
-  }
-}
-
-function onMetamaskAccountsChanged (accounts: Array<string>, cryptoType: string) {
-  return {
-    type: 'UPDATE_METAMASK_ACCOUNTS',
-    payload: async () => {
-      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
-      let newWallet = WalletFactory.createWallet(
-        WalletUtils.toWalletData('metamask', cryptoType, [account])
-      )
-      await newWallet.sync()
-      return newWallet.getWalletData()
-    }
-  }
-}
-
-function checkWalletConnectConnection (walletType: string, crypoType: string) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'CHECK_WALLETCONNECT_CONNECTION',
-      payload: _checkWalletConnectConnection(
-        walletType,
-        crypoType,
-        // default first address
-        getState().walletReducer.wallet[walletType].accounts[0]
-      )
-    }).catch(error => {
-      console.warn(error)
-    })
-  }
-}
 
 function getLedgerWalletData (cryptoType: string) {
   return (dispatch: Function, getState: Function) => {
@@ -446,8 +519,16 @@ function notUseLastAddress () {
 }
 
 export {
+  // metamask
   checkMetamaskConnection,
   onMetamaskAccountsChanged,
+  // walletConnect
+  onWalletConnectConnected,
+  checkWalletConnectConnection,
+  // walletLink
+  onWalletLinkConnected,
+  checkWalletLinkConnection,
+  // others
   getLedgerWalletData,
   sync,
   verifyPassword,
@@ -461,7 +542,5 @@ export {
   notUseLastAddress,
   clearDecryptCloudWalletError,
   checkLedgerDeviceConnection,
-  checkLedgerAppConnection,
-  onWalletConnectConnected,
-  checkWalletConnectConnection
+  checkLedgerAppConnection
 }

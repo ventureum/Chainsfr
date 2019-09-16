@@ -27,6 +27,7 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import WalletSelectionButtons, { WalletButton } from './WalletSelectionButtons'
 import Paper from '@material-ui/core/Paper'
 import WalletConnectPaperContainer from '../containers/WalletConnectPaperContainer'
+import WalletLinkPaperContainer from '../containers/WalletLinkPaperContainer'
 
 const WalletConnectionErrorMessage = {
   metamask: 'Please make sure MetaMask is installed and authorization is accepted',
@@ -181,7 +182,7 @@ class WalletSelectionComponent extends Component<Props> {
       wallet,
       currencyAmount
     } = this.props
-    if (walletType.endsWith('WalletConnect') && !wallet.connected) {
+    if ((walletType.endsWith('WalletConnect') ||  walletType.endsWith('WalletLink')) && !wallet.connected) {
       // must be connected before chosing a coin type
       return (<> </>)
     }
@@ -272,6 +273,11 @@ class WalletSelectionComponent extends Component<Props> {
                 {walletType.endsWith('WalletConnect') && (
                   <Grid item>
                     <WalletConnectPaperContainer />
+                  </Grid>
+                )}
+                {walletType.endsWith('WalletLink') && (
+                  <Grid item>
+                    <WalletLinkPaperContainer />
                   </Grid>
                 )}
                 <Grid item>

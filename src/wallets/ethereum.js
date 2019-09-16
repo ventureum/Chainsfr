@@ -115,7 +115,9 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     this.walletData.accounts[accountIdx].privateKey = privateKey
 
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-    this.walletData.accounts[accountIdx].address = _web3.eth.accounts.privateKeyToAccount(privateKey).address
+    this.walletData.accounts[accountIdx].address = _web3.eth.accounts.privateKeyToAccount(
+      privateKey
+    ).address
   }
 
   clearPrivateKey = (): void => {
@@ -136,13 +138,26 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         if (
           window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
         ) {
-          console.log(window.ethereum, window.ethereum.networkVersion, networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString())
           throw new Error('Incorrect Metamask network') // eslint-disable-line
         }
         let addresses = await window.ethereum.enable()
         this.walletData.accounts[accountIdx].address = addresses[0]
       } else {
         throw new Error('Metamask not found')
+      }
+    } else if (walletType.endsWith('WalletLink')) {
+      // retrieve the first address from metamask
+      if (typeof window.walletLinkProvider !== 'undefined') {
+        if (
+          window.walletLinkProvider.networkVersion !==
+          networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+        ) {
+          throw new Error('Incorrect WalletLink network') // eslint-disable-line
+        }
+        let addresses = await window.walletLinkProvider.enable()
+        this.walletData.accounts[accountIdx].address = addresses[0]
+      } else {
+        throw new Error('WalletLink Web3 instance not found')
       }
     } else {
       throw new Error(`Cannot retrieve address for walletType ${walletType}`)
@@ -170,7 +185,15 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     }
   }
 
-  getTxFee = async ({ to, value, options }: { to?: string, value: BasicTokenUnit, options?: Object }): Promise<TxFee> => {
+  getTxFee = async ({
+    to,
+    value,
+    options
+  }: {
+    to?: string,
+    value: BasicTokenUnit,
+    options?: Object
+  }): Promise<TxFee> => {
     let walletData = this.getWalletData()
     let { cryptoType } = walletData
 
@@ -180,7 +203,9 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     if (cryptoType === 'ethereum') {
       return this.getGasCost({ from: mockFrom, to: mockTo, value: value })
     } else if (cryptoType === 'dai') {
-      let txFeeERC20 = await this.getGasCost(ERC20.getTransferTxObj(mockFrom, mockTo, value, cryptoType))
+      let txFeeERC20 = await this.getGasCost(
+        ERC20.getTransferTxObj(mockFrom, mockTo, value, cryptoType)
+      )
 
       // no need to prepay tx fee
       if (!options || !options.prepayTxFee) return txFeeERC20
@@ -249,13 +274,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       for (let txObj of txObjs) {
         const _txObj = {
-            from: txObj.from, 
-            to: txObj.to, 
-            data: txObj.data ? txObj.data : '0x',
-            gasPrice: web3.utils.numberToHex(txObj.gasPrice),
-            gasLimit: web3.utils.numberToHex(txObj.gas),
-            value: web3.utils.numberToHex(txObj.value),
-            nonce: txObj.nonce ? web3.utils.numberToHex(txObj.nonce) : undefined
+          from: txObj.from,
+          to: txObj.to,
+          data: txObj.data ? txObj.data : '0x',
+          gasPrice: web3.utils.numberToHex(txObj.gasPrice),
+          gasLimit: web3.utils.numberToHex(txObj.gas),
+          value: web3.utils.numberToHex(txObj.value),
+          nonce: txObj.nonce ? web3.utils.numberToHex(txObj.nonce) : undefined
         }
         const txHash = await window.walletConnector.sendTransaction(_txObj)
         txHashList.push(txHash)
@@ -272,7 +297,13 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
     // setup tx obj
     if (cryptoType === 'ethereum') {
-      txObjs.push({ from: account.address, to: to, value: value, gas: txFee.gas, gasPrice: txFee.price })
+      txObjs.push({
+        from: account.address,
+        to: to,
+        value: value,
+        gas: txFee.gas,
+        gasPrice: txFee.price
+      })
     } else if (cryptoType === 'dai') {
       let ERC20TxObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
       ERC20TxObj.gas = txFee.gas
@@ -307,6 +338,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
 
     if (walletType === 'metamask') {
       return web3SendTransactions(window._web3.eth.sendTransaction, txObjs)
+    } else if (walletType.endsWith('WalletLink')) {
+      return web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObjs)
     } else if (['drive', 'escrow'].includes(walletType)) {
       // add privateKey to web3
       _web3.eth.accounts.wallet.add(account.privateKey)
@@ -324,10 +357,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       for (let txObj of txObjs) {
         rawTxObjList.push((await ledgerNanoS.signSendTransaction(txObj)).rawTransaction)
       }
-      return web3SendTransactions(
-        _web3.eth.sendSignedTransaction,
-        rawTxObjList
-      )
+      return web3SendTransactions(_web3.eth.sendSignedTransaction, rawTxObjList)
     } else if (walletType.endsWith('WalletConnect')) {
       return walletConnectSendTransactions(txObjs)
     } else {

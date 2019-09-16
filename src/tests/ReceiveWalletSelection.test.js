@@ -114,7 +114,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive connected')).toEqual(
       true
     )
     expect(
@@ -135,7 +135,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
     )
     expect(wrapper.find(WalletButton).filter(`#metamask`)).toHaveLength(1)
     expect(
-      wrapper.find(Typography).someWhere(t => t.text() === 'Metamask wallet connected')
+      wrapper.find(Typography).someWhere(t => t.text() === 'Metamask connected')
     ).toEqual(true)
     expect(
       wrapper
@@ -171,7 +171,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger connected')).toEqual(
       true
     )
     expect(
@@ -231,7 +231,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive connected')).toEqual(
       true
     )
     expect(
@@ -252,7 +252,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
     )
     expect(wrapper.find(WalletButton).filter(`#metamask`)).toHaveLength(1)
     expect(
-      wrapper.find(Typography).someWhere(t => t.text() === 'Metamask wallet connected')
+      wrapper.find(Typography).someWhere(t => t.text() === 'Metamask connected')
     ).toEqual(true)
     expect(
       wrapper
@@ -288,7 +288,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger connected')).toEqual(
       true
     )
     expect(
@@ -348,7 +348,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Drive connected')).toEqual(
       true
     )
     expect(
@@ -368,7 +368,7 @@ describe('ReceiveWalletSelectionComponent render', () => {
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
-    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger wallet connected')).toEqual(
+    expect(wrapper.find(Typography).someWhere(t => t.text() === 'Ledger connected')).toEqual(
       true
     )
     expect(

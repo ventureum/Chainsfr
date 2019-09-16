@@ -11,7 +11,8 @@ import {
   sync,
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
-  checkWalletConnectConnection
+  checkWalletConnectConnection,
+  checkWalletLinkConnection
 } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -19,9 +20,10 @@ import { goToStep } from '../actions/navigationActions'
 import WalletUtils from '../wallets/utils'
 import utils from '../utils'
 import * as Tokens from '../tokens'
-
+import WalletLink from 'walletlink'
 type Props = {
   checkWalletConnectConnection: Function,
+  checkWalletLinkConnection: Function,
   checkMetamaskConnection: Function,
   getLedgerWalletData: Function,
   checkLedgerDeviceConnection: Function,
@@ -69,6 +71,11 @@ class WalletSelectionContainer extends Component<Props, State> {
       // prefill wallet selections with url parameters
       selectWallet(walletSelectionPrefilled)
     }
+
+    window.walletLink = new WalletLink({
+      appName: 'Chainsfr',
+      appLogoUrl: 'https://ci6.googleusercontent.com/proxy/9qKr8MjuV_S5ii99FgfInXXzQcYl8Hi0ruZkWMugNt7Roc8WtUhWo5iagZZqdzX5rFF7ezuCoupLgrOCNwZjrANvE_k0-CCEPbnrGynEiWQlk6o3piV8=s0-d-e1-ft#https://chainsfr-public.s3.amazonaws.com/chainsfr_demo_white_300.png'
+    })
   }
 
   handleNext = () => {
@@ -90,6 +97,7 @@ class WalletSelectionContainer extends Component<Props, State> {
     const {
       wallet,
       checkMetamaskConnection,
+      checkWalletLinkConnection,
       checkLedgerDeviceConnection,
       checkCloudWalletConnection,
       checkWalletConnectConnection,
@@ -108,10 +116,13 @@ class WalletSelectionContainer extends Component<Props, State> {
       if (!wallet.connected) {
         checkCloudWalletConnection(cryptoType)
       }
-    }  else if (walletSelection.endsWith('WalletConnect') && cryptoType !== cryptoSelection) {
+    } else if (walletSelection.endsWith('WalletConnect') && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
       checkWalletConnectConnection(walletSelection, cryptoType)
-    } 
+    } else if (walletSelection.endsWith('WalletLink') && cryptoType !== cryptoSelection) {
+      selectCrypto(cryptoType)
+      checkWalletLinkConnection(walletSelection, cryptoType)
+    }
   }
 
   componentDidUpdate (prevProps) {
@@ -228,19 +239,23 @@ const checkWalletConnectionSelector = createLoadingSelector([
   'CHECK_METAMASK_CONNECTION',
   'GET_LEDGER_WALLET_DATA',
   'CHECK_LEDGER_DEVICE_CONNECTION',
-  'CHECK_WALLETCONNECT_CONNECTION'
+  'CHECK_WALLETCONNECT_CONNECTION',
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'SYNC_LEDGER_ACCOUNT_INFO',
   'GET_LEDGER_WALLET_DATA',
-  'CHECK_WALLETCONNECT_CONNECTION'
+  'CHECK_WALLETCONNECT_CONNECTION',
+  'CHECK_WALLETLINK_CONNECTION'
 ])
 const checkLedgerDeviceConnectionSelector = createLoadingSelector([
   'CHECK_LEDGER_DEVICE_CONNECTION'
 ])
 const checkLedgerAppConnectionSelector = createLoadingSelector(['CHECK_LEDGER_APP_CONNECTION'])
-const checkWalletConnectConnectionSelector = createLoadingSelector(['CHECK_WALLETCONNECT_CONNECTION'])
+const checkWalletConnectConnectionSelector = createLoadingSelector([
+  'CHECK_WALLETCONNECT_CONNECTION'
+])
 const syncSelector = createLoadingSelector(['SYNC'])
 
 const mapDispatchToProps = dispatch => {
@@ -255,7 +270,10 @@ const mapDispatchToProps = dispatch => {
     unlockCloudWallet: unlockRequestParams => dispatch(unlockCloudWallet(unlockRequestParams)),
     checkLedgerDeviceConnection: () => dispatch(checkLedgerDeviceConnection()),
     checkLedgerAppConnection: cryptoType => dispatch(checkLedgerAppConnection(cryptoType)),
-    checkWalletConnectConnection: (walletType, cryptoType) => dispatch(checkWalletConnectConnection(walletType, cryptoType)),
+    checkWalletConnectConnection: (walletType, cryptoType) =>
+      dispatch(checkWalletConnectConnection(walletType, cryptoType)),
+    checkWalletLinkConnection: (walletType, cryptoType) =>
+      dispatch(checkWalletLinkConnection(walletType, cryptoType))
   }
 }
 
