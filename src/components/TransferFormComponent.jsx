@@ -225,7 +225,7 @@ class TransferFormComponent extends Component<Props> {
               helperText={formError.sendMessage}
               onChange={handleTransferFormChange('sendMessage')}
               value={sendMessage || ''}
-              inputProps={{ maxLength: 72 }} // message max length
+              inputProps={{ maxLength: 100 }} // message max length
             />
           </Grid>
           <Grid item className={classes.btnSection}>
