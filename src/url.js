@@ -36,7 +36,7 @@ const BLOCKCYPHER_API_URL =
 
 const BTC_FEE_ENDPOINT = 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
 
-const LIBRA_EXPLORER_ADDRESS_BASE_URL = 'https://librabrowser.io/account/'
+const LIBRA_EXPLORER_ADDRESS_BASE_URL = 'https://libexplorer.com/address/'
 
 function getLibraExplorerAddress (address) {
   return LIBRA_EXPLORER_ADDRESS_BASE_URL + address
