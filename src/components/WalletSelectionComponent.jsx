@@ -173,18 +173,13 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderCryptoSelection = () => {
-    const {
-      classes,
-      walletType,
-      cryptoType,
-      onCryptoSelected,
-      actionsPending,
-      wallet,
-      currencyAmount
-    } = this.props
-    if ((walletType.endsWith('WalletConnect') ||  walletType.endsWith('WalletLink')) && !wallet.connected) {
+    const { classes, walletType, cryptoType, onCryptoSelected, wallet, currencyAmount } = this.props
+    if (
+      (walletType.endsWith('WalletConnect') || walletType.endsWith('WalletLink')) &&
+      !wallet.connected
+    ) {
       // must be connected before chosing a coin type
-      return (<> </>)
+      return <> </>
     }
 
     return (
@@ -217,8 +212,7 @@ class WalletSelectionComponent extends Component<Props> {
                     c.cryptoType === cryptoType &&
                     wallet.connected &&
                     wallet.crypto[c.cryptoType] &&
-                    wallet.crypto[c.cryptoType][0] &&
-                    !actionsPending.syncAccountInfo && (
+                    wallet.crypto[c.cryptoType][0] && (
                       <Grid item>
                         <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
                           {numeral(
@@ -294,7 +288,11 @@ class WalletSelectionComponent extends Component<Props> {
             </Grid>
           </Grid>
         ) : (
-          <WalletSelectionButtons handleClick={onWalletSelected} walletSelection={walletType} />
+          <WalletSelectionButtons
+            handleClick={onWalletSelected}
+            walletSelection={walletType}
+            purpose='send'
+          />
         )}
       </Container>
     )

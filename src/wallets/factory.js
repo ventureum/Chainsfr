@@ -9,11 +9,14 @@ import WalletBitcoin from './bitcoin'
 import WalletEthereum from './ethereum'
 import WalletLibra from './libra'
 import WalletUtils from './utils'
-
+import ReferralWallet from './referralWallet.js'
 export default class WalletFactory {
   static createWallet = (walletData: WalletData): Wallet => {
     if (['ethereum', 'dai'].includes(walletData.cryptoType)) {
       // type casting
+      if (walletData.walletType === 'referralWallet') {
+        return new ReferralWallet(((walletData: any): WalletDataEthereum))
+      }
       return new WalletEthereum(((walletData: any): WalletDataEthereum))
     } else if (['bitcoin'].includes(walletData.cryptoType)) {
       // type casting
@@ -25,8 +28,18 @@ export default class WalletFactory {
     }
   }
 
-  static createWalletFromState = (walletType: string, cryptoType: string, walletState: any): Wallet => {
-    return this.createWallet(WalletUtils.toWalletData(walletType, cryptoType, walletState[walletType].crypto[cryptoType].accounts))
+  static createWalletFromState = (
+    walletType: string,
+    cryptoType: string,
+    walletState: any
+  ): Wallet => {
+    return this.createWallet(
+      WalletUtils.toWalletData(
+        walletType,
+        cryptoType,
+        walletState[walletType].crypto[cryptoType].accounts
+      )
+    )
   }
 
   // generate a new wallet

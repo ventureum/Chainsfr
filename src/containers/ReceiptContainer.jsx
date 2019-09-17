@@ -21,7 +21,7 @@ class ReceiptContainer extends Component<Props> {
   render () {
     const { receipt, cryptoPrice, cryptoSelection, currency, txFee } = this.props
     const sendTime = moment.unix(receipt.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    const toCurrencyAmount = (cryptoAmount) => 
+    const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection], currency)
     return (
       <Receipt
@@ -41,10 +41,11 @@ const mapStateToProps = state => {
     cryptoSelection: state.formReducer.cryptoSelection,
     wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
-    receipt: {...state.formReducer.transferForm, ...state.transferReducer.receipt},
+    receipt: { ...state.formReducer.transferForm, ...state.transferReducer.receipt },
     password: state.formReducer.transferForm.password,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
-    currency: state.cryptoPriceReducer.currency
+    currency: state.cryptoPriceReducer.currency,
+    walletSelection: state.formReducer.walletSelection
   }
 }
 

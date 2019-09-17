@@ -232,6 +232,7 @@ class LandingPageComponent extends Component {
             <Typography variant='h2'>Transfer From</Typography>
           </Box>
           <WalletSelectionButtons
+            purpose='send'
             walletSelection={walletSelection}
             handleClick={walletType => this.setState({ walletSelection: walletType })}
           />

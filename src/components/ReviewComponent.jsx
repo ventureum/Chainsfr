@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
@@ -36,10 +35,10 @@ const BASE_WALLET_INSTRUCTION = {
     'Press the right button to confirm and sign the transaction if everything is correct. ' +
     'The transaction is then signed and sent to the network for confirmation.',
   metamask: 'Please confirm transaction in the Metamask popup window.',
-  drive:
-    'Please wait while we are broadcasting your transaction to the network.',
+  drive: 'Please wait while we are broadcasting your transaction to the network.',
   metamaskWalletConnect: 'Please confirm transaction in the MetaMask Mobile on your phone',
-  walletLink: 'Please confirm transaction in the Mobile wallet on your phone'
+  walletLink: 'Please confirm transaction in the Mobile wallet on your phone',
+  referralWallet: 'Please wait while we are broadcasting your transaction to the network.'
 }
 
 const BASE_CRYPTO_INSTRUCTION = {
@@ -87,11 +86,7 @@ const WALLET_INSTRUCTION = {
     libra: BASE_WALLET_INSTRUCTION.drive
   },
   metamaskWalletConnect: {
-    ethereum: (
-      <div>
-        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
-      </div>
-    ),
+    ethereum: <div>{BASE_WALLET_INSTRUCTION.metamaskWalletConnect}</div>,
     dai: (
       <div>
         {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
@@ -101,11 +96,7 @@ const WALLET_INSTRUCTION = {
     )
   },
   trustWalletConnect: {
-    ethereum: (
-      <div>
-        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
-      </div>
-    ),
+    ethereum: <div>{BASE_WALLET_INSTRUCTION.metamaskWalletConnect}</div>,
     dai: (
       <div>
         {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
@@ -115,11 +106,7 @@ const WALLET_INSTRUCTION = {
     )
   },
   coinomiWalletConnect: {
-    ethereum: (
-      <div>
-        {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
-      </div>
-    ),
+    ethereum: <div>{BASE_WALLET_INSTRUCTION.metamaskWalletConnect}</div>,
     dai: (
       <div>
         {BASE_WALLET_INSTRUCTION.metamaskWalletConnect}
@@ -129,11 +116,10 @@ const WALLET_INSTRUCTION = {
     )
   },
   coinbaseWalletLink: {
-    ethereum: (
-      <div>
-        {BASE_WALLET_INSTRUCTION.walletLink}
-      </div>
-    )
+    ethereum: <div>{BASE_WALLET_INSTRUCTION.walletLink}</div>
+  },
+  referralWallet: {
+    ethereum: <div>{BASE_WALLET_INSTRUCTION.referralWallet}</div>
   }
 }
 
@@ -267,19 +253,15 @@ class ReviewComponent extends Component<Props> {
                   <Typography className={classes.reviewSubtitle} align='left'>
                     Transaction Fee
                   </Typography>
-                  {!actionsPending.getTxFee && txFee ? (
-                    <Grid container direction='column'>
-                      <Typography className={classes.reviewContentAmount} align='left'>
-                        {txFee.costInStandardUnit}{' '}
-                        {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
-                      </Typography>
-                      <Typography className={classes.reviewContentCurrencyAmount} align='left'>
-                        ≈ {currencyAmount.txFee}
-                      </Typography>
-                    </Grid>
-                  ) : (
-                    <CircularProgress size={18} color='primary' />
-                  )}
+                  <Grid container direction='column'>
+                    <Typography className={classes.reviewContentAmount} align='left'>
+                      {txFee.costInStandardUnit}{' '}
+                      {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
+                    </Typography>
+                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
+                      ≈ {currencyAmount.txFee}
+                    </Typography>
+                  </Grid>
                 </Grid>
               </Paper>
               {actionsPending.submitTx && (
