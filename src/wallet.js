@@ -35,7 +35,8 @@ export const walletCryptoSupports = {
   coinomiWalletConnect: [
     { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false }
-  ]
+  ],
+  referralWallet: [{ cryptoType: 'ethereum', disabled: false }]
 }
 
 if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
@@ -81,7 +82,9 @@ export const walletSelections = [
     title: 'Drive',
     desc: 'Use Drive Wallet',
     logo: DriveWalletLogo,
-    disabled: false
+    disabled: false,
+    sendable: true,
+    receivable: true
   },
   {
     walletType: 'coinbaseWalletLink',
@@ -89,28 +92,44 @@ export const walletSelections = [
     desc: 'Coinbase Wallet',
     logo: CoinbaseWalletLogo,
     disabled: false,
-    disabledReason: 'Coming Soon'
+    sendable: true,
+    receivable: true
   },
   {
     walletType: 'metamask',
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskLogo,
-    ...getWalletStatus()
+    ...getWalletStatus(),
+    sendable: true,
+    receivable: true
   },
   {
     walletType: 'ledger',
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: LedgerWalletLogo,
-    ...getWalletStatus()
+    ...getWalletStatus(),
+    sendable: true,
+    receivable: true
   },
   {
     walletType: 'metamaskWalletConnect',
     title: 'Metamask Mobile',
     desc: 'MetaMask Mobile',
     logo: MetamaskLogo,
-    disabled: false
+    disabled: false,
+    sendable: true,
+    receivable: true
+  },
+  {
+    walletType: 'referralWallet',
+    title: 'Referral Wallet',
+    desc: 'Referral Wallet',
+    logo: DriveWalletLogo,
+    disabled: false,
+    sendable: true,
+    receivable: false
   }
   /* {
     walletType: 'trustWalletConnect',

@@ -3,8 +3,9 @@ import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
+import { store } from './configureStore.js'
 
-const apiTransfer = axios.create({
+const chainsferApi = axios.create({
   baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
   headers: {
     'Content-Type': 'application/json'
@@ -25,7 +26,7 @@ async function transfer (request: {|
   data: string,
   sendTxHash: Array<TxHash> | TxHash
 |}) {
-  let apiResponse = await apiTransfer.post('/transfer', {
+  let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'SEND',
     ...request
@@ -38,7 +39,7 @@ async function accept (request: {|
   receiveMessage: ?string,
   receiveTxHash: string
 |}) {
-  let apiResponse = await apiTransfer.post('/transfer', {
+  let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'RECEIVE',
     ...request
@@ -50,8 +51,8 @@ async function cancel (request: {|
   transferId: string,
   cancelMessage: ?string,
   cancelTxHash: string
- |}) {
-  let apiResponse = await apiTransfer.post('/transfer', {
+|}) {
+  let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'CANCEL',
     ...request
@@ -88,11 +89,8 @@ function normalizeTransferData (transferData) {
   return transferData
 }
 
-async function getTransfer (request: {
-  transferId: ?string,
-  receivingId: ?string
-}) {
-  let rv = await apiTransfer.post('/transfer', {
+async function getTransfer (request: { transferId: ?string, receivingId: ?string }) {
+  let rv = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'GET',
     ...request
@@ -106,8 +104,8 @@ async function getTransfer (request: {
 async function getBatchTransfers (request: {
   transferIds: Array<string>,
   receivingIds: Array<string>
-  }) {
-  let rv = await apiTransfer.post('/transfer', {
+}) {
+  let rv = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'BATCH_GET',
     ...request
@@ -145,7 +143,7 @@ async function setLastUsedAddress (request: {
   address: string
 }) {
   try {
-    var rv = await apiTransfer.post('/transfer', {
+    var rv = await chainsferApi.post('/transfer', {
       clientId: 'test-client',
       action: 'SET_LAST_USED_ADDRESS',
       ...request
@@ -158,7 +156,7 @@ async function setLastUsedAddress (request: {
 
 async function getLastUsedAddress (request: { idToken: string }) {
   try {
-    let rv = await apiTransfer.post('/transfer', {
+    let rv = await chainsferApi.post('/transfer', {
       clientId: 'test-client',
       action: 'GET_LAST_USED_ADDRESS',
       ...request
@@ -171,7 +169,7 @@ async function getLastUsedAddress (request: { idToken: string }) {
 
 async function getRecipients (request: { idToken: string }) {
   try {
-    let rv = await apiTransfer.post('/user', {
+    let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'GET_RECIPIENTS',
       ...request
@@ -182,12 +180,9 @@ async function getRecipients (request: { idToken: string }) {
   }
 }
 
-async function addRecipient (request: {
-  idToken: string,
-  recipient: Recipient
-}) {
+async function addRecipient (request: { idToken: string, recipient: Recipient }) {
   try {
-    let rv = await apiTransfer.post('/user', {
+    let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'ADD_RECIPIENT',
       ...request
@@ -198,12 +193,9 @@ async function addRecipient (request: {
   }
 }
 
-async function removeRecipient (request: {
-  idToken: string,
-  recipient: Recipient
-}) {
+async function removeRecipient (request: { idToken: string, recipient: Recipient }) {
   try {
-    let rv = await apiTransfer.post('/user', {
+    let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'REMOVE_RECIPIENT',
       ...request
@@ -219,7 +211,7 @@ async function mintLibra (request: {
   amount: string // microlibra
 }) {
   try {
-    let rv = await apiTransfer.post('/transfer', {
+    let rv = await chainsferApi.post('/transfer', {
       clientId: 'test-client',
       action: 'MINT_LIBRA',
       ...request
@@ -228,6 +220,34 @@ async function mintLibra (request: {
   } catch (e) {
     console.warn(e)
   }
+}
+
+async function referralBalance () {
+  const { idToken } = store.getState().userReducer.profile
+  let rv = await chainsferApi.post('/referralWallet', {
+    action: 'BALANCE',
+    idToken
+  })
+  return rv.data
+}
+
+async function referralSend (request: { destination: string, transferAmount: string }) {
+  const { idToken } = store.getState().userReducer.profile
+  let rv = await chainsferApi.post('/referralWallet', {
+    action: 'SEND',
+    idToken,
+    ...request
+  })
+  return rv.data
+}
+
+async function referralCreate () {
+  const { idToken } = store.getState().userReducer.profile
+  let rv = await chainsferApi.post('/referralWallet', {
+    action: 'CREATE',
+    idToken
+  })
+  return rv.data
 }
 
 export default {
@@ -242,5 +262,8 @@ export default {
   getRecipients,
   addRecipient,
   removeRecipient,
-  mintLibra
+  mintLibra,
+  referralBalance,
+  referralSend,
+  referralCreate
 }

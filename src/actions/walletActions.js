@@ -283,7 +283,7 @@ function checkLedgerAppConnection (cryptoType: string) {
   }
 }
 
-function sync (walletData: WalletData, progress?: function) {
+function sync (walletData: WalletData, progress?: Function) {
   return {
     type: 'SYNC',
     payload: _sync(walletData, progress)
@@ -437,6 +437,24 @@ function checkCloudWalletConnection (cryptoType: string) {
   }
 }
 
+async function _checkReferralWalletConnection () {
+  let wallet = WalletFactory.createWallet(
+    WalletUtils.toWalletData('referralWallet', 'ethereum', [])
+  )
+  await wallet.generateWallet({
+    walletType: 'referralWallet',
+    cryptoType: 'ethereum'
+  })
+  return wallet.getWalletData()
+}
+
+function checkReferralWalletConnection () {
+  return {
+    type: 'CHECK_REFERRAL_WALLET_CONNECTION',
+    payload: _checkReferralWalletConnection()
+  }
+}
+
 async function _decryptCloudWallet ({
   encryptedWallet,
   password
@@ -542,5 +560,6 @@ export {
   notUseLastAddress,
   clearDecryptCloudWalletError,
   checkLedgerDeviceConnection,
-  checkLedgerAppConnection
+  checkLedgerAppConnection,
+  checkReferralWalletConnection
 }

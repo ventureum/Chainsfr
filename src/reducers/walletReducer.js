@@ -25,6 +25,11 @@ const initState = {
       network: null,
       crypto: {}
     },
+    referralWallet: {
+      connected: false,
+      network: null,
+      crypto: {}
+    },
     metamaskWalletConnect: {
       // peerId as a connection identifier
       peerId: null,
@@ -51,7 +56,7 @@ const initState = {
       connected: false,
       network: null,
       crypto: {}
-    },
+    }
   },
   lastUsedWallet: {
     notUsed: false,
@@ -114,9 +119,8 @@ function updateWalletState (state, walletDataList, extra = {}) {
 
 export default function (state = initState, action) {
   switch (action.type) {
-    
     case 'CHECK_METAMASK_CONNECTION_FULFILLED': // metamask
-    case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED': 
+    case 'UPDATE_METAMASK_ACCOUNTS_FULFILLED':
     case 'GET_LEDGER_WALLET_DATA_FULFILLED': // ledger
     case 'CHECK_CLOUD_WALLET_CONNECTION_FULFILLED': // cloud wallet
     case 'CREATE_CLOUD_WALLET_FULFILLED':
@@ -124,6 +128,7 @@ export default function (state = initState, action) {
     case 'CHECK_WALLETCONNECT_CONNECTION_FULFILLED': // walletConnect
     case 'CHECK_WALLETLINK_CONNECTION_FULFILLED': // walletLink
     case 'UPDATE_WALLETLINK_ACCOUNTS_FULFILLED':
+    case 'CHECK_REFERRAL_WALLET_CONNECTION_FULFILLED':
       return updateWalletState(state, action.payload, { connected: true })
     case 'GET_CLOUD_WALLET_REJECTED':
       return updateWalletState(state, [{ walletType: 'drive' }], { connected: false })

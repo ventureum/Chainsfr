@@ -85,6 +85,7 @@ class ReceiveWalletSelectionComponent extends Component {
             walletSelection={walletType}
             cryptoType={transfer.cryptoType}
             lastUsedWallet={lastUsedWallet}
+            purpose='receive'
           />
         )}
       </Container>
