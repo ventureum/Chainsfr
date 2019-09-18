@@ -45,29 +45,23 @@ if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
 }
 
 export function getWalletStatus (walletType: ?string) {
-  if (walletType !== 'drive') {
-    if (isMobile) {
+  if (isMobile && ['metamask', 'ledger'].includes(walletType)) {
+    return {
+      disabled: true,
+      disabledReason: 'Not supported in mobile device'
+    }
+  } else if (browser && browser.name === 'chrome') {
+    let v = browser.version.split('.')[0]
+    if (parseInt(v) < 73) {
       return {
         disabled: true,
-        disabledReason: 'Not supported in mobile device'
-      }
-    } else if (browser && browser.name === 'chrome') {
-      let v = browser.version.split('.')[0]
-      if (parseInt(v) < 73) {
-        return {
-          disabled: true,
-          disabledReason: 'Chrome version 73 or above needed'
-        }
-      }
-    } else if (browser && browser.name !== 'chrome') {
-      return {
-        disabled: true,
-        disabledReason: 'Chrome browser needed'
+        disabledReason: 'Chrome version 73 or above needed'
       }
     }
+  } else if (browser && browser.name !== 'chrome') {
     return {
-      disabled: false,
-      disabledReason: ''
+      disabled: true,
+      disabledReason: 'Chrome browser needed'
     }
   }
   return {
