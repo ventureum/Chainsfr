@@ -107,6 +107,7 @@ function addRecipient (recipient: Recipient) {
         updateTransferForm(
           update(transferForm, {
             destination: { $set: recipient.email },
+            receiverName: { $set: recipient.name },
             formError: { destination: { $set: null } }
           })
         )
