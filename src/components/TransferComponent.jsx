@@ -28,7 +28,7 @@ class TransferComponent extends React.Component<Props> {
         className={step === 3 ? classes.rootReceipt : undefined}
       >
         <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
+          <Grid container direction='column' alignItems='stretch'>
             <Grid item>{step <= 2 && <Stepper actionType='transfer' step={step} />}</Grid>
             <Grid item>
               {/* receipt page requires a different background color */}
@@ -41,15 +41,18 @@ class TransferComponent extends React.Component<Props> {
                     />
                   </Grid>
                 )}
-                <Grid item className={classes.subComponent}>
-                  {step === 1 && (
+                {step === 1 ? (
+                  <Grid item className={classes.formContainer}>
                     <TransferForm
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
                     />
-                  )}
-                  {step === 2 && <Review />}
-                  {step === 3 && <Receipt />}
-                </Grid>
+                  </Grid>
+                ) : (
+                  <Grid item className={classes.subContainer}>
+                    {step === 2 && <Review />}
+                    {step === 3 && <Receipt />}
+                  </Grid>
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -64,9 +67,15 @@ const styles = theme => ({
     minHeight: '100vh',
     backgroundColor: '#fafafa'
   },
-  subComponent: {
+  formContainer: {
     width: '100%',
     maxWidth: '680px',
+    margin: '0px 0px 16px 0px',
+    padding: '30px'
+  },
+  subContainer: {
+    width: '100%',
+    maxWidth: '550px',
     margin: '0px 0px 16px 0px',
     padding: '30px'
   },

@@ -10,6 +10,7 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
 import WalletUtils from '../wallets/utils'
 import MetamaskPendingIcon from '../images/metamask_pending.png'
+import Divider from '@material-ui/core/Divider'
 
 type Props = {
   submitTx: Function,
@@ -163,7 +164,6 @@ class ReviewComponent extends Component<Props> {
       txFee: txFee
     })
   }
-
   render () {
     const {
       classes,
@@ -185,95 +185,117 @@ class ReviewComponent extends Component<Props> {
     } = transferForm
 
     return (
-      <Grid container direction='column' justify='center' alignItems='center'>
-        <Grid item className={classes.reviewSection}>
-          <Grid container direction='column' justify='center'>
+      <Grid container direction='column'>
+        <Grid item>
+          <Grid container direction='column' spacing={2}>
             <Grid item>
-              <Grid item>
-                <Typography className={classes.title} variant='h6' align='center'>
-                  Please review details of your transfer
-                </Typography>
-              </Grid>
-              <Paper className={classes.reviewItemContainer}>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    From
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='senderName'>
-                    {senderName}
-                  </Typography>
-                  <Typography className={classes.reviewContentEmail} align='left' id='sender'>
-                    {sender}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    To
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left' id='receiverName'>
-                    {receiverName}
-                  </Typography>
-                  <Typography className={classes.reviewContentEmail} align='left'>
-                    {destination}
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Security Answer
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {password}
-                  </Typography>
-                </Grid>
-                {sendMessage && sendMessage.length > 0 && (
-                  // only show message when available
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Message
+              <Typography variant='h3'>Review and Confirm</Typography>
+            </Grid>
+            <Grid item>
+              <Grid container direction='row' align='center' spacing={1}>
+                <Grid item xs={6}>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Typography variant='caption'>From</Typography>
+                    <Typography variant='body2' id='senderName'>
+                      {senderName}
                     </Typography>
-                    <Typography paragraph className={classes.reviewContentMessage} align='left'>
-                      {sendMessage}
+                    <Typography variant='caption' id='sender'>
+                      {sender}
                     </Typography>
                   </Grid>
-                )}
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Amount
-                  </Typography>
-                  <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+                </Grid>
+                <Grid item xs={6}>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Typography variant='caption'>To</Typography>
+                    <Typography variant='body2' id='receiverName'>
+                      {receiverName}
+                    </Typography>
+                    <Typography variant='caption'>{destination}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
+                <Grid item>
+                  <Typography variant='caption'>Amount</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    <Typography variant='body2'>
                       {transferAmount} {getCryptoSymbol(cryptoSelection)}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
-                      ≈ {currencyAmount.transferAmount}
+                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      ( ≈ {currencyAmount.transferAmount} )
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Transaction Fee
-                  </Typography>
-                  <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
+                <Grid item>
+                  <Typography variant='caption'>Transaction Fee</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    <Typography variant='body2'>
                       {txFee.costInStandardUnit}{' '}
                       {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
-                      ≈ {currencyAmount.txFee}
+                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      ( ≈ {currencyAmount.txFee} )
                     </Typography>
                   </Grid>
                 </Grid>
-              </Paper>
-              {actionsPending.submitTx && (
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
                 <Grid item>
-                  <Grid container direction='column' className={classes.instructionContainer}>
+                  <Typography variant='caption'>Security Answer</Typography>
+                  <Typography variant='body2'>{password}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            {sendMessage && sendMessage.length > 0 && (
+              <>
+                <Grid item>
+                  <Divider />
+                </Grid>
+                <Grid item>
+                  <Grid container direction='column' alignItems='flex-start'>
                     <Grid item>
-                      <Typography className={classes.instructionTitile}>
+                      <Typography variant='caption'>Message</Typography>
+                      <Typography variant='body2'>{sendMessage}</Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            <Grid item>
+              <Divider />
+            </Grid>
+            {actionsPending.submitTx && (
+              <Grid item>
+                <Paper style={{ padding: '20px', marginTop: '30px' }}>
+                  <Grid container direction='column'>
+                    <Grid item>
+                      <Typography variant='h6'>
                         {getWalletTitle(walletSelection)} Transfer Instructions
                       </Typography>
                     </Grid>
                     <Grid>
-                      <Typography className={classes.instructionText}>
+                      <Typography variant='caption'>
                         {WALLET_INSTRUCTION[walletSelection][cryptoSelection]}
                       </Typography>
                     </Grid>
@@ -281,9 +303,9 @@ class ReviewComponent extends Component<Props> {
                       <LinearProgress className={classes.linearProgress} />
                     </Grid>
                   </Grid>
-                </Grid>
-              )}
-            </Grid>
+                </Paper>
+              </Grid>
+            )}
           </Grid>
         </Grid>
         <Grid item className={classes.btnSection}>
@@ -322,93 +344,12 @@ class ReviewComponent extends Component<Props> {
 }
 
 const styles = theme => ({
-  title: {
-    color: '#333333',
-    fontSize: '18px',
-    fontWeight: '600',
-    lineHeight: '24px',
-    padding: '0px 0px 0px 0px',
-    marginBottom: '20px'
-  },
-  reviewItemContainer: {
-    border: 'border: 1px solid #D2D2D2',
-    borderRadius: '8px',
-    backgroundColor: '#FAFAFA',
-    padding: '20px'
-  },
-  reviewSubtitle: {
-    color: '#777777',
-    fontSize: '12px',
-    lineHeight: '17px'
-  },
-  reviewContent: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px'
-  },
-  reviewContentEmail: {
-    color: '#777777',
-    fontSize: '14px',
-    lineHeight: '24px',
-    fontWeight: 'bold'
-  },
-  reviewContentMessage: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px',
-    maxWidth: '300px',
-    wordWrap: 'break-word'
-  },
-  reviewContentAmount: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px',
-    fontWeight: 'bold'
-  },
-  reviewContentCurrencyAmount: {
-    color: '#777777',
-    fontSize: '14px',
-    lineHeight: '24px',
-    fontWeight: 'bold',
-    marginLeft: '5px'
-  },
-  reviewItem: {
-    marginBottom: '30px'
-  },
   btnSection: {
     marginTop: '60px',
-    width: '100%',
-    maxWidth: '470px',
     marginBottom: '150px'
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12
   },
   wrapper: {
     position: 'relative'
-  },
-  instructionContainer: {
-    padding: '20px',
-    backgroundColor: 'rgba(66,133,244,0.05)',
-    borderRadius: '4px',
-    margin: '30px 0px 30px 0px'
-  },
-  instructionTitile: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  instructionText: {
-    fontSize: '12px',
-    color: '#666666'
-  },
-  reviewSection: {
-    maxWidth: '360px',
-    width: '100%'
   },
   linearProgress: {
     marginTop: '20px'
