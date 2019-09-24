@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid'
 type Props = {
   classes: Object,
   wallet: Object,
+  actionsPending: Object,
   onWalletLinkConnected: Function,
   createWalletLink: Function,
   reconnectWalletLink: Function
@@ -17,7 +18,7 @@ type Props = {
 
 class WalletLinkPaperComponent extends Component<Props> {
   render () {
-    const { classes, wallet, createWalletLink, reconnectWalletLink } = this.props
+    const { classes, wallet, createWalletLink, reconnectWalletLink, actionsPending } = this.props
     const connected = wallet.connected
     return (
       <Grid container direction='row' alignItems='center' spacing={1}>
@@ -28,12 +29,22 @@ class WalletLinkPaperComponent extends Component<Props> {
         </Grid>
         <Grid item>
           {!connected && (
-            <Button variant='contained' color='primary' onClick={createWalletLink}>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={createWalletLink}
+              disabled={actionsPending.checkWalletConnection}
+            >
               Connect
             </Button>
           )}
           {connected && (
-            <Button variant='contained' color='primary' onClick={reconnectWalletLink}>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={reconnectWalletLink}
+              disabled={actionsPending.checkWalletConnection}
+            >
               Reconnect
             </Button>
           )}
