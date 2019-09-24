@@ -122,7 +122,7 @@ class RecipientsComponent extends Component {
       <Grid container justify='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column'>
-            <Grid item>
+            <Grid item style={{ width: '100%' }}>
               <Grid container alignItems='center' justify='space-between'>
                 <Grid item>
                   <Typography className={classes.RecipientTitle}>Recipients</Typography>
