@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import WalletLinkPaperComponent from '../components/WalletLinkPaperComponent'
 import { onWalletLinkConnected } from '../actions/walletActions'
 import WalletLink from 'walletlink'
+import { createLoadingSelector, createErrorSelector } from '../selectors'
 
 type Props = {
   wallet: Object,
@@ -13,26 +14,26 @@ type Props = {
 }
 
 const APP_LOGO = 'https://chainsfr-logo.s3.amazonaws.com/logo_wide.png'
-const APP_NAME ='Chainsfr'
+const APP_NAME = 'Chainsfr'
 
 class WalletLinkPaperContainer extends Component<Props> {
   componentDidMount () {
     window.walletLink = new WalletLink({
-        appName: APP_NAME,
-        appLogoUrl: APP_LOGO
+      appName: APP_NAME,
+      appLogoUrl: APP_LOGO
     })
   }
 
   createWalletLink = () => {
-      this.props.onWalletLinkConnected(this.props.walletSelection)
+    this.props.onWalletLinkConnected(this.props.walletSelection)
   }
 
   reconnectWalletLink = async () => {
     delete window.walletLink
     localStorage.removeItem('__WalletLink__:https://www.walletlink.org:Addresses')
     window.walletLink = new WalletLink({
-        appName: APP_NAME,
-        appLogoUrl: APP_LOGO
+      appName: APP_NAME,
+      appLogoUrl: APP_LOGO
     })
     this.props.onWalletLinkConnected(this.props.walletSelection)
   }
@@ -49,17 +50,23 @@ class WalletLinkPaperContainer extends Component<Props> {
   }
 }
 
+const checkWalletConnectionSelector = createLoadingSelector(['ON_WALLETLINK_CONNECTED'])
+const errorSelector = createErrorSelector(['ON_WALLETLINK_CONNECTED'])
+
 const mapDispatchToProps = dispatch => {
   return {
-    onWalletLinkConnected: (walletType) =>
-      dispatch(onWalletLinkConnected(walletType))
+    onWalletLinkConnected: walletType => dispatch(onWalletLinkConnected(walletType))
   }
 }
 
 const mapStateToProps = state => {
   return {
     walletSelection: state.formReducer.walletSelection,
-    wallet: state.walletReducer.wallet[state.formReducer.walletSelection]
+    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
+    actionsPending: {
+      checkWalletConnection: checkWalletConnectionSelector(state)
+    },
+    error: errorSelector(state)
   }
 }
 

@@ -15,7 +15,6 @@ import Avatar from '@material-ui/core/Avatar'
 import Divider from '@material-ui/core/Divider'
 import { uiColors, fontColors } from '../styles/color'
 import ChainsfrLogo from '../images/chainsfr_logo.svg'
-import { baseColors } from '../styles/base'
 
 class NavBarComponent extends Component {
   state = {
@@ -176,7 +175,6 @@ const styles = theme => ({
     alignItems: 'center'
   },
   NaviBtn: {
-    color: baseColors.blue.b400,
     fontWeight: '500',
     textTransform: 'none',
     fontSize: '14px'
