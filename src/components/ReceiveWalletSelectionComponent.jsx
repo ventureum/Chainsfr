@@ -48,7 +48,55 @@ class ReceiveWalletSelectionComponent extends Component {
   }
 
   renderWalletSection = () => {
-    const { walletType, onWalletSelected, classes, transfer, lastUsedWallet } = this.props
+    const {
+      walletType,
+      wallet,
+      error,
+      actionsPending,
+      onWalletSelected,
+      classes,
+      transfer,
+      lastUsedWallet,
+      lastUsedAddressByWalletType
+    } = this.props
+    let messageQueue = []
+    if (walletType) {
+      const isWalletLink = walletType.endsWith('WalletLink')
+      const isWalletConnect = walletType.endsWith('WalletConnect')
+      // show WalletLink/Connect paper at the top
+      if (
+        !lastUsedAddressByWalletType &&
+        !actionsPending.getLastUsedAddress // wait till getLastUsedAddress finishes
+      ) {
+        if (isWalletLink) {
+          messageQueue.push(
+            <Grid item>
+              <WalletLinkPaperContainer />
+            </Grid>
+          )
+        }
+        if (isWalletConnect) {
+          messageQueue.push(
+            <Grid item>
+              <WalletConnectPaperContainer />
+            </Grid>
+          )
+        }
+      }
+      if (
+        (wallet && wallet.connected) ||
+        lastUsedAddressByWalletType ||
+        actionsPending.checkWalletConnection ||
+        error
+      ) {
+        messageQueue.push(
+          <Grid item style={{ width: '90%' }}>
+            <Paper className={classes.balanceSection}>{this.renderWalletStatus()}</Paper>
+          </Grid>
+        )
+      }
+    }
+
     return (
       <Container className={classes.topSectionContainer}>
         <Typography variant='h3' style={{ marginBottom: '10px' }}>
@@ -72,9 +120,7 @@ class ReceiveWalletSelectionComponent extends Component {
             <Grid item xs>
               <Grid container direction='column' alignItems='center'>
                 <Grid item style={{ width: '90%' }}>
-                  <Paper className={classes.balanceSection}>
-                    {this.renderWalletConnectionNotification()}
-                  </Paper>
+                  {messageQueue}
                 </Grid>
               </Grid>
             </Grid>
@@ -92,7 +138,7 @@ class ReceiveWalletSelectionComponent extends Component {
     )
   }
 
-  renderWalletConnectionNotification = () => {
+  renderWalletStatus = () => {
     let {
       classes,
       actionsPending,
@@ -101,34 +147,13 @@ class ReceiveWalletSelectionComponent extends Component {
       transfer,
       lastUsedAddressByWalletType,
       useAnotherAddress,
-      walletStatus
+      walletStatus,
+      address,
+      error
     } = this.props
     const { cryptoType } = transfer
-
-    let notifications = []
-
-    if (walletType.endsWith('WalletConnect')) {
-      notifications.push(
-        <Grid container direction='column' justify='center'>
-          <Grid item>
-            <WalletConnectPaperContainer />
-          </Grid>
-        </Grid>
-      )
-    }
-
-    if (walletType.endsWith('WalletLink')) {
-      notifications.push(
-        <Grid container direction='column' justify='center'>
-          <Grid item>
-            <WalletLinkPaperContainer />
-          </Grid>
-        </Grid>
-      )
-    }
-
     if (walletType && lastUsedAddressByWalletType) {
-      notifications.push(
+      return (
         <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
@@ -180,7 +205,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkLedgerDeviceConnection) {
-      notifications.push(
+      return (
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>Please connect and unlock your Ledger device...</Typography>
@@ -191,7 +216,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkLedgerAppConnection) {
-      notifications.push(
+      return (
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>
@@ -204,7 +229,7 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     } else if (actionsPending.checkWalletConnection) {
-      notifications.push(
+      return (
         <Grid container direction='column' justify='center'>
           <Grid item>
             <Typography variant='body2'>Loading selected wallet data...</Typography>
@@ -214,78 +239,54 @@ class ReceiveWalletSelectionComponent extends Component {
           </Grid>
         </Grid>
       )
-    } else if (actionsPending.checkWalletConnectConnection || actionsPending.checkWalletLinkConnection) {
-      notifications.push(
-        <Grid container direction='column' justify='center'>
+    } else if (wallet && !wallet.connected && error) {
+      return (
+        <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
-            <Typography variant='body2'>Connecting to mobile wallet</Typography>
+            <Typography id='walletNotConnectedText' variant='body2'>
+              {WalletConnectionErrorMessage[walletType]}
+            </Typography>
           </Grid>
           <Grid item>
-            <LinearProgress className={classes.linearProgress} />
+            <ErrorIcon className={classes.notConnectIcon} />
           </Grid>
         </Grid>
       )
     } else if (actionsPending.sync) {
-      notifications.push(
+      return (
         <Grid container direction='column' justify='center'>
           <Grid item>
-            <Typography variant='body2'>Synchronizing Account Info</Typography>
+            <Typography variant='body2' id='synchronizeAccInfo'>
+              Synchronizing Account Info
+            </Typography>
             <Grid item>
               <LinearProgress className={classes.linearProgress} />
             </Grid>
           </Grid>
         </Grid>
       )
-    } else if (
-      wallet &&
-      !wallet.connected &&
-      !wallet.crypto[cryptoType] &&
-      // do not show error for WalletConnect
-      !walletType.endsWith('WalletConnect') &&
-      // do not show error for WalletLink
-      !walletType.endsWith('WalletLink')
-    ) {
-      notifications.push(
-        <Grid container direction='row' alignItems='center'>
-          <Grid item>
-            <ErrorIcon className={classes.notConnectIcon} />
-          </Grid>
-          <Grid item>
-            <Typography id='walletNotConnectedText' variant='body2'>
-              {WalletConnectionErrorMessage[walletType]}
-            </Typography>
-          </Grid>
-        </Grid>
-      )
-    } else if (
-      wallet &&
-      wallet.crypto[transfer.cryptoType] &&
-      wallet.crypto[cryptoType][0] &&
-      !this.lock()
-    ) {
-      notifications.push(
+    } else if (address) {
+      return (
         <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Grid container direction='column'>
               <Grid item>
-                <Typography variant='body2'>
-                  {getWalletTitle(walletType)} connected
-                </Typography>
+                <Typography variant='body2'>{getWalletTitle(walletType)} connected</Typography>
               </Grid>
               <Grid item>
                 <Grid container direction='row' alignItems='center'>
                   <Grid item>
                     <Typography className={classes.addressInfoText}>
-                      Wallet address: {wallet.crypto[cryptoType][0].address}
+                      Wallet address: {address}
                     </Typography>
                   </Grid>
                   <IconButton
-                    aria-label='Explorer'
                     className={classes.explorerButton}
+                    aria-label='Explorer'
                     target='_blank'
                     href={url.getExplorerAddress(
-                      transfer.cryptoType,
-                      wallet.crypto[cryptoType][0].address
+                      cryptoType || 'ethereum', //default ethereum if not provided
+                      address
                     )}
                   >
                     <OpenInNewIcon className={classes.explorerIcon} />
@@ -300,12 +301,6 @@ class ReceiveWalletSelectionComponent extends Component {
         </Grid>
       )
     }
-
-    return (
-      <Grid container direction='row' alignItems='center'>
-        {notifications}
-      </Grid>
-    )
   }
 
   render () {
@@ -412,7 +407,8 @@ const styles = theme => ({
   },
   connectedIcon: {
     color: '#2E7D32',
-    marginRight: '8px'
+    marginRight: '8px',
+    marginLeft: '20px'
   },
   connectAnotherAddressContainer: {
     marginTop: '10px',

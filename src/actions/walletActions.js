@@ -505,7 +505,7 @@ function clearDecryptCloudWalletError () {
 async function _getLastUsedAddress (idToken: string) {
   let response = await API.getLastUsedAddress({ idToken })
   let rv = {}
-  const walletTypeList = ['drive', 'metamask', 'ledger']
+  const walletTypeList = ['drive', 'metamask', 'ledger', 'metamaskWalletConnect', 'coinbaseWalletLink']
   const cryptoTypeList = ['bitcoin', 'ethereum', 'dai', 'libra']
   // convert response to our wallet struct
   if (response) {

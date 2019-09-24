@@ -68,9 +68,7 @@ class ReceiveWalletSelectionContainer extends Component {
       walletSelection,
       checkMetamaskConnection,
       checkCloudWalletConnection,
-      checkLedgerDeviceConnection,
-      checkWalletConnectConnection,
-      checkWalletLinkConnection
+      checkLedgerDeviceConnection
     } = this.props
     let { cryptoType } = transfer
     notUseLastAddress()
@@ -80,10 +78,6 @@ class ReceiveWalletSelectionContainer extends Component {
       checkMetamaskConnection(cryptoType)
     } else if (walletSelection === 'drive') {
       checkCloudWalletConnection(cryptoType)
-    } else if (walletSelection.endsWith('WalletConnect')) {
-      checkWalletConnectConnection(walletSelection, cryptoType)
-    } else if (walletSelection.endsWith('WalletLink')) {
-      checkWalletLinkConnection(walletSelection, cryptoType)
     }
   }
 
@@ -153,8 +147,18 @@ class ReceiveWalletSelectionContainer extends Component {
   }
 
   render () {
-    const { walletSelection, ...other } = this.props
+    const { walletSelection, transfer, wallet, ...other } = this.props
     const walletStatus = getWalletStatus(walletSelection)
+
+    let address
+    if (wallet) {
+      if (wallet.accounts) {
+        address = wallet.accounts[0]
+      } else if (wallet.crypto[transfer.cryptoType]) {
+        address = wallet.crypto[transfer.cryptoType][0].address
+      }
+    }
+
     return (
       <ReceiveWalletSelection
         walletType={walletSelection}
@@ -162,6 +166,9 @@ class ReceiveWalletSelectionContainer extends Component {
         useAnotherAddress={this.useAnotherAddress}
         lastUsedAddressByWalletType={this.getLastUsedAddressByWalletType(walletSelection)}
         walletStatus={walletStatus}
+        wallet={wallet}
+        address={address}
+        transfer={transfer}
         {...other}
       />
     )

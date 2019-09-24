@@ -110,7 +110,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'drive' },
         transfer: { cryptoType: { $set: 'ethereum' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.ethereum[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
@@ -130,7 +131,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'metamask' },
         transfer: { cryptoType: { $set: 'ethereum' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.ethereum[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#metamask`)).toHaveLength(1)
@@ -167,7 +169,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'ledger' },
         transfer: { cryptoType: { $set: 'ethereum' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.ethereum[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
@@ -227,7 +230,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'drive' },
         transfer: { cryptoType: { $set: 'dai' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.dai[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
@@ -247,7 +251,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'metamask' },
         transfer: { cryptoType: { $set: 'dai' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.dai[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#metamask`)).toHaveLength(1)
@@ -284,7 +289,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'ledger' },
         transfer: { cryptoType: { $set: 'dai' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.dai[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
@@ -344,7 +350,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'drive' },
         transfer: { cryptoType: { $set: 'bitcoin' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.bitcoin[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#drive`)).toHaveLength(1)
@@ -364,7 +371,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'ledger' },
         transfer: { cryptoType: { $set: 'bitcoin' } },
         wallet: { $set: mockWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        address: { $set: mockWallet.crypto.bitcoin[0].address }
       })
     )
     expect(wrapper.find(WalletButton).filter(`#ledger`)).toHaveLength(1)
@@ -402,7 +410,8 @@ describe('ReceiveWalletSelectionComponent render', () => {
         walletType: { $set: 'ledger' },
         transfer: { cryptoType: { $set: 'ethereum' } },
         wallet: { $set: emptyWallet },
-        lastUsedAddressByWalletType: { $set: null }
+        lastUsedAddressByWalletType: { $set: null },
+        error: { $set: 'Sample Error' }
       })
     )
     expect(wrapper.find(Typography).filter('#walletNotConnectedText')).toHaveLength(1)
