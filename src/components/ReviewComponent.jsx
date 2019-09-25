@@ -322,18 +322,16 @@ class ReviewComponent extends Component<Props> {
             </Grid>
             {!actionsPending.submitTx && (
               <Grid item>
-                <div className={classes.wrapper}>
-                  <Button
-                    fullWidth
-                    variant='contained'
-                    color='primary'
-                    size='large'
-                    disabled={actionsPending.submitTx}
-                    onClick={this.handleReviewNext}
-                  >
-                    Confirm and transfer
-                  </Button>
-                </div>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='primary'
+                  size='large'
+                  disabled={actionsPending.submitTx}
+                  onClick={this.handleReviewNext}
+                >
+                  Confirm and transfer
+                </Button>
               </Grid>
             )}
           </Grid>
@@ -347,9 +345,6 @@ const styles = theme => ({
   btnSection: {
     marginTop: '60px',
     marginBottom: '150px'
-  },
-  wrapper: {
-    position: 'relative'
   },
   linearProgress: {
     marginTop: '20px'
