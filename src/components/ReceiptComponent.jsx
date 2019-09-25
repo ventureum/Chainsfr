@@ -13,6 +13,7 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import Divider from '@material-ui/core/Divider'
+import Box from '@material-ui/core/Box'
 
 type Props = {
   backToHome: Function,
@@ -185,11 +186,13 @@ class ReceiptComponent extends Component<Props, State> {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item className={classes.reminder}>
-              <Typography variant='body2'>
-                Don't forget to inform your recipient the security answer, whih is required to
-                accept the tranfer.
-              </Typography>
+            <Grid item>
+              <Box className={classes.reminder}>
+                <Typography variant='body2'>
+                  Don't forget to inform your recipient the security answer, whih is required to
+                  accept the tranfer.
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
         </Grid>
@@ -218,8 +221,8 @@ class ReceiptComponent extends Component<Props, State> {
 
 const styles = theme => ({
   checkCircleIcon: {
-    color: '#5db385',
-    fontSize: '50px',
+    color: '#43B384',
+    fontSize: '48px',
     marginBottom: '14px',
     marginTop: '15px'
   },
@@ -232,8 +235,8 @@ const styles = theme => ({
     marginRight: '16px'
   },
   reminder: {
-    padding: '30px',
-    backgroundColor: 'rgba(66,133,244,0.05)',
+    padding: '20px',
+    backgroundColor: 'rgba(66, 133, 244, 0.1)',
     borderRadius: '4px'
   }
 })
