@@ -206,6 +206,20 @@ async function removeRecipient (request: { idToken: string, recipient: Recipient
   }
 }
 
+async function register (request: { idToken: string }) {
+  try {
+    let rv = await chainsferApi.post('/user', {
+      clientId: 'test-client',
+      action: 'REGISTER',
+      ...request
+    })
+    return rv.data
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+
 async function mintLibra (request: {
   address: string,
   amount: string // microlibra
@@ -262,6 +276,7 @@ export default {
   getRecipients,
   addRecipient,
   removeRecipient,
+  register,
   mintLibra,
   referralBalance,
   referralSend,

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
 import OnboardingComponent from '../components/OnboardingComponent'
-import { onLogin, setNewUserTag } from '../actions/userActions'
+import { onLogin, setNewUserTag, register } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import env from '../typedEnv'
@@ -40,7 +40,7 @@ class LoginContainer extends Component {
 
   render () {
     let { loginData } = this.state
-    let { profile, actionsPending, createCloudWallet } = this.props
+    let { profile, actionsPending, createCloudWallet, register } = this.props
 
     if (loginData &&
         profile.newUser &&
@@ -48,6 +48,7 @@ class LoginContainer extends Component {
     ) {
       return (
         <OnboardingComponent
+          register={() => register(loginData.idToken)}
           createCloudWallet={createCloudWallet}
           profile={loginData}
           actionsPending={actionsPending}
@@ -62,15 +63,17 @@ class LoginContainer extends Component {
   }
 }
 
+const registerSelector = createLoadingSelector(['REGISTER'])
 const createCloudWalletSelector = createLoadingSelector(['CREATE_CLOUD_WALLET'])
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
-const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WALLET'])
+const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WALLET', 'REGISTER'])
 
 const mapStateToProps = state => {
   return {
     profile: state.userReducer.profile,
     cloudWalletConnected: state.walletReducer.wallet.drive.connected,
     actionsPending: {
+      register: registerSelector(state),
       createCloudWallet: createCloudWalletSelector(state),
       getCloudWallet: getCloudWalletSelector(state)
     },
@@ -81,6 +84,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: loginData => dispatch(onLogin(loginData)),
+    register: (idToken) => dispatch(register(idToken)),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),
     setNewUserTag: (isNewUser) => dispatch(setNewUserTag(isNewUser))

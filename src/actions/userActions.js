@@ -55,6 +55,13 @@ async function _refreshAccessToken () {
   return googleUser
 }
 
+function register (idToken: string) {
+  return {
+    type: 'REGISTER',
+    payload: API.register({ idToken })
+  }
+}
+
 async function _onLogout () {
   if (window.gapi && window.gapi.auth2) {
     let googleAuth = await window.gapi.auth2.getAuthInstance()
@@ -157,6 +164,7 @@ function removeRecipient (recipient: Recipient) {
 }
 
 export {
+  register,
   onLogin,
   onLogout,
   setNewUserTag,

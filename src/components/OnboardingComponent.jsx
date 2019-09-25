@@ -38,6 +38,7 @@ class OnboardingComponent extends Component {
   }
 
   onSubmit = () => {
+    this.props.register()
     this.props.createCloudWallet(this.state.password, (step) => { this.setState({ step: step }) })
   }
 
@@ -54,7 +55,7 @@ class OnboardingComponent extends Component {
 
   render () {
     let { classes, actionsPending, profile } = this.props
-
+    const onboardingActionsPending = actionsPending.createCloudWallet || actionsPending.register
     return (
       <div className={classes.root}>
         <Grid container direction='column' alignItems='center'>
@@ -86,7 +87,7 @@ class OnboardingComponent extends Component {
                     label='Password'
                     value={this.state.password}
                     onChange={this.handleChange('password')}
-                    disabled={actionsPending.createCloudWallet}
+                    disabled={onboardingActionsPending}
                   />
                 </Grid>
                 <Grid item>
@@ -100,7 +101,7 @@ class OnboardingComponent extends Component {
                     onChange={this.handleChange('passwordConfirmation')}
                     error={!this.isPasswordMatched()}
                     helperText={!this.isPasswordMatched() && 'Passwords must match'}
-                    disabled={actionsPending.createCloudWallet}
+                    disabled={onboardingActionsPending}
                   />
                 </Grid>
                 <Grid item>
@@ -110,7 +111,7 @@ class OnboardingComponent extends Component {
                         checked={this.state.termsAccepted}
                         onChange={this.handleCheckboxChange}
                         color='primary'
-                        disabled={actionsPending.createCloudWallet}
+                        disabled={onboardingActionsPending}
                       />
                     }
                     label={this.renderTermsAndConditionsLabel()}
@@ -138,7 +139,7 @@ class OnboardingComponent extends Component {
                     disabled={!this.state.termsAccepted ||
                       !this.isPasswordMatched() ||
                       this.state.password === '' ||
-                      actionsPending.createCloudWallet}
+                      onboardingActionsPending}
                     onClick={this.onSubmit}
                   >
                     Start Using Chainsfr
