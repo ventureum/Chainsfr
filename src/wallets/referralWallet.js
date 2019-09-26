@@ -26,7 +26,7 @@ export default class ReferralWallet implements IWallet<WalletDataEthereum, Accou
   }
 
   createAccount = async (): Promise<AccountEthereum> => {
-    const { balance } = await API.referralCreate()
+    const balance = '0'
     return {
       address: 'your referral wallet',
       balance: balance,
