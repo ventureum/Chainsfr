@@ -9,8 +9,8 @@ import Button from '@material-ui/core/Button'
 import LinearProgress from '@material-ui/core/LinearProgress'
 
 const CREATE_WALLET_PROGRESS = {
-  'CREATE': 'Creating Drive Wallet...',
-  'STORE': 'Encrypt and store safely into your Google Drive...'
+  CREATE: 'Creating Drive Wallet...',
+  STORE: 'Encrypt and store safely into your Google Drive...'
 }
 
 class OnboardingComponent extends Component {
@@ -39,18 +39,27 @@ class OnboardingComponent extends Component {
 
   onSubmit = () => {
     this.props.register()
-    this.props.createCloudWallet(this.state.password, (step) => { this.setState({ step: step }) })
+    this.props.createCloudWallet(this.state.password, step => {
+      this.setState({ step: step })
+    })
   }
 
   renderTermsAndConditionsLabel = () => {
     let { classes } = this.props
-    return (<Typography>
-      {'I agree to the '}
-      <span />
-      <a className={classes.termslink} target='_blank' rel='noopener noreferrer' href='https://docs.google.com/document/d/e/2PACX-1vScWE32Rzf-z8OYmzS9mKTBcpVftWMbeR_BfbhmeJxHDF4jaiYXyUfPOtGif7mI6RSpoQ19onaawdYE/pub'>
-        terms and conditions
-      </a>
-    </Typography>)
+    return (
+      <Typography>
+        {'I agree to the '}
+        <span />
+        <a
+          className={classes.termslink}
+          target='_blank'
+          rel='noopener noreferrer'
+          href='https://docs.google.com/document/d/e/2PACX-1vScWE32Rzf-z8OYmzS9mKTBcpVftWMbeR_BfbhmeJxHDF4jaiYXyUfPOtGif7mI6RSpoQ19onaawdYE/pub'
+        >
+          terms and conditions
+        </a>
+      </Typography>
+    )
   }
 
   render () {
@@ -64,18 +73,23 @@ class OnboardingComponent extends Component {
             <Grid item>
               <Grid container direction='column' justify='center' alignItems='stretch' spacing={3}>
                 <Grid item>
-                  <Typography align='left' className={classes.onBoardingTitle}>
+                  <Typography variant='h2' align='left'>
                     Welcome to Chainsfr,
                   </Typography>
-                  <Typography align='left' className={classes.onBoardingTitle}>
+                  <Typography variant='h2' align='left'>
                     {profile.profileObj.name}
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography align='left' className={classes.onBoardingSubtitle}>
-                    We are going to create a Drive wallet for you.
-                    Please set an independent password to protect your
-                    Drive wallet and your future transfers.
+                  <Typography
+                    variant='h4'
+                    style={{
+                      maxWidth: '340px'
+                    }}
+                    align='left'
+                  >
+                    We are going to create a Drive wallet for you. Please set an independent
+                    password to protect your Drive wallet and your future transfers.
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -117,29 +131,34 @@ class OnboardingComponent extends Component {
                     label={this.renderTermsAndConditionsLabel()}
                   />
                 </Grid>
-                {actionsPending.createCloudWallet &&
-                  <Grid item >
-                    <Grid container direction='column' justify='center' className={classes.loadingSection}>
+                {actionsPending.createCloudWallet && (
+                  <Grid item>
+                    <Grid
+                      container
+                      direction='column'
+                      justify='center'
+                      className={classes.loadingSection}
+                    >
                       <Grid item>
-                        <Typography className={classes.progressTitle} >
-                          This may take up to one minute.
-                        </Typography>
-                        <Typography className={classes.progressSubtext} >
+                        <Typography variant='h4'>This may take up to one minute.</Typography>
+                        <Typography variant='caption'>
                           {CREATE_WALLET_PROGRESS[this.state.step]}
                         </Typography>
                         <LinearProgress className={classes.linearProgress} />
                       </Grid>
                     </Grid>
                   </Grid>
-                }
+                )}
                 <Grid item align='center'>
                   <Button
                     variant='contained'
                     color='primary'
-                    disabled={!this.state.termsAccepted ||
+                    disabled={
+                      !this.state.termsAccepted ||
                       !this.isPasswordMatched() ||
                       this.state.password === '' ||
-                      onboardingActionsPending}
+                      onboardingActionsPending
+                    }
                     onClick={this.onSubmit}
                   >
                     Start Using Chainsfr
@@ -173,16 +192,6 @@ const styles = theme => ({
       maxWidth: '1490px'
     }
   },
-  onBoardingTitle: {
-    fontSize: '24px',
-    fontWeight: 500,
-    color: '#333333'
-  },
-  onBoardingSubtitle: {
-    fontSize: '14px',
-    color: '#333333',
-    maxWidth: '340px'
-  },
   wrapper: {
     margin: theme.spacing(1),
     position: 'relative'
@@ -192,15 +201,6 @@ const styles = theme => ({
     padding: '20px',
     margin: '20px 0px 20px 0px',
     borderRadius: '4px'
-  },
-  progressTitle: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: 600
-  },
-  progressSubtext: {
-    color: '#777777',
-    fontSize: '14px'
   },
   linearProgress: {
     marginTop: '20px'
