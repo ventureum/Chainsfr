@@ -45,13 +45,13 @@ class ReceiveReviewContainer extends Component {
   render () {
     const { wallet, lastUsedWallet, transfer, cryptoPrice, currency, txFee } = this.props
     const { cryptoType, sendTimestamp } = transfer
-    const toCurrencyAmount = (cryptoAmount) =>
+    const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
     // if set to not used or no used address, use connected wallet
     let destinationAddress = lastUsedWallet
       ? lastUsedWallet.crypto[cryptoType][0].address
       : wallet.crypto[cryptoType][0].address
-    let sentOn = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    let sendTime = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
 
     let receiveAmount
     if (txFee && transfer) {
@@ -65,7 +65,7 @@ class ReceiveReviewContainer extends Component {
         destinationAddress={destinationAddress}
         {...this.props}
         receiveAmount={receiveAmount}
-        sentOn={sentOn}
+        sendTime={sendTime}
         currencyAmount={{
           transferAmount: transfer && toCurrencyAmount(transfer.transferAmount),
           txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit),

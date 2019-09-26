@@ -1,5 +1,5 @@
-
 import CircularProgress from '@material-ui/core/CircularProgress'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import update from 'immutability-helper'
@@ -28,11 +28,10 @@ const initialProps = {
     sender: 'clzhong@ventureum.io',
     transferAmount: '0.001',
     cryptoType: 'ethereum'
-
   },
-  wallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
-  escrowWallet: { crypto: { 'ethereum': [{ address: '0x0' }] } },
-  sentOn: 'May 27th 2019, 12:43:06',
+  wallet: { crypto: { ethereum: [{ address: '0x0' }] } },
+  escrowWallet: { crypto: { ethereum: [{ address: '0x0' }] } },
+  sendTime: 'May 27th 2019, 12:43:06',
   walletSelection: 'testWallet',
   destinationAddress: destinationAddress,
   acceptTransfer: () => {},
@@ -56,29 +55,69 @@ describe('ReceiveReviewComponent render', () => {
   })
 
   it('Initial render', () => {
-    expect(wrapper.find(Typography).filter('#sender').text()).toEqual(initialProps.transfer.sender)
-    expect(wrapper.find(Typography).filter('#destination').text()).toEqual(initialProps.transfer.destination)
-    expect(wrapper.find(Typography).filter('#sentOn').text()).toEqual(initialProps.sentOn)
-    expect(wrapper.find(Typography).filter('#destinationAddress').text()).toEqual(initialProps.destinationAddress)
-    expect(wrapper.find(Typography).filter('#transferAmount').text()).toEqual(`${initialProps.transfer.transferAmount} ETH`)
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} ETH`)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#sender')
+        .text()
+    ).toEqual(initialProps.transfer.sender)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#destination')
+        .text()
+    ).toEqual(initialProps.transfer.destination)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#sentOn')
+        .text()
+    ).toEqual(initialProps.sendTime)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#destinationAddress')
+        .text()
+    ).toEqual(initialProps.destinationAddress)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#transferAmount')
+        .text()
+    ).toEqual(`${initialProps.transfer.transferAmount} ETH`)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#receiveAmount')
+        .text()
+    ).toEqual(`${initialProps.receiveAmount} ETH`)
   })
 
   it('ERC 20', () => {
     wrapper.setProps(update(initialProps, { transfer: { cryptoType: { $set: 'dai' } } }))
-    expect(wrapper.find(Typography).filter('#receiveAmount').text()).toEqual(`${initialProps.receiveAmount} DAI`)
+    expect(
+      wrapper
+        .find(Typography)
+        .filter('#receiveAmount')
+        .text()
+    ).toEqual(`${initialProps.receiveAmount} DAI`)
   })
 
   // actionsPending
   it('getTxCost', () => {
     wrapper.setProps(update(initialProps, { actionsPending: { getTxFee: { $set: true } } }))
-    expect(wrapper.find(CircularProgress)).toHaveLength(2)
+    expect(wrapper.find(CircularProgress)).toHaveLength(1)
   })
 
   it('actionsPending.acceptTransfer', () => {
     wrapper.setProps(update(initialProps, { actionsPending: { acceptTransfer: { $set: true } } }))
-    expect(wrapper.find(CircularProgress)).toHaveLength(1)
-    expect(wrapper.find(Button).filter('#complete').prop('disabled')).toEqual(true)
+    expect(wrapper.find(LinearProgress)).toHaveLength(1)
+    expect(
+      wrapper
+        .find(Button)
+        .filter('#complete')
+        .prop('disabled')
+    ).toEqual(true)
   })
 })
 
@@ -90,14 +129,20 @@ describe('ReceiveReviewComponent interaction', () => {
   it('acceptTransfer', () => {
     const mockFunction = jest.fn()
     wrapper.setProps({ acceptTransfer: mockFunction })
-    wrapper.find(Button).filter('#complete').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#complete')
+      .simulate('click')
     expect(mockFunction.mock.calls.length).toEqual(1)
   })
 
   it('goToStep', () => {
     const mockFunction = jest.fn()
     wrapper.setProps({ goToStep: mockFunction })
-    wrapper.find(Button).filter('#cancel').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#cancel')
+      .simulate('click')
     expect(mockFunction.mock.calls[0][0]).toEqual(-1)
   })
 })

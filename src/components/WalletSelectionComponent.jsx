@@ -238,7 +238,15 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderWalletSection = () => {
-    const { wallet, walletType, onWalletSelected, actionsPending, error, classes } = this.props
+    const {
+      wallet,
+      walletType,
+      onWalletSelected,
+      actionsPending,
+      error,
+      classes,
+      cryptoType
+    } = this.props
     /*
      *  Message Queue for showing current wallet connection status
      *
@@ -294,11 +302,13 @@ class WalletSelectionComponent extends Component<Props> {
       if ((wallet && wallet.connected) || actionsPending.checkWalletConnection || error) {
         // if wallet is connnected,
         // show wallet connection status
-        messageQueue.push(
-          <Grid item style={{ width: '90%' }}>
-            <Paper className={classes.balanceSection}>{this.renderWalletStatus()}</Paper>
-          </Grid>
-        )
+        if (isWalletLink || isWalletConnect || cryptoType) {
+          messageQueue.push(
+            <Grid item style={{ width: '90%' }}>
+              <Paper className={classes.balanceSection}>{this.renderWalletStatus()}</Paper>
+            </Grid>
+          )
+        }
       }
     }
 

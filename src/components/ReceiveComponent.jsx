@@ -10,7 +10,7 @@ import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
 import ReceiveLandingPage from '../containers/ReceiveLandingPageContainer'
 
 class ReceiveComponent extends React.Component {
-  render() {
+  render () {
     const { classes, step, history } = this.props
 
     return (
@@ -58,8 +58,9 @@ const styles = theme => ({
   },
   subComponent: {
     width: '100%',
-    maxWidth: '680px',
-    margin: '0px 0px 16px 0px'
+    maxWidth: '550px',
+    margin: '30px 0px 50px 0px',
+    padding: '30px'
   },
   sectionContainer: {
     width: '100%',

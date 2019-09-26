@@ -3,130 +3,186 @@ import { Link } from 'react-router-dom'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import MuiLink from '@material-ui/core/Link'
 import Button from '@material-ui/core/Button'
 import Paths from '../Paths'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import url from '../url'
+import Divider from '@material-ui/core/Divider'
+import Box from '@material-ui/core/Box'
 
 class CancelReceiptComponent extends Component {
   render () {
     const { classes, receipt, txFee, backToHome, cancelTime, toCurrencyAmount } = this.props
-    const { transferId, transferAmount, cryptoType, cancelTxHash, cancelMessage } = receipt
+    const {
+      transferId,
+      transferAmount,
+      cryptoType,
+      cancelTxHash,
+      cancelMessage,
+      senderName,
+      sender,
+      receiverName,
+      destination
+    } = receipt
 
     const receiveAmount = ['ethereum', 'bitcoin'].includes(cryptoType)
       ? parseFloat(transferAmount) - parseFloat(txFee.costInStandardUnit)
       : parseFloat(transferAmount)
 
     return (
-      <Grid container direction='column' justify='center' alignItems='center'>
+      <Grid container direction='column' spacing={5}>
         <Grid item>
-          <Paper className={classes.receiptPaper} elevation={1}>
-            <Grid container direction='column' justify='center' alignItems='stretch'>
-              <Grid item>
-                <Grid item className={classes.titleSection}>
-                  <Grid container direction='column' justify='center' alignItems='center'>
-                    <CheckCircleIcon className={classes.checkCircleIcon} />
-                    <Typography className={classes.title} variant='h6' align='center'>
-                      Cancellation Completed
+          <Grid container direction='column' justify='center' align='center'>
+            <CheckCircleIcon className={classes.checkCircleIcon} />
+            <Typography variant='h3'>Cancellation Completed</Typography>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container direction='column' spacing={2}>
+            <Grid item>
+              <Grid container direction='row' align='center' spacing={1}>
+                <Grid item xs={6}>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Typography variant='caption'>From</Typography>
+                    <Typography variant='body2' id='senderName'>
+                      {senderName}
                     </Typography>
-                    <Typography className={classes.transferId} align='center'>
-                      {`Transfer ID: ${transferId}`}
+                    <Typography variant='caption' id='sender'>
+                      {sender}
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Amount
-                  </Typography>
-                  <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+                <Grid item xs={6}>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Typography variant='caption'>To</Typography>
+                    <Typography variant='body2' id='receiverName'>
+                      {receiverName}
+                    </Typography>
+                    <Typography variant='caption'>{destination}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
+                <Grid item>
+                  <Typography variant='caption'>Amount</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    <Typography variant='body2'>
                       {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
-                      ≈ {toCurrencyAmount(transferAmount)}
+                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      ( ≈ {toCurrencyAmount(transferAmount)} )
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Transaction Fee
-                  </Typography>
-                  <Grid container direction='column'>
-                    <Typography className={classes.reviewContentAmount} align='left'>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
+                <Grid item>
+                  <Typography variant='caption'>Transaction Fee</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    <Typography variant='body2'>
                       {`${txFee.costInStandardUnit} ${getCryptoSymbol(
                         getTxFeesCryptoType(cryptoType)
                       )}`}
                     </Typography>
-                    <Typography className={classes.reviewContentCurrencyAmount} align='left'>
-                      ≈ {toCurrencyAmount(txFee.costInStandardUnit)}
+                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      ( ≈ {toCurrencyAmount(txFee.costInStandardUnit)})
                     </Typography>
                   </Grid>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    You will receive*
-                  </Typography>
-                  <Grid container direction='column'>
-                    <Typography
-                      className={classes.reviewContentAmount}
-                      align='left'
-                      id='receiveAmount'
-                    >
-                      {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
-                    </Typography>
-                    <Typography
-                      className={classes.reviewContentCurrencyAmount}
-                      align='left'
-                      id='receiveCurrencyAmount'
-                    >
-                      ≈ {toCurrencyAmount(receiveAmount)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item className={classes.reviewItem}>
-                  <Typography className={classes.reviewSubtitle} align='left'>
-                    Cancelled on
-                  </Typography>
-                  <Typography className={classes.reviewContent} align='left'>
-                    {cancelTime}
-                  </Typography>
-                </Grid>
-                {cancelMessage &&
-                cancelMessage.length > 0 && ( // only show message when available
-                  <Grid item className={classes.reviewItem}>
-                    <Typography className={classes.reviewSubtitle} align='left'>
-                      Cancellation Reason
-                    </Typography>
-                    <Typography className={classes.reviewContentMessage} align='left'>
-                      {cancelMessage}
-                    </Typography>
-                  </Grid>
-                )}
-                <Grid item className={classes.reviewItem}>
-                  <Typography variant='body2' className={classes.informReceiverText} align='left'>
-                    It may takes a few minutes to complete the transaction. You can track the
-                    transaction
-                    <MuiLink
-                      target='_blank'
-                      rel='noopener'
-                      href={url.getExplorerTx(receipt.cryptoType, cancelTxHash)}
-                    >
-                      {' here'}
-                    </MuiLink>
-                    . A confirmation email will be sent to you.
-                  </Typography>
                 </Grid>
               </Grid>
             </Grid>
-          </Paper>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
+                <Grid item>
+                  <Typography variant='caption'>You will receive*</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    <Typography variant='body2' id='receiveAmount'>
+                      {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
+                    </Typography>
+                    <Typography
+                      style={{ marginLeft: '10px' }}
+                      variant='caption'
+                      id='receiveCurrencyAmount'
+                    >
+                      ( ≈ {toCurrencyAmount(receiveAmount)})
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            {cancelMessage && cancelMessage.length > 0 && (
+              <>
+                <Grid item>
+                  <Divider />
+                </Grid>
+                <Grid item>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Grid item>
+                      <Typography variant='caption'>Cancellation Reason</Typography>
+                      <Typography variant='body2'>{cancelMessage}</Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            <Grid item>
+              <Divider />
+            </Grid>
+
+            <Grid item>
+              <Grid container direction='column' spacing={1}>
+                <Grid item>
+                  <Typography variant='caption'>Cancelled on {cancelTime}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant='caption'>Transfer ID: {transferId}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Box className={classes.reminder}>
+                <Typography variant='body2' align='left'>
+                  It may takes a few minutes to complete the transaction. You can track the
+                  transaction
+                  <MuiLink
+                    target='_blank'
+                    rel='noopener'
+                    href={url.getExplorerTx(receipt.cryptoType, cancelTxHash)}
+                  >
+                    {' here'}
+                  </MuiLink>
+                  . A confirmation email will be sent to you.
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={3}>
+        <Grid item>
+          <Grid container direction='row' justify='center'>
             <Grid item>
               <Button
+                id='back'
                 fullWidth
                 variant='contained'
                 color='primary'
@@ -134,7 +190,6 @@ class CancelReceiptComponent extends Component {
                 component={Link}
                 to={Paths.home}
                 onClick={backToHome}
-                id='back'
               >
                 Back to Home
               </Button>
@@ -147,71 +202,15 @@ class CancelReceiptComponent extends Component {
 }
 
 const styles = theme => ({
-  title: {
-    color: '#333333',
-    fontSize: '18px',
-    fontWeight: '600',
-    lineHeight: '24px',
-    padding: '0px 0px 0px 0px'
-  },
-  transferId: {
-    color: '#777777',
-    fontSize: '12px',
-    lineHeight: '17px'
-  },
-  reviewSubtitle: {
-    color: '#777777',
-    fontSize: '12px',
-    lineHeight: '17px'
-  },
-  reviewContent: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px'
-  },
-  reviewContentAmount: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px',
-    fontWeight: 'bold'
-  },
-  reviewContentCurrencyAmount: {
-    color: '#777777',
-    fontSize: '14px',
-    lineHeight: '24px',
-    fontWeight: 'bold',
-    marginLeft: '5px'
-  },
-  reviewItem: {
-    marginTop: '30px'
-  },
-  receiptPaper: {
-    marginTop: '20px',
-    padding: '60px 90px'
-  },
   checkCircleIcon: {
-    color: '#0CCD70',
-    fontSize: '40px',
+    color: '#43B384',
+    fontSize: '48px',
     marginBottom: '14px'
   },
-  informReceiverText: {
-    color: '#333333',
-    maxWidth: '360px'
-  },
-  btnSection: {
-    marginTop: '60px'
-  },
-  iconBtn: {
-    padding: '0',
-    marginLeft: '16px'
-  },
-  reviewContentMessage: {
-    color: '#333333',
-    fontSize: '18px',
-    lineHeight: '24px',
-    maxWidth: '300px',
-    // prevent overflow for long messages
-    wordWrap: 'break-word'
+  reminder: {
+    padding: '20px',
+    backgroundColor: 'rgba(66, 133, 244, 0.1)',
+    borderRadius: '4px'
   }
 })
 
