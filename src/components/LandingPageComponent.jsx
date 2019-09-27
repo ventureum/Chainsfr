@@ -121,9 +121,11 @@ class LandingPageComponent extends Component {
           <Grid container direction='row' alignItems='center'>
             <Grid xs={8} item>
               <ListItemText
-                primary={`${transfer.transferType === 'SENDER' ? 'To' : 'From'} ${
-                  transfer.destination
-                }`}
+                primary={
+                  transfer.transferType === 'SENDER'
+                    ? `To ${transfer.receiverName}`
+                    : `From ${transfer.senderName}`
+                }
                 secondary={secondaryDesc}
               />
             </Grid>
@@ -156,6 +158,13 @@ class LandingPageComponent extends Component {
               <Typography variant='caption'>
                 Transfer ID:{' '}
                 {transfer.transferType === 'SENDER' ? transfer.transferId : transfer.receivingId}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='caption'>
+                {transfer.transferType === 'SENDER'
+                  ? `To ${transfer.destination}`
+                  : `From ${transfer.sender}`}
               </Typography>
             </Grid>
             {transfer.password && (
