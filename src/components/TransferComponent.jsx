@@ -21,12 +21,7 @@ class TransferComponent extends React.Component<Props> {
     const { classes, step, history } = this.props
     const urlParams = queryString.parse(history.location.search)
     return (
-      <Grid
-        container
-        direction='column'
-        alignItems='center'
-        className={step === 3 ? classes.rootReceipt : undefined}
-      >
+      <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' alignItems='stretch'>
             <Grid item>{step <= 2 && <Stepper actionType='transfer' step={step} />}</Grid>
@@ -63,10 +58,6 @@ class TransferComponent extends React.Component<Props> {
 }
 
 const styles = theme => ({
-  rootReceipt: {
-    minHeight: '100vh',
-    backgroundColor: '#fafafa'
-  },
   formContainer: {
     width: '100%',
     maxWidth: '680px',

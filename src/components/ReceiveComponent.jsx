@@ -14,12 +14,7 @@ class ReceiveComponent extends React.Component {
     const { classes, step, history } = this.props
 
     return (
-      <Grid
-        container
-        direction='column'
-        alignItems='center'
-        className={step === 4 ? classes.rootReceipt : undefined}
-      >
+      <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
           {step === 0 ? (
             <ReceiveLandingPage location={history.location} />
@@ -52,10 +47,6 @@ class ReceiveComponent extends React.Component {
 }
 
 const styles = theme => ({
-  rootReceipt: {
-    minHeight: '100vh',
-    backgroundColor: '#fafafa'
-  },
   subComponent: {
     width: '100%',
     maxWidth: '550px',
