@@ -12,7 +12,8 @@ import {
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
   checkWalletConnectConnection,
-  checkWalletLinkConnection
+  checkWalletLinkConnection,
+  checkReferralWalletConnection
 } from '../actions/walletActions'
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -29,6 +30,7 @@ type Props = {
   checkLedgerDeviceConnection: Function,
   checkCloudWalletConnection: Function,
   checkLedgerAppConnection: Function,
+  checkReferralWalletConnection: Function,
   selectCrypto: Function,
   selectWallet: Function,
   goToStep: Function,
@@ -101,6 +103,7 @@ class WalletSelectionContainer extends Component<Props, State> {
       checkLedgerDeviceConnection,
       checkCloudWalletConnection,
       checkWalletConnectConnection,
+      checkReferralWalletConnection,
       selectCrypto,
       walletSelection,
       cryptoSelection
@@ -122,6 +125,9 @@ class WalletSelectionContainer extends Component<Props, State> {
     } else if (walletSelection.endsWith('WalletLink') && cryptoType !== cryptoSelection) {
       selectCrypto(cryptoType)
       checkWalletLinkConnection(walletSelection, cryptoType)
+    } else if (walletSelection === 'referralWallet' && cryptoType !== cryptoSelection) {
+      selectCrypto(cryptoType)
+      checkReferralWalletConnection()
     }
   }
 
@@ -250,14 +256,16 @@ const checkWalletConnectionSelector = createLoadingSelector([
   'GET_LEDGER_WALLET_DATA',
   'CHECK_LEDGER_DEVICE_CONNECTION',
   'CHECK_WALLETCONNECT_CONNECTION',
-  'CHECK_WALLETLINK_CONNECTION'
+  'CHECK_WALLETLINK_CONNECTION',
+  'CHECK_REFERRAL_WALLET_CONNECTION'
 ])
 const errorSelector = createErrorSelector([
   'CHECK_METAMASK_CONNECTION',
   'SYNC_LEDGER_ACCOUNT_INFO',
   'GET_LEDGER_WALLET_DATA',
   'CHECK_WALLETCONNECT_CONNECTION',
-  'CHECK_WALLETLINK_CONNECTION'
+  'CHECK_WALLETLINK_CONNECTION',
+  'CHECK_REFERRAL_WALLET_CONNECTION'
 ])
 const checkLedgerDeviceConnectionSelector = createLoadingSelector([
   'CHECK_LEDGER_DEVICE_CONNECTION'
@@ -283,7 +291,8 @@ const mapDispatchToProps = dispatch => {
     checkWalletConnectConnection: (walletType, cryptoType) =>
       dispatch(checkWalletConnectConnection(walletType, cryptoType)),
     checkWalletLinkConnection: (walletType, cryptoType) =>
-      dispatch(checkWalletLinkConnection(walletType, cryptoType))
+      dispatch(checkWalletLinkConnection(walletType, cryptoType)),
+    checkReferralWalletConnection: () => dispatch(checkReferralWalletConnection())
   }
 }
 

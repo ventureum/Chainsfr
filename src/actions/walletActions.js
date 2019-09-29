@@ -333,33 +333,42 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   var walletFileData = {}
   let ethereumBasedWalletData = null
   if (progress) progress('CREATE')
-  for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
-    if (!disabled) {
-      let wallet = await WalletFactory.generateWallet({
-        walletType: 'drive',
-        cryptoType: cryptoType
-      })
-      if (['ethereum', 'dai'].includes(cryptoType)) {
-        if (ethereumBasedWalletData) {
-          // share the same privateKey for ethereum based coins
-          // deep-copy walletData
-          wallet.walletData = JSON.parse(JSON.stringify(ethereumBasedWalletData))
-          wallet.walletData.cryptoType = cryptoType
-        } else {
-          // deep-copy walletData
-          // otherwise, privateKey will be cleared in the next step
-          ethereumBasedWalletData = JSON.parse(JSON.stringify(wallet.getWalletData()))
+
+  // the following creation process should never fail (which blocks the onboarding process), 
+  // warn silently for any errors
+  try {
+    for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
+      if (!disabled) {
+        let wallet = await WalletFactory.generateWallet({
+          walletType: 'drive',
+          cryptoType: cryptoType
+        })
+        if (['ethereum', 'dai'].includes(cryptoType)) {
+          if (ethereumBasedWalletData) {
+            // share the same privateKey for ethereum based coins
+            // deep-copy walletData
+            wallet.walletData = JSON.parse(JSON.stringify(ethereumBasedWalletData))
+            wallet.walletData.cryptoType = cryptoType
+          } else {
+            // deep-copy walletData
+            // otherwise, privateKey will be cleared in the next step
+            ethereumBasedWalletData = JSON.parse(JSON.stringify(wallet.getWalletData()))
+          }
         }
+        await wallet.encryptAccount(password)
+        wallet.clearPrivateKey()
+        walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
       }
-      await wallet.encryptAccount(password)
-      wallet.clearPrivateKey()
-      walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
     }
+  } catch (error) {
+    console.warn(error)
   }
 
   // save the encrypted wallet into drive
   if (progress) progress('STORE')
+  // this never fails
   await saveWallet(walletFileData)
+  // this never fails
   return _getCloudWallet()
 }
 
@@ -375,7 +384,12 @@ function createCloudWallet (password: string, progress: ?Function) {
     )
     return dispatch({
       type: 'CREATE_CLOUD_WALLET',
-      payload: _createCloudWallet(password, progress)
+      payload: _createCloudWallet(password, progress),
+      meta: {
+        // do not show errors
+        // errors are warned in the console
+        localErrorHandling: true
+      }
     }).then(() => {
       dispatch(closeSnackbar(key))
     })
@@ -385,6 +399,9 @@ function createCloudWallet (password: string, progress: ?Function) {
 /*
  * Retrieve wallet from drive
  * as well as fetching wallet balance
+ *
+ * This action never fails, errors are logged in the console,
+ * which prevents blocking onboarding or logging in process
  */
 async function _getCloudWallet () {
   let walletFile = await getWallet()
@@ -396,9 +413,13 @@ async function _getCloudWallet () {
   for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
     if (!disabled) {
       if (walletFile[cryptoType]) {
-        var wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
-        await wallet.sync()
-        walletDataList.push(wallet.getWalletData())
+        try {
+          var wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
+          await wallet.sync()
+          walletDataList.push(wallet.getWalletData())
+        } catch (error) {
+          console.warn(error)
+        }
       }
     }
   }
