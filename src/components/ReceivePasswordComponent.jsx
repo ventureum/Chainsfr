@@ -15,15 +15,13 @@ class ReceivePasswordComponent extends Component {
   componentDidMount () {
     let { transfer, escrowWallet } = this.props
     if (escrowWallet.crypto[transfer.cryptoType]) {
-      this.props.clearDecryptedWallet(WalletUtils.toWalletDataFromState(
-        'escrow',
-        transfer.cryptoType,
-        escrowWallet
-      ))
+      this.props.clearDecryptedWallet(
+        WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet)
+      )
     }
   }
 
-  onChange = (event) => {
+  onChange = event => {
     this.clearError()
     this.setState({ password: event.target.value })
   }
@@ -32,16 +30,12 @@ class ReceivePasswordComponent extends Component {
     let { verifyPassword, transfer, escrowWallet } = this.props
     let { password } = this.state
     verifyPassword({
-      fromWallet: WalletUtils.toWalletDataFromState(
-        'escrow',
-        transfer.cryptoType,
-        escrowWallet
-      ),
+      fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
       password: password
     })
   }
 
-  clearError =() => {
+  clearError = () => {
     const { error, clearVerifyPasswordError } = this.props
     if (error) {
       clearVerifyPasswordError()
@@ -54,8 +48,8 @@ class ReceivePasswordComponent extends Component {
     return (
       <Grid container direction='column' className={classes.root}>
         <Grid item>
-          <Typography className={classes.title} align='left'>
-              Enter Security Answer
+          <Typography variant='h2' align='left'>
+            Enter Security Answer
           </Typography>
         </Grid>
         <Grid item>
@@ -67,28 +61,35 @@ class ReceivePasswordComponent extends Component {
             margin='normal'
             variant='outlined'
             error={!!error}
-            helperText={error ? 'Incorrect security answer' : 'Please enter security answer set by the sender'}
+            helperText={
+              error ? 'Incorrect security answer' : 'Please enter security answer set by the sender'
+            }
             onChange={this.onChange}
             value={password || ''}
-            onKeyPress={(ev) => {
+            onKeyPress={ev => {
               if (ev.key === 'Enter') {
                 this.handleNext()
               }
             }}
           />
         </Grid>
-        {actionsPending.verifyPassword &&
-        <Grid item>
-          <Grid container direction='column' className={classes.linearProgressContainer} spacing={2}>
-            <Grid item>
-              <Typography className={classes.checkingText}>Checking password...</Typography>
-            </Grid>
-            <Grid item>
-              <LinearProgress className={classes.linearProgress} />
+        {actionsPending.verifyPassword && (
+          <Grid item>
+            <Grid
+              container
+              direction='column'
+              className={classes.linearProgressContainer}
+              spacing={2}
+            >
+              <Grid item>
+                <Typography variant='body2'>Checking password...</Typography>
+              </Grid>
+              <Grid item>
+                <LinearProgress className={classes.linearProgress} />
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-        }
+        )}
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center'>
             <Grid item>
@@ -102,7 +103,7 @@ class ReceivePasswordComponent extends Component {
                 }}
                 disabled={actionsPending.verifyPassword}
               >
-                  Cancel
+                Cancel
               </Button>
             </Grid>
             <Grid item>
@@ -115,7 +116,7 @@ class ReceivePasswordComponent extends Component {
                 onClick={this.handleNext}
                 disabled={actionsPending.verifyPassword}
               >
-                  Continue
+                Continue
               </Button>
             </Grid>
           </Grid>
@@ -130,14 +131,6 @@ const styles = theme => ({
     padding: '0px 20px 0px 20px',
     margin: '60px 0px 60px 0px'
   },
-  title: {
-    color: '#333333',
-    fontSize: '24px',
-    fontWeight: '600',
-    lineHeight: '36px',
-    letterSpacing: '0.97px',
-    padding: '0px 0px 0px 0px'
-  },
   btnSection: {
     marginTop: '60px'
   },
@@ -146,11 +139,6 @@ const styles = theme => ({
     borderRadius: '4px',
     padding: '10px 20px 10px 20px',
     marginTop: '30px'
-  },
-  checkingText: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: 600
   },
   linearProgress: {
     marginTop: '8px'

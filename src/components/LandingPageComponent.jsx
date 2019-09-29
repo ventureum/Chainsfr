@@ -121,28 +121,29 @@ class LandingPageComponent extends Component {
           <Grid container direction='row' alignItems='center'>
             <Grid xs={8} item>
               <ListItemText
-                primary={`${transfer.transferType === 'SENDER' ? 'To' : 'From'} ${
-                  transfer.destination
-                }`}
+                primary={
+                  transfer.transferType === 'SENDER'
+                    ? `To ${transfer.receiverName}`
+                    : `From ${transfer.senderName}`
+                }
                 secondary={secondaryDesc}
               />
             </Grid>
             <Grid xs={4} item>
               <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
-                  <Typography align='center' className={classes[stateClassName]}>
-                    {toUserReadableState[transfer.transferType][transfer.state]}
-                  </Typography>
+                  <Box className={classes[stateClassName]}>
+                    <Typography variant='button' align='center'>
+                      {toUserReadableState[transfer.transferType][transfer.state]}
+                    </Typography>
+                  </Box>
                 </Grid>
                 <Grid item>
-                  <Typography align='right' className={classes.recentTransferItemTransferAmount}>
+                  <Typography align='right' variant='body2'>
                     {transfer.transferType === 'SENDER' ? '-' : '+'}
                     {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
                   </Typography>
-                  <Typography
-                    align='right'
-                    className={classes.recentTransferItemTransferCurrencyAmount}
-                  >
+                  <Typography align='right' variant='caption'>
                     {transfer.transferType === 'SENDER' ? '-' : '+'}
                     {transfer.transferCurrencyAmount}
                   </Typography>
@@ -154,28 +155,33 @@ class LandingPageComponent extends Component {
         <ExpansionPanelDetails>
           <Grid container direction='column' justify='center' alignItems='flex-start'>
             <Grid item>
-              <Typography className={classes.recentTransferItemTransferId}>
+              <Typography variant='caption'>
                 Transfer ID:{' '}
                 {transfer.transferType === 'SENDER' ? transfer.transferId : transfer.receivingId}
               </Typography>
             </Grid>
+            <Grid item>
+              <Typography variant='caption'>
+                {transfer.transferType === 'SENDER'
+                  ? `To ${transfer.destination}`
+                  : `From ${transfer.sender}`}
+              </Typography>
+            </Grid>
             {transfer.password && (
               <Grid item>
-                <Typography className={classes.recentTransferItemTransferId}>
-                  Security Answer: {transfer.password}
-                </Typography>
+                <Typography variant='caption'>Security Answer: {transfer.password}</Typography>
               </Grid>
             )}
             {transfer.sendMessage && (
               <Grid item>
-                <Typography className={classes.recentTransferItemTransferMessage}>
+                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
                   Message: {transfer.sendMessage}
                 </Typography>
               </Grid>
             )}
             {transfer.cancelMessage && (
               <Grid item>
-                <Typography className={classes.recentTransferItemTransferMessage}>
+                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
                   Cancellation Reason: {transfer.cancelMessage}
                 </Typography>
               </Grid>
@@ -186,7 +192,7 @@ class LandingPageComponent extends Component {
               transferStates.SEND_CONFIRMED_CANCEL_PENDING
             ].includes(transfer.state) && (
               <Grid item>
-                <Typography className={classes.recentTransferItemTransferId}>
+                <Typography variant='caption'>
                   You can track the Transaction
                   <MuiLink
                     target='_blank'
@@ -294,15 +300,15 @@ class LandingPageComponent extends Component {
                 <Grid item className={classes.txHistoryTitleContainer}>
                   <Grid container direction='row' alignItems='center'>
                     <Grid item xs={8}>
-                      <Typography className={classes.txHistoryTitleText}>Transaction</Typography>
+                      <Typography variant='h6'>Transaction</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Grid container alignItems='center' justify='space-between'>
                         <Grid item>
-                          <Typography className={classes.txHistoryTitleText}>Status</Typography>
+                          <Typography variant='h6'>Status</Typography>
                         </Grid>
                         <Grid item>
-                          <Typography className={classes.txHistoryTitleText}>Amount</Typography>
+                          <Typography variant='h6'>Amount</Typography>
                         </Grid>
                       </Grid>
                     </Grid>
@@ -311,7 +317,7 @@ class LandingPageComponent extends Component {
                 <Divider />
                 {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
                   <Grid container justify='center'>
-                    <Typography className={classes.noTxText}>
+                    <Typography variant='subtitle1'>
                       It seems you don't have any transactions yet
                     </Typography>
                   </Grid>
@@ -337,6 +343,17 @@ class LandingPageComponent extends Component {
   }
 }
 
+const baseRecentTransferItemTransferStatus = {
+  borderRadius: '100px',
+  color: 'white',
+  padding: '5px',
+  width: '86px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'stretch'
+}
+
 const styles = theme => ({
   coloredBackgrond: {
     backgroundColor: '#FAFBFE'
@@ -353,51 +370,19 @@ const styles = theme => ({
     width: '100%',
     padding: '0px 60px 0px 24px'
   },
-  txHistoryTitleText: {
-    fontWeight: '600',
-    fontSize: '12px',
-    color: '#777777'
-  },
   recentTransferItemTransferStatusPending: {
-    borderRadius: '100px',
-    backgroundColor: '#F49B20',
-    color: 'white',
-    padding: '5px',
-    fontSize: '14px',
-    width: '86px',
-    fontWeight: '500'
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#F49B20'
   },
   recentTransferItemTransferStatusTextBased: {
-    borderRadius: '100px',
-    backgroundColor: '#43B384',
-    color: 'white',
-    padding: '5px',
-    fontSize: '14px',
-    width: '86px',
-    fontWeight: '500'
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#43B384'
   },
   recentTransferItemTransferStatusError: {
-    borderRadius: '100px',
-    backgroundColor: '#A8A8A8',
-    color: 'white',
-    width: '86px',
-    padding: '5px ',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  recentTransferItemTransferAmount: {
-    fontWeight: '500',
-    fontSize: '14px',
-    color: '#333333'
-  },
-  recentTransferItemTransferCurrencyAmount: {
-    fontWeight: '500',
-    fontSize: '14px',
-    color: '#777777'
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#A8A8A8'
   },
   recentTransferItemTransferMessage: {
-    color: '#777777',
-    fontSize: '12px',
     maxWidth: '300px',
     // prevent overflow for long messages
     wordWrap: 'break-word',
@@ -413,11 +398,6 @@ const styles = theme => ({
     fontSize: '12px',
     fontWeight: '500',
     marginTop: '10px'
-  },
-  noTxText: {
-    margin: '60px 0px 60px 0px',
-    fontSize: '24px',
-    color: '#A8A8A8'
   }
 })
 

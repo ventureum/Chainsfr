@@ -141,9 +141,7 @@ class WalletSelectionComponent extends Component<Props> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Grid item>
-                      <Typography className={classes.addressInfoText}>
-                        Wallet address: {address}
-                      </Typography>
+                      <Typography variant='caption'>Wallet address: {address}</Typography>
                     </Grid>
                     <IconButton
                       className={classes.explorerButton}
@@ -211,7 +209,7 @@ class WalletSelectionComponent extends Component<Props> {
                     wallet.crypto[c.cryptoType] &&
                     wallet.crypto[c.cryptoType][0] && (
                       <Grid item>
-                        <Typography className={classes.balanceText} id={`${c.cryptoType}Balance`}>
+                        <Typography variant='body1' id={`${c.cryptoType}Balance`}>
                           {numeral(
                             utils.toHumanReadableUnit(
                               wallet.crypto[c.cryptoType][0].balance,
@@ -220,10 +218,7 @@ class WalletSelectionComponent extends Component<Props> {
                           ).format('0.000a')}{' '}
                           {getCryptoSymbol(cryptoType)}
                         </Typography>
-                        <Typography
-                          className={classes.balanceCurrencyText}
-                          id={`${c.cryptoType}CurrencyBalance`}
-                        >
+                        <Typography variant='caption' id={`${c.cryptoType}CurrencyBalance`}>
                           (≈ {currencyAmount[c.cryptoType]})
                         </Typography>
                       </Grid>
@@ -418,18 +413,6 @@ const styles = theme => ({
   },
   linearProgress: {
     marginTop: '20px'
-  },
-  addressInfoText: {
-    color: '#666666',
-    fontSize: '12px'
-  },
-  balanceText: {
-    fontSize: '18px',
-    color: '#333333'
-  },
-  balanceCurrencyText: {
-    fontSize: '14px',
-    color: '#777777'
   },
   explorerIcon: {
     fontSize: '16px'

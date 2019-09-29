@@ -166,7 +166,7 @@ class ReceiveWalletSelectionComponent extends Component {
               <Grid item>
                 <Grid container direction='row' alignItems='center'>
                   <Grid item>
-                    <Typography className={classes.addressInfoText}>
+                    <Typography variant='caption'>
                       Wallet Address: {lastUsedAddressByWalletType.crypto[cryptoType][0].address}
                     </Typography>
                   </Grid>
@@ -276,9 +276,7 @@ class ReceiveWalletSelectionComponent extends Component {
               <Grid item>
                 <Grid container direction='row' alignItems='center'>
                   <Grid item>
-                    <Typography className={classes.addressInfoText}>
-                      Wallet address: {address}
-                    </Typography>
+                    <Typography variant='caption'>Wallet address: {address}</Typography>
                   </Grid>
                   <IconButton
                     className={classes.explorerButton}
@@ -349,33 +347,6 @@ class ReceiveWalletSelectionComponent extends Component {
 }
 
 const styles = theme => ({
-  title: {
-    color: '#333333',
-    fontSize: '18px',
-    fontWeight: '600',
-    lineHeight: '24px',
-    padding: '0px 0px 0px 0px'
-  },
-  faqIcon: {
-    marginRight: theme.spacing(1)
-  },
-  checkCircleIcon: {
-    color: '#0CCD70',
-    fontSize: '25px'
-  },
-  notificationContainer: {
-    marginTop: '60px',
-    marginBottom: '60px'
-  },
-  notificationTitle: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: '600'
-  },
-  notificationAddress: {
-    color: '#666666',
-    fontSize: '12px'
-  },
   btnSection: {
     width: '100%'
   },
@@ -384,26 +355,12 @@ const styles = theme => ({
     margin: '30px 0px 30px 0px',
     borderRadius: '4px'
   },
-  notConnectText: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: 600
-  },
   notConnectIcon: {
     color: '#B00020',
     marginRight: '8px'
   },
-  connectedtext: {
-    color: '#333333',
-    fontSize: '14px',
-    fontWeight: 600
-  },
   linearProgress: {
     marginTop: '20px'
-  },
-  addressInfoText: {
-    color: '#666666',
-    fontSize: '12px'
   },
   connectedIcon: {
     color: '#2E7D32',
@@ -433,10 +390,6 @@ const styles = theme => ({
     paddingBottom: '20px',
     paddingTop: '20px',
     borderRadius: '10px'
-  },
-  paper: {
-    padding: '10px',
-    marginTop: '10px'
   },
   walletBtnContainer: {
     width: '220px'

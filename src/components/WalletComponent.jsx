@@ -30,7 +30,6 @@ import env from '../typedEnv'
 import numeral from 'numeral'
 import utils from '../utils'
 import update from 'immutability-helper'
-import classNames from 'classnames'
 import validator from 'validator'
 import BN from 'bn.js'
 import bitcore from 'bitcore-lib'
@@ -65,11 +64,14 @@ class WalletComponent extends Component {
 
   componentDidUpdate (prevProps, prevState) {
     let { actionsPending, receipt, wallet } = this.props
-    const { directTransferDialogForm, selectedCryptoType, directTransferDialogOpen, directTransferDialogFormError } = this.state
+    const {
+      directTransferDialogForm,
+      selectedCryptoType,
+      directTransferDialogOpen,
+      directTransferDialogFormError
+    } = this.state
     const { transferAmount } = directTransferDialogForm
-    if (prevProps.actionsPending.directTransfer &&
-      !actionsPending.directTransfer &&
-      receipt) {
+    if (prevProps.actionsPending.directTransfer && !actionsPending.directTransfer && receipt) {
       // direct transfer action is completed
       // sucessfully retrieved the receipt
       // jump to receipt step
@@ -88,14 +90,28 @@ class WalletComponent extends Component {
       !actionsPending.getTxFee &&
       prevProps.actionsPending.getTxFee
     ) {
-      this.setState(update(this.state, { // eslint-disable-line
-        directTransferDialogFormError: { transferAmount: { $set: this.validate('transferAmount', directTransferDialogForm.transferAmount) } }
-      }))
+      this.setState(
+        update(this.state, {
+          // eslint-disable-line
+          directTransferDialogFormError: {
+            transferAmount: {
+              $set: this.validate('transferAmount', directTransferDialogForm.transferAmount)
+            }
+          }
+        })
+      )
     }
   }
 
   handleMoreBtnOnOpen = cryptoType => event => {
-    this.setState(update(this.state, { moreMenu: { [cryptoType]: _cryptoType => update(_cryptoType || {}, { anchorEl: { $set: event.currentTarget } }) } }))
+    this.setState(
+      update(this.state, {
+        moreMenu: {
+          [cryptoType]: _cryptoType =>
+            update(_cryptoType || {}, { anchorEl: { $set: event.currentTarget } })
+        }
+      })
+    )
   }
 
   handleMoreBtnOnClose = cryptoType => event => {
@@ -126,7 +142,9 @@ class WalletComponent extends Component {
       // close the dialog
       _state = update(_state, { directTransferDialogOpen: { $set: false } })
       // close dropdown menu as well
-      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+      _state = update(_state, {
+        moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } }
+      })
       _state = update(_state, {
         directTransferDialogForm: {
           $set: {
@@ -146,7 +164,9 @@ class WalletComponent extends Component {
     })
     if (!open) {
       // close dropdown menu as well
-      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+      _state = update(_state, {
+        moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } }
+      })
     }
     this.setState(_state)
   }
@@ -171,7 +191,9 @@ class WalletComponent extends Component {
       // close the dialog
       _state = update(this.state, { viewPrivateKeyDialogOpen: { $set: open } })
       // close dropdown menu as well
-      _state = update(_state, { moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } } })
+      _state = update(_state, {
+        moreMenu: { [this.state.selectedCryptoType]: { anchorEl: { $set: null } } }
+      })
     }
     this.setState(_state)
   }
@@ -182,11 +204,19 @@ class WalletComponent extends Component {
     let balance = wallet ? wallet.crypto[selectedCryptoType][0].balance : null
     const decimals = getCryptoDecimals(selectedCryptoType)
     if (name === 'transferAmount' && wallet && balance) {
-      if (!validator.isFloat(value, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals, 8) })) {
+      if (
+        !validator.isFloat(value, {
+          min: 0.001,
+          max: utils.toHumanReadableUnit(balance, decimals, 8)
+        })
+      ) {
         if (value === '-' || parseFloat(value) < 0.001) {
           return 'The amount must be greater than 0.001'
         } else {
-          return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(balance, decimals)}`
+          return `The amount cannot exceed your current balance ${utils.toHumanReadableUnit(
+            balance,
+            decimals
+          )}`
         }
       } else {
         // balance check passed
@@ -196,7 +226,11 @@ class WalletComponent extends Component {
           if (
             selectedCryptoType === 'ethereum' &&
             txFee &&
-            new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+            new BN(balance).lt(
+              new BN(txFee.costInBasicUnit).add(
+                utils.toBasicTokenUnit(parseFloat(value), decimals, 8)
+              )
+            )
           ) {
             return 'Insufficent funds for paying transaction fees'
           }
@@ -210,14 +244,20 @@ class WalletComponent extends Component {
         } else if (
           selectedCryptoType === 'bitcoin' &&
           txFee &&
-          new BN(balance).lt(new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8)))
+          new BN(balance).lt(
+            new BN(txFee.costInBasicUnit).add(
+              utils.toBasicTokenUnit(parseFloat(value), decimals, 8)
+            )
+          )
         ) {
           return 'Insufficent funds for paying transaction fees'
         }
       }
     } else if (name === 'destinationAddress') {
       if (selectedCryptoType === 'bitcoin') {
-        if (!bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])) {
+        if (
+          !bitcore.Address.isValid(value, bitcore.Networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
+        ) {
           return 'Invalid address'
         }
       } else if (['ethereum', 'dai'].includes(selectedCryptoType)) {
@@ -235,10 +275,12 @@ class WalletComponent extends Component {
   }
 
   handleDirectTransferDialogFormChange = name => event => {
-    this.setState(update(this.state, {
-      directTransferDialogForm: { [name]: { $set: event.target.value } },
-      directTransferDialogFormError: { [name]: { $set: this.validate(name, event.target.value) } }
-    }))
+    this.setState(
+      update(this.state, {
+        directTransferDialogForm: { [name]: { $set: event.target.value } },
+        directTransferDialogFormError: { [name]: { $set: this.validate(name, event.target.value) } }
+      })
+    )
   }
 
   validateForm = () => {
@@ -249,17 +291,16 @@ class WalletComponent extends Component {
       directTransferDialogForm.destinationAddress &&
       directTransferDialogForm.transferAmount &&
       !directTransferDialogFormError.destinationAddress &&
-      !directTransferDialogFormError.transferAmount)
+      !directTransferDialogFormError.transferAmount
+    )
   }
 
   directTransferDialogOnSubmit = () => {
-    const {
-      directTransferDialogForm,
-      selectedCryptoType
-    } = this.state
+    const { directTransferDialogForm, selectedCryptoType } = this.state
     const { wallet, directTransfer, txFee } = this.props
 
-    if (selectedCryptoType &&
+    if (
+      selectedCryptoType &&
       directTransferDialogForm.transferAmount &&
       directTransferDialogForm.destinationAddress
     ) {
@@ -285,7 +326,9 @@ class WalletComponent extends Component {
     if (directTransferDialogOpen) {
       let _balance = wallet.crypto[selectedCryptoType][0].balance
       let _decimals = getCryptoDecimals(selectedCryptoType)
-      var balance = _balance ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.0000a') : '0'
+      var balance = _balance
+        ? numeral(utils.toHumanReadableUnit(_balance, _decimals)).format('0.0000a')
+        : '0'
     }
 
     return (
@@ -315,14 +358,17 @@ class WalletComponent extends Component {
             error={!!directTransferDialogFormError.transferAmount}
           />
           <Grid item className={classes.txFeeSection}>
-            <Typography className={classes.txFeeSectionTitle} align='left'>
+            <Typography variant='body1' align='left'>
               Transaction Fee
             </Typography>
-            {!actionsPending.getTxFee
-              ? <Typography className={classes.txFeeSectionFee} align='left'>
-                {txFee ? txFee.costInStandardUnit : 0} {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
+            {!actionsPending.getTxFee ? (
+              <Typography variant='caption' align='left'>
+                {txFee ? txFee.costInStandardUnit : 0}{' '}
+                {getCryptoSymbol(getTxFeesCryptoType(selectedCryptoType))}
               </Typography>
-              : <CircularProgress size={18} color='primary' />}
+            ) : (
+              <CircularProgress size={18} color='primary' />
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -344,28 +390,28 @@ class WalletComponent extends Component {
 
   renderDirectTransferDialogReviewStep = () => {
     let { classes, actionsPending } = this.props
-    let {
-      directTransferDialogForm,
-      selectedCryptoType
-    } = this.state
+    let { directTransferDialogForm, selectedCryptoType } = this.state
 
     return (
       <>
         <DialogTitle>Direct Transfer</DialogTitle>
         <DialogContent>
-          <Typography align='left' className={classes.directTransferReviewText}>
-            You are about to send {directTransferDialogForm.transferAmount} {getCryptoSymbol(selectedCryptoType)} to the following address:
+          <Typography align='left' variant='body2'>
+            You are about to send {directTransferDialogForm.transferAmount}{' '}
+            {getCryptoSymbol(selectedCryptoType)} to the following address:
           </Typography>
-          <Typography align='left' className={classNames(classes.directTransferReviewText, classes.marginBottom20px)}>
+          <Typography align='left' style={{ marginBottom: '20px' }} variant='body2'>
             {directTransferDialogForm.destinationAddress}
           </Typography>
-          <Typography align='left' className={classes.directTransferReviewText}>
-            Please double check on the amount and address.
-            The transfser is irreversible.
+          <Typography align='left' variant='body2'>
+            Please double check on the amount and address. The transfser is irreversible.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => this.setState({ directTransferDialogStep: 'RECIPIANT' })} color='primary'>
+          <Button
+            onClick={() => this.setState({ directTransferDialogStep: 'RECIPIANT' })}
+            color='primary'
+          >
             Back
           </Button>
           <div className={classes.directTxConfirmBtnContainer}>
@@ -377,10 +423,9 @@ class WalletComponent extends Component {
             >
               Confirm to Transfer
             </Button>
-            {actionsPending.directTransfer
-              ? <CircularProgress size={24} className={classes.directTxConfirmBtnProgress} />
-              : null
-            }
+            {actionsPending.directTransfer ? (
+              <CircularProgress size={24} className={classes.directTxConfirmBtnProgress} />
+            ) : null}
           </div>
         </DialogActions>
       </>
@@ -395,11 +440,13 @@ class WalletComponent extends Component {
         <DialogTitle>Direct Transfer</DialogTitle>
         <DialogContent>
           <Typography variant='body2' className={classes.informReceiverText} align='left'>
-            Succeed! It may take a few minutes to complete the transaction. You can track the transaction
+            Succeed! It may take a few minutes to complete the transaction. You can track the
+            transaction
             <MuiLink
               target='_blank'
               rel='noopener'
-              href={url.getExplorerTx(receipt.cryptoType, receipt.sendTxHash)}>
+              href={url.getExplorerTx(receipt.cryptoType, receipt.sendTxHash)}
+            >
               {' here'}
             </MuiLink>
           </Typography>
@@ -435,8 +482,8 @@ class WalletComponent extends Component {
         <DialogTitle>Address</DialogTitle>
         <DialogContent>
           <Grid container direction='row' alignItems='center'>
-            <Grid item >
-              <Typography className={classes.addressDialog} align='left'>
+            <Grid item>
+              <Typography variant='h6' align='left'>
                 {address}
               </Typography>
             </Grid>
@@ -444,15 +491,12 @@ class WalletComponent extends Component {
               <CopyToClipboard
                 text={address}
                 onCopy={() => {
-                  this.setState({ copied: true },
-                    () => setTimeout(() => this.setState({ copied: false }), 1500)
+                  this.setState({ copied: true }, () =>
+                    setTimeout(() => this.setState({ copied: false }), 1500)
                   )
                 }}
               >
-                <Tooltip
-                  placement='top'
-                  open={copied}
-                  title='Copied'>
+                <Tooltip placement='top' open={copied} title='Copied'>
                   <IconButton disableRipple className={classes.iconBtn}>
                     <FileCopyIcon fontSize='small' />
                   </IconButton>
@@ -479,10 +523,10 @@ class WalletComponent extends Component {
       <Dialog open={viewPrivateKeyDialogOpen}>
         <DialogTitle>Private Key</DialogTitle>
         <DialogContent className={classes.minWidth200px}>
-          {(wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet)
-            ? <Grid container direction='row' alignItems='center'>
-              <Grid item >
-                <Typography className={classes.addressDialog} align='left'>
+          {wallet.crypto[selectedCryptoType][0].privateKey && !actionsPending.decryptCloudWallet ? (
+            <Grid container direction='row' alignItems='center'>
+              <Grid item>
+                <Typography cvariant='h6' align='left'>
                   {privateKey}
                 </Typography>
               </Grid>
@@ -490,15 +534,12 @@ class WalletComponent extends Component {
                 <CopyToClipboard
                   text={privateKey}
                   onCopy={() => {
-                    this.setState({ copied: true },
-                      () => setTimeout(() => this.setState({ copied: false }), 1500)
+                    this.setState({ copied: true }, () =>
+                      setTimeout(() => this.setState({ copied: false }), 1500)
                     )
                   }}
                 >
-                  <Tooltip
-                    placement='top'
-                    open={copied}
-                    title='Copied'>
+                  <Tooltip placement='top' open={copied} title='Copied'>
                     <IconButton disableRipple className={classes.iconBtn}>
                       <FileCopyIcon fontSize='small' />
                     </IconButton>
@@ -506,8 +547,9 @@ class WalletComponent extends Component {
                 </CopyToClipboard>
               </Grid>
             </Grid>
-            : <LinearProgress />
-          }
+          ) : (
+            <LinearProgress />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => this.toggleViewPrivateKeyDialog(false)} color='primary'>
@@ -518,7 +560,7 @@ class WalletComponent extends Component {
     )
   }
 
-  goToTransfer = (cryptoType) => {
+  goToTransfer = cryptoType => {
     var unlocked = !!this.props.wallet.crypto[cryptoType][0].privateKey
     if (!unlocked) {
       this.props.unlockCloudWallet({
@@ -526,11 +568,13 @@ class WalletComponent extends Component {
         onClose: () => this.goToTransfer(cryptoType)
       })
     } else {
-      this.props.push(`${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${cryptoType}`)
+      this.props.push(
+        `${Paths.transfer}?walletSelection=${WALLET_TYPE}&cryptoSelection=${cryptoType}`
+      )
     }
   }
 
-  renderItem = (walletByCryptoType) => {
+  renderItem = walletByCryptoType => {
     let { classes } = this.props
     var explorerLink = null
     if (walletByCryptoType.cryptoType === 'ethereum') {
@@ -551,16 +595,21 @@ class WalletComponent extends Component {
         <ListItem>
           <Grid container direction='row' alignItems='center'>
             <Grid item lg={9} md={8} sm={6} xs={3}>
-              <Typography className={classes.walletCryptoSymbol} align='left'>
+              <Typography variant='h6' align='left'>
                 {getCryptoSymbol(walletByCryptoType.cryptoType)}
               </Typography>
-              <Typography className={classes.walletCryptoTitle} align='left'>
+              <Typography variant='caption' align='left'>
                 {getCryptoTitle(walletByCryptoType.cryptoType)}
               </Typography>
             </Grid>
             <Grid item lg={1} md={1} sm={1} xs={4}>
-              <Typography align='right' className={classes.walletCryptoBalance}>
-                {numeral(utils.toHumanReadableUnit(walletByCryptoType.balance, getCryptoDecimals(walletByCryptoType.cryptoType))).format('0.0000a')}
+              <Typography align='right' variant='body2'>
+                {numeral(
+                  utils.toHumanReadableUnit(
+                    walletByCryptoType.balance,
+                    getCryptoDecimals(walletByCryptoType.cryptoType)
+                  )
+                ).format('0.0000a')}
               </Typography>
             </Grid>
             <Grid item lg={2} md={3} sm={5} xs={5}>
@@ -581,7 +630,8 @@ class WalletComponent extends Component {
                     <IconButton
                       className={classes.button}
                       aria-label='Explorer'
-                      target='_blank' href={explorerLink}
+                      target='_blank'
+                      href={explorerLink}
                     >
                       <OpenInNewIcon />
                     </IconButton>
@@ -602,9 +652,27 @@ class WalletComponent extends Component {
                     open={Boolean(moreMenu && moreMenu.anchorEl)}
                     onClose={this.handleMoreBtnOnClose(walletByCryptoType.cryptoType)}
                   >
-                    <MenuItem onClick={() => this.toggleDirectTransferDialog(true, walletByCryptoType.cryptoType)}>Direct Transfer</MenuItem>
-                    <MenuItem onClick={() => this.toggleViewAddressDialog(true, walletByCryptoType.cryptoType)}>View Address</MenuItem>
-                    <MenuItem onClick={() => this.toggleViewPrivateKeyDialog(true, walletByCryptoType.cryptoType)}>View Private Key</MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        this.toggleDirectTransferDialog(true, walletByCryptoType.cryptoType)
+                      }
+                    >
+                      Direct Transfer
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        this.toggleViewAddressDialog(true, walletByCryptoType.cryptoType)
+                      }
+                    >
+                      View Address
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        this.toggleViewPrivateKeyDialog(true, walletByCryptoType.cryptoType)
+                      }
+                    >
+                      View Private Key
+                    </MenuItem>
                   </Menu>
                 </Grid>
               </Grid>
@@ -618,11 +686,7 @@ class WalletComponent extends Component {
 
   render () {
     const { classes, wallet, actionsPending } = this.props
-    const {
-      directTransferDialogOpen,
-      viewAddressDialogOpen,
-      viewPrivateKeyDialogOpen
-    } = this.state
+    const { directTransferDialogOpen, viewAddressDialogOpen, viewPrivateKeyDialogOpen } = this.state
 
     let walletList = []
     if (wallet.connected) {
@@ -638,21 +702,18 @@ class WalletComponent extends Component {
     return (
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.walletListContainer}>
-          <Grid container direction='column' >
+          <Grid container direction='column'>
             <Grid item className={classes.headerSection}>
               {/* Back button */}
-              <Button
-                color='primary'
-                className={classes.backBtn}
-                component={Link}
-                to={Paths.home}
-              >
+              <Button color='primary' className={classes.backBtn} component={Link} to={Paths.home}>
                 {'< Back to Home'}
               </Button>
               {/* Title */}
             </Grid>
             <Grid item className={classes.headerSection}>
-              <Typography className={classes.title} align='left'>My Drive Wallet</Typography>
+              <Typography variant='h3' align='left'>
+                My Drive Wallet
+              </Typography>
             </Grid>
             <Grid item>
               <Grid container direction='column' alignItems='center'>
@@ -661,12 +722,12 @@ class WalletComponent extends Component {
                   <ListItem key='walletListHeader'>
                     <Grid container direction='row' alignItems='center'>
                       <Grid item lg={9} md={8} sm={6} xs={3}>
-                        <Typography className={classes.walletListHeaderLabel} align='left'>
+                        <Typography variant='caption' align='left'>
                           Token
                         </Typography>
                       </Grid>
                       <Grid item lg={1} md={1} sm={1} xs={4}>
-                        <Typography className={classes.walletListHeaderLabel} align='right'>
+                        <Typography variant='caption' align='right'>
                           Balance
                         </Typography>
                       </Grid>
@@ -674,11 +735,11 @@ class WalletComponent extends Component {
                   </ListItem>
                   <Divider />
                   {/* List content */}
-                  {!actionsPending.getCloudWallet && wallet.connected &&
-                    walletList.map(wallet => this.renderItem(wallet))
-                  }
+                  {!actionsPending.getCloudWallet &&
+                    wallet.connected &&
+                    walletList.map(wallet => this.renderItem(wallet))}
                 </List>
-                {actionsPending.getCloudWallet &&
+                {actionsPending.getCloudWallet && (
                   <Grid item align='center'>
                     <CircularProgress
                       size={24}
@@ -686,7 +747,7 @@ class WalletComponent extends Component {
                       className={classes.buttonProgress}
                     />
                   </Grid>
-                }
+                )}
                 {directTransferDialogOpen && this.renderDirectTransferDialog()}
                 {viewAddressDialogOpen && this.renderViewAddressDialog()}
                 {viewPrivateKeyDialogOpen && this.renderViewPrivateKeyDialog()}
@@ -703,38 +764,10 @@ const styles = theme => ({
   walletList: {
     width: '100%'
   },
-  title: {
-    fontSize: '18px',
-    fontWeight: '500',
-    color: '#333333',
-    alignSelf: 'flex-start'
-  },
   walletListContainer: {
     padding: '60px 30px 60px 30px',
     width: '100%',
     maxWidth: '1200px'
-  },
-  walletListHeaderLabel: {
-    fontSize: '12px',
-    color: '#777777',
-    fontWeight: 500
-  },
-  walletCryptoTitle: {
-    fontSize: '12px',
-    color: '#777777'
-  },
-  walletCryptoSymbol: {
-    fontSize: '12px',
-    color: '#333333'
-  },
-  walletCryptoBalance: {
-    fontSize: '14px',
-    color: '#333333'
-  },
-  projectsHeader: {
-    marginBottom: 16,
-    color: '#333333',
-    alignSelf: 'flex-start'
   },
   headerSection: {
     marginBottom: '30px'
@@ -748,26 +781,8 @@ const styles = theme => ({
     marginTop: '10px',
     marginBottom: '30px'
   },
-  directTransferReviewText: {
-    color: '#333333',
-    fontSize: '14px'
-  },
-  marginBottom20px: {
-    marginBottom: '20px'
-  },
   txFeeSection: {
     marginTop: '30px'
-  },
-  txFeeSectionFee: {
-    color: '#777777',
-    fontSize: '12px'
-  },
-  txFeeSectionTitle: {
-    color: '#333333',
-    fontSize: '18px'
-  },
-  addressDialog: {
-    fontSize: '12px'
   },
   minWidth200px: {
     minWidth: '300px'

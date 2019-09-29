@@ -61,7 +61,7 @@ class RecipientsComponent extends Component {
     return (
       <Grid container direction='column'>
         {!actionsPending.getRecipients && recipients.length === 0 ? (
-          <Typography className={classes.noTxText} align='center'>
+          <Typography variant='body1' align='center'>
             It seems you don't have any recipients saved
           </Typography>
         ) : (
@@ -77,9 +77,7 @@ class RecipientsComponent extends Component {
                     <AccountCircle className={classes.recipientIcon} id='accountCircle' />
                     <div>
                       <Typography>{recipient.name}</Typography>
-                      <Typography className={classes.recipientEmailText}>
-                        {recipient.email}
-                      </Typography>
+                      <Typography variant='caption'>{recipient.email}</Typography>
                     </div>
                   </Grid>
                 </Grid>
@@ -125,7 +123,7 @@ class RecipientsComponent extends Component {
             <Grid item style={{ width: '100%' }}>
               <Grid container alignItems='center' justify='space-between'>
                 <Grid item>
-                  <Typography className={classes.RecipientTitle}>Recipients</Typography>
+                  <Typography variant='h2'>Recipients</Typography>
                 </Grid>
                 <Grid item>
                   <Button className={classes.addRecipientBtn} onClick={() => addRecipient()}>
@@ -162,10 +160,6 @@ const styles = theme => ({
     marginRight: '10px',
     color: '#333333'
   },
-  recipientEmailText: {
-    fontSize: '12px',
-    color: '#777777'
-  },
   iconBtn: {
     color: '#777777',
     fontSize: '20px'
@@ -176,17 +170,8 @@ const styles = theme => ({
     borderRadius: '4px',
     textTransform: 'none'
   },
-  RecipientTitle: {
-    color: '#333333',
-    fontSize: '24px'
-  },
   divider: {
     margin: '20px 0px 20px 0px'
-  },
-  noTxText: {
-    margin: '40px 0px 60px 0px',
-    fontSize: '24px',
-    color: '#A8A8A8'
   }
 })
 export default withStyles(styles)(RecipientsComponent)
