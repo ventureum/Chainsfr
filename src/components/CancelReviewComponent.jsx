@@ -71,7 +71,7 @@ class CancelReviewComponent extends Component {
               applied.
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item style={{ width: '100%' }}>
             <TextField
               fullWidth
               id='message'
