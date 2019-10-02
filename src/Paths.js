@@ -5,7 +5,8 @@ const paths = {
   transfer: '/send',
   receive: '/receive',
   cancel: '/cancel',
-  recipients: '/recipients'
+  recipients: '/recipients',
+  referral: '/referral'
 }
 
 export default paths

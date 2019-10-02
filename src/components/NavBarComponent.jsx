@@ -76,6 +76,11 @@ class NavBarComponent extends Component {
                         </Button>
                       </Grid>
                       <Grid item xs={12} sm='auto'>
+                        <Button className={classes.NaviBtn} component={Link} to={path.referral}>
+                          Referral
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12} sm='auto'>
                         <Button
                           aria-owns={anchorEl ? 'simple-menu' : undefined}
                           aria-haspopup='true'

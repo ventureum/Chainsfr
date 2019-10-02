@@ -10,6 +10,7 @@ import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
 import WalletContainer from './containers/WalletContainer'
 import RecipientsContainer from './containers/RecipientsContainer'
+import ReferralContainer from './containers/ReferralContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
@@ -165,6 +166,10 @@ class App extends Component {
                 <DefaultLayout
                   path={`${paths.recipients}`}
                   component={userIsAuthenticated(RecipientsContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.referral}`}
+                  component={userIsAuthenticated(ReferralContainer)}
                 />
               </Switch>
             </ConnectedRouter>
