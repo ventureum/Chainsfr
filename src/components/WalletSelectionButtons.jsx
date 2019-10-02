@@ -88,9 +88,9 @@ export default function WalletSelectionButtons (props) {
       {walletSelections
         .filter(w => {
           if (purpose === 'send') {
-            return w.sendable
+            return w.sendable && !w.hide
           } else if (purpose === 'receive') {
-            return w.receivable
+            return w.receivable && !w.hide
           }
           return true
         })

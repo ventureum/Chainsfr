@@ -78,7 +78,8 @@ export const walletSelections = [
     logo: DriveWalletLogo,
     disabled: false,
     sendable: true,
-    receivable: true
+    receivable: true,
+    hide: false
   },
   {
     walletType: 'coinbaseWalletLink',
@@ -87,7 +88,8 @@ export const walletSelections = [
     logo: CoinbaseWalletLogo,
     disabled: false,
     sendable: true,
-    receivable: true
+    receivable: true,
+    hide: false
   },
   {
     walletType: 'metamask',
@@ -96,7 +98,8 @@ export const walletSelections = [
     logo: MetamaskLogo,
     ...getWalletStatus(),
     sendable: true,
-    receivable: true
+    receivable: true,
+    hide: false
   },
   {
     walletType: 'ledger',
@@ -105,7 +108,8 @@ export const walletSelections = [
     logo: LedgerWalletLogo,
     ...getWalletStatus(),
     sendable: true,
-    receivable: true
+    receivable: true,
+    hide: false
   },
   {
     walletType: 'metamaskWalletConnect',
@@ -114,7 +118,8 @@ export const walletSelections = [
     logo: MetamaskLogo,
     disabled: false,
     sendable: true,
-    receivable: true
+    receivable: true,
+    hide: false
   },
   {
     walletType: 'referralWallet',
@@ -123,7 +128,8 @@ export const walletSelections = [
     logo: DriveWalletLogo,
     disabled: false,
     sendable: true,
-    receivable: false
+    receivable: false,
+    hide: true
   }
   /* {
     walletType: 'trustWalletConnect',
