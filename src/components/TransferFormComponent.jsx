@@ -149,6 +149,7 @@ class TransferFormComponent extends Component<Props> {
                   helperText={
                     formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`
                   }
+                  type='number'
                   onChange={handleTransferFormChange('transferCurrencyAmount')}
                   value={transferCurrencyAmount}
                   InputProps={{
@@ -167,6 +168,7 @@ class TransferFormComponent extends Component<Props> {
                   variant='outlined'
                   label={`Amount (${getCryptoSymbol(cryptoSelection)})`}
                   error={!!formError.transferAmount}
+                  type='number'
                   helperText={
                     formError.transferAmount ||
                     `Balance: ${numeral(balanceAmount).format('0.000[000]')} ${getCryptoSymbol(
