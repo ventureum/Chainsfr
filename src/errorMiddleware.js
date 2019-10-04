@@ -1,6 +1,13 @@
 import isPromise from 'is-promise'
 import { enqueueSnackbar } from './actions/notificationActions'
 
+const ERROR_WHITELIST = [
+  'Incorrect WalletLink network',
+  'Incorrect password',
+  'Get crypto price failed.',
+  'Metamask not found'
+]
+
 export default function errorMiddleware (store) {
   return next => action => {
     // Errors are handled globally by default
@@ -22,15 +29,18 @@ export default function errorMiddleware (store) {
         if (message.length > 120) {
           message = message.slice(0, 120) + '...'
         }
-        store.dispatch(
-          enqueueSnackbar({
-            message: message,
-            options: {
-              variant: 'error',
-              autoHideDuration: 60000
-            }
-          })
-        )
+
+        if (!ERROR_WHITELIST.includes(message)) {
+          store.dispatch(
+            enqueueSnackbar({
+              message: message,
+              options: {
+                variant: 'error',
+                autoHideDuration: 60000
+              }
+            })
+          )
+        }
         throw error
       })
     } else {
