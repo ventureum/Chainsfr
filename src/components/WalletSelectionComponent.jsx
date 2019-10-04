@@ -270,14 +270,14 @@ class WalletSelectionComponent extends Component<Props> {
       // show WalletLink/Connect paper at the top
       if (isWalletLink) {
         messageQueue.push(
-          <Grid item>
+          <Grid item key='WalletLinkPaperContainer'>
             <WalletLinkPaperContainer />
           </Grid>
         )
       }
       if (isWalletConnect) {
         messageQueue.push(
-          <Grid item>
+          <Grid item key='WalletConnectPaperContainer'>
             <WalletConnectPaperContainer />
           </Grid>
         )
@@ -286,7 +286,7 @@ class WalletSelectionComponent extends Component<Props> {
       if (!isWalletLink && !isWalletConnect) {
         // show "choose coin" msg at the top
         messageQueue.push(
-          <Grid item>
+          <Grid item key='selectCoin'>
             <Paper className={classes.paper}>
               <Typography variant='body2'>Please choose a coin type to continue</Typography>
             </Paper>
@@ -299,7 +299,7 @@ class WalletSelectionComponent extends Component<Props> {
         // show wallet connection status
         if (isWalletLink || isWalletConnect || cryptoType) {
           messageQueue.push(
-            <Grid item style={{ width: '90%' }}>
+            <Grid item style={{ width: '90%' }} key='status'>
               <Paper className={classes.balanceSection}>{this.renderWalletStatus()}</Paper>
             </Grid>
           )
