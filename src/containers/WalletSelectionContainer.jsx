@@ -54,6 +54,19 @@ type State = {
   }
 }
 
+const walletErrorUserInstructionList = {
+  ledger: {
+    'No device selected.':
+      'Please connect your Ledger device and select the corresponding device from the popup window.'
+  },
+  metamask: {
+    'Incorrect Metamask network': 'Please check your metamask network and try again.',
+    'Internal JSON-RPC error.':
+      'Please allow Chainsfr to connect to your Metamask wallet in the popup window.',
+    'Metamask not found': 'Please make the Metamask extension is installed and enabled.'
+  }
+}
+
 class WalletSelectionContainer extends Component<Props, State> {
   state = {
     syncProgress: {
@@ -76,7 +89,8 @@ class WalletSelectionContainer extends Component<Props, State> {
 
     window.walletLink = new WalletLink({
       appName: 'Chainsfr',
-      appLogoUrl: 'https://ci6.googleusercontent.com/proxy/9qKr8MjuV_S5ii99FgfInXXzQcYl8Hi0ruZkWMugNt7Roc8WtUhWo5iagZZqdzX5rFF7ezuCoupLgrOCNwZjrANvE_k0-CCEPbnrGynEiWQlk6o3piV8=s0-d-e1-ft#https://chainsfr-public.s3.amazonaws.com/chainsfr_demo_white_300.png'
+      appLogoUrl:
+        'https://ci6.googleusercontent.com/proxy/9qKr8MjuV_S5ii99FgfInXXzQcYl8Hi0ruZkWMugNt7Roc8WtUhWo5iagZZqdzX5rFF7ezuCoupLgrOCNwZjrANvE_k0-CCEPbnrGynEiWQlk6o3piV8=s0-d-e1-ft#https://chainsfr-public.s3.amazonaws.com/chainsfr_demo_white_300.png'
     })
   }
 
@@ -230,6 +244,10 @@ class WalletSelectionContainer extends Component<Props, State> {
       }
     }
 
+    let walletErrorUserInstruction
+    if (other.error && wallet) {
+      walletErrorUserInstruction = walletErrorUserInstructionList[walletSelection][other.error]
+    }
     return (
       <>
         <WalletSelection
@@ -242,6 +260,7 @@ class WalletSelectionContainer extends Component<Props, State> {
           handleNext={this.handleNext}
           currencyAmount={currencyAmount}
           address={address}
+          walletErrorUserInstruction={walletErrorUserInstruction}
           {...other}
         />
         <CloudWalletUnlockContainer />
@@ -265,7 +284,8 @@ const errorSelector = createErrorSelector([
   'GET_LEDGER_WALLET_DATA',
   'CHECK_WALLETCONNECT_CONNECTION',
   'CHECK_WALLETLINK_CONNECTION',
-  'CHECK_REFERRAL_WALLET_CONNECTION'
+  'CHECK_REFERRAL_WALLET_CONNECTION',
+  'CHECK_LEDGER_DEVICE_CONNECTION'
 ])
 const checkLedgerDeviceConnectionSelector = createLoadingSelector([
   'CHECK_LEDGER_DEVICE_CONNECTION'
