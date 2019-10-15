@@ -29,11 +29,6 @@ import Paper from '@material-ui/core/Paper'
 import WalletConnectPaperContainer from '../containers/WalletConnectPaperContainer'
 import WalletLinkPaperContainer from '../containers/WalletLinkPaperContainer'
 
-const WalletConnectionErrorMessage = {
-  metamask: 'Please make sure MetaMask is installed and authorization is accepted',
-  ledger: 'Please make sure your Ledger device is connected.'
-}
-
 type Props = {
   onWalletSelected: Function,
   onCryptoSelected: Function,
@@ -49,7 +44,8 @@ type Props = {
   actionsPending: Object,
   currencyAmount: Object,
   address: string,
-  error: string
+  error: string,
+  walletErrorUserInstruction: string
 }
 
 class WalletSelectionComponent extends Component<Props> {
@@ -65,7 +61,16 @@ class WalletSelectionComponent extends Component<Props> {
   }
 
   renderWalletStatus = () => {
-    const { classes, walletType, wallet, actionsPending, cryptoType, error, address } = this.props
+    const {
+      classes,
+      walletType,
+      wallet,
+      actionsPending,
+      cryptoType,
+      error,
+      address,
+      walletErrorUserInstruction
+    } = this.props
     if (actionsPending.checkLedgerDeviceConnection) {
       return (
         <Grid container direction='column' justify='center'>
@@ -106,7 +111,7 @@ class WalletSelectionComponent extends Component<Props> {
         <Grid container direction='row' alignItems='center' justify='space-between'>
           <Grid item>
             <Typography id='walletNotConnectedText' variant='body2'>
-              {WalletConnectionErrorMessage[walletType]}
+              {walletErrorUserInstruction}
             </Typography>
           </Grid>
           <Grid item>

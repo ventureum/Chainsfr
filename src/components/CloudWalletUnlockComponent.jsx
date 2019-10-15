@@ -41,7 +41,7 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
     }
   }
 
-  render() {
+  render () {
     let {
       actionsPending,
       cryptoType,
@@ -78,6 +78,13 @@ class CloudWalletUnlockComponent extends Component<Props, State> {
                 value={this.state.password}
                 onChange={this.handleChange('password')}
                 helperText={error ? 'Incorrect password' : ''}
+                onKeyPress={ev => {
+                  if (ev.key === 'Enter') {
+                    this.setState({ password: '' })
+                    handleSubmit(this.state.password)
+                    ev.preventDefault()
+                  }
+                }}
               />
             </form>
           )}
