@@ -16,7 +16,11 @@ const errorReducer = (state = {}, action) => {
       CHECK_WALLETLINK_CONNECTION: null,
       CHECK_REFERRAL_WALLET_CONNECTION: null
     }
+  } else if (type === 'LOGOUT_FULFILLED') {
+    // reset errors
+    return {}
   }
+  
   const matches = /(.*)_(PENDING|REJECTED|CLEAR)/.exec(type)
 
   // not a *_REQUEST / *_FAILURE actions, so we ignore them
