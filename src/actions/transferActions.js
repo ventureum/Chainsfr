@@ -29,6 +29,8 @@ const transferStates = {
   SEND_CONFIRMED_CANCEL_FAILURE: 'SEND_CONFIRMED_CANCEL_FAILURE'
 }
 
+const MESSAGE_NOT_PROVIDED = '(Not provided)'
+
 async function getFirstFromAddress (txHash: string) {
   const rv = (await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}`)).data
   const address = rv[0].inputs[0].address
@@ -185,8 +187,14 @@ async function _transactionHashRetrieved (txRequest: {|
   sendTxHash: Array<TxHash> | TxHash,
   password: string
 |}) {
+  if (!txRequest.sendMessage || txRequest.sendMessage === '') {
+    // Set a default message if not provided
+    txRequest.sendMessage = MESSAGE_NOT_PROVIDED
+  }
+
   // mask out password
   const { password, ...request } = txRequest
+
   let response = await API.transfer(request)
 
   await saveHistoryFile({
@@ -242,6 +250,11 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {|
   receivingId: string,
   receiveMessage: ?string
 |}) {
+  if (!txRequest.receiveMessage || txRequest.receiveMessage === '') {
+    // Set a default message if not provided
+    txRequest.receiveMessage = MESSAGE_NOT_PROVIDED
+  }
+
   let response = await API.accept(txRequest)
 
   await saveHistoryFile({
@@ -304,6 +317,11 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {|
   cancelTxHash: TxHash,
   cancelMessage: ?string
 |}) {
+  if (!txRequest.cancelMessage || txRequest.cancelMessage === '') {
+    // Set a default message if not provided
+    txRequest.cancelMessage = MESSAGE_NOT_PROVIDED
+  }
+
   let response = await API.cancel(txRequest)
   return { ...response, ...txRequest }
 }
