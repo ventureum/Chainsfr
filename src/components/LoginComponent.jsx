@@ -53,7 +53,7 @@ const data = {
         content: 'Ethereum testnet coins are provided when you first log in, and can be used for testing transfer functionalities.'
       }
     ],
-    faqURL: env.REACT_APP_FAQ_TESTNET_URL,
+    faqURL: env.REACT_APP_FAQ_URL,
     loginURL: env.REACT_APP_ENTRYPOINT_TESTNET_URL,
     loginTitle: 'Chainsfr Testnet',
     linkText: 'Switch to Mainnet',
