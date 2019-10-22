@@ -6,11 +6,11 @@ import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 
 const stepsByActionType = {
-  'receive': ['Security Answer', 'Wallet', 'Review'],
-  'transfer': ['Wallet', 'Transfer Details', 'Review']
+  receive: ['Security Answer', 'Wallet', 'Review'],
+  transfer: ['Transfer Form', 'Review', 'Wallet Authentication', 'Receipt']
 }
 
-type Props ={
+type Props = {
   actionType: string,
   step: number
 }
@@ -31,7 +31,6 @@ class MyStepper extends React.Component<Props> {
   }
 }
 
-const style = theme => ({
-})
+const style = theme => ({})
 
 export default withStyles(style)(MyStepper)

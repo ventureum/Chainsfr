@@ -10,14 +10,15 @@ import bitcoin from 'bitcoinjs-lib'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 import type {
-  IWallet,
-  WalletDataBitcoin,
-  AccountBitcoin,
-  AddressBitcoin
+  IWallet
+  // WalletDataBitcoin,
+  // AccountBitcoin,
+  // AddressBitcoin
 } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
-import WalletUtils from './utils'
+// import WalletUtils from './utils'
+import { getCryptoDecimals } from '../tokens'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
@@ -90,6 +91,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
     let account = {
       balance: '0',
+      balanceInStandardUnit: '0',
       address: address,
       privateKey: firstAddressNodePrivateKey,
       hdWalletVariables: {
@@ -146,9 +148,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     if (!xpriv) throw new Error('Incorrect password')
     account.hdWalletVariables.xpriv = xpriv
     const path = `m/${BASE_BTC_PATH}/${DEFAULT_ACCOUNT}'`
-    const firstAddressNode = bip32
-      .fromBase58(xpriv, NETWORK)
-      .derivePath(path + '/0/0')
+    const firstAddressNode = bip32.fromBase58(xpriv, NETWORK).derivePath(path + '/0/0')
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({
         // change = 0, addressIdx = 0
@@ -183,7 +183,8 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       if (account.hdWalletVariables.xpub !== xpub) {
         // if xpub does not match, reset watllet data
         // $FlowFixMe
-        let newWalletData: WalletDataBitcoin = WalletUtils.toWalletData(walletType, 'bitcoin', [])
+        let newWalletData
+        // let newWalletData: WalletDataBitcoin = WalletUtils.toWalletData(walletType, 'bitcoin', [])
         this.walletData = newWalletData
         this.walletData.accounts[DEFAULT_ACCOUNT].address = address
         this.walletData.accounts[DEFAULT_ACCOUNT].hdWalletVariables.xpub = xpub
@@ -258,9 +259,7 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
     let utxoData = await Promise.all(
       hdWalletVariables.addresses.map(async addressData => {
         let response = await axios.get(
-          `${url.LEDGER_API_URL}/addresses/${
-            addressData.address
-          }/transactions?noToken=true&truncated=true`
+          `${url.LEDGER_API_URL}/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
         )
         const { txs } = response.data
         const { address } = addressData
@@ -289,6 +288,9 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
 
     // update balance
     account.balance = totalBalance.toString()
+    account.balanceInStandardUnit = utils
+      .toHumanReadableUnit(totalBalance.toString(), getCryptoDecimals('bitcoin'))
+      .toString()
 
     // update timestamp and block height
     hdWalletVariables.lastUpdate = moment().unix()

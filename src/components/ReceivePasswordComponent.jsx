@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 
 class ReceivePasswordComponent extends Component {
   state = {
@@ -14,11 +14,11 @@ class ReceivePasswordComponent extends Component {
 
   componentDidMount () {
     let { transfer, escrowWallet } = this.props
-    if (escrowWallet.crypto[transfer.cryptoType]) {
-      this.props.clearDecryptedWallet(
-        WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet)
-      )
-    }
+    // if (escrowWallet.crypto[transfer.cryptoType]) {
+    //   this.props.clearDecryptedWallet(
+    //     WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet)
+    //   )
+    // }
   }
 
   onChange = event => {
@@ -29,10 +29,10 @@ class ReceivePasswordComponent extends Component {
   handleNext = () => {
     let { verifyPassword, transfer, escrowWallet } = this.props
     let { password } = this.state
-    verifyPassword({
-      fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-      password: password
-    })
+    // verifyPassword({
+    //   fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+    //   password: password
+    // })
   }
 
   clearError = () => {

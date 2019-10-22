@@ -7,7 +7,7 @@ import { getTransfer, cancelTransfer, getTxFee } from '../actions/transferAction
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyPassword, sync } from '../actions/walletActions'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import utils from '../utils'
 
 class CancelReviewContainer extends Component {
@@ -22,18 +22,23 @@ class CancelReviewContainer extends Component {
     let { transfer, actionsPending, error, escrowWallet } = this.props
     let prevActionPending = prevProps.actionsPending
     if (!error && transfer) {
-      let walletData = WalletUtils.toWalletDataFromState(
-        'escrow',
-        transfer.cryptoType,
-        escrowWallet
-      )
+      let walletData
+      // let walletData = WalletUtils.toWalletDataFromState(
+      //   'escrow',
+      //   transfer.cryptoType,
+      //   escrowWallet
+      // )
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
         // transfer data retrieved, now decrypt escrow wallet
         this.props.verifyPassword({
           transferId: transfer.transferId,
           fromWallet: walletData
         })
-      } else if (prevActionPending.verifyPassword && !actionsPending.verifyPassword && !actionsPending.sync) {
+      } else if (
+        prevActionPending.verifyPassword &&
+        !actionsPending.verifyPassword &&
+        !actionsPending.sync
+      ) {
         // verifyPassword completed, currently not syncing
         this.props.sync(walletData)
       } else if (prevActionPending.sync && !actionsPending.sync && !actionsPending.getTxFee) {
@@ -47,8 +52,10 @@ class CancelReviewContainer extends Component {
     const { transfer, cryptoPrice, currency } = this.props
     let sendTime, receiveTime, cancelTime
     if (transfer) sendTime = moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    if (transfer && transfer.receiveTxHash) receiveTime = moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    if (transfer && transfer.cancelTxHash) cancelTime = moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.receiveTxHash)
+      receiveTime = moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    if (transfer && transfer.cancelTxHash)
+      cancelTime = moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
     return (
       <CancelReviewComponent
         {...this.props}
@@ -66,18 +73,28 @@ class CancelReviewContainer extends Component {
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
 const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
-const cancelTransferSelector = createLoadingSelector(['CANCEL_TRANSFER', 'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'])
+const cancelTransferSelector = createLoadingSelector([
+  'CANCEL_TRANSFER',
+  'CANCEL_TRANSFER_TRANSACTION_HASH_RETRIEVED'
+])
 const syncSelector = createLoadingSelector(['SYNC'])
-const errorSelector = createErrorSelector(['GET_TRANSFER', 'VERIFY_PASSWORD', 'CANCEL_TRANSFER', 'GET_PASSWORD', 'GET_TX_COST', 'GET_UTXO_FOR_ESCROW_WALLET'])
+const errorSelector = createErrorSelector([
+  'GET_TRANSFER',
+  'VERIFY_PASSWORD',
+  'CANCEL_TRANSFER',
+  'GET_PASSWORD',
+  'GET_TX_COST',
+  'GET_UTXO_FOR_ESCROW_WALLET'
+])
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransfer: (id) => dispatch(getTransfer(id)), // here we use transferId
-    verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo)),
-    getTxFee: (txRequest) => dispatch(getTxFee(txRequest)),
-    cancelTransfer: (txRequest) => dispatch(cancelTransfer(txRequest)),
-    sync: (txRequest) => dispatch(sync(txRequest)),
-    goToStep: (n) => dispatch(goToStep('receive', n))
+    getTransfer: id => dispatch(getTransfer(id)), // here we use transferId
+    verifyPassword: transferInfo => dispatch(verifyPassword(transferInfo)),
+    getTxFee: txRequest => dispatch(getTxFee(txRequest)),
+    cancelTransfer: txRequest => dispatch(cancelTransfer(txRequest)),
+    sync: txRequest => dispatch(sync(txRequest)),
+    goToStep: n => dispatch(goToStep('receive', n))
   }
 }
 

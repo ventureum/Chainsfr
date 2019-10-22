@@ -10,12 +10,14 @@ import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
 import url from '../url'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import WalletFactory from '../wallets/factory'
 import SimpleMultiSig from '../SimpleMultiSig'
 import type { Wallet, WalletData } from '../types/wallet.flow.js'
 import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
+import type { AccountData } from '../types/account.flow.js'
+import { createWallet } from '../wallets/WalletFactory'
 
 const transferStates = {
   SEND_PENDING: 'SEND_PENDING',
@@ -77,7 +79,7 @@ async function _directTransfer (txRequest: {
 }
 
 async function _submitTx (txRequest: {
-  fromWallet: WalletData,
+  fromAccount: AccountData,
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
@@ -91,7 +93,7 @@ async function _submitTx (txRequest: {
   txFee: TxFee
 }) {
   let {
-    fromWallet,
+    fromAccount,
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
@@ -105,18 +107,16 @@ async function _submitTx (txRequest: {
     txFee
   } = txRequest
 
-  let { cryptoType } = fromWallet
+  let { cryptoType } = fromAccount
 
   // generate an escrow wallet
   let walletId
-  let escrowWallet: Wallet = await WalletFactory.generateWallet({
-    walletType: 'escrow',
-    cryptoType: cryptoType
-  })
+  let escrowWallet = createWallet({ walletType: 'escrow' })
 
-  await escrowWallet.encryptAccount(password)
-  let escrowAccount = escrowWallet.getAccount()
-  let encryptedPrivateKey = escrowAccount.encryptedPrivateKey
+  let escrowAccount = await escrowWallet.newAccount('escrow', cryptoType)
+
+  await escrowAccount.encryptAccount(password)
+  let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
 
   let sendTxHash
   let sendTxFeeTxHash
@@ -126,7 +126,7 @@ async function _submitTx (txRequest: {
     sender: sender,
     destination: destination,
     transferAmount: transferAmount,
-    cryptoType: fromWallet.cryptoType,
+    cryptoType: cryptoType,
     data: Base64.encode(encryptedPrivateKey),
     password: Base64.encode(password),
     tempTimestamp: moment().unix()
@@ -143,9 +143,10 @@ async function _submitTx (txRequest: {
       walletId = new SimpleMultiSig().createWalletId()
       multisig = new SimpleMultiSig({ walletId })
     }
+    const _wallet = createWallet(fromAccount)
 
-    let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
-      to: escrowAccount.address,
+    let txHashList = await _wallet.sendTransaction({
+      to: escrowAccount.getAccountData().address,
       value: value,
       txFee: txFee,
       options: { multisig }
@@ -161,7 +162,6 @@ async function _submitTx (txRequest: {
   }
 
   if (sendTxFeeTxHash) sendTxHash = [sendTxHash, sendTxFeeTxHash]
-
   // update tx data
   return _transactionHashRetrieved({
     transferAmount,
@@ -386,14 +386,15 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {|
 
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
-  let walletData = WalletUtils.toWalletData('escrow', transferData.cryptoType, [
-    {
-      balance: transferData.balance,
-      ethBalance: transferData.ethBalance,
-      address: transferData.address,
-      encryptedPrivateKey: transferData.data
-    }
-  ])
+  let walletData
+  // = WalletUtils.toWalletData('escrow', transferData.cryptoType, [
+  //   {
+  //     balance: transferData.balance,
+  //     ethBalance: transferData.ethBalance,
+  //     address: transferData.address,
+  //     encryptedPrivateKey: transferData.data
+  //   }
+  // ])
   return { transferData, walletData }
 }
 
@@ -547,7 +548,7 @@ async function _getTransferHistory (offset: number = 0) {
 }
 
 function submitTx (txRequest: {
-  fromWallet: WalletData,
+  fromAccount: AccountData,
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
@@ -560,11 +561,9 @@ function submitTx (txRequest: {
   sendMessage: ?string,
   txFee: TxFee
 }) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'SUBMIT_TX',
-      payload: _submitTx(txRequest)
-    }).then(() => dispatch(goToStep('send', 1)))
+  return {
+    type: 'SUBMIT_TX',
+    payload: _submitTx(txRequest)
   }
 }
 

@@ -17,7 +17,7 @@ import {
 import { selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import { getWalletStatus } from '../wallet'
 
 class ReceiveWalletSelectionContainer extends Component {
@@ -134,16 +134,16 @@ class ReceiveWalletSelectionContainer extends Component {
   onSync = () => {
     let { wallet, walletSelection, transfer } = this.props
     const lastUsedWalletByWalletType = this.getLastUsedAddressByWalletType(walletSelection)
-    this.props.sync(
-      WalletUtils.toWalletDataFromState(
-        walletSelection,
-        transfer.cryptoType,
-        lastUsedWalletByWalletType || wallet
-      ),
-      (index, change) => {
-        this.setState({ syncProgress: { index, change } })
-      }
-    )
+    // this.props.sync(
+    //   WalletUtils.toWalletDataFromState(
+    //     walletSelection,
+    //     transfer.cryptoType,
+    //     lastUsedWalletByWalletType || wallet
+    //   ),
+    //   (index, change) => {
+    //     this.setState({ syncProgress: { index, change } })
+    //   }
+    // )
   }
 
   render () {

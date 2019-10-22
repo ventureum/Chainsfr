@@ -1,10 +1,7 @@
 const errorReducer = (state = {}, action) => {
   const { type, payload } = action
-  if (type === 'CLEAR_VERIFY_PASSWORD_ERROR') {
-    return {
-      ...state,
-      VERIFY_PASSWORD: ''
-    }
+  if (type === 'CLEAR_ERROR') {
+    return {}
   } else if (type === 'SELECT_WALLET') {
     // to clear wallet error from privious wallet selection
     return {
@@ -20,7 +17,7 @@ const errorReducer = (state = {}, action) => {
     // reset errors
     return {}
   }
-  
+
   const matches = /(.*)_(PENDING|REJECTED|CLEAR)/.exec(type)
 
   // not a *_REQUEST / *_FAILURE actions, so we ignore them

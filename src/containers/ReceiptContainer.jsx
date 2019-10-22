@@ -7,25 +7,28 @@ import moment from 'moment'
 import utils from '../utils'
 
 type Props = {
-  goToStep: Function,
-  cryptoSelection: string,
   wallet: Object,
   txFee: Object,
   receipt: Object,
   password: string,
   cryptoPrice: Object,
-  currency: string
+  currency: string,
+  backToHome: Function
 }
 
 class ReceiptContainer extends Component<Props> {
   render () {
-    const { receipt, cryptoPrice, cryptoSelection, currency, txFee } = this.props
+    const { receipt, cryptoPrice, currency, txFee, backToHome, password } = this.props
+    const { accountSelection } = receipt
     const sendTime = moment.unix(receipt.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
     const toCurrencyAmount = cryptoAmount =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection], currency)
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[accountSelection.cryptoType], currency)
     return (
       <Receipt
-        {...this.props}
+        backToHome={backToHome}
+        txFee={txFee}
+        password={password}
+        receipt={receipt}
         sendTime={sendTime}
         currencyAmount={{
           transferAmount: receipt && toCurrencyAmount(receipt.transferAmount),
@@ -38,14 +41,11 @@ class ReceiptContainer extends Component<Props> {
 
 const mapStateToProps = state => {
   return {
-    cryptoSelection: state.formReducer.cryptoSelection,
-    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
     receipt: { ...state.formReducer.transferForm, ...state.transferReducer.receipt },
     password: state.formReducer.transferForm.password,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
-    currency: state.cryptoPriceReducer.currency,
-    walletSelection: state.formReducer.walletSelection
+    currency: state.cryptoPriceReducer.currency
   }
 }
 

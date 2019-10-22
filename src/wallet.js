@@ -39,10 +39,10 @@ export const walletCryptoSupports = {
   referralWallet: [{ cryptoType: 'ethereum', disabled: false }]
 }
 
-if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
-  // only enable libra for testnet
-  walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
-}
+// if (['test', 'staging'].includes(env.REACT_APP_ENV)) {
+//   // only enable libra for testnet
+//   walletCryptoSupports['drive'].push({ cryptoType: 'libra', disabled: false })
+// }
 
 export function getWalletStatus (walletType: ?string) {
   if (isMobile && ['metamask', 'ledger'].includes(walletType)) {

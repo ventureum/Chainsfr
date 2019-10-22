@@ -2,6 +2,7 @@
 import React, { Component } from 'react'
 import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
+import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -11,7 +12,7 @@ import Icon from '@material-ui/core/Icon'
 import IconButton from '@material-ui/core/IconButton'
 import RefreshIcon from '@material-ui/icons/Refresh'
 import numeral from 'numeral'
-import { getCryptoSymbol } from '../tokens'
+import { getCryptoSymbol, getCryptoLogo } from '../tokens'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -33,7 +34,8 @@ type Props = {
   classes: Object,
   actionsPending: Object,
   recipients: Array<Object>,
-  addRecipient: Function
+  addRecipient: Function,
+  cryptoAccounts: Array<Object>
 }
 
 class TransferFormComponent extends Component<Props> {
@@ -50,9 +52,11 @@ class TransferFormComponent extends Component<Props> {
       actionsPending,
       recipients,
       addRecipient,
-      generateSecurityAnswer
+      generateSecurityAnswer,
+      cryptoAccounts
     } = this.props
     const {
+      accountSelection,
       transferAmount,
       transferCurrencyAmount,
       destination,
@@ -102,6 +106,54 @@ class TransferFormComponent extends Component<Props> {
           </Grid>
           <Grid item>
             <FormControl className={classes.formControl} variant='outlined'>
+              <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
+              <Select
+                renderValue={value => {
+                  return (
+                    <div>
+                      <Typography>{value.name}</Typography>
+                      <Typography className={classes.securityAnswerBtnHelperText}>
+                        {value.address || (value.hdWalletVariables && value.hdWalletVariables.xpub)}
+                      </Typography>
+                    </div>
+                  )
+                }}
+                value={accountSelection}
+                onChange={handleTransferFormChange('accountSelection')}
+                input={<OutlinedInput labelWidth={125} name='Select Account' />}
+                error={!!formError.accountSelection}
+                id={'accountSelection'}
+              >
+                {cryptoAccounts.map((accountData, index) => {
+                  return (
+                    <MenuItem key={index} value={accountData}>
+                      <Grid container spacing={2}>
+                        <Grid item>
+                          <Avatar src={getCryptoLogo(accountData.cryptoType)}></Avatar>
+                        </Grid>
+                        <Grid item>
+                          <Typography>{accountData.name}</Typography>
+                          <Typography className={classes.securityAnswerBtnHelperText}>
+                            {accountData.address ||
+                              (accountData.hdWalletVariables && accountData.hdWalletVariables.xpub)}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </MenuItem>
+                  )
+                })}
+                {cryptoAccounts.length !== 0 && <Divider />}
+                <MenuItem value='addCryptoAccount'>
+                  <Button onClick={() => {}} style={{ width: '100%' }}>
+                    <Typography>Add Account</Typography>
+                  </Button>
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item>
+            <FormControl className={classes.formControl} variant='outlined'>
               <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>
               <Select
                 value={destination}
@@ -144,12 +196,13 @@ class TransferFormComponent extends Component<Props> {
                   fullWidth
                   id='currencyAmount'
                   variant='outlined'
-                  label={`Amount (${currency})`}
+                  label='Fiat'
                   error={!!formError.transferCurrencyAmount}
                   helperText={
                     formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`
                   }
                   type='number'
+                  disabled={!accountSelection}
                   onChange={handleTransferFormChange('transferCurrencyAmount')}
                   value={transferCurrencyAmount}
                   InputProps={{
@@ -166,21 +219,24 @@ class TransferFormComponent extends Component<Props> {
                   fullWidth
                   id='cryptoAmount'
                   variant='outlined'
-                  label={`Amount (${getCryptoSymbol(cryptoSelection)})`}
+                  label='Amount (Cryptocurrency)'
                   error={!!formError.transferAmount}
                   type='number'
                   helperText={
                     formError.transferAmount ||
-                    `Balance: ${numeral(balanceAmount).format('0.000[000]')} ${getCryptoSymbol(
-                      cryptoSelection
-                    )}`
+                    (accountSelection
+                      ? `Balance: ${accountSelection.balanceInStandardUnit} ${getCryptoSymbol(
+                          accountSelection.cryptoType
+                        )}`
+                      : '')
                   }
+                  disabled={!accountSelection}
                   onChange={handleTransferFormChange('transferAmount')}
                   value={transferAmount}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>
-                        {getCryptoSymbol(cryptoSelection)}
+                        {getCryptoSymbol(accountSelection && accountSelection.cryptoType)}
                       </InputAdornment>
                     )
                   }}
@@ -190,6 +246,7 @@ class TransferFormComponent extends Component<Props> {
           </Grid>
           <Grid item>
             <TextField
+              disabled={!accountSelection}
               fullWidth
               id='password'
               label='Security Answer'
@@ -203,7 +260,7 @@ class TransferFormComponent extends Component<Props> {
               onChange={handleTransferFormChange('password')}
               value={password || ''}
               InputProps={{
-                endAdornment: (
+                endAdornment: accountSelection && (
                   <InputAdornment position='end'>
                     <Tooltip title='Generate Security Answer' position='left'>
                       <IconButton color='primary' onClick={generateSecurityAnswer}>
@@ -228,6 +285,7 @@ class TransferFormComponent extends Component<Props> {
               onChange={handleTransferFormChange('sendMessage')}
               value={sendMessage || ''}
               inputProps={{ maxLength: 100 }} // message max length
+              disabled={!accountSelection}
             />
           </Grid>
           <Grid item className={classes.btnSection}>

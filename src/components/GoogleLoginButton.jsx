@@ -27,6 +27,7 @@ class GoogleLoginButton extends Component {
   login = async () => {
     try {
       await this.gapiLoad()
+      console.log('gapi loaded')
       let googleAuth = await window.gapi.auth2.getAuthInstance()
       if (!googleAuth || !googleAuth.isSignedIn.get()) {
         const client = await window.gapi.auth2.init({
@@ -65,7 +66,14 @@ class GoogleLoginButton extends Component {
   render () {
     const { classes, disabled } = this.props
     return (
-      <Grid container direction='row' alignItems='center' justify='center' className={disabled ? classes.btnDisabled : classes.btn} onClick={() => this.login()} >
+      <Grid
+        container
+        direction='row'
+        alignItems='center'
+        justify='center'
+        className={disabled ? classes.btnDisabled : classes.btn}
+        onClick={() => this.login()}
+      >
         <Grid item>
           <Typography className={classes.text}>Sign in with Google</Typography>
         </Grid>

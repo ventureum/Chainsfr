@@ -16,6 +16,7 @@ function selectCrypto (cryptoSelected: string) {
 }
 
 function updateTransferForm (form: {
+  accountSelection: string,
   transferAmount: string,
   password: string,
   destination: string,

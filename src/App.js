@@ -11,6 +11,7 @@ import CancelContainer from './containers/CancelContainer'
 import WalletContainer from './containers/WalletContainer'
 import RecipientsContainer from './containers/RecipientsContainer'
 import ReferralContainer from './containers/ReferralContainer'
+import AccountsManagementContainer from './containers/AccountsManagementContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
@@ -30,7 +31,9 @@ const userIsAuthenticated = connectedRouterRedirect({
   redirectPath: '/login',
   // If selector is true, wrapper will not redirect
   // For example let's check that state contains user data
-  authenticatedSelector: state => state.userReducer.profile.isAuthenticated,
+  authenticatedSelector: state => {
+    return state.userReducer.profile.isAuthenticated && state.userReducer.cloudWalletConnected
+  },
   // A nice display name for this check
   wrapperDisplayName: 'UserIsAuthenticated'
 })
@@ -44,7 +47,8 @@ const userIsNotAuthenticated = connectedRouterRedirect({
   allowRedirectBack: false,
   // If selector is true, wrapper will not redirect
   // So if there is no user data, then we show the page
-  authenticatedSelector: state => !state.userReducer.profile.isAuthenticated,
+  authenticatedSelector: state =>
+    !state.userReducer.profile.isAuthenticated || !state.userReducer.cloudWalletConnected,
   // A nice display name for this check
   wrapperDisplayName: 'UserIsNotAuthenticated'
 })
@@ -168,8 +172,8 @@ class App extends Component {
                   component={userIsAuthenticated(RecipientsContainer)}
                 />
                 <DefaultLayout
-                  path={`${paths.referral}`}
-                  component={userIsAuthenticated(ReferralContainer)}
+                  path={`${paths.accounts}`}
+                  component={userIsAuthenticated(AccountsManagementContainer)}
                 />
               </Switch>
             </ConnectedRouter>

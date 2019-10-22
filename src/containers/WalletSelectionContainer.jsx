@@ -18,7 +18,7 @@ import {
 import { selectCrypto, selectWallet } from '../actions/formActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import utils from '../utils'
 import * as Tokens from '../tokens'
 import WalletLink from 'walletlink'
@@ -199,12 +199,12 @@ class WalletSelectionContainer extends Component<Props, State> {
   onSync = () => {
     let { wallet, walletSelection, cryptoSelection } = this.props
     let accounts = wallet.crypto[cryptoSelection]
-    this.props.sync(
-      WalletUtils.toWalletData(walletSelection, cryptoSelection, accounts),
-      (index, change) => {
-        this.setState({ syncProgress: { index, change } })
-      }
-    )
+    // this.props.sync(
+    //   WalletUtils.toWalletData(walletSelection, cryptoSelection, accounts),
+    //   (index, change) => {
+    //     this.setState({ syncProgress: { index, change } })
+    //   }
+    // )
   }
 
   render () {

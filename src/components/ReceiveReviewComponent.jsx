@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import Divider from '@material-ui/core/Divider'
 
 class ReceiveReviewComponent extends Component {
@@ -15,18 +15,18 @@ class ReceiveReviewComponent extends Component {
     const { transfer, escrowWallet, lastUsedWallet, txFee, walletSelection, wallet } = this.props
     const { receivingId, transferAmount, walletId } = transfer
     // accept transfer
-    this.props.acceptTransfer({
-      receivingId: receivingId,
-      escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-      receiveWallet: WalletUtils.toWalletDataFromState(
-        walletSelection,
-        transfer.cryptoType,
-        lastUsedWallet || wallet
-      ),
-      transferAmount: transferAmount,
-      txFee: txFee,
-      walletId: walletId
-    })
+    // this.props.acceptTransfer({
+    //   receivingId: receivingId,
+    //   escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+    //   receiveWallet: WalletUtils.toWalletDataFromState(
+    //     walletSelection,
+    //     transfer.cryptoType,
+    //     lastUsedWallet || wallet
+    //   ),
+    //   transferAmount: transferAmount,
+    //   txFee: txFee,
+    //   walletId: walletId
+    // })
   }
 
   render () {

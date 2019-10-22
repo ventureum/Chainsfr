@@ -36,9 +36,8 @@ export const getSignTransactionObject = (tx: Object) => {
 }
 
 export const networkIdMap = {
-  'mainnet': 1,
-  'ropsten': 3,
-  'rinkeby': 4,
-  'kovan': 42
-
+  mainnet: 1,
+  ropsten: 3,
+  rinkeby: 4,
+  kovan: 42
 }
