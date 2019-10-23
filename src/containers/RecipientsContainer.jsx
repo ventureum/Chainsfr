@@ -19,11 +19,11 @@ class RecipientsContainer extends Component {
     chosenRecipient: null
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.props.getRecipients()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (
       prevProps.actionsPending.addRecipient &&
       !this.props.actionsPending.addRecipient &&
@@ -46,7 +46,7 @@ class RecipientsContainer extends Component {
   }
 
   onSend = recipient => {
-    this.props.push(`${path.transfer}?destination=${recipient.email}`)
+    this.props.push(`${path.transfer}?destination=${recipient.email}&&receiverName=${recipient.name}`)
   }
 
   toggleAddRecipientDialog = () => {
@@ -75,7 +75,7 @@ class RecipientsContainer extends Component {
     })
   }
 
-  render() {
+  render () {
     let { actionsPending, addRecipient, removeRecipient, editRecipient, ...others } = this.props
     const {
       chosenRecipient,
