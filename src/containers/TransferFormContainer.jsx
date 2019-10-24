@@ -46,7 +46,8 @@ class TransferFormContainer extends Component<Props, State> {
       transferForm,
       updateTransferForm,
       getRecipients,
-      destinationPrefilled
+      destinationPrefilled,
+      receiverNamePrefilled
     } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
@@ -55,7 +56,8 @@ class TransferFormContainer extends Component<Props, State> {
         update(transferForm, {
           sender: { $set: profile.profileObj.email },
           senderName: { $set: profile.profileObj.name },
-          destination: { $set: destinationPrefilled }
+          destination: { $set: destinationPrefilled },
+          receiverName: { $set: receiverNamePrefilled }
         })
       )
       getRecipients()

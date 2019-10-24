@@ -40,6 +40,7 @@ class TransferComponent extends React.Component<Props> {
                   <Grid item className={classes.formContainer}>
                     <TransferForm
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
+                      receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
                     />
                   </Grid>
                 ) : (
