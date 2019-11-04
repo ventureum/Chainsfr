@@ -24,7 +24,8 @@ async function transfer (request: {|
   sendMessage: ?string,
   cryptoType: string,
   data: string,
-  sendTxHash: Array<TxHash> | TxHash
+  sendTxHash: Array<TxHash> | TxHash,
+  walletId?: string
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
@@ -37,7 +38,7 @@ async function transfer (request: {|
 async function accept (request: {|
   receivingId: string,
   receiveMessage: ?string,
-  receiveTxHash: string
+  clientSig: string
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
@@ -50,11 +51,24 @@ async function accept (request: {|
 async function cancel (request: {|
   transferId: string,
   cancelMessage: ?string,
-  cancelTxHash: string
+  clientSig: string
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'CANCEL',
+    ...request
+  })
+  return apiResponse.data
+}
+
+async function getMultiSigSigningData (request: {|
+  transferId?: string,
+  receivingId?: string,
+  destinationAddress: string
+|}) {
+  let apiResponse = await chainsferApi.post('/transfer', {
+    clientId: 'test-client',
+    action: 'GET_MULTISIG_SIGNING_DATA',
     ...request
   })
   return apiResponse.data
@@ -219,7 +233,6 @@ async function register (request: { idToken: string }) {
   }
 }
 
-
 async function mintLibra (request: {
   address: string,
   amount: string // microlibra
@@ -268,6 +281,7 @@ export default {
   transfer,
   accept,
   cancel,
+  getMultiSigSigningData,
   getTransfer,
   getPrefilledAccount,
   getBatchTransfers,

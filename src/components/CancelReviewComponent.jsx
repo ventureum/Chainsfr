@@ -21,7 +21,7 @@ class CancelReviewComponent extends Component {
 
   handleReviewNext = () => {
     const { transfer, escrowWallet, txFee } = this.props
-    const { transferId, sendTxHash, transferAmount, cryptoType } = transfer
+    const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
     const { cancelMessage } = this.state
     this.props.cancelTransfer({
       escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
@@ -29,7 +29,8 @@ class CancelReviewComponent extends Component {
       sendTxHash: sendTxHash,
       transferAmount: transferAmount,
       txFee: txFee,
-      cancelMessage: cancelMessage
+      cancelMessage: cancelMessage,
+      walletId: walletId
     })
   }
 
