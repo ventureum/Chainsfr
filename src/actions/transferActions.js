@@ -12,6 +12,7 @@ import { getCryptoDecimals } from '../tokens'
 import url from '../url'
 import WalletUtils from '../wallets/utils'
 import WalletFactory from '../wallets/factory'
+import SimpleMultiSig from '../SimpleMultiSig'
 import type { Wallet, WalletData } from '../types/wallet.flow.js'
 import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
@@ -107,6 +108,7 @@ async function _submitTx (txRequest: {
   let { cryptoType } = fromWallet
 
   // generate an escrow wallet
+  let walletId
   let escrowWallet: Wallet = await WalletFactory.generateWallet({
     walletType: 'escrow',
     cryptoType: cryptoType
@@ -136,11 +138,15 @@ async function _submitTx (txRequest: {
     .toString()
 
   if (['ethereum', 'bitcoin', 'dai', 'libra'].includes(cryptoType)) {
+    if (['ethereum', 'dai'].includes(cryptoType)) {
+      walletId = new SimpleMultiSig().createWalletId()
+    }
+
     let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
       txFee: txFee,
-      options: cryptoType === 'dai' ? { prepayTxFee: true } : null
+      options: { walletId: walletId }
     })
     if (Array.isArray(txHashList)) {
       sendTxHash = txHashList[0]
@@ -168,7 +174,8 @@ async function _submitTx (txRequest: {
     data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
     cryptoType: cryptoType,
     sendTxHash: sendTxHash,
-    password: Base64.encode(password)
+    password: Base64.encode(password),
+    walletId: walletId
   })
 }
 
@@ -185,7 +192,8 @@ async function _transactionHashRetrieved (txRequest: {|
   sendMessage: ?string,
   data: string,
   sendTxHash: Array<TxHash> | TxHash,
-  password: string
+  password: string,
+  walletId?: string
 |}) {
   if (!txRequest.sendMessage || txRequest.sendMessage === '') {
     // Set a default message if not provided
@@ -213,7 +221,8 @@ async function _acceptTransfer (txRequest: {
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
-  receiveMessage: ?string
+  receiveMessage: ?string,
+  walletId: string
 }) {
   let {
     escrowWallet,
@@ -221,8 +230,14 @@ async function _acceptTransfer (txRequest: {
     receiveWallet,
     transferAmount,
     receivingId,
-    receiveMessage
+    receiveMessage,
+    walletId
   } = txRequest
+
+  if (!receiveMessage || receiveMessage === '') {
+    // Set a default message if not provided
+    receiveMessage = MESSAGE_NOT_PROVIDED
+  }
 
   let { cryptoType } = escrowWallet
   // convert transferAmount to basic token unit
@@ -230,32 +245,44 @@ async function _acceptTransfer (txRequest: {
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  let receiveTxHash: any = await WalletFactory.createWallet(escrowWallet).sendTransaction({
+  // $FlowFixMe
+  let { receiveTxHash, receiveTimestamp }: any = await WalletFactory.createWallet(
+    escrowWallet
+  ).sendTransaction({
     to: WalletFactory.createWallet(receiveWallet).getAccount().address,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
-    txFee: txFee
+    txFee: txFee,
+    options: {
+      receivingId: receivingId,
+      receiveMessage: receiveMessage,
+      walletId: walletId
+    }
   })
+
   if (Array.isArray(receiveTxHash)) throw new Error('receiveTxHash should not be an array')
 
   return _acceptTransferTransactionHashRetrieved({
     receiveTxHash: receiveTxHash,
     receivingId: receivingId,
-    receiveMessage: receiveMessage
+    receiveMessage: receiveMessage,
+    receiveTimestamp: receiveTimestamp
   })
 }
 
 async function _acceptTransferTransactionHashRetrieved (txRequest: {|
   receiveTxHash: TxHash,
   receivingId: string,
-  receiveMessage: ?string
+  receiveMessage: ?string,
+  receiveTimestamp: number
 |}) {
-  if (!txRequest.receiveMessage || txRequest.receiveMessage === '') {
-    // Set a default message if not provided
-    txRequest.receiveMessage = MESSAGE_NOT_PROVIDED
+  // temp disabled, accept is invoked inside ethereum.sendTransaction()
+  // let response = await API.accept(txRequest)
+  // mock response
+  const { receiveTimestamp } = txRequest
+  const response = {
+    receiveTimestamp: receiveTimestamp
   }
-
-  let response = await API.accept(txRequest)
 
   await saveHistoryFile({
     receivingId: txRequest.receivingId,
@@ -270,9 +297,24 @@ async function _cancelTransfer (txRequest: {
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
-  cancelMessage: ?string
+  cancelMessage: ?string,
+  walletId: string
 }) {
-  let { escrowWallet, transferId, sendTxHash, transferAmount, txFee, cancelMessage } = txRequest
+  let {
+    escrowWallet,
+    transferId,
+    sendTxHash,
+    transferAmount,
+    txFee,
+    cancelMessage,
+    walletId
+  } = txRequest
+
+  if (!cancelMessage || cancelMessage === '') {
+    // Set a default message if not provided
+    cancelMessage = MESSAGE_NOT_PROVIDED
+  }
+
   let { cryptoType } = escrowWallet
 
   // assuming wallet has been decrypted
@@ -298,31 +340,41 @@ async function _cancelTransfer (txRequest: {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
-  let cancelTxHash: any = await wallet.sendTransaction({
+  // $FlowFixMe
+  let { cancelTxHash, cancelTimestamp }: any = await wallet.sendTransaction({
     to: senderAddress,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
-    txFee: txFee
+    txFee: txFee,
+    options: {
+      transferId: transferId,
+      cancelMessage: cancelMessage,
+      walletId: walletId
+    }
   })
 
   return _cancelTransferTransactionHashRetrieved({
     transferId: transferId,
     cancelTxHash: cancelTxHash,
-    cancelMessage: cancelMessage
+    cancelMessage: cancelMessage,
+    cancelTimestamp: cancelTimestamp
   })
 }
 
 async function _cancelTransferTransactionHashRetrieved (txRequest: {|
   transferId: string,
   cancelTxHash: TxHash,
-  cancelMessage: ?string
+  cancelMessage: ?string,
+  cancelTimestamp: number
 |}) {
-  if (!txRequest.cancelMessage || txRequest.cancelMessage === '') {
-    // Set a default message if not provided
-    txRequest.cancelMessage = MESSAGE_NOT_PROVIDED
+  // temp disabled, accept is invoked inside ethereum.sendTransaction()
+  // let response = await API.cancel(txRequest)
+  // mock response
+  const { cancelTimestamp } = txRequest
+  const response = {
+    cancelTimestamp: cancelTimestamp
   }
 
-  let response = await API.cancel(txRequest)
   return { ...response, ...txRequest }
 }
 
@@ -537,7 +589,8 @@ function acceptTransfer (txRequest: {
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
-  receiveMessage: ?string
+  receiveMessage: ?string,
+  walletId: string
 }) {
   return (dispatch: Function, getState: Function) => {
     const { receiveWallet } = txRequest
@@ -570,7 +623,8 @@ function cancelTransfer (txRequest: {
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
-  cancelMessage: ?string
+  cancelMessage: ?string,
+  walletId: string
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({

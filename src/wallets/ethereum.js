@@ -3,8 +3,10 @@ import url from '../url'
 import env from '../typedEnv'
 import API from '../apis'
 import Web3 from 'web3'
+import { ethers } from 'ethers'
 import BN from 'bn.js'
 import ERC20 from '../ERC20'
+import SimpleMultiSig from '../SimpleMultiSig'
 import LedgerNanoS from '../ledgerSigner'
 import { networkIdMap } from '../ledgerSigner/utils'
 import utils from '../utils'
@@ -252,7 +254,7 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     value: BasicTokenUnit,
     txFee?: TxFee,
     options?: Object
-  }): Promise<TxHash | Array<TxHash>> => {
+  }): Promise<TxHash> => {
     // helper function
     function web3SendTransactionPromise (web3Function: Function, txObj: Object) {
       return new Promise((resolve, reject) => {
@@ -261,107 +263,120 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
           .on('error', error => reject(error))
       })
     }
-    async function web3SendTransactions (web3Function: Function, txObjs: Array<Object>) {
-      let txHashList = []
-      for (let txObj of txObjs) {
-        txHashList.push(await web3SendTransactionPromise(web3Function, txObj))
-      }
-      return txHashList.length === 1 ? txHashList[0] : txHashList
+    async function web3SendTransactions (web3Function: Function, txObj: Object) {
+      return web3SendTransactionPromise(web3Function, txObj)
     }
 
-    async function walletConnectSendTransactions (txObjs: Array<Object>) {
-      let txHashList = []
+    async function walletConnectSendTransactions (txObj: Object) {
       let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      for (let txObj of txObjs) {
-        const _txObj = {
-          from: txObj.from,
-          to: txObj.to,
-          data: txObj.data ? txObj.data : '0x',
-          gasPrice: web3.utils.numberToHex(txObj.gasPrice),
-          gasLimit: web3.utils.numberToHex(txObj.gas),
-          value: web3.utils.numberToHex(txObj.value),
-          nonce: txObj.nonce ? web3.utils.numberToHex(txObj.nonce) : undefined
-        }
-        const txHash = await window.walletConnector.sendTransaction(_txObj)
-        txHashList.push(txHash)
+      const _txObj = {
+        from: txObj.from,
+        to: txObj.to,
+        data: txObj.data ? txObj.data : '0x',
+        gasPrice: web3.utils.numberToHex(txObj.gasPrice),
+        gasLimit: web3.utils.numberToHex(txObj.gasLimit),
+        value: web3.utils.numberToHex(txObj.value),
+        nonce: txObj.nonce ? web3.utils.numberToHex(txObj.nonce) : undefined
       }
-      return txHashList.length === 1 ? txHashList[0] : txHashList
+      return window.walletConnector.sendTransaction(_txObj)
     }
 
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     const account = this.getAccount()
     const { walletType, cryptoType } = this.walletData
-    let txObjs: any = []
+    let txObj: any
 
     if (!txFee) txFee = await this.getTxFee({ to, value, options: options })
 
-    // setup tx obj
-    if (cryptoType === 'ethereum') {
-      txObjs.push({
-        from: account.address,
-        to: to,
-        value: value,
-        gas: txFee.gas,
-        gasPrice: txFee.price
-      })
-    } else if (cryptoType === 'dai') {
-      let ERC20TxObj = await ERC20.getTransferTxObj(account.address, to, value, cryptoType)
-      ERC20TxObj.gas = txFee.gas
-      ERC20TxObj.gasPrice = txFee.price
+    // init a new multisig instance
+    let multiSig = new SimpleMultiSig()
 
-      if (options && options.prepayTxFee) {
-        // need to prepay tx fee, tx fees are classified by tx type: ERC20 and ETH
-        // set ERC20 type tx gas
-        if (txFee.costByType && txFee.costByType.txFeeERC20) {
-          ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
-          ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
-        } else {
-          throw new Error('txFeeERC20 not found in txFee')
-        }
-        // send eth as prepaid tx fee
-        var txFeeEthTxObj = {
-          from: account.address,
-          to: to,
-          value: txFee.costByType && txFee.costByType.ethTransfer,
-          gas: txFee.costByType && txFee.costByType.txFeeEth.gas,
-          gasPrice: txFee.costByType && txFee.costByType.txFeeEth.price,
-          nonce: await _web3.eth.getTransactionCount(account.address)
-        }
-        // consecutive tx, need to set nonce manually
-        ERC20TxObj.nonce = txFeeEthTxObj.nonce + 1
-        txObjs.push(txFeeEthTxObj)
-      }
-      txObjs.push(ERC20TxObj)
-    } else {
-      throw new Error(`Invalid cryptoType: ${cryptoType}`)
-    }
+    // set walletId
+    if (!options) throw new Error('Options must not be null for escrow wallet')
+    const { walletId } = options
+    multiSig.setWalletId(walletId)
 
-    if (walletType === 'metamask') {
-      return web3SendTransactions(window._web3.eth.sendTransaction, txObjs)
-    } else if (walletType.endsWith('WalletLink')) {
-      return web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObjs)
-    } else if (['drive', 'escrow'].includes(walletType)) {
-      // add privateKey to web3
-      _web3.eth.accounts.wallet.add(account.privateKey)
-      // convert decimal to hex
-      for (let txObj of txObjs) {
-        txObj.nonce = _web3.utils.toHex(txObj.nonce)
-        txObj.value = _web3.utils.toHex(txObj.value)
-        txObj.gas = _web3.utils.toHex(txObj.gas)
-        txObj.gasPrice = _web3.utils.toHex(txObj.gasPrice)
+    // get tx obj
+    if (walletType === 'escrow') {
+      // send from escrow
+
+      if (options.transferId) {
+        // cancel
+        const { transferId, cancelMessage } = options
+
+        // fetch signing data
+        let signingData = await API.getMultiSigSigningData({
+          transferId: transferId,
+          destinationAddress: to
+        })
+
+        // sign data with escrow's privateKey
+        const wallet = new ethers.Wallet(account.privateKey)
+        let clientSig = ethers.utils.joinSignature(
+          await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
+        )
+
+        // transfer sig back to server
+        return API.cancel({
+          transferId: transferId,
+          cancelMessage: cancelMessage,
+          clientSig: clientSig
+        })
       }
-      return web3SendTransactions(_web3.eth.sendTransaction, txObjs)
-    } else if (walletType === 'ledger') {
-      const ledgerNanoS = new LedgerNanoS()
-      let rawTxObjList = []
-      for (let txObj of txObjs) {
-        rawTxObjList.push((await ledgerNanoS.signSendTransaction(txObj)).rawTransaction)
+
+      if (options.receivingId) {
+        // receive
+        const { receivingId, receiveMessage } = options
+
+        // fetch signing data
+        let signingData = await API.getMultiSigSigningData({
+          receivingId: receivingId,
+          destinationAddress: to
+        })
+
+        // sign data with escrow's privateKey
+        const wallet = new ethers.Wallet(account.privateKey)
+        let clientSig = ethers.utils.joinSignature(
+          await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
+        )
+
+        // transfer sig back to server
+        return API.accept({
+          receivingId: receivingId,
+          receiveMessage: receiveMessage,
+          clientSig: clientSig
+        })
       }
-      return web3SendTransactions(_web3.eth.sendSignedTransaction, rawTxObjList)
-    } else if (walletType.endsWith('WalletConnect')) {
-      return walletConnectSendTransactions(txObjs)
+
+      throw new Error('Invalid options')
     } else {
-      throw new Error(`Invalid walletType: ${walletType}`)
+      // send to escrow
+      txObj = multiSig.getTransferToEscrowTxObj(account.address, to, value, cryptoType)
+
+      // estimate gas
+      const _txFee = await this.getGasCost(txObj)
+      txObj.gasLimit = _txFee.gas
+      txObj.gasPrice = _txFee.price
+
+      if (walletType === 'metamask') {
+        return web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+      } else if (walletType === 'drive') {
+        // add privateKey to web3
+        _web3.eth.accounts.wallet.add(account.privateKey)
+        return web3SendTransactions(_web3.eth.sendTransaction, txObj)
+      } else if (walletType === 'ledger') {
+        const ledgerNanoS = new LedgerNanoS()
+        return web3SendTransactions(
+          _web3.eth.sendSignedTransaction,
+          (await ledgerNanoS.signSendTransaction(txObj)).rawTransaction
+        )
+      } else if (walletType.endsWith('WalletLink')) {
+        return web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObj)
+      } else if (walletType.endsWith('WalletConnect')) {
+        return walletConnectSendTransactions(txObj)
+      } else {
+        throw new Error(`Invalid walletType: ${walletType}`)
+      }
     }
   }
 

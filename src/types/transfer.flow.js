@@ -18,8 +18,8 @@ export type TxFee = {
 export type TxEthereum = {
   from: string,
   nonce?: number,
-  gasPrice: string,
-  gas: number,
+  gasPrice?: string,
+  gasLimit?: string,
   to: string,
   value: BasicTokenUnit,
   data?: string
