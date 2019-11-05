@@ -57,47 +57,46 @@ jest.mock('../ledgerSigner', () => {
   }
 })
 
-const mockSendFunction = jest.fn(async (method, parameters) => {
+const mockSendFunction = jest.fn(async (payload, callback) => {
+  const { method, params, id } = payload
   switch (method) {
     case 'eth_getBalance':
-      return mockEthBalance
+      return callback(null, {
+        id: id,
+        jsonrpc: '2.0',
+        result: Web3.utils.numberToHex(mockEthBalance)
+      })
     case 'eth_gasPrice':
-      return mockGasPrice
+      return callback(null, {
+        id: id,
+        jsonrpc: '2.0',
+        result: Web3.utils.numberToHex(mockGasPrice)
+      })
     case 'eth_getTransactionCount':
-      return 1
+      return callback(null, { id: id, jsonrpc: '2.0', result: 1 })
     case 'eth_chainId':
-      return 4
+      return callback(null, { id: id, jsonrpc: '2.0', result: 4 })
     case 'eth_sendRawTransaction':
-      return mockTxHash
+      return callback(null, { id: id, jsonrpc: '2.0', result: mockTxHash })
     case 'eth_call':
-      return mockEthCallReturnValue
+      return callback(null, {
+        id: id,
+        jsonrpc: '2.0',
+        result: mockEthCallReturnValue
+      })
     case 'eth_estimateGas':
-      return mockGas
+      return callback(null, { id: id, jsonrpc: '2.0', result: Web3.utils.numberToHex(mockGas) })
     default:
-      console.log(method, parameters)
-      return null
+      console.log(method, params)
+      return callback('Invalid method')
   }
 })
-jest.mock('web3-providers', () => {
-  return {
-    HttpProvider: function () {
-      return {
-        send: mockSendFunction,
-        supportsSubscriptions: () => {
-          return false
-        }
-      }
-    },
-    ProviderResolver: function () {
-      return {
-        resolve: function (provider, net) {
-          return provider
-        }
-      }
-    },
-    ProviderDetector: {
-      detect () {
-        return null
+jest.mock('web3-providers-http', () => {
+  return function () {
+    return {
+      send: mockSendFunction,
+      supportsSubscriptions: () => {
+        return false
       }
     }
   }

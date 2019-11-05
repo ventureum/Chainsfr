@@ -11,7 +11,7 @@ import LedgerNanoS from '../ledgerSigner'
 import { networkIdMap } from '../ledgerSigner/utils'
 import utils from '../utils'
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
-import type { TxFee, TxHash, TxEthereum } from '../types/transfer.flow'
+import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 export default class WalletEthereum implements IWallet<WalletDataEthereum, AccountEthereum> {
@@ -351,17 +351,12 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       throw new Error('Invalid options')
     } else {
       // send to escrow
-      let _txObj: TxEthereum = multiSig.getTransferToEscrowTxObj(
-        account.address,
-        to,
-        value,
-        cryptoType
-      )
+      txObj = multiSig.getTransferToEscrowTxObj(account.address, to, value, cryptoType)
 
       // estimate gas
       const _txFee = await this.getGasCost(txObj)
-      _txObj.gasLimit = _txFee.gas
-      _txObj.gasPrice = _txFee.price
+      txObj.gasLimit = _txFee.gas
+      txObj.gasPrice = _txFee.price
 
       if (walletType === 'metamask') {
         return web3SendTransactions(window._web3.eth.sendTransaction, txObj)
