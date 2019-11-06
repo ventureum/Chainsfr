@@ -6,6 +6,7 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import ERC20 from '../ERC20'
 import LedgerNanoS from '../ledgerSigner'
+import { getCryptoDecimals } from '../tokens'
 import { networkIdMap } from '../ledgerSigner/utils'
 import utils from '../utils'
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
@@ -22,7 +23,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         walletData.accounts.push({
           balance: '0',
           ethBalance: '0',
-          address: ''
+          address: '',
+          balanceInStandardUnit: '0'
         })
       }
       this.walletData = walletData
@@ -73,7 +75,8 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       balance: '0',
       ethBalance: '0',
       address: web3Account.address,
-      privateKey: web3Account.privateKey
+      privateKey: web3Account.privateKey,
+      balanceInStandardUnit: '0'
     }
 
     return account
@@ -183,6 +186,9 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       // copy eth balance
       account.balance = account.ethBalance
     }
+    account.balanceInStandardUnit = utils
+      .toHumanReadableUnit(account.balance, getCryptoDecimals(cryptoType))
+      .toString()
   }
 
   getTxFee = async ({

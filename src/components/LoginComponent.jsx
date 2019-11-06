@@ -13,17 +13,17 @@ import classNames from 'classnames'
 import env from '../typedEnv'
 
 const data = {
-  mainNet:
-  {
-    faq:
-    [
+  mainNet: {
+    faq: [
       {
         title: 'Do I need a Chainsfr account?',
-        content: 'No. You only need a Google account. You can track the status of your transaction through the link in your email.'
+        content:
+          'No. You only need a Google account. You can track the status of your transaction through the link in your email.'
       },
       {
         title: 'Why sign in with Google?',
-        content: 'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
+        content:
+          'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
       },
       {
         title: 'Is Chainsfr related to Google?',
@@ -37,20 +37,22 @@ const data = {
     backgroundColor: '#F6F9FE',
     fontColor: '#1E0E62'
   },
-  testNet:
-  {
+  testNet: {
     faq: [
       {
         title: 'What is testnet?',
-        content: 'The testnet is an alternative blockchain, to be used for testing. Testnet coins are separate and distinct from actual coins, and are never supposed to have any value.'
+        content:
+          'The testnet is an alternative blockchain, to be used for testing. Testnet coins are separate and distinct from actual coins, and are never supposed to have any value.'
       },
       {
         title: 'Why sign in with Google?',
-        content: 'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
+        content:
+          'Chainsfr service uses your Google account to store your crypto wallet and transfer information.'
       },
       {
         title: 'How does it work?',
-        content: 'Ethereum testnet coins are provided when you first log in, and can be used for testing transfer functionalities.'
+        content:
+          'Ethereum testnet coins are provided when you first log in, and can be used for testing transfer functionalities.'
       }
     ],
     faqURL: env.REACT_APP_FAQ_URL,
@@ -64,11 +66,11 @@ const data = {
 }
 
 class LoginComponent extends Component {
-  loginSuccess = async (response) => {
+  loginSuccess = async response => {
     this.props.onLogin(response)
   }
 
-  loginFailure = async (response) => {
+  loginFailure = async response => {
     console.log(response)
   }
 
@@ -78,54 +80,128 @@ class LoginComponent extends Component {
     const envSuffix = isMainNet ? 'MainNet' : 'TestNet'
 
     return (
-      <Grid container justify='center' className={classNames(classes.container, classes[`container${envSuffix}`])}>
+      <Grid
+        container
+        justify='center'
+        className={classNames(classes.container, classes[`container${envSuffix}`])}
+      >
         <Grid container direction='column' className={classes.centerContainer}>
           <Grid item md={12} className={classes.header}>
-            <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogo : ChainsfrLogoWhite} alt='Chainsfr Logo' />
+            <img
+              className={classes.chainsfrLogo}
+              src={isMainNet ? ChainsfrLogo : ChainsfrLogoWhite}
+              alt='Chainsfr Logo'
+            />
           </Grid>
           <Grid container direction='row'>
             <Grid className={classes.faqContainer} item md={6}>
-              <Grid><Typography variant='h4' gutterBottom className={classNames(classes.faqSectionTitle, classes[`faqFontColor${envSuffix}`])}>FAQ</Typography></Grid>
+              <Grid>
+                <Typography
+                  variant='h4'
+                  gutterBottom
+                  className={classNames(
+                    classes.faqSectionTitle,
+                    classes[`faqFontColor${envSuffix}`]
+                  )}
+                >
+                  FAQ
+                </Typography>
+              </Grid>
               {isMainNet &&
                 data.mainNet.faq.map((item, i) => (
                   <Grid className={classes.leftContainer} key={i}>
-                    <Typography variant='h6' className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}>{item.title}</Typography>
-                    <Typography className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}>{item.content}</Typography>
+                    <Typography
+                      variant='h6'
+                      className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      className={classNames(
+                        classes.faqContent,
+                        classes[`faqFontColor${envSuffix}`]
+                      )}
+                    >
+                      {item.content}
+                    </Typography>
                   </Grid>
-                ))
-              }
+                ))}
               {!isMainNet &&
                 data.testNet.faq.map((item, i) => (
                   <Grid className={classes.leftContainer} key={i}>
-                    <Typography variant='h6' className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}>{item.title}</Typography>
-                    <Typography className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}>{item.content}</Typography>
+                    <Typography
+                      variant='h6'
+                      className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      className={classNames(
+                        classes.faqContent,
+                        classes[`faqFontColor${envSuffix}`]
+                      )}
+                    >
+                      {item.content}
+                    </Typography>
                   </Grid>
-                ))
-              }
+                ))}
               <Grid className={classes.leftContainer}>
-                <Button className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite} href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL} target='_blank' >Learn More</Button>
+                <Button
+                  className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite}
+                  href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL}
+                  target='_blank'
+                >
+                  Learn More
+                </Button>
               </Grid>
             </Grid>
-            <Grid item md={6} className={classes.loginContainer} >
+            <Grid item md={6} className={classes.loginContainer}>
               <Paper className={classes.paperContainter}>
                 <Grid>
-                  <Typography variant='h3' align='center' gutterBottom className={classes.loginTitle}>{isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}</Typography>
-                  <Typography align='center' gutterBottom className={classes.loginContent}>Send cryptocurrency by email</Typography>
+                  <Typography
+                    variant='h3'
+                    align='center'
+                    gutterBottom
+                    className={classes.loginTitle}
+                  >
+                    {isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}
+                  </Typography>
+                  <Typography align='center' gutterBottom className={classes.loginContent}>
+                    Send cryptocurrency by email
+                  </Typography>
                 </Grid>
                 <Grid item align='center' className={classes.paperButtons}>
                   <Grid className={classes.btnContainer}>
-                    <GoogleLoginButton onSuccess={this.loginSuccess}
+                    <GoogleLoginButton
+                      onSuccess={this.loginSuccess}
                       onFailure={this.loginFailure}
-                      disabled={actionsPending.getCloudWallet} />
-                    {
-                      actionsPending.getCloudWallet &&
-                      <CircularProgress size={24} color='primary' className={classes.buttonProgress} />
-                    }
+                      disabled={actionsPending.getCloudWallet || actionsPending.register}
+                    />
+                    {(actionsPending.getCloudWallet || actionsPending.register) && (
+                      <CircularProgress
+                        size={24}
+                        color='primary'
+                        className={classes.buttonProgress}
+                      />
+                    )}
                   </Grid>
-                  <Link href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL} className={classes.paperBtnLink}>{isMainNet ? data.mainNet.linkText : data.testNet.linkText}</Link>
+                  <Link
+                    href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL}
+                    className={classes.paperBtnLink}
+                  >
+                    {isMainNet ? data.mainNet.linkText : data.testNet.linkText}
+                  </Link>
                 </Grid>
                 <Grid item container className={classes.paperFooter} justify='center'>
-                  <Link variant='caption' align='center' color='textSecondary' href={data.termURL} target='_blank'>Term and Use</Link>
+                  <Link
+                    variant='caption'
+                    align='center'
+                    color='textSecondary'
+                    href={data.termURL}
+                    target='_blank'
+                  >
+                    Term and Use
+                  </Link>
                 </Grid>
               </Paper>
             </Grid>

@@ -12,8 +12,6 @@ type Props = {
   getTxFee: Function,
   goToStep: Function,
   transferForm: Object,
-  cryptoSelection: string,
-  walletSelection: string,
   wallet: Object,
   txFee: Object,
   cryptoPrice: Object,
@@ -27,9 +25,9 @@ type Props = {
 
 class ReviewContainer extends Component<Props> {
   render () {
-    const { cryptoPrice, cryptoSelection, txFee, transferForm, currency } = this.props
-    const toCurrencyAmount = (cryptoAmount) =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection], currency)
+    const { cryptoPrice, txFee, transferForm, currency } = this.props
+    const toCurrencyAmount = cryptoAmount =>
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transferForm.cryptoType], currency)
     return (
       <Review
         {...this.props}
@@ -48,8 +46,8 @@ const errorSelector = createErrorSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIE
 
 const mapDispatchToProps = dispatch => {
   return {
-    submitTx: (txRequest) => dispatch(submitTx(txRequest)),
-    goToStep: (n) => dispatch(goToStep('send', n))
+    submitTx: txRequest => dispatch(submitTx(txRequest)),
+    goToStep: n => dispatch(goToStep('send', n))
   }
 }
 
@@ -57,9 +55,6 @@ const mapStateToProps = state => {
   return {
     userProfile: state.userReducer.profile.profileObj,
     transferForm: state.formReducer.transferForm,
-    cryptoSelection: state.formReducer.cryptoSelection,
-    walletSelection: state.formReducer.walletSelection,
-    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,

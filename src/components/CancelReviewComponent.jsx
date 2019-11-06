@@ -9,7 +9,7 @@ import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import TextField from '@material-ui/core/TextField'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import Divider from '@material-ui/core/Divider'
 import url from '../url'
 
@@ -23,15 +23,15 @@ class CancelReviewComponent extends Component {
     const { transfer, escrowWallet, txFee } = this.props
     const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
     const { cancelMessage } = this.state
-    this.props.cancelTransfer({
-      escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
-      transferId: transferId,
-      sendTxHash: sendTxHash,
-      transferAmount: transferAmount,
-      txFee: txFee,
-      cancelMessage: cancelMessage,
-      walletId: walletId
-    })
+    // this.props.cancelTransfer({
+    //   escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
+    //   transferId: transferId,
+    //   sendTxHash: sendTxHash,
+    //   transferAmount: transferAmount,
+    //   txFee: txFee,
+    //   cancelMessage: cancelMessage,
+    //   walletId: walletId
+    // })
   }
 
   handleInputChange = name => event => {

@@ -2,23 +2,17 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 import LandingPageComponent from '../components/LandingPageComponent'
-import { goToStep } from '../actions/navigationActions'
 import { getTransferHistory } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getCloudWallet } from '../actions/walletActions'
-import { setNewUserTag } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { push } from 'connected-react-router'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
-    const { profile, cloudWallet, getCloudWallet, getTransferHistory } = this.props
-    if (profile.isAuthenticated) {
-      if (!cloudWallet.connected) getCloudWallet()
-      // load transfer history for logged-in users
-      getTransferHistory(0)
-    }
+    const { getTransferHistory } = this.props
+    // load transfer history for logged-in users
+    getTransferHistory(0)
   }
 
   loadMoreTransferHistory = offset => {
@@ -26,7 +20,7 @@ class LandingPageContainer extends Component {
   }
 
   render () {
-    let { cloudWallet, cryptoPrice, transferHistory, currency } = this.props
+    let { cryptoPrice, transferHistory, currency } = this.props
 
     const toCurrencyAmount = (cryptoAmount, cryptoType) =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoType], currency)
@@ -39,42 +33,24 @@ class LandingPageContainer extends Component {
       }
     })
 
-    // convert cloud wallet balance to currency
-    let walletBalanceCurrencyAmount = {}
-    for (const cryptoType of Object.keys(cloudWallet.crypto)) {
-      walletBalanceCurrencyAmount[cryptoType] = toCurrencyAmount(
-        utils.toHumanReadableUnit(
-          cloudWallet.crypto[cryptoType][0].balance,
-          getCryptoDecimals(cryptoType)
-        ),
-        cryptoType
-      )
-    }
-
     return (
       <LandingPageComponent
         {...this.props}
         loadMoreTransferHistory={this.loadMoreTransferHistory}
-        walletBalanceCurrencyAmount={walletBalanceCurrencyAmount}
       />
     )
   }
 }
 
 const getTransferHistorySelector = createLoadingSelector(['GET_TRANSFER_HISTORY'])
-const errorSelector = createErrorSelector(['GET_TRANSFER_HISTORY', 'GET_CLOUD_WALLET'])
-const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
+const errorSelector = createErrorSelector(['GET_TRANSFER_HISTORY'])
 
 const mapStateToProps = state => {
   return {
     transferHistory: state.transferReducer.transferHistory,
-    profile: state.userReducer.profile,
-    cloudWalletConnected: state.walletReducer.wallet.drive.connected,
     actionsPending: {
-      getTransferHistory: getTransferHistorySelector(state),
-      getCloudWallet: getCloudWalletSelector(state)
+      getTransferHistory: getTransferHistorySelector(state)
     },
-    cloudWallet: state.walletReducer.wallet.drive,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     error: errorSelector(state)
@@ -83,10 +59,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    goToStep: n => dispatch(goToStep('send', n)),
-    getCloudWallet: () => dispatch(getCloudWallet()),
     getTransferHistory: offset => dispatch(getTransferHistory(offset)),
-    setNewUserTag: isNewUser => dispatch(setNewUserTag(isNewUser)),
     push: path => dispatch(push(path))
   }
 }

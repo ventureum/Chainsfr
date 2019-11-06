@@ -1,14 +1,14 @@
 // @flow
-import type {
-  WalletData,
-  WalletDataEthereum,
-  WalletDataBitcoin,
-  Wallet
-} from '../types/wallet.flow'
+// import type {
+//   WalletData,
+//   WalletDataEthereum,
+//   WalletDataBitcoin,
+//   Wallet
+// } from '../types/wallet.flow'
 import WalletBitcoin from './bitcoin'
 import WalletEthereum from './ethereum'
 import WalletLibra from './libra'
-import WalletUtils from './utils'
+// import WalletUtils from './utils'
 import ReferralWallet from './referralWallet.js'
 export default class WalletFactory {
   static createWallet = (walletData: WalletData): Wallet => {
@@ -33,13 +33,14 @@ export default class WalletFactory {
     cryptoType: string,
     walletState: any
   ): Wallet => {
-    return this.createWallet(
-      WalletUtils.toWalletData(
-        walletType,
-        cryptoType,
-        walletState[walletType].crypto[cryptoType].accounts
-      )
-    )
+    return this
+      .createWallet
+      // WalletUtils.toWalletData(
+      //   walletType,
+      //   cryptoType,
+      //   walletState[walletType].crypto[cryptoType].accounts
+      // )
+      ()
   }
 
   // generate a new wallet

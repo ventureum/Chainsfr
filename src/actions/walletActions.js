@@ -1,34 +1,36 @@
 // @flow
+import type { AccountData } from '../types/account.flow.js'
+
 import Web3 from 'web3'
 import { goToStep } from './navigationActions'
 import { Base64 } from 'js-base64'
+import { createWallet } from '../wallets/WalletFactory.js'
+
 import { getTransferData, saveWallet, getWallet } from '../drive.js'
 import { walletCryptoSupports, cryptoInWallet } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
-import WalletUtils from '../wallets/utils'
-import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
+// import WalletUtils from '../wallets/utils'
+// import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
 import LedgerNanoS from '../ledgerSigner'
 import env from '../typedEnv'
 
 // metamask
-async function _checkMetamaskConnection (
-  cryptoType: string,
-  dispatch: Function
-): Promise<WalletData> {
-  if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-    window._web3 = new Web3(window.ethereum)
-    let wallet = WalletFactory.createWallet(WalletUtils.toWalletData('metamask', cryptoType, []))
-    await wallet.retrieveAddress()
-    // listen for accounts changes
-    window.ethereum.on('accountsChanged', accounts => {
-      dispatch(onMetamaskAccountsChanged(accounts, cryptoType))
-    })
-    return wallet.getWalletData()
-  } else {
-    throw new Error('Metamask not found')
-  }
+async function _checkMetamaskConnection (cryptoType: string, dispatch: Function): Promise<any> {
+  // if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+  //   window._web3 = new Web3(window.ethereum)
+  //   let wallet = WalletFactory.createWallet(WalletUtils.toWalletData('metamask', cryptoType, []))
+  //   await wallet.retrieveAddress()
+  //   // listen for accounts changes
+  //   window.ethereum.on('accountsChanged', accounts => {
+  //     dispatch(onMetamaskAccountsChanged(accounts, cryptoType))
+  //   })
+  //   return wallet.getWalletData()
+  // } else {
+  //   throw new Error('Metamask not found')
+  // }
+  return {}
 }
 
 function checkMetamaskConnection (crypoType: string) {
@@ -42,21 +44,20 @@ function checkMetamaskConnection (crypoType: string) {
   }
 }
 
-
 function onMetamaskAccountsChanged (accounts: Array<string>, cryptoType: string) {
   return {
     type: 'UPDATE_METAMASK_ACCOUNTS',
     payload: async () => {
-      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
-      let newWallet = WalletFactory.createWallet(
-        WalletUtils.toWalletData('metamask', cryptoType, [account])
-      )
-      await newWallet.sync()
-      return newWallet.getWalletData()
+      // const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
+      // let newWallet = WalletFactory.createWallet(
+      //   // WalletUtils.toWalletData('metamask', cryptoType, [account])
+      // )
+      // await newWallet.sync()
+      // return newWallet.getWalletData()
+      return {}
     }
   }
 }
-
 
 // walletConnect
 async function _checkWalletConnectConnection (
@@ -64,16 +65,17 @@ async function _checkWalletConnectConnection (
   cryptoType: string,
   address: string,
   dispatch: Function
-): Promise<WalletData> {
-  let wallet = WalletFactory.createWallet(
-    WalletUtils.toWalletData(walletType, cryptoType, [
-      {
-        address: address,
-        balance: '0',
-        ethBalance: '0'
-      }
-    ])
-  )
+): Promise<any> {
+  let wallet = WalletFactory
+    .createWallet
+    // WalletUtils.toWalletData(walletType, cryptoType, [
+    //   {
+    //     address: address,
+    //     balance: '0',
+    //     ethBalance: '0'
+    //   }
+    // ])
+    ()
 
   return wallet.getWalletData()
 }
@@ -121,16 +123,16 @@ function onWalletConnectConnected (
   }
 }
 
-
 // walletLink
 async function _checkWalletLinkConnection (
   walletType: string,
   cryptoType: string,
   dispatch: Function
-): Promise<WalletData> {
-  let wallet = WalletFactory.createWallet(WalletUtils.toWalletData(walletType, cryptoType, []))
+): Promise<any> {
+  let wallet = WalletFactory.createWallet()
+  // let wallet = WalletFactory.createWallet(WalletUtils.toWalletData(walletType, cryptoType, []))
   window.walletLinkProvider.on('accountsChanged', accounts => {
-      dispatch(onWalletLinkAccountsChanged(accounts, walletType, cryptoType))
+    dispatch(onWalletLinkAccountsChanged(accounts, walletType, cryptoType))
   })
   window._walletLinkWeb3 = new Web3(window.walletLinkProvider)
   await wallet.retrieveAddress()
@@ -152,8 +154,8 @@ function checkWalletLinkConnection (walletType: string, crypoType: string) {
 async function _onWalletLinkConnected (walletType: string) {
   // Initialize a Web3 Provider object
   window.walletLinkProvider = window.walletLink.makeWeb3Provider(
-    `https://mainnet.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`, 
-    env.REACT_APP_ETHEREUM_NETWORK !== 'mainnet' ? 4 :1
+    `https://mainnet.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`,
+    env.REACT_APP_ETHEREUM_NETWORK !== 'mainnet' ? 4 : 1
   )
   const accounts = await window.walletLinkProvider.enable()
   const network = window.walletLinkProvider.networkVersion
@@ -171,32 +173,35 @@ function onWalletLinkConnected (walletType: string) {
   }
 }
 
-
-function onWalletLinkAccountsChanged (accounts: Array<string>, walletType: string, cryptoType: string) {
+function onWalletLinkAccountsChanged (
+  accounts: Array<string>,
+  walletType: string,
+  cryptoType: string
+) {
   return {
     type: 'UPDATE_WALLETLINK_ACCOUNTS',
     payload: async () => {
-      const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
-      let newWallet = WalletFactory.createWallet(
-        WalletUtils.toWalletData(walletType, cryptoType, [account])
-      )
-      await newWallet.sync()
-      return newWallet.getWalletData()
+      // const account: AccountEthereum = { balance: '0', ethBalance: '0', address: accounts[0] }
+      // let newWallet = WalletFactory.createWallet(
+      //   // WalletUtils.toWalletData(walletType, cryptoType, [account])
+      // )
+      // await newWallet.sync()
+      // return newWallet.getWalletData()
+      return {}
     }
   }
 }
 
-
-
 async function _getLedgerWalletData (cryptoType: string, walletState: Object) {
-  let wallet = WalletFactory.createWallet(
-    WalletUtils.toWalletDataFromState('ledger', cryptoType, walletState)
-  )
+  let wallet = WalletFactory
+    .createWallet
+    // WalletUtils.toWalletDataFromState('ledger', cryptoType, walletState)
+    ()
   await wallet.retrieveAddress()
   return wallet.getWalletData()
 }
 
-async function _sync (walletData: WalletData, progress: function) {
+async function _sync (walletData: any, progress: Function) {
   let wallet = WalletFactory.createWallet(walletData)
   await wallet.sync(progress)
   return wallet.getWalletData()
@@ -204,7 +209,7 @@ async function _sync (walletData: WalletData, progress: function) {
 
 async function _verifyPassword (transferInfo: {
   transferId: ?string,
-  fromWallet: WalletData,
+  fromWallet: any,
   password: string
 }) {
   let { transferId, fromWallet, password } = transferInfo
@@ -220,7 +225,6 @@ async function _verifyPassword (transferInfo: {
   await wallet.sync()
   return wallet.getWalletData()
 }
-
 
 function getLedgerWalletData (cryptoType: string) {
   return (dispatch: Function, getState: Function) => {
@@ -283,7 +287,7 @@ function checkLedgerAppConnection (cryptoType: string) {
   }
 }
 
-function sync (walletData: WalletData, progress?: Function) {
+function sync (walletData: any, progress?: Function) {
   return {
     type: 'SYNC',
     payload: _sync(walletData, progress)
@@ -293,7 +297,7 @@ function sync (walletData: WalletData, progress?: Function) {
 function verifyPassword (
   transferInfo: {
     transferId: ?string,
-    fromWallet: WalletData,
+    fromWallet: any,
     password: string
   },
   nextStep: ?{
@@ -317,7 +321,7 @@ function verifyPassword (
   }
 }
 
-function clearDecryptedWallet (walletData: WalletData) {
+function clearDecryptedWallet (walletData: any) {
   return {
     type: 'CLEAR_DECRYPTED_WALLET',
     payload: () => {
@@ -331,39 +335,54 @@ function clearDecryptedWallet (walletData: WalletData) {
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
   var walletFileData = {}
-  let ethereumBasedWalletData = null
+  let ethereumBasedAccountData
   if (progress) progress('CREATE')
 
-  // the following creation process should never fail (which blocks the onboarding process), 
+  // the following creation process should never fail (which blocks the onboarding process),
   // warn silently for any errors
   try {
     for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
       if (!disabled) {
-        let wallet = await WalletFactory.generateWallet({
-          walletType: 'drive',
-          cryptoType: cryptoType
-        })
-        if (['ethereum', 'dai'].includes(cryptoType)) {
-          if (ethereumBasedWalletData) {
-            // share the same privateKey for ethereum based coins
-            // deep-copy walletData
-            wallet.walletData = JSON.parse(JSON.stringify(ethereumBasedWalletData))
-            wallet.walletData.cryptoType = cryptoType
-          } else {
-            // deep-copy walletData
-            // otherwise, privateKey will be cleared in the next step
-            ethereumBasedWalletData = JSON.parse(JSON.stringify(wallet.getWalletData()))
+        let account
+        let accountData
+        let _wallet = createWallet({ walletType: 'drive' })
+
+        if (ethereumBasedAccountData && ['ethereum', 'dai'].includes(cryptoType)) {
+          // share the same privateKey for ethereum based coins
+          await _wallet.newAccount(`Cloud Wallet ${cryptoType}`, cryptoType, {
+            privateKey: ethereumBasedAccountData.privateKey
+          })
+          account = _wallet.getAccount()
+          accountData = account.getAccountData()
+        } else {
+          await _wallet.newAccount(`Cloud Wallet ${cryptoType}`, cryptoType, {
+            getPrefilled: true
+          })
+          account = _wallet.getAccount()
+          accountData = account.getAccountData()
+          if (['ethereum', 'dai'].includes(cryptoType)) {
+            ethereumBasedAccountData = JSON.parse(JSON.stringify(accountData))
           }
         }
-        await wallet.encryptAccount(password)
-        wallet.clearPrivateKey()
-        walletFileData[cryptoType] = Base64.encode(JSON.stringify(wallet.getWalletData()))
+
+        await account.encryptAccount(password)
+        if (accountData.cryptoType === 'bitcoin') {
+          walletFileData[accountData.hdWalletVariables.xpub] = accountData
+        } else {
+          walletFileData[accountData.address] = accountData
+        }
+        try {
+          await API.addCryptoAccount(account.getAccountData())
+        } catch (err) {
+          console.warn('Add new Cloud wallet account to backend failed')
+        }
       }
     }
   } catch (error) {
     console.warn(error)
   }
-
+  console.log('walletFileData', walletFileData)
+  walletFileData = { accounts: Base64.encode(JSON.stringify(walletFileData)) }
   // save the encrypted wallet into drive
   if (progress) progress('STORE')
   // this never fails
@@ -408,23 +427,10 @@ async function _getCloudWallet () {
   if (!walletFile) {
     throw new Error('WALLET_NOT_EXIST')
   }
+  console.log('walletFile', walletFile)
+  let accountDataList = Base64.decode(walletFile.accounts)
 
-  let walletDataList = []
-  for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
-    if (!disabled) {
-      if (walletFile[cryptoType]) {
-        try {
-          var wallet = WalletFactory.createWallet(JSON.parse(Base64.decode(walletFile[cryptoType])))
-          await wallet.sync()
-          walletDataList.push(wallet.getWalletData())
-        } catch (error) {
-          console.warn(error)
-        }
-      }
-    }
-  }
-
-  return walletDataList
+  return accountDataList
 }
 
 function getCloudWallet () {
@@ -459,9 +465,10 @@ function checkCloudWalletConnection (cryptoType: string) {
 }
 
 async function _checkReferralWalletConnection () {
-  let wallet = WalletFactory.createWallet(
-    WalletUtils.toWalletData('referralWallet', 'ethereum', [])
-  )
+  let wallet = WalletFactory
+    .createWallet
+    // WalletUtils.toWalletData('referralWallet', 'ethereum', [])
+    ()
   await wallet.generateWallet({
     walletType: 'referralWallet',
     cryptoType: 'ethereum'
@@ -480,7 +487,7 @@ async function _decryptCloudWallet ({
   encryptedWallet,
   password
 }: {
-  encryptedWallet: WalletData,
+  encryptedWallet: any,
   password: string
 }) {
   let wallet = WalletFactory.createWallet(encryptedWallet)
@@ -492,7 +499,7 @@ function decryptCloudWallet ({
   encryptedWallet,
   password
 }: {
-  encryptedWallet: WalletData,
+  encryptedWallet: any,
   password: string
 }) {
   return (dispatch: Function, getState: Function) => {
@@ -526,7 +533,13 @@ function clearDecryptCloudWalletError () {
 async function _getLastUsedAddress (idToken: string) {
   let response = await API.getLastUsedAddress({ idToken })
   let rv = {}
-  const walletTypeList = ['drive', 'metamask', 'ledger', 'metamaskWalletConnect', 'coinbaseWalletLink']
+  const walletTypeList = [
+    'drive',
+    'metamask',
+    'ledger',
+    'metamaskWalletConnect',
+    'coinbaseWalletLink'
+  ]
   const cryptoTypeList = ['bitcoin', 'ethereum', 'dai', 'libra']
   // convert response to our wallet struct
   if (response) {
@@ -557,6 +570,58 @@ function notUseLastAddress () {
   }
 }
 
+async function _verifyAccount (accountData: AccountData, options: ?Object) {
+  let wallet = createWallet(accountData)
+  await wallet.verifyAccount(options)
+  return wallet.getAccount().getAccountData()
+}
+
+function verifyAccount (accountData: AccountData, options: ?Object) {
+  return {
+    type: 'VERIFY_ACCOUNT',
+    payload: _verifyAccount(accountData, options)
+  }
+}
+
+async function _checkWalletConnection (accountData: AccountData, additionalInfo: ?Object) {
+  let wallet = createWallet(accountData)
+  const connection = await wallet.checkWalletConnection(additionalInfo)
+  if (connection) {
+    return wallet.getAccount().getAccountData()
+  }
+  return Promise.reject(new Error('Check wallet connection failed'))
+}
+
+function checkWalletConnection (accountData: AccountData, additionalInfo: Object) {
+  return {
+    type: 'CHECK_WALLET_CONNECTION',
+    payload: _checkWalletConnection(accountData, additionalInfo)
+  }
+}
+
+async function _newCryptoAccountFromWallet (
+  name: string,
+  cryptoType: string,
+  walletType: string,
+  options: Object
+) {
+  let _wallet = createWallet({ walletType: walletType })
+  let _account = await _wallet.newAccount(name, cryptoType, options)
+  return _account.getAccountData()
+}
+
+function newCryptoAccountFromWallet (
+  name: string,
+  cryptoType: string,
+  walletType: string,
+  options: Object
+) {
+  return {
+    type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
+    payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, options)
+  }
+}
+
 export {
   // metamask
   checkMetamaskConnection,
@@ -582,5 +647,8 @@ export {
   clearDecryptCloudWalletError,
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
-  checkReferralWalletConnection
+  checkReferralWalletConnection,
+  verifyAccount,
+  checkWalletConnection,
+  newCryptoAccountFromWallet
 }

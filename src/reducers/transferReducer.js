@@ -28,7 +28,7 @@ export default function (state = initialState, action) {
         ...state,
         transfer: action.payload.transferData
       }
-    case 'GET_TX_COST_FULFILLED':
+    case 'GET_TX_FEE_FULFILLED':
       return {
         ...state,
         txFee: action.payload
@@ -58,12 +58,14 @@ export default function (state = initialState, action) {
         ...state,
         transferHistory: {
           hasMore: action.payload.hasMore,
-          history: action.payload.offset === 0
-            ? action.payload.transferData
-            : [...state.transferHistory.history, ...action.payload.transferData]
+          history:
+            action.payload.offset === 0
+              ? action.payload.transferData
+              : [...state.transferHistory.history, ...action.payload.transferData]
         }
       }
-    default: // need this for default case
+    default:
+      // need this for default case
       return state
   }
 }

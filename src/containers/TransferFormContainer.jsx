@@ -6,16 +6,17 @@ import {
   generateSecurityAnswer,
   clearSecurityAnswer
 } from '../actions/formActions'
+import { syncWithNetwork } from '../actions/accountAction.js'
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getTxFee } from '../actions/transferActions'
+import { getTxFee } from '../actions/accountAction.js'
 import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
 
 type Props = {
@@ -24,7 +25,6 @@ type Props = {
   clearSecurityAnswer: Function,
   goToStep: Function,
   cryptoSelection: string,
-  walletSelection: string,
   transferForm: Object,
   txFee: any,
   wallet: Object,
@@ -71,20 +71,25 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { wallet, walletSelection, cryptoSelection, transferForm, actionsPending } = this.props
+    const { transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
+      // if transfer amount changed, update tx fee
+      const { accountSelection } = transferForm
       this.props.getTxFee({
-        fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
+        fromAccount: accountSelection,
         transferAmount: transferForm.transferAmount,
         options: {
           prepayTxFee: true
         }
       })
     } else if (!actionsPending.getTxFee && prevProps.actionsPending.getTxFee) {
+      // if tx fee updated, re-validate form
       this.props.updateTransferForm(
         update(transferForm, {
           formError: {
-            transferAmount: { $set: this.validate('transferAmount', transferForm.transferAmount) }
+            transferAmount: {
+              $set: this.validate('transferAmount', transferForm.transferAmount, transferForm)
+            }
           }
         })
       )
@@ -94,6 +99,7 @@ class TransferFormContainer extends Component<Props, State> {
       !this.props.actionsPending.addRecipient &&
       !this.props.error
     ) {
+      // if add recipient successfully, close dialog
       this.toggleAddRecipientDialog()
     }
   }
@@ -128,25 +134,33 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   validate = (name, value, transferForm) => {
-    const { wallet, cryptoSelection, txFee } = this.props
-    let balance = wallet ? wallet.crypto[cryptoSelection][0].balance : null
-    const decimals = getCryptoDecimals(cryptoSelection)
+    const { txFee } = this.props
+
     if (name === 'transferAmount') {
+      const { accountSelection } = transferForm
+      const { cryptoType, balance } = accountSelection
+      const decimals = getCryptoDecimals(cryptoType)
       if (
-        !validator.isFloat(value, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })
+        !validator.isFloat(value, {
+          min: 0.001,
+          max: parseFloat(accountSelection.balanceInStandardUnit)
+        })
       ) {
-        if (value === '-' || parseFloat(value) < 0.001) {
+        if (parseFloat(value) < 0.001) {
           return 'The amount must be greater than 0.001'
+        } else if (parseFloat(value) > parseFloat(accountSelection.balanceInStandardUnit)) {
+          return `Exceed your balance of ${accountSelection.balanceInStandardUnit}`
         } else {
-          return `Exceed your balance of ${utils.toHumanReadableUnit(balance, decimals)}`
+          return 'Please enter a valid amount'
         }
-      } else if (txFee) {
+      }
+      if (txFee) {
         // balance check passed
-        if (['ethereum', 'dai'].includes(cryptoSelection)) {
+        if (['ethereum', 'dai'].includes(cryptoType)) {
           // ethereum based coins
           // now check if ETH balance is sufficient for paying tx fees
           if (
-            cryptoSelection === 'ethereum' &&
+            cryptoType === 'ethereum' &&
             new BN(balance).lt(
               new BN(txFee.costInBasicUnit).add(
                 utils.toBasicTokenUnit(parseFloat(value), decimals, 8)
@@ -155,14 +169,14 @@ class TransferFormContainer extends Component<Props, State> {
           ) {
             return INSUFFICIENT_FUNDS_FOR_TX_FEES
           }
-          if (cryptoSelection === 'dai') {
-            let ethBalance = wallet.crypto.dai[0].ethBalance
+          if (cryptoType === 'dai') {
+            let ethBalance = accountSelection.ethBalance
             if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
               return INSUFFICIENT_FUNDS_FOR_TX_FEES
             }
           }
         } else if (
-          cryptoSelection === 'bitcoin' &&
+          cryptoType === 'bitcoin' &&
           new BN(balance).lt(
             new BN(txFee.costInBasicUnit).add(
               utils.toBasicTokenUnit(parseFloat(value), decimals, 8)
@@ -196,16 +210,27 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, cryptoPrice, cryptoSelection, recipients } = this.props
+    const {
+      transferForm,
+      cryptoPrice,
+      cryptoSelection,
+      recipients,
+      syncWithNetwork,
+      cryptoAccounts
+    } = this.props
 
     // helper functions for converting currency
+    const { accountSelection } = transferForm
     const toCurrencyAmount = cryptoAmount =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoSelection])
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[accountSelection.cryptoType])
     const toCryptoAmount = currencyAmount =>
-      utils.toCryptoAmount(currencyAmount, cryptoPrice[cryptoSelection])
+      utils.toCryptoAmount(currencyAmount, cryptoPrice[accountSelection.cryptoType])
     let _transferForm = transferForm
 
-    if (!(name === 'destination' && event.target.value === 'AddRecipient')) {
+    if (
+      !(name === 'destination' && event.target.value === 'AddRecipient') &&
+      !(name === 'accountSelection' && event.target.value === 'addCryptoAccount')
+    ) {
       _transferForm = update(transferForm, {
         [name]: { $set: event.target.value },
         formError: { [name]: { $set: this.validate(name, event.target.value, transferForm) } }
@@ -233,7 +258,11 @@ class TransferFormContainer extends Component<Props, State> {
         transferCurrencyAmount: { $set: transferCurrencyAmountVal.toString() },
         formError: {
           transferCurrencyAmount: {
-            $set: this.validate('transferCurrencyAmount', transferCurrencyAmountVal.toString())
+            $set: this.validate(
+              'transferCurrencyAmount',
+              transferCurrencyAmountVal.toString(),
+              _transferForm
+            )
           }
         }
       })
@@ -247,7 +276,9 @@ class TransferFormContainer extends Component<Props, State> {
       _transferForm = update(_transferForm, {
         transferAmount: { $set: transferAmountVal.toString() },
         formError: {
-          transferAmount: { $set: this.validate('transferAmount', transferAmountVal.toString()) }
+          transferAmount: {
+            $set: this.validate('transferAmount', transferAmountVal.toString(), _transferForm)
+          }
         }
       })
     }
@@ -269,33 +300,51 @@ class TransferFormContainer extends Component<Props, State> {
       }
     }
 
+    if (name === 'accountSelection' && event.target.value !== 'addCryptoAccount') {
+      // sync account when select
+      this.props.syncWithNetwork(event.target.value)
+    }
+
     this.props.updateTransferForm(_transferForm)
   }
 
   render () {
     const {
-      wallet,
       cryptoPrice,
       cryptoSelection,
       currency,
       actionsPending,
-      addRecipient
+      addRecipient,
+      transferForm,
+      cryptoAccounts,
+      walletSelectionPrefilled
     } = this.props
-    const balance = wallet.crypto[cryptoSelection][0].balance || '0'
-    const balanceAmount = utils.toHumanReadableUnit(balance, getCryptoDecimals(cryptoSelection))
-    const balanceCurrencyAmount = utils.toCurrencyAmount(
-      balanceAmount,
-      cryptoPrice[cryptoSelection],
-      currency
-    )
+    // default to use first account
+    const { accountSelection } = transferForm
+
+    let balance = '0'
+    let balanceCurrencyAmount = '0'
+    if (accountSelection !== null) {
+      balance = accountSelection.balance
+      balanceCurrencyAmount = utils.toCurrencyAmount(
+        accountSelection.balanceInStandardUnit,
+        cryptoPrice[accountSelection.cryptoType],
+        currency
+      )
+    }
+
+    const filterCryptoAccounts = cryptoAccounts.filter(accountData => {
+      return !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
+    })
+
     return (
       <>
         <TransferForm
           {...this.props}
+          cryptoAccounts={filterCryptoAccounts}
           handleTransferFormChange={this.handleTransferFormChange}
           validate={this.validate}
           validateForm={this.validateForm}
-          balanceAmount={balanceAmount}
           balanceCurrencyAmount={balanceCurrencyAmount}
           addRecipient={() => this.toggleAddRecipientDialog()}
         />
@@ -324,21 +373,20 @@ const mapDispatchToProps = dispatch => {
     goToStep: n => dispatch(goToStep('send', n)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
-    addRecipient: recipient => dispatch(addRecipient(recipient))
+    addRecipient: recipient => dispatch(addRecipient(recipient)),
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
   }
 }
 
 const mapStateToProps = state => {
   return {
-    cryptoSelection: state.formReducer.cryptoSelection,
-    walletSelection: state.formReducer.walletSelection,
     transferForm: state.formReducer.transferForm,
-    wallet: state.walletReducer.wallet[state.formReducer.walletSelection],
     profile: state.userReducer.profile,
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     recipients: state.userReducer.recipients,
+    cryptoAccounts: state.userReducer.cryptoAccounts,
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
       getRecipients: getRecipientsSelector(state),

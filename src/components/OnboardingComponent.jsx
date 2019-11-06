@@ -38,7 +38,6 @@ class OnboardingComponent extends Component {
   }
 
   onSubmit = () => {
-    this.props.register()
     this.props.createCloudWallet(this.state.password, step => {
       this.setState({ step: step })
     })
@@ -64,7 +63,7 @@ class OnboardingComponent extends Component {
 
   render () {
     let { classes, actionsPending, profile } = this.props
-    const onboardingActionsPending = actionsPending.createCloudWallet || actionsPending.register
+    const onboardingActionsPending = actionsPending.createCloudWallet
     return (
       <Grid container direction='column' alignItems='center'>
         {/* Center the entire container, this step is necessary to make upper and lower section to have same width */}

@@ -17,7 +17,6 @@ import Box from '@material-ui/core/Box'
 
 type Props = {
   backToHome: Function,
-  cryptoSelection: string,
   txFee: Object,
   receipt: Object,
   classes: Object,
@@ -37,16 +36,7 @@ class ReceiptComponent extends Component<Props, State> {
 
   render () {
     const { copied } = this.state
-    const {
-      classes,
-      password,
-      cryptoSelection,
-      txFee,
-      receipt,
-      backToHome,
-      sendTime,
-      currencyAmount
-    } = this.props
+    const { classes, password, txFee, receipt, backToHome, sendTime, currencyAmount } = this.props
     const {
       transferId,
       transferAmount,
@@ -54,8 +44,10 @@ class ReceiptComponent extends Component<Props, State> {
       senderName,
       destination,
       receiverName,
-      sendMessage
+      sendMessage,
+      accountSelection
     } = receipt
+    const { cryptoType } = accountSelection
     return (
       <Grid container direction='column' spacing={5}>
         <Grid item>
@@ -101,7 +93,7 @@ class ReceiptComponent extends Component<Props, State> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {transferAmount} {getCryptoSymbol(cryptoSelection)}
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.transferAmount} )
@@ -121,8 +113,7 @@ class ReceiptComponent extends Component<Props, State> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {txFee.costInStandardUnit}{' '}
-                      {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
+                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.txFee} )

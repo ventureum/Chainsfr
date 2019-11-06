@@ -8,58 +8,62 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import env from '../typedEnv'
 
 class LoginContainer extends Component {
-  state = {
-    loginData: null
-  }
-
   componentDidUpdate (prevProps) {
-    let { error, profile, actionsPending, cloudWalletConnected, onLogin } = this.props
+    let { actionsPending } = this.props
 
-    if (cloudWalletConnected && this.state.loginData) {
-      // we have logged in and wallet has been retrieved from drive
-      // now invoke onLogin() to register loginData in redux
-      onLogin(this.state.loginData)
-    }
+    // if (cloudWalletConnected && this.state.loginData) {
+    //   // we have logged in and wallet has been retrieved from drive
+    //   // now invoke onLogin() to register loginData in redux
+    //   onLogin(this.state.loginData)
+    // }
 
-    if (!error) {
-      if (this.state.loginData) {
-        // logged in
-        if (!cloudWalletConnected && !actionsPending.getCloudWallet) {
-          // try to fetch wallet from drive
-          this.props.getCloudWallet()
-        }
-      }
-    } else if (error === 'WALLET_NOT_EXIST') {
-      if (!profile.newUser) { this.props.setNewUserTag(true) }
+    if (prevProps.actionsPending.register && !actionsPending.register) {
+      // try to fetch user's cloud wallet after registration
+      this.props.getCloudWallet()
     }
   }
 
-  onLogin = (loginData) => {
-    this.setState({ loginData: loginData })
+  onLogin = loginData => {
+    // this is what happens after Google login successfully
+    // store loginData into redux
+    this.props.onLogin(loginData)
+    // register user
+    this.props.register(loginData.idToken)
   }
 
   render () {
-    let { loginData } = this.state
-    let { profile, actionsPending, createCloudWallet, register } = this.props
+    let { profile, actionsPending, createCloudWallet, error } = this.props
 
-    if (loginData &&
-        profile.newUser &&
-        (!actionsPending.getCloudWallet || actionsPending.createCloudWallet)
-    ) {
+    if (error === 'WALLET_NOT_EXIST') {
       return (
         <OnboardingComponent
-          register={() => register(loginData.idToken)}
           createCloudWallet={createCloudWallet}
-          profile={loginData}
+          profile={profile}
           actionsPending={actionsPending}
-        />)
+        />
+      )
     }
+
+    // if (
+    //   profile.idToken &&
+    //   profile.newUser &&
+    //   (!actionsPending.getCloudWallet || actionsPending.createCloudWallet)
+    // ) {
+    //   return (
+    //     <OnboardingComponent
+    //       createCloudWallet={createCloudWallet}
+    //       profile={profile}
+    //       actionsPending={actionsPending}
+    //     />
+    //   )
+    // }
     return (
       <LoginComponent
         onLogin={this.onLogin}
         actionsPending={actionsPending}
         isMainNet={env.REACT_APP_ENV === 'prod'}
-      />)
+      />
+    )
   }
 }
 
@@ -71,7 +75,7 @@ const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WAL
 const mapStateToProps = state => {
   return {
     profile: state.userReducer.profile,
-    cloudWalletConnected: state.walletReducer.wallet.drive.connected,
+    cloudWalletConnected: state.userReducer.cloudWalletConnected,
     actionsPending: {
       register: registerSelector(state),
       createCloudWallet: createCloudWalletSelector(state),
@@ -84,10 +88,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: loginData => dispatch(onLogin(loginData)),
-    register: (idToken) => dispatch(register(idToken)),
+    register: idToken => dispatch(register(idToken)),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),
-    setNewUserTag: (isNewUser) => dispatch(setNewUserTag(isNewUser))
+    setNewUserTag: isNewUser => dispatch(setNewUserTag(isNewUser))
   }
 }
 

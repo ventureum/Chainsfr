@@ -102,7 +102,7 @@ type TransferData = {
   receivingId?: string,
   receiveTimestamp?: number,
   data?: string, // base64 encoded encrypted escrow wallet
-  password?: string, // password for the escrow wallet, undefined for receiver
+  password?: string // password for the escrow wallet, undefined for receiver
 }
 
 // gapi.load does not support promise
@@ -242,7 +242,7 @@ async function createFolder (
     let resource: FileResource = {
       name: folder,
       mimeType: 'application/vnd.google-apps.folder',
-      parents: (space === APP_DATA_FOLDER_SPACE && !parents) ? [APP_DATA_FOLDER_SPACE] : parents
+      parents: space === APP_DATA_FOLDER_SPACE && !parents ? [APP_DATA_FOLDER_SPACE] : parents
     }
 
     let resp: {
@@ -263,10 +263,7 @@ async function createFolder (
  * @param fileId [string] id of the file
  * @param content [object] content of the file
  */
-async function addContent (
-  fileId: FileId,
-  content: any
-): Promise<FileResource> {
+async function addContent (fileId: FileId, content: any): Promise<FileResource> {
   return window.gapi.client.request({
     path: '/upload/drive/v3/files/' + fileId,
     method: 'PATCH',
@@ -290,11 +287,7 @@ async function addContent (
  *  }
  *  @returns id [string] id of the file created/updated
  */
-async function saveFileByName (
-  space: DriveSpace,
-  folder: ?FileName,
-  file: File
-): Promise<FileId> {
+async function saveFileByName (space: DriveSpace, folder: ?FileName, file: File): Promise<FileId> {
   await loadApi()
 
   var metadata: FileResource = {
@@ -346,7 +339,11 @@ async function saveFileByName (
  * @param fileName [string] name of the file
  * @returns content of the file
  */
-async function loadFileByName (space: DriveSpace, fileName: FileName, folderName: ?FileName): Promise<any> {
+async function loadFileByName (
+  space: DriveSpace,
+  fileName: FileName,
+  folderName: ?FileName
+): Promise<any> {
   let rootFolder = await listFiles(space, null, true, ROOT_FOLDER_NAME)
   if (rootFolder.length === 0) return null
   // get folder fileId if folder name is provided
@@ -401,7 +398,11 @@ async function saveTempSendFile (transferData: TempTransferData) {
  * see the object definition at the top
  */
 async function saveHistoryFile (transferData: TransferData) {
-  let transfers = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
+  let transfers = await loadFileByName(
+    APP_DATA_FOLDER_SPACE,
+    HISTORY_FILE_NAME,
+    HISTORY_FOLDER_NAME
+  )
   let id = transferData.transferId ? transferData.transferId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
@@ -465,7 +466,11 @@ async function saveWallet (walletDataList: any) {
  * see the object definition at the top
  */
 async function getTransferData (id: string): Promise<TransferData> {
-  let transfers: ?{[string]: TransferData} = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
+  let transfers: ?{ [string]: TransferData } = await loadFileByName(
+    APP_DATA_FOLDER_SPACE,
+    HISTORY_FILE_NAME,
+    HISTORY_FOLDER_NAME
+  )
   if (transfers) {
     return transfers[id]
   } else {
@@ -473,7 +478,7 @@ async function getTransferData (id: string): Promise<TransferData> {
   }
 }
 
-async function getAllTransfers (): Promise<{[string]: TransferData}> {
+async function getAllTransfers (): Promise<{ [string]: TransferData }> {
   return loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
 }
 

@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import MetamaskPendingIcon from '../images/metamask_pending.png'
 import Divider from '@material-ui/core/Divider'
 
@@ -147,34 +147,27 @@ class ReviewComponent extends Component<Props> {
     } = transferForm
 
     // submit tx
-    this.props.submitTx({
-      fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
-      transferAmount: transferAmount,
-      transferFiatAmountSpot: transferCurrencyAmount,
-      fiatType: currency,
-      // receiver
-      destination: destination,
-      receiverName: receiverName,
-      // sender
-      senderName: senderName,
-      senderAvatar: userProfile.imageUrl,
-      sender: sender,
-      password: password,
-      sendMessage: sendMessage,
-      txFee: txFee
-    })
+    // this.props.submitTx({
+    //   fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
+    //   transferAmount: transferAmount,
+    //   transferFiatAmountSpot: transferCurrencyAmount,
+    //   fiatType: currency,
+    //   // receiver
+    //   destination: destination,
+    //   receiverName: receiverName,
+    //   // sender
+    //   senderName: senderName,
+    //   senderAvatar: userProfile.imageUrl,
+    //   sender: sender,
+    //   password: password,
+    //   sendMessage: sendMessage,
+    //   txFee: txFee
+    // })
   }
   render () {
+    const { classes, transferForm, actionsPending, txFee, currencyAmount } = this.props
     const {
-      classes,
-      transferForm,
-      cryptoSelection,
-      actionsPending,
-      txFee,
-      walletSelection,
-      currencyAmount
-    } = this.props
-    const {
+      accountSelection,
       transferAmount,
       sender,
       senderName,
@@ -183,7 +176,7 @@ class ReviewComponent extends Component<Props> {
       password,
       sendMessage
     } = transferForm
-
+    const { cryptoType, walletType } = accountSelection
     return (
       <Grid container direction='column'>
         <Grid item>
@@ -226,7 +219,7 @@ class ReviewComponent extends Component<Props> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {transferAmount} {getCryptoSymbol(cryptoSelection)}
+                      {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.transferAmount} )
@@ -246,8 +239,7 @@ class ReviewComponent extends Component<Props> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {txFee.costInStandardUnit}{' '}
-                      {getCryptoSymbol(getTxFeesCryptoType(cryptoSelection))}
+                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.txFee} )
@@ -291,12 +283,12 @@ class ReviewComponent extends Component<Props> {
                   <Grid container direction='column'>
                     <Grid item>
                       <Typography variant='h6'>
-                        {getWalletTitle(walletSelection)} Transfer Instructions
+                        {getWalletTitle(walletType)} Transfer Instructions
                       </Typography>
                     </Grid>
                     <Grid>
                       <Typography variant='caption'>
-                        {WALLET_INSTRUCTION[walletSelection][cryptoSelection]}
+                        {WALLET_INSTRUCTION[walletType][cryptoType]}
                       </Typography>
                     </Grid>
                     <Grid>
@@ -311,12 +303,7 @@ class ReviewComponent extends Component<Props> {
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button
-                color='primary'
-                size='large'
-                onClick={() => this.props.goToStep(-1)}
-                disabled={actionsPending.submitTx}
-              >
+              <Button color='primary' size='large' onClick={() => this.props.goToStep(-1)}>
                 Back to previous
               </Button>
             </Grid>
@@ -327,10 +314,9 @@ class ReviewComponent extends Component<Props> {
                   variant='contained'
                   color='primary'
                   size='large'
-                  disabled={actionsPending.submitTx}
-                  onClick={this.handleReviewNext}
+                  onClick={() => this.props.goToStep(1)}
                 >
-                  Confirm and transfer
+                  Continue
                 </Button>
               </Grid>
             )}

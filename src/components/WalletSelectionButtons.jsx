@@ -91,6 +91,8 @@ export default function WalletSelectionButtons (props) {
             return w.sendable && !w.hide
           } else if (purpose === 'receive') {
             return w.receivable && !w.hide
+          } else if (purpose === 'addAccount') {
+            return w.walletType !== 'drive' && !w.hide
           }
           return true
         })

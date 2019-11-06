@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles, makeStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
@@ -43,14 +43,66 @@ const toUserReadableState = {
   }
 }
 
-class LandingPageComponent extends Component {
-  state = {
-    expanded: false,
-    walletSelection: ''
-  }
+const baseRecentTransferItemTransferStatus = {
+  borderRadius: '100px',
+  color: 'white',
+  padding: '5px',
+  width: '86px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'stretch'
+}
 
-  renderRecentTransferItem = (transfer, i) => {
-    const { classes } = this.props
+const useStyles = makeStyles({
+  expansionPanelRoot: {
+    boxShadow: 'none',
+    marginTop: '0px'
+  },
+  expansionPanelExpanded: {
+    marginTop: 'auto'
+  },
+  txHistoryTitleContainer: {
+    margin: '10px 0px 10px 0px',
+    width: '100%',
+    padding: '0px 60px 0px 24px'
+  },
+  recentTransferItemTransferStatusPending: {
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#F49B20'
+  },
+  recentTransferItemTransferStatusTextBased: {
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#43B384'
+  },
+  recentTransferItemTransferStatusError: {
+    ...baseRecentTransferItemTransferStatus,
+    backgroundColor: '#A8A8A8'
+  },
+  recentTransferItemTransferMessage: {
+    maxWidth: '300px',
+    // prevent overflow for long messages
+    wordWrap: 'break-word',
+    // additional margin to make message boundary clearer
+    marginBottom: '20px'
+  },
+  recentTransferItemTransferId: {
+    color: '#777777',
+    fontSize: '12px'
+  },
+  recentTransferItemCancelBtn: {
+    padding: '0px',
+    fontSize: '12px',
+    fontWeight: '500',
+    marginTop: '10px'
+  }
+})
+
+export function UserRecentTransactions (props) {
+  const classes = useStyles()
+  const { actionsPending, transferHistory, loadMoreTransferHistory } = props
+
+  function renderRecentTransferItem (transfer, i) {
     if (transfer.error) {
       return (
         <ExpansionPanel
@@ -69,7 +121,6 @@ class LandingPageComponent extends Component {
         </ExpansionPanel>
       )
     }
-
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
       secondaryDesc =
@@ -212,7 +263,8 @@ class LandingPageComponent extends Component {
                 <Button
                   color='primary'
                   component={Link}
-                  target='_black'
+                  target='_blank'
+                  rel='noopener'
                   to={`cancel?id=${transfer.transferId}`}
                   className={classes.recentTransferItemCancelBtn}
                 >
@@ -226,11 +278,84 @@ class LandingPageComponent extends Component {
     )
   }
 
+  return (
+    <Grid
+      container
+      alignItems='center'
+      justify='center'
+      className={classes.transactionHistorySection}
+    >
+      <Container maxWidth='lg'>
+        <Grid container direction='column' justify='center' alignItems='stretch'>
+          <Grid item>
+            <Grid container direction='row'>
+              <Grid item>
+                <Typography variant='h2'>Recent Transactions</Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
+            <InfiniteScroll
+              loader={
+                actionsPending.getTransferHistory && (
+                  <Grid container direction='row' justify='center' key={0} alignItems='center'>
+                    <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                  </Grid>
+                )
+              }
+              threshold={300}
+              pageStart={0}
+              loadMore={() => {
+                if (!actionsPending.getTransferHistory) {
+                  loadMoreTransferHistory(transferHistory.history.length)
+                }
+              }}
+              useWindow={false}
+              hasMore={transferHistory.hasMore}
+              initialLoad={false}
+            >
+              <Grid item className={classes.txHistoryTitleContainer}>
+                <Grid container direction='row' alignItems='center'>
+                  <Grid item xs={8}>
+                    <Typography variant='h6'>Transaction</Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Grid container alignItems='center' justify='space-between'>
+                      <Grid item>
+                        <Typography variant='h6'>Status</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography variant='h6'>Amount</Typography>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Divider />
+              {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
+                <Grid container justify='center'>
+                  <Typography variant='subtitle1'>
+                    It seems you don't have any transactions yet
+                  </Typography>
+                </Grid>
+              )}
+              {transferHistory.history.map((transfer, i) => renderRecentTransferItem(transfer, i))}
+            </InfiniteScroll>
+          </Grid>
+        </Grid>
+      </Container>
+    </Grid>
+  )
+}
+
+class LandingPageComponent extends Component {
+  state = {
+    walletSelection: ''
+  }
+
   renderWalletSection = props => {
     const { classes, push } = this.props
     const { walletSelection } = this.state
-    // Do not remove <div style={{ padding: 10 }}>
-    // See https://material-ui.com/components/grid/#limitations
     return (
       <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
         <Container maxWidth='lg'>
@@ -259,145 +384,26 @@ class LandingPageComponent extends Component {
     )
   }
 
-  renderTransferHistorySection = () => {
-    const { classes, actionsPending, transferHistory, loadMoreTransferHistory } = this.props
-    return (
-      <Grid
-        container
-        alignItems='center'
-        justify='center'
-        className={classes.transactionHistorySection}
-      >
-        <Container maxWidth='lg'>
-          <Grid container direction='column' justify='center' alignItems='stretch'>
-            <Grid item>
-              <Grid container direction='row'>
-                <Grid item>
-                  <Typography variant='h2'>Recent Transactions</Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
-              <InfiniteScroll
-                loader={
-                  actionsPending.getTransferHistory && (
-                    <Grid container direction='row' justify='center' key={0} alignItems='center'>
-                      <CircularProgress color='primary' style={{ marginTop: '30px' }} />
-                    </Grid>
-                  )
-                }
-                threshold={300}
-                pageStart={0}
-                loadMore={() => {
-                  if (!actionsPending.getTransferHistory) {
-                    loadMoreTransferHistory(transferHistory.history.length)
-                  }
-                }}
-                useWindow={false}
-                hasMore={transferHistory.hasMore}
-                initialLoad={false}
-              >
-                <Grid item className={classes.txHistoryTitleContainer}>
-                  <Grid container direction='row' alignItems='center'>
-                    <Grid item xs={8}>
-                      <Typography variant='h6'>Transaction</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Grid container alignItems='center' justify='space-between'>
-                        <Grid item>
-                          <Typography variant='h6'>Status</Typography>
-                        </Grid>
-                        <Grid item>
-                          <Typography variant='h6'>Amount</Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Divider />
-                {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
-                  <Grid container justify='center'>
-                    <Typography variant='subtitle1'>
-                      It seems you don't have any transactions yet
-                    </Typography>
-                  </Grid>
-                )}
-                {transferHistory.history.map((transfer, i) =>
-                  this.renderRecentTransferItem(transfer, i)
-                )}
-              </InfiniteScroll>
-            </Grid>
-          </Grid>
-        </Container>
-      </Grid>
-    )
-  }
-
   render () {
+    const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
     return (
       <Grid container direction='column'>
         <Grid item>{this.renderWalletSection()}</Grid>
-        <Grid item>{this.renderTransferHistorySection()}</Grid>
+        <Grid item>
+          <UserRecentTransactions
+            actionsPending={actionsPending}
+            transferHistory={transferHistory}
+            loadMoreTransferHistory={loadMoreTransferHistory}
+          />
+        </Grid>
       </Grid>
     )
   }
-}
-
-const baseRecentTransferItemTransferStatus = {
-  borderRadius: '100px',
-  color: 'white',
-  padding: '5px',
-  width: '86px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'stretch'
 }
 
 const styles = theme => ({
   coloredBackgrond: {
     backgroundColor: '#FAFBFE'
-  },
-  expansionPanelRoot: {
-    boxShadow: 'none',
-    marginTop: '0px'
-  },
-  expansionPanelExpanded: {
-    marginTop: 'auto'
-  },
-  txHistoryTitleContainer: {
-    margin: '10px 0px 10px 0px',
-    width: '100%',
-    padding: '0px 60px 0px 24px'
-  },
-  recentTransferItemTransferStatusPending: {
-    ...baseRecentTransferItemTransferStatus,
-    backgroundColor: '#F49B20'
-  },
-  recentTransferItemTransferStatusTextBased: {
-    ...baseRecentTransferItemTransferStatus,
-    backgroundColor: '#43B384'
-  },
-  recentTransferItemTransferStatusError: {
-    ...baseRecentTransferItemTransferStatus,
-    backgroundColor: '#A8A8A8'
-  },
-  recentTransferItemTransferMessage: {
-    maxWidth: '300px',
-    // prevent overflow for long messages
-    wordWrap: 'break-word',
-    // additional margin to make message boundary clearer
-    marginBottom: '20px'
-  },
-  recentTransferItemTransferId: {
-    color: '#777777',
-    fontSize: '12px'
-  },
-  recentTransferItemCancelBtn: {
-    padding: '0px',
-    fontSize: '12px',
-    fontWeight: '500',
-    marginTop: '10px'
   }
 })
 

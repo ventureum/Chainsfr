@@ -5,7 +5,7 @@ import { acceptTransfer, getTxFee } from '../actions/transferActions'
 import { sync } from '../actions/walletActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import WalletUtils from '../wallets/utils'
+// import WalletUtils from '../wallets/utils'
 import moment from 'moment'
 import utils from '../utils'
 
@@ -24,22 +24,22 @@ class ReceiveReviewContainer extends Component {
       (prevActionsPending.sync && !actionsPending.sync) &&
       !error
     ) {
-      this.props.getTxFee({
-        fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-        transferAmount: transfer.transferAmount
-      })
+      // this.props.getTxFee({
+      //   fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
+      //   transferAmount: transfer.transferAmount
+      // })
     }
   }
 
   syncWallet = () => {
     let { wallet, lastUsedWallet, walletSelection, transfer } = this.props
-    this.props.sync(
-      WalletUtils.toWalletDataFromState(
-        walletSelection,
-        transfer.cryptoType,
-        lastUsedWallet || wallet
-      )
-    )
+    // this.props.sync(
+    //   WalletUtils.toWalletDataFromState(
+    //     walletSelection,
+    //     transfer.cryptoType,
+    //     lastUsedWallet || wallet
+    //   )
+    // )
   }
 
   render () {

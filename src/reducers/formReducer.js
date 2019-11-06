@@ -8,6 +8,7 @@ const initialState = {
   walletSelection: null,
   cryptoSelection: null,
   transferForm: {
+    accountSelection: null,
     transferAmount: '',
     transferCurrencyAmount: '',
     password: '',
@@ -27,6 +28,16 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case 'VERIFY_ACCOUNT_FULFILLED':
+    case 'CHECK_WALLET_CONNECTION_FULFILLED':
+    case 'SYNC_WITH_NETWORK_FULFILLED': {
+      if (
+        state.transferForm.accountSelection &&
+        action.payload.name === state.transferForm.accountSelection.name
+      ) {
+        return update(state, { transferForm: { accountSelection: { $set: action.payload } } })
+      }
+    }
     case 'SELECT_CRYPTO':
       return {
         ...state,

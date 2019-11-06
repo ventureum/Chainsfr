@@ -50,7 +50,8 @@ export function getCryptoSymbol (cryptoType) {
   const c = cryptoSelections.find(crypto => {
     return cryptoType === crypto.cryptoType
   })
-  return c.symbol
+  if (c) return c.symbol
+  return ''
 }
 
 export function getCrypto (cryptoType) {
@@ -71,4 +72,11 @@ export function getTxFeesCryptoType (cryptoType) {
     return cryptoType === crypto.cryptoType
   })
   return c.txFeesCryptoType
+}
+
+export function getCryptoLogo (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.logo
 }

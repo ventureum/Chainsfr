@@ -39,7 +39,7 @@ class NavBarComponent extends Component {
 
     return (
       <AppBar position='static' color='primary' className={classes.appBar}>
-        <Toolbar>
+        <Toolbar className={classes.toolbar}>
           <Grid container justify='center' alignItems='center'>
             <Grid item className={classes.sectionContainer}>
               <Grid container direction='row' justify='space-between' alignItems='center'>
@@ -71,13 +71,13 @@ class NavBarComponent extends Component {
                         </Button>
                       </Grid>
                       <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
-                          Drive Wallet
+                        <Button className={classes.NaviBtn} component={Link} to={path.accounts}>
+                          Accounts
                         </Button>
                       </Grid>
                       <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.referral}>
-                          Referral
+                        <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
+                          Chainsfr Wallet
                         </Button>
                       </Grid>
                       <Grid item xs={12} sm='auto'>
@@ -103,8 +103,17 @@ class NavBarComponent extends Component {
                         <Menu
                           id='simple-menu'
                           anchorEl={anchorEl}
+                          getContentAnchorEl={null}
                           open={Boolean(anchorEl)}
                           onClose={this.handleClose()}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right'
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right'
+                          }}
                         >
                           <Container className={classes.menuContainer}>
                             {profile && profile.profileObj && profile.profileObj.imageUrl ? (
@@ -150,6 +159,10 @@ const styles = theme => ({
   appBar: {
     backgroundColor: '#ffffff',
     boxShadow: `0px 2px 2px  rgba(51, 51, 51, 0.1)`
+  },
+  toolbar: {
+    paddingLeft: '10px',
+    paddingRight: '10px'
   },
   homeButton: {
     '&:hover': {

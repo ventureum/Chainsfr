@@ -6,6 +6,7 @@ import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
 import WalletSelection from '../containers/WalletSelectionContainer'
 import TransferForm from '../containers/TransferFormContainer'
+import WalletAuthorization from '../containers/WalletAuthorizationContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
 import queryString from 'query-string'
@@ -20,33 +21,48 @@ class TransferComponent extends React.Component<Props> {
   render () {
     const { classes, step, history } = this.props
     const urlParams = queryString.parse(history.location.search)
+
     return (
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' alignItems='stretch'>
-            <Grid item>{step <= 2 && <Stepper actionType='transfer' step={step} />}</Grid>
+            <Grid item>
+              <Stepper actionType='transfer' step={step} />
+            </Grid>
             <Grid item>
               {/* receipt page requires a different background color */}
               <Grid container direction='column' alignItems='center'>
-                {step === 0 && (
+                {/* {step === 0 && (
                   <Grid item className={classes.walletSelectionContainer}>
                     <WalletSelection
                       walletSelectionPrefilled={urlParams && urlParams.walletSelection}
                       cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
                     />
                   </Grid>
-                )}
-                {step === 1 ? (
+                )} */}
+                {step === 0 && (
                   <Grid item className={classes.formContainer}>
                     <TransferForm
+                      walletSelectionPrefilled={urlParams && urlParams.walletSelection}
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
                       receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
                     />
                   </Grid>
-                ) : (
+                )}
+                {step === 1 && (
                   <Grid item className={classes.subContainer}>
-                    {step === 2 && <Review />}
-                    {step === 3 && <Receipt />}
+                    <Review />
+                  </Grid>
+                )}
+
+                {step === 2 && (
+                  <Grid item className={classes.walletAuthorizationContainer}>
+                    <WalletAuthorization />
+                  </Grid>
+                )}
+                {step === 3 && (
+                  <Grid item className={classes.subContainer}>
+                    <Receipt />
                   </Grid>
                 )}
               </Grid>
@@ -68,6 +84,12 @@ const styles = theme => ({
   subContainer: {
     width: '100%',
     maxWidth: '550px',
+    margin: '0px 0px 16px 0px',
+    padding: '30px'
+  },
+  walletAuthorizationContainer: {
+    width: '100%',
+    maxWidth: '750px',
     margin: '0px 0px 16px 0px',
     padding: '30px'
   },

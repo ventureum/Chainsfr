@@ -2,6 +2,8 @@
 import { gapiLoad } from '../drive'
 import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
+import type { AccountData } from '../types/account.flow.js'
+
 import { enqueueSnackbar } from './notificationActions.js'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
@@ -11,6 +13,10 @@ function onLogin (loginData: any) {
     type: 'LOGIN',
     payload: loginData
   }
+}
+
+function clearError () {
+  return { type: 'CLEAR_ERROR' }
 }
 
 function refreshAccessToken () {
@@ -163,7 +169,32 @@ function removeRecipient (recipient: Recipient) {
   }
 }
 
+function addCryptoAccount (accountData: AccountData) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'ADD_CRYPTO_ACCOUNT',
+      payload: API.addCryptoAccount(accountData)
+    }).then(() => {
+      dispatch(
+        enqueueSnackbar({
+          message: 'Account added successfully.',
+          key: new Date().getTime() + Math.random(),
+          options: { variant: 'info', autoHideDuration: 3000 }
+        })
+      )
+    })
+  }
+}
+
+function getCryptoAccounts () {
+  return {
+    type: 'GET_CRYPTO_ACCOUNTS',
+    payload: API.getCryptoAccounts()
+  }
+}
+
 export {
+  clearError,
   register,
   onLogin,
   onLogout,
@@ -172,5 +203,7 @@ export {
   getRecipients,
   addRecipient,
   removeRecipient,
-  editRecipient
+  editRecipient,
+  getCryptoAccounts,
+  addCryptoAccount
 }

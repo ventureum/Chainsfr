@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
+import type { AccountData } from './types/account.flow.js'
 import { store } from './configureStore.js'
 
 const chainsferApi = axios.create({
@@ -277,6 +278,50 @@ async function referralCreate () {
   return rv.data
 }
 
+async function addCryptoAccount (accountData: AccountData) {
+  const { idToken } = store.getState().userReducer.profile
+
+  const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
+  let newAccount = {}
+  if (cryptoType === 'bitcoin') {
+    newAccount.xpub = accountData.hdWalletVariables.xpub
+  } else {
+    newAccount.address = accountData.address
+  }
+  newAccount = {
+    ...newAccount,
+    walletType: walletType,
+    cryptoType: cryptoType,
+    name: name,
+    verified: verified || false,
+    receivable: receivable || false,
+    sendable: sendable || false
+  }
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'ADD_CRYPTO_ACCOUNT',
+      account: newAccount,
+      idToken: idToken
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Add crypto account failed: ${err}`)
+  }
+}
+
+async function getCryptoAccounts () {
+  const { idToken } = store.getState().userReducer.profile
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'GET_CRYPTO_ACCOUNTS',
+      idToken: idToken
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Get crypto account failed: ${err}`)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -294,5 +339,7 @@ export default {
   mintLibra,
   referralBalance,
   referralSend,
-  referralCreate
+  referralCreate,
+  addCryptoAccount,
+  getCryptoAccounts
 }

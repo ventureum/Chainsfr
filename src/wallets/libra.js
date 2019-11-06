@@ -4,9 +4,10 @@ import utils from '../utils'
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
- // eslint-disable-next-line
+// eslint-disable-next-line
 import { LibraWallet, LibraClient } from 'kulap-libra'
 import API from '../apis'
+import { getCryptoDecimals } from '../tokens'
 
 // Proof-of-concept
 // use Ethereum data struct for quick implementation
@@ -47,11 +48,12 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       balance: '0',
       ethBalance: '0',
       address: _account.getAddress().toHex(),
-      privateKey: _config.mnemonic.toString()
+      privateKey: _config.mnemonic.toString(),
+      balanceInStandardUnit: '0'
     }
     if (this.walletData.walletType !== 'escrow') {
       // mint 100 libracoins to new accounts
-      await API.mintLibra({address: _account.getAddress().toHex(), amount: '100000000'})
+      await API.mintLibra({ address: _account.getAddress().toHex(), amount: '100000000' })
     }
 
     return account
@@ -84,10 +86,10 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       password
     )
     if (!privateKey) throw new Error('Incorrect password')
-    const wallet = new LibraWallet({mnemonic: privateKey})
+    const wallet = new LibraWallet({ mnemonic: privateKey })
     const _account = wallet.newAccount()
     this.walletData.accounts[accountIdx].privateKey = privateKey
-    this.walletData.accounts[accountIdx].address =  _account.getAddress().toHex()
+    this.walletData.accounts[accountIdx].address = _account.getAddress().toHex()
   }
 
   clearPrivateKey = (): void => {
@@ -111,6 +113,10 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
     })
     const accountState = await client.getAccountState(account.address)
     account.balance = accountState.balance.toString()
+    account.balanceInStandardUnit = utils.toBasicTokenUnit(
+      accountState.balance,
+      getCryptoDecimals('libra')
+    )
   }
 
   getTxFee = async ({
@@ -148,12 +154,12 @@ export default class WalletLibra implements IWallet<WalletDataEthereum, AccountE
       dataProtocol: 'grpc-web-text'
     })
     const account = this.getAccount()
-    const wallet = new LibraWallet({mnemonic: account.privateKey})
+    const wallet = new LibraWallet({ mnemonic: account.privateKey })
     const _account = wallet.newAccount()
-    const response = await client.transferCoins(_account, to, value);
+    const response = await client.transferCoins(_account, to, value)
 
     // wait for transaction confirmation
-    await response.awaitConfirmation(client);
+    await response.awaitConfirmation(client)
     return account.address
   }
 }

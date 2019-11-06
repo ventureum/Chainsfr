@@ -16,6 +16,7 @@
     "@ledgerhq/hw-transport-webusb": "^4.47.0",
     "@material-ui/core": "^4.1.0",
     "@material-ui/icons": "^4.1.0",
+    "@material-ui/lab": "^4.0.0-alpha.29",
     "@material-ui/styles": "^4.1.0",
     "@walletconnect/browser": "^1.0.0-beta.35",
     "@walletconnect/qrcode-modal": "^1.0.0-beta.35",
