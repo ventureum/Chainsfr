@@ -25,15 +25,8 @@ async function _web3SendTransactionPromise (web3Function: Function, txObj: Objec
   })
 }
 
-async function web3SendTransactions (
-  web3Function: Function,
-  txObjs: Array<Object>
-): Promise<TxHash | Array<TxHash>> {
-  let txHashList = []
-  for (let txObj of txObjs) {
-    txHashList.push(await _web3SendTransactionPromise(web3Function, txObj))
-  }
-  return txHashList.length === 1 ? txHashList[0] : txHashList
+async function web3SendTransactions (web3Function: Function, txObj: Object) {
+  return _web3SendTransactionPromise(web3Function, txObj)
 }
 
 async function buildEthereumTxObjs ({
