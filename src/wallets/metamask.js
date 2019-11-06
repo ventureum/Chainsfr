@@ -5,28 +5,13 @@ import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
-import BitcoinAccount from '../accounts/BitcoinAccount.js'
-import bitcoin from 'bitcoinjs-lib'
 import Web3 from 'web3'
-import * as bip32 from 'bip32'
-import * as bip39 from 'bip39'
 
-import ERC20 from '../ERC20'
-import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
-import utils from '../utils'
-import {
-  broadcastBtcRawTx,
-  networkIdMap,
-  web3SendTransactions,
-  buildEthereumTxObjs
-} from './utils.js'
+import { networkIdMap, web3SendTransactions } from './utils.js'
 
-const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
-const NETWORK =
-  env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 
 export default class MetamaskWallet implements IWallet<AccountData> {
   WALLET_TYPE = 'metamask'
@@ -146,27 +131,22 @@ export default class MetamaskWallet implements IWallet<AccountData> {
       throw new Error('Must connect and verify account first')
     }
 
-    let txObjs: any = []
-    if (!txFee) txFee = await account.getTxFee({ to, value, options: options })
-
-    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-
-    const { cryptoType } = accountData
-    txObjs = await buildEthereumTxObjs({
-      cryptoType: cryptoType,
-      value: value,
-      from: accountData.address,
-      to: to,
-      txFee: txFee,
-      options: options
-    })
-    // convert decimal to hex
-    for (let txObj of txObjs) {
-      txObj.nonce = _web3.utils.toHex(txObj.nonce)
-      txObj.value = _web3.utils.toHex(txObj.value)
-      txObj.gas = _web3.utils.toHex(txObj.gas)
-      txObj.gasPrice = _web3.utils.toHex(txObj.gasPrice)
+    if (!options) throw new Error('Options must not be null for metamask wallet')
+    let txObj
+    if (options.directTransfer) {
+      // direct transfer to another address
+      txObj = {
+        from: account.address,
+        to: to,
+        value: value
+      }
+    } else {
+      // transfer to escrow wallet
+      let { multisig } = options
+      txObj = multisig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
     }
-    return web3SendTransactions(window._web3.eth.sendTransaction, txObjs)
+
+    // boardcast tx
+    return web3SendTransactions(window._web3.eth.sendTransaction, txObj)
   }
 }
