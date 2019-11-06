@@ -11,12 +11,9 @@ import Web3 from 'web3'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 
-import ERC20 from '../ERC20'
-import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
-import utils from '../utils'
-import { broadcastBtcRawTx, web3SendTransactions, buildEthereumTxObjs } from './utils.js'
+import { broadcastBtcRawTx } from './utils.js'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULTaccountData = 0
@@ -181,7 +178,6 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
         const path = `m/${BASE_BTC_PATH}/${DEFAULTaccountData}'`
         const child = root.derivePath(path)
-        const accountXPub = child.neutered().toBase58()
         const firstAddressNode = child.derive(0).derive(0)
         const firstAddressNodePrivateKey = firstAddressNode.toWIF()
         if (firstAddressNodePrivateKey !== accountData.privateKey) {
@@ -214,7 +210,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     txFee?: TxFee,
     options?: Object
-  }): Promise<TxHash | Array<TxHash>> => {
+  }): Promise<TxHash> => {
     const account = this.getAccount()
     const accountData = account.getAccountData()
 
@@ -223,32 +219,15 @@ export default class EscrowWallet implements IWallet<AccountData> {
     }
 
     const { cryptoType } = accountData
-    let txObjs: any = []
-    if (!txFee) txFee = await account.getTxFee({ to, value, options: options })
 
     if (['dai', 'ethereum'].includes(cryptoType)) {
-      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      txObjs = await buildEthereumTxObjs({
-        cryptoType: cryptoType,
-        value: value,
-        from: accountData.address,
-        to: to,
-        txFee: txFee,
-        options: options
-      })
-      // add privateKey to web3
-      _web3.eth.accounts.wallet.add(accountData.privateKey)
-
-      // convert decimal to hex
-      for (let txObj of txObjs) {
-        txObj.nonce = _web3.utils.toHex(txObj.nonce)
-        txObj.value = _web3.utils.toHex(txObj.value)
-        txObj.gas = _web3.utils.toHex(txObj.gas)
-        txObj.gasPrice = _web3.utils.toHex(txObj.gasPrice)
-      }
-      return web3SendTransactions(_web3.eth.sendTransaction, txObjs)
+      if (!options) throw new Error('Options must not be null for escrow wallet')
+      if (!options.multiSig) throw new Error('MultiSig missing in options')
+      if (!accountData.privateKey) throw new Error('privateKey does not exist in account')
+      return options.multiSig.sendFromEscrow(accountData.privateKey, to)
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
+      if (!txFee) throw new Error('Missing txFee')
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
       const signedTxRaw = await this._xPrivSigner(
         utxosCollected,
