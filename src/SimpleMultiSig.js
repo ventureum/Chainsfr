@@ -3,17 +3,33 @@ import Web3 from 'web3'
 import { getCrypto } from './tokens'
 import url from './url'
 import uuidv1 from 'uuid/v1'
+import { ethers } from 'ethers'
+import API from './apis'
 import type { BasicTokenUnit, Address } from './types/token.flow'
 import type { TxEthereum } from './types/transfer.flow'
 import SimpleMultiSigContractArtifacts from './contracts/SimpleMultiSig.json'
 import env from './typedEnv'
 
 export default class SimpleMultiSig {
-  id: string
+  id: ?string
+  extraData: any
   contractInstance: Object
   web3: Object
 
-  constructor () {
+  constructor (extraData?: {
+    walletId?: string,
+    transferId?: string,
+    receivingId?: string,
+    cancelMessage?: string,
+    receiveMessage?: string
+  }) {
+    // set walletId if available
+
+    this.extraData = extraData
+    if (extraData && extraData.walletId) {
+      this.id = extraData.walletId
+    }
+
     // setup contract instance
     this.web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
@@ -41,7 +57,68 @@ export default class SimpleMultiSig {
     return '0x' + buffer.toString('hex')
   }
 
-  getTransferToEscrowTxObj = (
+  receive = async (privateKey: string, destinationAddress: string) => {
+    const { receivingId, receiveMessage } = this.extraData
+    if (!receivingId) throw new Error('Missing receivingId for receiving')
+    if (!receiveMessage) throw new Error('Missing receiveMessage for receiving')
+
+    // fetch signing data
+    let signingData = await API.getMultiSigSigningData({
+      receivingId: receivingId,
+      destinationAddress: destinationAddress
+    })
+
+    // sign data with escrow's privateKey
+    const wallet = new ethers.Wallet(privateKey)
+    let clientSig = ethers.utils.joinSignature(
+      await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
+    )
+
+    // transfer sig back to server
+    return API.accept({
+      receivingId: receivingId,
+      receiveMessage: receiveMessage,
+      clientSig: clientSig
+    })
+  }
+
+  cancel = async (privateKey: string, destinationAddress: string) => {
+    const { transferId, cancelMessage } = this.extraData
+    if (!transferId) throw new Error('Missing transferId for cancellation')
+    if (!cancelMessage) throw new Error('Missing cancelMessage for cancellation')
+
+    // fetch signing data
+    let signingData = await API.getMultiSigSigningData({
+      transferId: transferId,
+      destinationAddress: destinationAddress
+    })
+
+    // sign data with escrow's privateKey
+    const wallet = new ethers.Wallet(privateKey)
+    let clientSig = ethers.utils.joinSignature(
+      await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
+    )
+
+    // transfer sig back to server
+    return API.cancel({
+      transferId: transferId,
+      cancelMessage: cancelMessage,
+      clientSig: clientSig
+    })
+  }
+
+  sendFromEscrow = async (privateKey: string, destinationAddress: string) => {
+    const { transferId, receivingId } = this.extraData
+    if (transferId) {
+      return this.cancel(privateKey, destinationAddress)
+    } else if (receivingId) {
+      return this.receive(privateKey, destinationAddress)
+    } else {
+      throw new Error('Either transferId or receivingId must be non-null value')
+    }
+  }
+
+  getSendToEscrowTxObj = (
     from: Address,
     to: Address, // escrow wallet address, generated offline
     transferAmount: BasicTokenUnit,
