@@ -3,10 +3,8 @@ import url from '../url'
 import env from '../typedEnv'
 import API from '../apis'
 import Web3 from 'web3'
-import { ethers } from 'ethers'
 import BN from 'bn.js'
 import ERC20 from '../ERC20'
-import SimpleMultiSig from '../SimpleMultiSig'
 import LedgerNanoS from '../ledgerSigner'
 import { networkIdMap } from '../ledgerSigner/utils'
 import utils from '../utils'
@@ -289,73 +287,35 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     if (!txFee) txFee = await this.getTxFee({ to, value, options: options })
 
     // init a new multisig instance
-    let multiSig = new SimpleMultiSig()
 
     // set walletId
     if (!options) throw new Error('Options must not be null for escrow wallet')
-    const { walletId } = options
-    multiSig.setWalletId(walletId)
 
     // get tx obj
     if (walletType === 'escrow') {
+      let { multisig } = options
       // send from escrow
-
-      if (options.transferId) {
-        // cancel
-        const { transferId, cancelMessage } = options
-
-        // fetch signing data
-        let signingData = await API.getMultiSigSigningData({
-          transferId: transferId,
-          destinationAddress: to
-        })
-
-        // sign data with escrow's privateKey
-        const wallet = new ethers.Wallet(account.privateKey)
-        let clientSig = ethers.utils.joinSignature(
-          await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
-        )
-
-        // transfer sig back to server
-        return API.cancel({
-          transferId: transferId,
-          cancelMessage: cancelMessage,
-          clientSig: clientSig
-        })
-      }
-
-      if (options.receivingId) {
-        // receive
-        const { receivingId, receiveMessage } = options
-
-        // fetch signing data
-        let signingData = await API.getMultiSigSigningData({
-          receivingId: receivingId,
-          destinationAddress: to
-        })
-
-        // sign data with escrow's privateKey
-        const wallet = new ethers.Wallet(account.privateKey)
-        let clientSig = ethers.utils.joinSignature(
-          await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
-        )
-
-        // transfer sig back to server
-        return API.accept({
-          receivingId: receivingId,
-          receiveMessage: receiveMessage,
-          clientSig: clientSig
-        })
-      }
-
-      throw new Error('Invalid options')
+      if (!account.privateKey) throw new Error('privateKey does not exist')
+      return multisig.sendFromEscrow(account.privateKey, to)
     } else {
-      // send to escrow
-      txObj = multiSig.getTransferToEscrowTxObj(account.address, to, value, cryptoType)
+      if (options.directTransfer) {
+        txObj = {
+          from: account.address,
+          to: to,
+          value: value
+        }
+      } else {
+        // send to escrow
+        let { multisig } = options
+        txObj = multisig.getSendToEscrowTxObj(account.address, to, value, cryptoType)
+      }
 
       // estimate gas
       const _txFee = await this.getGasCost(txObj)
+
+      // $FlowFixMe
       txObj.gasLimit = _txFee.gas
+      // $FlowFixMe
       txObj.gasPrice = _txFee.price
 
       if (walletType === 'metamask') {

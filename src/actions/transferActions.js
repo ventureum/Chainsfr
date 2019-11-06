@@ -138,15 +138,17 @@ async function _submitTx (txRequest: {
     .toString()
 
   if (['ethereum', 'bitcoin', 'dai', 'libra'].includes(cryptoType)) {
+    let multisig
     if (['ethereum', 'dai'].includes(cryptoType)) {
       walletId = new SimpleMultiSig().createWalletId()
+      multisig = new SimpleMultiSig({ walletId })
     }
 
     let txHashList = await WalletFactory.createWallet(fromWallet).sendTransaction({
       to: escrowAccount.address,
       value: value,
       txFee: txFee,
-      options: { walletId: walletId }
+      options: { multisig }
     })
     if (Array.isArray(txHashList)) {
       sendTxHash = txHashList[0]
@@ -245,6 +247,11 @@ async function _acceptTransfer (txRequest: {
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
+  let multisig
+  if (['ethereum', 'dai'].includes(cryptoType)) {
+    multisig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
+  }
+
   // $FlowFixMe
   let { receiveTxHash, receiveTimestamp }: any = await WalletFactory.createWallet(
     escrowWallet
@@ -254,9 +261,7 @@ async function _acceptTransfer (txRequest: {
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      receivingId: receivingId,
-      receiveMessage: receiveMessage,
-      walletId: walletId
+      multisig
     }
   })
 
@@ -326,6 +331,8 @@ async function _cancelTransfer (txRequest: {
     .toString()
   let senderAddress: Address
 
+  let multisig
+
   if (cryptoType === 'bitcoin') {
     senderAddress = await getFirstFromAddress(sendTxHash)
   } else if (['ethereum', 'dai'].includes(cryptoType)) {
@@ -333,6 +340,7 @@ async function _cancelTransfer (txRequest: {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
+    multisig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
   } else if (cryptoType === 'libra') {
     // txHash is the sender's address for libra
     senderAddress = sendTxHash
@@ -347,9 +355,7 @@ async function _cancelTransfer (txRequest: {
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      transferId: transferId,
-      cancelMessage: cancelMessage,
-      walletId: walletId
+      multisig
     }
   })
 
