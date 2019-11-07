@@ -3,6 +3,8 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 
 import Button from '@material-ui/core/Button'
+import { btnTexts } from '../styles/typography'
+import { uiColors } from '../styles/color'
 import Box from '@material-ui/core/Box'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -98,12 +100,8 @@ class AddAccountModalComponent extends Component<Props, State> {
           })
           .map((w, i) => {
             return (
-              <Grid item xs={4}>
-                <WalletButton
-                  id={i}
-                  walletType={w.walletType}
-                  handleClick={this.handleWalletSelect}
-                />
+              <Grid item xs={4} key={i}>
+                <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
               </Grid>
             )
           })}
@@ -133,6 +131,7 @@ class AddAccountModalComponent extends Component<Props, State> {
                 {walletCryptoSupports[walletType].map((c, i) => {
                   return (
                     <ListItem
+                      key={i}
                       button
                       onClick={() => {
                         this.handleCryptoSelect(c.cryptoType)
@@ -342,6 +341,14 @@ const styles = theme => ({
     right: theme.spacing(1),
     top: theme.spacing(1),
     color: theme.palette.grey[500]
+  },
+  delteBtn: {
+    fontFamily: btnTexts.btnTextLight.fontFamily,
+    fontWeight: btnTexts.btnTextLight.fontWeight,
+    fontSize: btnTexts.btnTextLight.fontSize,
+    lineHeight: btnTexts.btnTextLight.lineHeight,
+    color: btnTexts.btnTextLight.color,
+    backgroundColor: uiColors.error
   }
 })
 

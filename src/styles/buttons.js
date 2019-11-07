@@ -71,5 +71,4 @@ export const buttons = {
     color: btnTexts.btnTextLight.color,
     backgroundColor: uiColors.dangerous
   }
-
 }

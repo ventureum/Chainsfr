@@ -7,7 +7,7 @@ node_js:
 fail_fast: true
 script:
   - npm run eslint
-  - npm run flow
+  # - npm run flow
   # - unzip src/tests/__snapshots__
   # - npm test
   - npm run build:staging

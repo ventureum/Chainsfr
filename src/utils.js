@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 import url from './url'
 import numeral from 'numeral'
 import type { StandardTokenUnit } from './types/token.flow'
+import type { AccountData } from './types/account.flow.js'
 /*
  * @param val string, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
@@ -192,6 +193,22 @@ function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbo
   return rv
 }
 
+function accountsEqual (account1: AccountData, account2: AccountData): boolean {
+  if (account1.cryptoType === 'bitcoin') {
+    return (
+      account1.cryptoType === account2.cryptoType &&
+      account1.hdWalletVariables.xpub === account2.hdWalletVariables.xpub &&
+      account1.walletType === account2.walletType &&
+      account1.name === account2.name
+    )
+  } else
+    return (
+      account1.cryptoType === account2.cryptoType &&
+      account1.address === account2.address &&
+      account1.walletType === account2.walletType &&
+      account1.name === account2.name
+    )
+}
 export default {
   toHumanReadableUnit,
   toBasicTokenUnit,
@@ -200,5 +217,6 @@ export default {
   encryptMessage,
   decryptMessage,
   toCurrencyAmount,
-  toCryptoAmount
+  toCryptoAmount,
+  accountsEqual
 }

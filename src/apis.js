@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
-import type { AccountData } from './types/account.flow.js'
+import type { AccountData, BackEndCryptoAccountType } from './types/account.flow.js'
 import { store } from './configureStore.js'
 
 const chainsferApi = axios.create({
@@ -278,7 +278,9 @@ async function referralCreate () {
   return rv.data
 }
 
-async function addCryptoAccount (accountData: AccountData) {
+async function addCryptoAccount (
+  accountData: AccountData
+): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { idToken } = store.getState().userReducer.profile
 
   const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
@@ -309,7 +311,7 @@ async function addCryptoAccount (accountData: AccountData) {
   }
 }
 
-async function getCryptoAccounts () {
+async function getCryptoAccounts (): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { idToken } = store.getState().userReducer.profile
   try {
     let rv = await chainsferApi.post('/user', {
@@ -319,6 +321,30 @@ async function getCryptoAccounts () {
     return rv.data
   } catch (err) {
     throw new Error(`Get crypto account failed: ${err}`)
+  }
+}
+
+async function removeCryptoAccount (
+  accountData: AccountData
+): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
+  const { cryptoType, walletType, hdWalletVariables, address } = accountData
+  const { idToken } = store.getState().userReducer.profile
+
+  let toBeRemoved = {
+    cryptoType: cryptoType,
+    walletType: walletType,
+    xpub: cryptoType === 'bitcoin' ? hdWalletVariables.xpub : undefined,
+    address: cryptoType !== 'bitcoin' ? address : undefined
+  }
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'REMOVE_CRYPTO_ACCOUNT',
+      idToken: idToken,
+      account: toBeRemoved
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Remove crypto account failed: ${err}`)
   }
 }
 
@@ -341,5 +367,6 @@ export default {
   referralSend,
   referralCreate,
   addCryptoAccount,
-  getCryptoAccounts
+  getCryptoAccounts,
+  removeCryptoAccount
 }

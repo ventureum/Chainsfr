@@ -1,5 +1,18 @@
 export type Address = string
 
+export type BackEndCryptoAccountType = {
+  crytoType: string,
+  walletType: string,
+  address: ?string, // not used for btc account
+  xpub: ?string, // not used for eth account
+  name: string, // the name of this account set by the user.
+  verified: boolean,
+  receivable: boolean,
+  sendable: boolean,
+  addedAt: number, // timestamp, this is filled in by backend
+  updatedAt: number // timestamp, this is filled in by backend
+}
+
 export type Utxos = Array<{
   value: number,
   script: string,

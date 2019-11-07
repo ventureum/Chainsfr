@@ -4,6 +4,7 @@ import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
 import type { AccountData } from '../types/account.flow.js'
 
+import { createAccount } from '../accounts/AccountFactory.js'
 import { enqueueSnackbar } from './notificationActions.js'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
@@ -169,11 +170,20 @@ function removeRecipient (recipient: Recipient) {
   }
 }
 
+async function _addCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.addCryptoAccount(accountData)).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
 function addCryptoAccount (accountData: AccountData) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'ADD_CRYPTO_ACCOUNT',
-      payload: API.addCryptoAccount(accountData)
+      payload: _addCryptoAccount(accountData)
     }).then(() => {
       dispatch(
         enqueueSnackbar({
@@ -189,8 +199,33 @@ function addCryptoAccount (accountData: AccountData) {
 function getCryptoAccounts () {
   return {
     type: 'GET_CRYPTO_ACCOUNTS',
-    payload: API.getCryptoAccounts()
+    payload: _getCryptoAccounts()
   }
+}
+
+async function _getCryptoAccounts (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.getCryptoAccounts()).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
+function removeCryptoAccount (accountData: AccountData) {
+  return {
+    type: 'REMOVE_CRYPTO_ACCOUNT',
+    payload: _removeCryptoAccount(accountData)
+  }
+}
+
+async function _removeCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.removeCryptoAccount(accountData)).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
 }
 
 export {
@@ -205,5 +240,6 @@ export {
   removeRecipient,
   editRecipient,
   getCryptoAccounts,
-  addCryptoAccount
+  addCryptoAccount,
+  removeCryptoAccount
 }
