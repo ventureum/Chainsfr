@@ -6,13 +6,7 @@ export type TxFee = {
   price: string,
   gas: string,
   costInBasicUnit: string,
-  costInStandardUnit: string,
-  // for erc20 tx
-  costByType?: {
-    txFeeEth: TxFee,
-    txFeeERC20: TxFee,
-    ethTransfer: string
-  }
+  costInStandardUnit: string
 }
 
 export type TxEthereum = {

@@ -12,7 +12,7 @@ import update from 'immutability-helper'
 import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getTxFee } from '../actions/accountAction.js'
+import { getTxFee } from '../actions/transferActions.js'
 import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
@@ -77,10 +77,7 @@ class TransferFormContainer extends Component<Props, State> {
       const { accountSelection } = transferForm
       this.props.getTxFee({
         fromAccount: accountSelection,
-        transferAmount: transferForm.transferAmount,
-        options: {
-          prepayTxFee: true
-        }
+        transferAmount: transferForm.transferAmount
       })
     } else if (!actionsPending.getTxFee && prevProps.actionsPending.getTxFee) {
       // if tx fee updated, re-validate form

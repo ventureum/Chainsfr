@@ -13,7 +13,7 @@ import * as bip39 from 'bip39'
 
 import url from '../url'
 import env from '../typedEnv'
-import { broadcastBtcRawTx } from './utils.js'
+import WalletUtils from './utils.js'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULTaccountData = 0
@@ -236,9 +236,25 @@ export default class EscrowWallet implements IWallet<AccountData> {
         Number(fee),
         account.hdWalletVariables.nextChangeIndex
       )
-      return broadcastBtcRawTx(signedTxRaw)
+      return WalletUtils.broadcastBtcRawTx(signedTxRaw)
     } else {
       throw new Error('Invalid crypto type')
+    }
+  }
+
+  getTxFee = async ({
+    value,
+    options
+  }: {
+    value: BasicTokenUnit,
+    options: Object
+  }): Promise<TxFee> => {
+    // send from escrow incurs no tx fees
+    return {
+      price: '0',
+      gas: '0',
+      costInBasicUnit: '0',
+      costInStandardUnit: '0'
     }
   }
 

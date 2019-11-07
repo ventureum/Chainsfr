@@ -2,13 +2,16 @@
 import axios from 'axios'
 import Web3 from 'web3'
 import { bufferToInt } from 'ethereumjs-util'
+import BN from 'bn.js'
 
+import utils from '../utils'
 import url from '../url'
 import ERC20 from '../ERC20'
 
 import type { TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 import type { TxFee } from '../types/transfer.flow'
+import SimpleMultiSig from '../SimpleMultiSig'
 
 async function broadcastBtcRawTx (signedTxRaw: string) {
   const rv = await axios.post(`${url.LEDGER_API_URL}/transactions/send`, {
@@ -133,7 +136,42 @@ const networkIdMap = {
   kovan: 42
 }
 
-export {
+async function getGasCost (txObj: any): Promise<TxFee> {
+  const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+  let price = await _web3.eth.getGasPrice()
+  let gas = (await _web3.eth.estimateGas(txObj)).toString()
+  let costInBasicUnit = new BN(price).mul(new BN(gas)).toString()
+  let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 18, 8).toString()
+
+  return { price, gas, costInBasicUnit, costInStandardUnit }
+}
+
+async function getTxFee ({
+  value,
+  cryptoType,
+  directTransfer = false
+}: {
+  value: BasicTokenUnit,
+  cryptoType: string,
+  directTransfer: boolean
+}): Promise<TxFee> {
+  const mockFrom = '0x8df5f2e0cc3b7a5cb2082403bcd72df66bd384e3'
+  const mockTo = '0x8df5f2e0cc3b7a5cb2082403bcd72df66bd384e4'
+  let txObj
+  if (directTransfer) {
+    txObj = {
+      from: mockFrom,
+      to: mockTo,
+      value: value
+    }
+  } else {
+    // send to multiSig Wallet
+    txObj = new SimpleMultiSig().getSendToEscrowTxObj(mockFrom, mockTo, value, cryptoType)
+  }
+  return getGasCost(txObj)
+}
+
+export default {
   broadcastBtcRawTx,
   networkIdMap,
   web3SendTransactions,
@@ -142,106 +180,7 @@ export {
   getSignTransactionObject,
   calculateChainIdFromV,
   bufferToHex,
-  getBufferFromHex
+  getBufferFromHex,
+  getGasCost,
+  getTxFee
 }
-
-// import type {
-//   WalletData,
-//   WalletDataEthereum,
-//   WalletDataBitcoin,
-//   AccountEthereum,
-//   AccountBitcoin,
-//   Account
-// } from '../types/wallet.flow'
-
-// export default class WalletUtils {
-//   static toWalletData = (
-//     walletType: string,
-//     cryptoType: string,
-//     accounts: Array<Account>
-//   ): WalletData => {
-//     if (!accounts) accounts = []
-//     if (['ethereum', 'dai', 'libra'].includes(cryptoType)) {
-//       if (accounts.length === 0) {
-//         accounts.push(this._normalizeAccountEthereum({}))
-//       }
-//       let rv: WalletDataEthereum = {
-//         walletType,
-//         cryptoType,
-//         accounts: accounts.map(account =>
-//           this._normalizeAccountEthereum(((account: any): AccountEthereum))
-//         )
-//       }
-//       return rv
-//     } else if (['bitcoin'].includes(cryptoType)) {
-//       if (accounts.length === 0) {
-//         accounts.push(this._normalizeAccountBitcoin({}))
-//       }
-//       let rv: WalletDataBitcoin = {
-//         walletType,
-//         cryptoType,
-//         accounts: accounts.map(account =>
-//           this._normalizeAccountBitcoin(((account: any): AccountBitcoin))
-//         )
-//       }
-//       return rv
-//     } else {
-//       throw new Error(`Invalid cryptoType: ${cryptoType}`)
-//     }
-//   }
-
-//   static toWalletDataFromState = (walletType: string, cryptoType: string, walletState: any) => {
-//     return this.toWalletData(walletType, cryptoType, walletState.crypto[cryptoType])
-//   }
-
-//   static _normalizeAccountEthereum = (account: AccountEthereum): any => {
-//     let {
-//       balance,
-//       ethBalance,
-//       address,
-//       privateKey,
-//       encryptedPrivateKey,
-//       balanceInStandardUnit
-//     } = account
-
-//     let _account: AccountEthereum = {
-//       balance: balance || '0',
-//       ethBalance: ethBalance || '0',
-//       address: address || '0x0',
-//       privateKey: privateKey,
-//       encryptedPrivateKey: encryptedPrivateKey,
-//       balanceInStandardUnit: balanceInStandardUnit || '0'
-//     }
-//     return _account
-//   }
-
-//   static _normalizeAccountBitcoin = (account: AccountBitcoin): any => {
-//     let {
-//       balance,
-//       address,
-//       privateKey,
-//       encryptedPrivateKey,
-//       hdWalletVariables,
-//       balanceInStandardUnit
-//     } = account
-
-//     let _account: AccountBitcoin = {
-//       balance: balance || '0',
-//       balanceInStandardUnit: balanceInStandardUnit || '0',
-//       address: address || '0x0',
-//       privateKey: privateKey,
-//       encryptedPrivateKey: encryptedPrivateKey,
-//       hdWalletVariables: hdWalletVariables || {
-//         xpub: '0x0',
-//         nextAddressIndex: 0,
-//         nextChangeIndex: 0,
-//         addresses: [],
-//         lastBlockHeight: 0,
-//         lastUpdate: 0,
-//         endAddressIndex: 0,
-//         endChangeIndex: 0
-//       }
-//     }
-//     return _account
-//   }
-// }
