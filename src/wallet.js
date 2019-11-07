@@ -113,7 +113,7 @@ export const walletSelections = [
   },
   {
     walletType: 'metamaskWalletConnect',
-    title: 'Metamask Mobile',
+    title: 'MetaMask Mobile',
     desc: 'MetaMask Mobile',
     logo: MetamaskLogo,
     disabled: false,

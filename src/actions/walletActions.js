@@ -381,7 +381,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   } catch (error) {
     console.warn(error)
   }
-
+  
   walletFileData = { accounts: Base64.encode(JSON.stringify(walletFileData)) }
   // save the encrypted wallet into drive
   if (progress) progress('STORE')

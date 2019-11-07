@@ -147,7 +147,7 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
       return this.account.accountData.connected
     } else {
       this.account.accountData.connected = false
-      throw new Error('Account verfication with Metamask failed')
+      throw new Error('Account verfication with MetaMask failed')
     }
   }
 

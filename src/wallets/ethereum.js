@@ -141,12 +141,12 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         if (
           window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
         ) {
-          throw new Error('Incorrect Metamask network') // eslint-disable-line
+          throw new Error('Incorrect MetaMask network') // eslint-disable-line
         }
         let addresses = await window.ethereum.enable()
         this.walletData.accounts[accountIdx].address = addresses[0]
       } else {
-        throw new Error('Metamask not found')
+        throw new Error('MetaMask not found')
       }
     } else if (walletType.endsWith('WalletLink')) {
       // retrieve the first address from metamask
