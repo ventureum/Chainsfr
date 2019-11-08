@@ -82,7 +82,7 @@ class TransferFormComponent extends Component<Props> {
               error={!!formError.senderName}
               helperText={formError.senderName}
               onChange={handleTransferFormChange('senderName')}
-              value={senderName}
+              value={senderName || ''}
             />
           </Grid>
           <Grid item>
@@ -100,7 +100,7 @@ class TransferFormComponent extends Component<Props> {
                 'A tracking number will be sent to this email. It will also be shown to the recipient'
               }
               onChange={handleTransferFormChange('sender')}
-              value={sender}
+              value={sender || ''}
               disabled
             />
           </Grid>
@@ -118,7 +118,7 @@ class TransferFormComponent extends Component<Props> {
                     </div>
                   )
                 }}
-                value={accountSelection}
+                value={accountSelection || ''}
                 onChange={handleTransferFormChange('accountSelection')}
                 input={<OutlinedInput labelWidth={125} name='Select Account' />}
                 error={!!formError.accountSelection}
@@ -156,7 +156,7 @@ class TransferFormComponent extends Component<Props> {
             <FormControl className={classes.formControl} variant='outlined'>
               <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>
               <Select
-                value={destination}
+                value={destination || ''}
                 onChange={handleTransferFormChange('destination')}
                 input={<OutlinedInput labelWidth={125} name='Select Recipient' />}
                 error={!!formError.destination}
@@ -232,7 +232,7 @@ class TransferFormComponent extends Component<Props> {
                   }
                   disabled={!accountSelection}
                   onChange={handleTransferFormChange('transferAmount')}
-                  value={transferAmount}
+                  value={transferAmount || 0}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>

@@ -198,15 +198,13 @@ function accountsEqual (account1: AccountData, account2: AccountData): boolean {
     return (
       account1.cryptoType === account2.cryptoType &&
       account1.hdWalletVariables.xpub === account2.hdWalletVariables.xpub &&
-      account1.walletType === account2.walletType &&
-      account1.name === account2.name
+      account1.walletType === account2.walletType
     )
   } else
     return (
       account1.cryptoType === account2.cryptoType &&
       account1.address === account2.address &&
-      account1.walletType === account2.walletType &&
-      account1.name === account2.name
+      account1.walletType === account2.walletType
     )
 }
 export default {

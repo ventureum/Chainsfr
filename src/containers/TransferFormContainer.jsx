@@ -16,7 +16,6 @@ import { getTxFee } from '../actions/transferActions.js'
 import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
-// import WalletUtils from '../wallets/utils'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
 
 type Props = {
@@ -47,17 +46,31 @@ class TransferFormContainer extends Component<Props, State> {
       updateTransferForm,
       getRecipients,
       destinationPrefilled,
-      receiverNamePrefilled
+      receiverNamePrefilled,
+      cryptoTypePrefilled,
+      addressPrefilled,
+      cryptoAccounts,
+      walletSelectionPrefilled
     } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
-      // prefill sender's name and email address for authenticated user
+      // prefill form
       updateTransferForm(
         update(transferForm, {
           sender: { $set: profile.profileObj.email },
           senderName: { $set: profile.profileObj.name },
           destination: { $set: destinationPrefilled },
-          receiverName: { $set: receiverNamePrefilled }
+          receiverName: { $set: receiverNamePrefilled },
+          accountSelection: {
+            $set:
+              cryptoAccounts.find(item => {
+                return utils.accountsEqual(item, {
+                  cryptoType: cryptoTypePrefilled,
+                  address: addressPrefilled,
+                  walletType: walletSelectionPrefilled
+                })
+              }) || null
+          }
         })
       )
       getRecipients()
@@ -321,7 +334,7 @@ class TransferFormContainer extends Component<Props, State> {
 
     let balance = '0'
     let balanceCurrencyAmount = '0'
-    if (accountSelection !== null) {
+    if (accountSelection) {
       balance = accountSelection.balance
       balanceCurrencyAmount = utils.toCurrencyAmount(
         accountSelection.balanceInStandardUnit,

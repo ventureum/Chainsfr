@@ -5,6 +5,8 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getCryptoAccounts, addCryptoAccount, removeCryptoAccount } from '../actions/userActions'
 import { accountStatus } from '../types/account.flow'
 import { syncWithNetwork } from '../actions/accountAction'
+import { push } from 'connected-react-router'
+import path from '../Paths.js'
 
 class AccountsManagementContainer extends Component {
   componentDidMount () {
@@ -26,6 +28,13 @@ class AccountsManagementContainer extends Component {
     }
   }
 
+  handleTransferFrom = accountData => {
+    const { push } = this.props
+    push(
+      `${path.transfer}?walletSelection=${accountData.walletType}&address=${accountData.address}&cryptoType=${accountData.cryptoType}`
+    )
+  }
+
   render () {
     const { addCryptoAccount, actionsPending, cryptoAccounts, removeCryptoAccount } = this.props
     return (
@@ -34,6 +43,7 @@ class AccountsManagementContainer extends Component {
         addCryptoAccount={addCryptoAccount}
         actionsPending={actionsPending}
         removeCryptoAccount={removeCryptoAccount}
+        handleTransferFrom={this.handleTransferFrom}
       />
     )
   }
@@ -62,7 +72,8 @@ const mapDispatchToProps = dispatch => {
     getCryptoAccounts: () => dispatch(getCryptoAccounts()),
     addCryptoAccount: accountData => dispatch(addCryptoAccount(accountData)),
     syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
-    removeCryptoAccount: accountData => dispatch(removeCryptoAccount(accountData))
+    removeCryptoAccount: accountData => dispatch(removeCryptoAccount(accountData)),
+    push: path => dispatch(push(path))
   }
 }
 

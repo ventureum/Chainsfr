@@ -170,8 +170,8 @@ class AccountsManagementComponent extends Component {
   }
 
   renderMoreMenu = () => {
-    const { removeCryptoAccount } = this.props
-    const { anchorEl } = this.state
+    const { removeCryptoAccount, handleTransferFrom } = this.props
+    const { anchorEl, chosenAccount } = this.state
     return (
       <Menu
         anchorEl={anchorEl}
@@ -187,6 +187,14 @@ class AccountsManagementComponent extends Component {
         }}
         getContentAnchorEl={null}
       >
+        <MenuItem
+          onClick={() => {
+            handleTransferFrom(chosenAccount)
+            this.closeMoreMenu()
+          }}
+        >
+          Transfer from account
+        </MenuItem>
         <MenuItem
           onClick={() => {
             this.toggleDeleteConfirmModal()

@@ -30,20 +30,13 @@ class TransferComponent extends React.Component<Props> {
               <Stepper actionType='transfer' step={step} />
             </Grid>
             <Grid item>
-              {/* receipt page requires a different background color */}
               <Grid container direction='column' alignItems='center'>
-                {/* {step === 0 && (
-                  <Grid item className={classes.walletSelectionContainer}>
-                    <WalletSelection
-                      walletSelectionPrefilled={urlParams && urlParams.walletSelection}
-                      cryptoSelectionPrefilled={urlParams && urlParams.cryptoSelection}
-                    />
-                  </Grid>
-                )} */}
                 {step === 0 && (
                   <Grid item className={classes.formContainer}>
                     <TransferForm
                       walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+                      addressPrefilled={urlParams && urlParams.address}
+                      cryptoTypePrefilled={urlParams && urlParams.cryptoType}
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
                       receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
                     />
