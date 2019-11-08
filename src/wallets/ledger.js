@@ -276,25 +276,41 @@ export default class LedgerWallet implements IWallet<AccountData> {
     }
 
     const { cryptoType } = accountData
-    let txObjs: any = []
-    if (!txFee) txFee = await account.getTxFee({ to, value, options: options })
-
+    if (!txFee) throw new Error('Missing txFee')
     if (['dai', 'ethereum'].includes(cryptoType)) {
+      // init web3
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      txObjs = await WalletUtils.buildEthereumTxObjs({
-        cryptoType: cryptoType,
-        value: value,
-        from: accountData.address,
-        to: to,
-        txFee: txFee,
-        options: options
-      })
 
-      let rawTxObjList = []
-      for (let txObj of txObjs) {
-        rawTxObjList.push((await this._signSendTransaction(txObj)).rawTransaction)
+      if (!options) throw new Error('Options must not be null for metamask wallet')
+      let txObj
+      if (options.directTransfer) {
+        // direct transfer to another address
+        txObj = {
+          from: account.address,
+          to: to,
+          value: value
+        }
+      } else {
+        // transfer to escrow wallet
+        let { multisig } = options
+        txObj = multisig.getSendToEscrowTxObj(
+          accountData.address,
+          to,
+          value,
+          accountData.cryptoType
+        )
       }
-      return WalletUtils.web3SendTransactions(_web3.eth.sendSignedTransaction, rawTxObjList)
+
+      // add txFee to txObj
+      txObj = {
+        ...txObj,
+        gas: txFee.gas,
+        gasPrice: txFee.price
+      }
+      return WalletUtils.web3SendTransactions(
+        _web3.eth.sendSignedTransaction,
+        (await this._signSendTransaction(txObj)).rawTransaction
+      )
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
