@@ -46,11 +46,11 @@ export default class MetamaskWallet implements IWallet<AccountData> {
         window.ethereum.networkVersion !==
         WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
       ) {
-        throw new Error('Incorrect Metamask network') // eslint-disable-line
+        throw new Error('Incorrect MetaMask network') // eslint-disable-line
       }
       return window.ethereum.enable()
     } else {
-      throw new Error('Metamask not found')
+      throw new Error('MetaMask not found')
     }
   }
 
@@ -111,7 +111,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
       return this.account.accountData.connected
     } else {
       this.account.accountData.connected = false
-      throw new Error('Account verfication with Metamask failed')
+      throw new Error('Account verfication with MetaMask failed')
     }
   }
 

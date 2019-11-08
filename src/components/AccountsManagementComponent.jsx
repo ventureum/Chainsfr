@@ -1,9 +1,17 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, Button, Grid, Divider } from '@material-ui/core'
+import { Typography, Button, Grid } from '@material-ui/core'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import Avatar from '@material-ui/core/Avatar'
+import { btnTexts } from '../styles/typography'
+import { uiColors } from '../styles/color'
+import CloseIcon from '@material-ui/icons/Close'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogActions from '@material-ui/core/DialogActions'
 import SendIcon from '@material-ui/icons/Send'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
 import IconButton from '@material-ui/core/IconButton'
@@ -23,7 +31,10 @@ import AddAccountModal from '../containers/AddAccountModalContainer'
 
 class AccountsManagementComponent extends Component {
   state = {
-    addAccountModal: false
+    addAccountModal: false,
+    chosenAccount: {},
+    anchorEl: null,
+    deleteConfirmModal: false
   }
 
   toggleAddAccountModal = () => {
@@ -34,8 +45,65 @@ class AccountsManagementComponent extends Component {
     })
   }
 
+  toggleDeleteConfirmModal = () => {
+    this.setState(prevState => {
+      return {
+        deleteConfirmModal: !prevState.deleteConfirmModal
+      }
+    })
+  }
+
+  renderDeleteConfirmModal = () => {
+    const { chosenAccount, deleteConfirmModal } = this.state
+    const { removeCryptoAccount, classes } = this.props
+    return (
+      <Dialog
+        open={deleteConfirmModal}
+        onClose={() => this.toggleDeleteConfirmModal()}
+        maxWidth='md'
+        classes={{ paper: classes.confirmDialogPaper }}
+      >
+        <DialogTitle disableTypography>
+          <Typography variant='h2'>Delete Account</Typography>
+          <IconButton
+            onClick={() => this.toggleDeleteConfirmModal()}
+            className={classes.closeButton}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent style={{ height: '100px', width: '560px' }}>
+          <DialogContentText>Are you sure you want to delete the account?</DialogContentText>
+        </DialogContent>
+        <DialogActions style={{ marginBottom: '10px' }}>
+          <Button onClick={() => this.toggleDeleteConfirmModal()}>Cancel</Button>
+          <Button
+            variant='contained'
+            onClick={() => {
+              removeCryptoAccount(chosenAccount)
+              this.closeMoreMenu()
+              this.toggleDeleteConfirmModal()
+            }}
+            className={classes.deleteBtn}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
+  openMoreMenu = chosenAccount => event => {
+    this.setState({ anchorEl: event.currentTarget, chosenAccount: chosenAccount })
+  }
+
+  closeMoreMenu = () => {
+    this.setState({ anchorEl: null, chosenAccount: {} })
+  }
+
   renderCryptoAccountsList = () => {
     const { classes, cryptoAccounts, actionsPending } = this.props
+    const { anchorEl, deleteConfirmModal } = this.state
     return (
       <Grid container direction='column'>
         {!actionsPending.getCryptoAccounts && cryptoAccounts.length === 0 ? (
@@ -85,7 +153,9 @@ class AccountsManagementComponent extends Component {
                       )}
                     </TableCell>
                     <TableCell align='right'>
-                      <MoreIcon className={classes.iconBtn} id='moreBtn' />
+                      <IconButton onClick={this.openMoreMenu(accountData)}>
+                        <MoreIcon className={classes.iconBtn} id='moreBtn' />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 )
@@ -93,11 +163,48 @@ class AccountsManagementComponent extends Component {
             </TableBody>
           </Table>
         )}
-        {/* {moreMenu && this.renderMoreMenu(chosenRecipient)} */}
+        {anchorEl && this.renderMoreMenu()}
+        {deleteConfirmModal && this.renderDeleteConfirmModal()}
       </Grid>
     )
   }
 
+  renderMoreMenu = () => {
+    const { removeCryptoAccount, handleTransferFrom } = this.props
+    const { anchorEl, chosenAccount } = this.state
+    return (
+      <Menu
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={event => this.closeMoreMenu()}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
+        getContentAnchorEl={null}
+      >
+        <MenuItem
+          onClick={() => {
+            handleTransferFrom(chosenAccount)
+            this.closeMoreMenu()
+          }}
+        >
+          Transfer from account
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            this.toggleDeleteConfirmModal()
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+    )
+  }
   render () {
     const { classes, addCryptoAccount } = this.props
     const { addAccountModal } = this.state
@@ -145,24 +252,26 @@ const styles = theme => ({
     margin: '60px 0px 60px 0px',
     padding: '0px 50px 0px 50px'
   },
-  recipientItem: {
-    padding: '20px'
-  },
-  recipientItemColored: {
-    backgroundColor: '#FAFBFE',
-    padding: '20px'
-  },
-  recipientIcon: {
-    fontSize: '40px',
-    marginRight: '10px',
-    color: '#333333'
-  },
   iconBtn: {
     color: '#777777',
     fontSize: '20px'
   },
-  divider: {
-    margin: '20px 0px 20px 0px'
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500]
+  },
+  confirmDialogPaper: {
+    padding: '20px'
+  },
+  deleteBtn: {
+    fontFamily: btnTexts.btnTextLight.fontFamily,
+    fontWeight: btnTexts.btnTextLight.fontWeight,
+    fontSize: btnTexts.btnTextLight.fontSize,
+    lineHeight: btnTexts.btnTextLight.lineHeight,
+    color: btnTexts.btnTextLight.color,
+    backgroundColor: uiColors.error
   }
 })
 export default withStyles(styles)(AccountsManagementComponent)

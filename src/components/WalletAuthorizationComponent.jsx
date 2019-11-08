@@ -3,14 +3,17 @@ import React, { Component } from 'react'
 
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import CropFreeIcon from '@material-ui/icons/CropFree'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import TextField from '@material-ui/core/TextField'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import Radio from '@material-ui/core/Radio'
+import UsbIcon from '@material-ui/icons/Usb'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
 
@@ -45,15 +48,18 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <Typography variant='body1'>Connect your wallet via Metamask Mobile App</Typography>
+          <Typography variant='body1'>Connect your wallet via MetaMask App</Typography>
         </Grid>
+        MetaMask
         <Grid item>
           <Button
             onClick={() => {
               checkWalletConnection()
             }}
+            color='primary'
           >
-            Connect to Metamask Mobile
+            <CropFreeIcon />
+            Connect to MetaMask Mobile
           </Button>
         </Grid>
       </Grid>
@@ -132,7 +138,9 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                   onClick={() => {
                     checkWalletConnection()
                   }}
+                  color='primary'
                 >
+                  <UsbIcon />
                   Connect to Ledger
                 </Button>
               </Grid>
@@ -158,8 +166,34 @@ export default class WalletAuthorizationComponent extends Component<Props, State
             onClick={() => {
               checkWalletConnection()
             }}
+            color='primary'
           >
-            Connect to Metamask
+            <OpenInBrowser />
+            Connect to MetaMask
+          </Button>
+        </Grid>
+      </Grid>
+    )
+  }
+
+  renderCoinbaseWalletLinkConnectSteps = () => {
+    const { checkWalletConnection } = this.props
+    return (
+      <Grid container direction='column' spacing={2}>
+        <Grid item>
+          <Typography variant='body1'>
+            Connect your wallet via Coinbase WalletLink Mobile App
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button
+            color='primary'
+            onClick={() => {
+              checkWalletConnection()
+            }}
+          >
+            <CropFreeIcon />
+            Connect to Coinbase WalletLink
           </Button>
         </Grid>
       </Grid>
@@ -175,7 +209,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     switch (walletType) {
       case 'metamask':
         if (actionsPending.checkWalletConnection) {
-          instruction = 'Checking if Metamask extension is installed and enabled...'
+          instruction = 'Checking if MetaMask extension is installed and enabled...'
         } else if (actionsPending.verifyAccount) {
           instruction = 'Waiting for authorization...'
         }
@@ -185,9 +219,9 @@ export default class WalletAuthorizationComponent extends Component<Props, State
         if (actionsPending.checkWalletConnection) {
           instruction = 'Creating connection...'
         } else if (actionsPending.verifyAccount) {
-          instruction = 'Please scan the QR code with Metamask Mobile app...'
+          instruction = 'Please scan the QR code with MetaMask Mobile app...'
         }
-        walletSteps = this.renderMetamaskConnectSteps()
+        walletSteps = this.renderMetamaskWalletConnectSteps()
         break
       case 'ledger':
         if (actionsPending.checkWalletConnection) {
@@ -199,11 +233,19 @@ export default class WalletAuthorizationComponent extends Component<Props, State
         break
       case 'drive':
         if (actionsPending.checkWalletConnection) {
-          instruction = 'Checking password..'
+          instruction = 'Checking password...'
         } else if (actionsPending.verifyAccount) {
           instruction = 'Verifying account...'
         }
         walletSteps = this.renderDriveConnectSteps()
+        break
+      case 'coinbaseWalletLink':
+        if (actionsPending.checkWalletConnection) {
+          instruction = 'Creating connection...'
+        } else if (actionsPending.verifyAccount) {
+          instruction = 'Please scan the QR code with Coinbase WalletLink Mobile app...'
+        }
+        walletSteps = this.renderCoinbaseWalletLinkConnectSteps()
         break
       default:
         return null
@@ -244,7 +286,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     )
   }
 
-  render () {
+  render() {
     const { transferForm } = this.props
     const { accountSelection } = transferForm
 
@@ -262,7 +304,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                   <WalletButton walletType={accountSelection.walletType} />
                 </Grid>
                 <Grid item>
-                  <Typography variant='d3'>{accountSelection.name}</Typography>
+                  <Typography variant='body2'>{accountSelection.name}</Typography>
                 </Grid>
                 <Grid item>
                   <Typography variant='caption'>

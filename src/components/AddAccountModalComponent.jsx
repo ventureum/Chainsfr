@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
+import CropFreeIcon from '@material-ui/icons/CropFree'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -13,6 +14,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import IconButton from '@material-ui/core/IconButton'
+import UsbIcon from '@material-ui/icons/Usb'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import { WalletButton } from './WalletSelectionButtons.jsx'
 import { walletSelections, walletCryptoSupports } from '../wallet'
@@ -98,12 +100,8 @@ class AddAccountModalComponent extends Component<Props, State> {
           })
           .map((w, i) => {
             return (
-              <Grid item xs={4}>
-                <WalletButton
-                  id={i}
-                  walletType={w.walletType}
-                  handleClick={this.handleWalletSelect}
-                />
+              <Grid item xs={4} key={i}>
+                <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
               </Grid>
             )
           })}
@@ -133,6 +131,7 @@ class AddAccountModalComponent extends Component<Props, State> {
                 {walletCryptoSupports[walletType].map((c, i) => {
                   return (
                     <ListItem
+                      key={i}
                       button
                       onClick={() => {
                         this.handleCryptoSelect(c.cryptoType)
@@ -167,7 +166,7 @@ class AddAccountModalComponent extends Component<Props, State> {
     switch (walletType) {
       case 'metamask':
         if (actionsPending.checkWalletConnection) {
-          instruction = 'Checking if Metamask extension is installed and enabled...'
+          instruction = 'Checking if MetaMask extension is installed and enabled...'
         } else {
           instruction = 'Waiting for authorization...'
         }
@@ -183,7 +182,7 @@ class AddAccountModalComponent extends Component<Props, State> {
         if (actionsPending.checkWalletConnection) {
           instruction = 'Creating connection...'
         } else {
-          instruction = 'Please scan the QR code with Metamask Mobile app...'
+          instruction = 'Please scan the QR code with MetaMask Mobile app...'
         }
         break
       default:
@@ -201,24 +200,28 @@ class AddAccountModalComponent extends Component<Props, State> {
   renderWalletConnect = () => {
     const { onConnect, checkWalletConnection } = this.props
     const { walletType, cryptoType } = this.state
-    let connectText, buttonText
+    let connectText, buttonText, buttonIcon
 
     switch (walletType) {
       case 'metamask':
         connectText = 'Connect your wallet via browser extendsion'
-        buttonText = 'Connect to Metamask'
+        buttonText = 'Connect to MetaMask'
+        buttonIcon = <OpenInBrowser />
         break
       case 'ledger':
         connectText = 'Plug-in and connect to your ledger divice'
         buttonText = 'Connect to Ledger'
+        buttonIcon = <UsbIcon />
         break
       case 'metamaskWalletConnect':
         connectText = 'Connect your wallet via Wallet Connect'
         buttonText = 'Scan QR Code'
+        buttonIcon = <CropFreeIcon />
         break
       case 'coinbaseWalletLink':
         connectText = 'Connect your wallet via WalletLink'
         buttonText = 'Scan QR Code'
+        buttonIcon = <CropFreeIcon />
         break
     }
     return (
@@ -233,7 +236,7 @@ class AddAccountModalComponent extends Component<Props, State> {
               checkWalletConnection({ walletType: walletType, cryptoType: cryptoType })
             }}
           >
-            <OpenInBrowser />
+            {buttonIcon}
             {buttonText}
           </Button>
         </Grid>

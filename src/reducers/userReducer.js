@@ -1,6 +1,6 @@
 import update from 'immutability-helper'
 import { createAccount } from '../accounts/AccountFactory'
-
+import utils from '../utils.js'
 /*
  *  Handle user profile
  */
@@ -20,14 +20,7 @@ const initState = {
 function updateCryptoAccount (state, newAccountData) {
   let { cryptoAccounts } = state
   cryptoAccounts = cryptoAccounts.map(accountData => {
-    if (
-      (newAccountData.address === accountData.address ||
-        (newAccountData.hdWalletVariables &&
-          accountData.hdWalletVariables &&
-          accountData.hdWalletVariables.xpub === newAccountData.hdWalletVariables.xpub)) &&
-      newAccountData.name === accountData.name &&
-      newAccountData.walletType === accountData.walletType
-    ) {
+    if (utils.accountsEqual(newAccountData, accountData)) {
       return { ...accountData, ...newAccountData }
     }
     return accountData
@@ -71,14 +64,11 @@ export default function (state = initState, action) {
         }
       })
     case 'GET_CRYPTO_ACCOUNTS_FULFILLED':
+    case 'REMOVE_CRYPTO_ACCOUNT_FULFILLED':
     case 'ADD_CRYPTO_ACCOUNT_FULFILLED':
       return update(state, {
         cryptoAccounts: {
-          $set: Array.isArray(action.payload.cryptoAccounts)
-            ? action.payload.cryptoAccounts.map(cryptoAccount => {
-                return createAccount(cryptoAccount).getAccountData()
-              })
-            : []
+          $set: action.payload
         }
       })
     case 'SYNC_WITH_NETWORK_FULFILLED':
