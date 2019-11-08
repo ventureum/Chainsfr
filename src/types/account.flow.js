@@ -1,5 +1,3 @@
-import type { TxHash } from '../types/transfer.flow'
-
 export type Address = string
 
 export type Utxos = Array<{
@@ -93,5 +91,4 @@ export interface IAccount<AccountData> {
   encryptAccount(password: string): Promise<void>;
   decryptAccount(password: string): Promise<void>;
   syncWithNetwork(): Promise<void>;
-  getTxFee({ to?: string, value: string, options?: Object }): Promise<TxFee>;
 }

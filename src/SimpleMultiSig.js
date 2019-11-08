@@ -26,6 +26,7 @@ export default class SimpleMultiSig {
     // set walletId if available
 
     this.extraData = extraData
+    this.id = '0x0000000000000000000000000000000000000000'
     if (extraData && extraData.walletId) {
       this.id = extraData.walletId
     }

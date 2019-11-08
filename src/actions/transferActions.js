@@ -13,7 +13,6 @@ import url from '../url'
 // import WalletUtils from '../wallets/utils'
 import WalletFactory from '../wallets/factory'
 import SimpleMultiSig from '../SimpleMultiSig'
-import type { Wallet, WalletData } from '../types/wallet.flow.js'
 import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 import type { AccountData } from '../types/account.flow.js'
@@ -41,16 +40,14 @@ async function getFirstFromAddress (txHash: string) {
 }
 
 async function _getTxFee (txRequest: {
-  fromWallet: WalletData,
-  transferAmount: StandardTokenUnit,
-  options: Object
+  fromAccount: AccountData,
+  transferAmount: StandardTokenUnit
 }) {
-  let { fromWallet, transferAmount, options } = txRequest
-  let txFee: TxFee = await WalletFactory.createWallet(fromWallet).getTxFee({
+  let { fromAccount, transferAmount } = txRequest
+  let txFee: TxFee = await createWallet(fromAccount).getTxFee({
     value: utils
-      .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
-      .toString(),
-    options: options
+      .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromAccount.cryptoType))
+      .toString()
   })
   return txFee
 }
@@ -639,11 +636,7 @@ function cancelTransfer (txRequest: {
   }
 }
 
-function getTxFee (txRequest: {
-  fromWallet: WalletData,
-  transferAmount: StandardTokenUnit,
-  options: Object
-}) {
+function getTxFee (txRequest: { fromAccount: AccountData, transferAmount: StandardTokenUnit }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'GET_TX_COST',

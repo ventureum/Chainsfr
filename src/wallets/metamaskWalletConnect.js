@@ -13,7 +13,7 @@ import ERC20 from '../ERC20'
 import API from '../apis.js'
 import url from '../url'
 import utils from '../utils'
-import { buildEthereumTxObjs } from './utils.js'
+import WalletUtils from './utils.js'
 
 const DEFAULT_ACCOUNT = 0
 
@@ -173,7 +173,7 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
     if (!txFee) txFee = await account.getTxFee({ to, value, options: options })
 
     const { cryptoType } = accountData
-    txObjs = await buildEthereumTxObjs({
+    txObjs = await WalletUtils.buildEthereumTxObjs({
       cryptoType: cryptoType,
       value: value,
       from: accountData.address,
@@ -199,6 +199,21 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
       txHashList.push(txHash)
     }
     return txHashList.length === 1 ? txHashList[0] : txHashList
+  }
+
+  getTxFee = async ({
+    value,
+    options
+  }: {
+    value: BasicTokenUnit,
+    options?: Object
+  }): Promise<TxFee> => {
+    const accountData = this.getAccount().getAccountData()
+    return WalletUtils.getTxFee({
+      value,
+      cryptoType: accountData.cryptoType,
+      directTransfer: !!options && options.directTransfer
+    })
   }
 
   _CreateWalletConnectSession = async (): Promise<any> => {

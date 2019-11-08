@@ -9,7 +9,8 @@ import Web3 from 'web3'
 
 import url from '../url'
 import env from '../typedEnv'
-import { networkIdMap, web3SendTransactions } from './utils.js'
+import WalletUtils from './utils.js'
+import SimpleMultiSig from '../SimpleMultiSig'
 
 const DEFAULT_ACCOUNT = 0
 
@@ -42,7 +43,8 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
       window._web3 = new Web3(window.ethereum)
       if (
-        window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+        window.ethereum.networkVersion !==
+        WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
       ) {
         throw new Error('Incorrect Metamask network') // eslint-disable-line
       }
@@ -147,6 +149,21 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     }
 
     // boardcast tx
-    return web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+    return WalletUtils.web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+  }
+
+  getTxFee = async ({
+    value,
+    options
+  }: {
+    value: BasicTokenUnit,
+    options?: Object
+  }): Promise<TxFee> => {
+    const accountData = this.getAccount().getAccountData()
+    return WalletUtils.getTxFee({
+      value,
+      cryptoType: accountData.cryptoType,
+      directTransfer: !!options && options.directTransfer
+    })
   }
 }

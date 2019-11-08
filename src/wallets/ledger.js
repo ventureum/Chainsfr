@@ -21,16 +21,7 @@ import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
 import utils from '../utils'
-import {
-  broadcastBtcRawTx,
-  web3SendTransactions,
-  buildEthereumTxObjs,
-  networkIdMap,
-  getBufferFromHex,
-  calculateChainIdFromV,
-  getSignTransactionObject,
-  getUtxoDetails
-} from './utils.js'
+import WalletUtils from './utils.js'
 import { getAccountXPub } from './addressFinderUtils'
 
 const baseEtherPath = "44'/60'/0'/0"
@@ -38,7 +29,7 @@ const baseBtcPath = env.REACT_APP_BTC_PATH
 
 const DEFAULT_ACCOUNT = 0
 
-let networkId: number = networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
+let networkId: number = WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
 
 export default class LedgerWallet implements IWallet<AccountData> {
   static webUsbTransport: any
@@ -290,7 +281,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
     if (['dai', 'ethereum'].includes(cryptoType)) {
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      txObjs = await buildEthereumTxObjs({
+      txObjs = await WalletUtils.buildEthereumTxObjs({
         cryptoType: cryptoType,
         value: value,
         from: accountData.address,
@@ -303,7 +294,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
       for (let txObj of txObjs) {
         rawTxObjList.push((await this._signSendTransaction(txObj)).rawTransaction)
       }
-      return web3SendTransactions(_web3.eth.sendSignedTransaction, rawTxObjList)
+      return WalletUtils.web3SendTransactions(_web3.eth.sendSignedTransaction, rawTxObjList)
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
@@ -314,10 +305,25 @@ export default class LedgerWallet implements IWallet<AccountData> {
         Number(fee),
         accountData.hdWalletVariables.nextChangeIndex
       )
-      return broadcastBtcRawTx(signedTxRaw)
+      return WalletUtils.broadcastBtcRawTx(signedTxRaw)
     } else {
       throw new Error('Invalid crypto type')
     }
+  }
+
+  getTxFee = async ({
+    value,
+    options
+  }: {
+    value: BasicTokenUnit,
+    options?: Object
+  }): Promise<TxFee> => {
+    const accountData = this.getAccount().getAccountData()
+    return WalletUtils.getTxFee({
+      value,
+      cryptoType: accountData.cryptoType,
+      directTransfer: !!options && options.directTransfer
+    })
   }
 
   _sleep = (time: number): Promise<any> => {
@@ -346,11 +352,11 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
     const rv = await ethApp.signTransaction(accountPath, tx.serialize().toString('hex'))
 
-    tx.v = getBufferFromHex(rv.v)
-    tx.r = getBufferFromHex(rv.r)
-    tx.s = getBufferFromHex(rv.s)
+    tx.v = WalletUtils.getBufferFromHex(rv.v)
+    tx.r = WalletUtils.getBufferFromHex(rv.r)
+    tx.s = WalletUtils.getBufferFromHex(rv.s)
 
-    const signedChainId = calculateChainIdFromV(tx.v)
+    const signedChainId = WalletUtils.calculateChainIdFromV(tx.v)
     if (signedChainId !== networkId) {
       console.error(
         'Invalid networkId signature returned. Expected: ' + networkId + ', Got: ' + signedChainId,
@@ -358,7 +364,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
       )
     }
 
-    const signedTransactionObject = getSignTransactionObject(tx)
+    const signedTransactionObject = WalletUtils.getSignTransactionObject(tx)
     return signedTransactionObject
   }
 
@@ -377,7 +383,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
     let inputValueTotal = 0
     for (let i = 0; i < inputs.length; i++) {
       const utxo = inputs[i]
-      const utxoDetails = await getUtxoDetails(utxo.txHash)
+      const utxoDetails = await WalletUtils.getUtxoDetails(utxo.txHash)
 
       const txObj = btcApp.splitTransaction(utxoDetails, true)
       const input = [txObj, utxo.outputIndex]

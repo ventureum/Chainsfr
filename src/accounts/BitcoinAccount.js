@@ -1,20 +1,12 @@
 // @flow
-import type {
-  IAccount,
-  AccountData,
-  HDWalletVariables,
-  BitcoinAddress,
-  Address
-} from '../types/account.flow.js'
+import type { IAccount, AccountData, BitcoinAddress, Address } from '../types/account.flow.js'
 import { accountStatus } from '../types/account.flow.js'
 import type { BasicTokenUnit } from '../types/token.flow'
-import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { TxFee } from '../types/transfer.flow'
 
 import bitcoin from 'bitcoinjs-lib'
 import BN from 'bn.js'
-import Web3 from 'web3'
 import * as bip32 from 'bip32'
-import * as bip39 from 'bip39'
 import axios from 'axios'
 import moment from 'moment'
 
@@ -175,7 +167,9 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     let utxoData = await Promise.all(
       hdWalletVariables.addresses.map(async addressData => {
         let response = await axios.get(
-          `${url.LEDGER_API_URL}/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
+          `${url.LEDGER_API_URL}/addresses/${
+            addressData.address
+          }/transactions?noToken=true&truncated=true`
         )
         const { txs } = response.data
         const { address } = addressData
