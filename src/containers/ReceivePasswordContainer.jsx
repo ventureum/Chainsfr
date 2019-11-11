@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceivePasswordComponent from '../components/ReceivePasswordComponent'
-import { verifyPassword, clearDecryptedWallet } from '../actions/walletActions'
+import { clearDecryptedWallet } from '../actions/walletActions'
+import { verifyEscrowAccountPassword } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { clearVerifyPasswordError } from '../actions/transferActions'
+import { clearVerifyEscrowAccountPasswordError } from '../actions/transferActions'
 class ReceivePasswordContainer extends Component {
   render () {
     return (
@@ -15,15 +16,15 @@ class ReceivePasswordContainer extends Component {
   }
 }
 
-const verifyPasswordSelector = createLoadingSelector(['VERIFY_PASSWORD'])
-const errorSelector = createErrorSelector(['VERIFY_PASSWORD'])
+const verifyEscrowAccountPasswordSelector = createLoadingSelector(['VERIFY_ESCROW_ACCOUNT_PASSWORD'])
+const errorSelector = createErrorSelector(['VERIFY_ESCROW_ACCOUNT_PASSWORD'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    verifyPassword: (transferInfo) => dispatch(verifyPassword(transferInfo, { transferAction: 'receive', n: 1 })),
+    verifyEscrowAccountPassword: (transferInfo) => dispatch(verifyEscrowAccountPassword(transferInfo, { transferAction: 'receive', n: 1 })),
     clearDecryptedWallet: (wallet) => dispatch(clearDecryptedWallet(wallet)),
     goToStep: (n) => dispatch(goToStep('receive', n)),
-    clearVerifyPasswordError: () => dispatch(clearVerifyPasswordError())
+    clearVerifyEscrowAccountPasswordError: () => dispatch(clearVerifyEscrowAccountPasswordError())
   }
 }
 
@@ -32,7 +33,7 @@ const mapStateToProps = state => {
     transfer: state.transferReducer.transfer,
     escrowWallet: state.walletReducer.wallet.escrow,
     actionsPending: {
-      verifyPassword: verifyPasswordSelector(state)
+      verifyEscrowAccountPassword: verifyEscrowAccountPasswordSelector(state)
     },
     error: errorSelector(state)
   }

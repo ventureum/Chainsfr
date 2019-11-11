@@ -27,18 +27,18 @@ class ReceivePasswordComponent extends Component {
   }
 
   handleNext = () => {
-    let { verifyPassword, transfer, escrowWallet } = this.props
+    let { verifyEscrowAccountPassword, transfer, escrowWallet } = this.props
     let { password } = this.state
-    // verifyPassword({
+    // verifyEscrowAccountPassword({
     //   fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
     //   password: password
     // })
   }
 
   clearError = () => {
-    const { error, clearVerifyPasswordError } = this.props
+    const { error, clearVerifyEscrowAccountPasswordError } = this.props
     if (error) {
-      clearVerifyPasswordError()
+      clearVerifyEscrowAccountPasswordError()
     }
   }
 
@@ -73,7 +73,7 @@ class ReceivePasswordComponent extends Component {
             }}
           />
         </Grid>
-        {actionsPending.verifyPassword && (
+        {actionsPending.verifyEscrowAccountPassword && (
           <Grid item>
             <Grid
               container
@@ -101,7 +101,7 @@ class ReceivePasswordComponent extends Component {
                   this.clearError()
                   this.props.goToStep(-1)
                 }}
-                disabled={actionsPending.verifyPassword}
+                disabled={actionsPending.verifyEscrowAccountPassword}
               >
                 Cancel
               </Button>
@@ -114,7 +114,7 @@ class ReceivePasswordComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={this.handleNext}
-                disabled={actionsPending.verifyPassword}
+                disabled={actionsPending.verifyEscrowAccountPassword}
               >
                 Continue
               </Button>

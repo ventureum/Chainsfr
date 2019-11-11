@@ -6,7 +6,7 @@ import {
   generateSecurityAnswer,
   clearSecurityAnswer
 } from '../actions/formActions'
-import { syncWithNetwork } from '../actions/accountAction.js'
+import { syncWithNetwork } from '../actions/accountActions.js'
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
@@ -394,7 +394,7 @@ const mapStateToProps = state => {
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     recipients: state.userReducer.recipients,
-    cryptoAccounts: state.userReducer.cryptoAccounts,
+    cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
       getRecipients: getRecipientsSelector(state),

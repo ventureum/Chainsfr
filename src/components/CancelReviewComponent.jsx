@@ -20,7 +20,7 @@ class CancelReviewComponent extends Component {
   }
 
   handleReviewNext = () => {
-    const { transfer, escrowWallet, txFee } = this.props
+    const { transfer, escrowAccount, txFee } = this.props
     const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
     const { cancelMessage } = this.state
     // this.props.cancelTransfer({
@@ -104,7 +104,7 @@ class CancelReviewComponent extends Component {
                   >
                     Cancel Transfer
                   </Button>
-                  {(actionsPending.verifyPassword || actionsPending.cancelTransfer) && (
+                  {(actionsPending.verifyEscrowAccountPassword || actionsPending.cancelTransfer) && (
                     <CircularProgress
                       size={24}
                       color='primary'
@@ -124,7 +124,7 @@ class CancelReviewComponent extends Component {
     const {
       classes,
       transfer,
-      escrowWallet,
+      escrowAccount,
       actionsPending,
       txFee,
       sendTime,
@@ -151,7 +151,7 @@ class CancelReviewComponent extends Component {
       var hasCancelled = !!cancelTxHash
     }
 
-    if (actionsPending.getTransfer || actionsPending.verifyPassword || !transfer || !escrowWallet) {
+    if (actionsPending.getTransfer || actionsPending.verifyEscrowAccountPassword || !transfer || !escrowAccount) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>

@@ -88,7 +88,7 @@ const mapStateToProps = state => {
       newCryptoAccountFromWallet: newCryptoAccountFromWalletSelector(state)
     },
     checkWalletConnectionError: checkWalletConnectionErrorSelector(state),
-    newCryptoAccount: state.userReducer.newCryptoAccountFromWallet,
+    newCryptoAccount: state.accountReducer.newCryptoAccountFromWallet,
     newCryptoAccountFromWalletError: newCryptoAccountFromWalletErrorSelector(state)
   }
 }
