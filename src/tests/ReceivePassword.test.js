@@ -8,18 +8,20 @@ import ReceivePassword from '../components/ReceivePasswordComponent'
 let wrapper
 const initialProps = {
   actionsPending: {
-    verifyPassword: false
+    verifyEscrowAccountPassword: false
   },
   escrowWallet: {
     crypto: {
-      ethereum: [{
-        address: '0x0'
-      }]
+      ethereum: [
+        {
+          address: '0x0'
+        }
+      ]
     }
   },
   transfer: { cryptoType: 'ethereum' },
   clearDecryptedWallet: () => {},
-  verifyPassword: () => {}
+  verifyEscrowAccountPassword: () => {}
 }
 
 describe('ReceivePassword rendering', () => {
@@ -30,18 +32,38 @@ describe('ReceivePassword rendering', () => {
   })
 
   it('Enter security answer text', () => {
-    expect(wrapper.find(Typography).first().text()).toEqual('Enter Security Answer')
+    expect(
+      wrapper
+        .find(Typography)
+        .first()
+        .text()
+    ).toEqual('Enter Security Answer')
   })
 
   it('password testField', () => {
     expect(wrapper.find(TextField).filter('#password')).toHaveLength(1)
-    expect(wrapper.find(TextField).filter('#password').prop('helperText')).toEqual('Please enter security answer set by the sender')
+    expect(
+      wrapper
+        .find(TextField)
+        .filter('#password')
+        .prop('helperText')
+    ).toEqual('Please enter security answer set by the sender')
   })
 
   it('password testField error text', () => {
     wrapper.setProps({ error: 'error' })
-    expect(wrapper.find(TextField).filter('#password').prop('helperText')).toEqual('Incorrect security answer')
-    expect(wrapper.find(TextField).filter('#password').prop('error')).toEqual(true)
+    expect(
+      wrapper
+        .find(TextField)
+        .filter('#password')
+        .prop('helperText')
+    ).toEqual('Incorrect security answer')
+    expect(
+      wrapper
+        .find(TextField)
+        .filter('#password')
+        .prop('error')
+    ).toEqual(true)
     wrapper.setProps(initialProps)
   })
 
@@ -56,8 +78,9 @@ describe('ReceivePassword rendering', () => {
   it('progress bar', () => {
     wrapper.setProps({
       actionsPending: {
-        verifyPassword: true
-      } })
+        verifyEscrowAccountPassword: true
+      }
+    })
     expect(wrapper.find(LinearProgress)).toHaveLength(1)
     wrapper.setProps(initialProps)
   })
@@ -70,43 +93,55 @@ describe('Interaction', () => {
   it('click continue', () => {
     const mockCallBack = jest.fn()
     wrapper.setProps({
-      verifyPassword: mockCallBack,
+      verifyEscrowAccountPassword: mockCallBack,
       transfer: { cryptoType: 'ethereum' }
     })
-    wrapper.find(Button).filter('#continue').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#continue')
+      .simulate('click')
     expect(mockCallBack.mock.calls.length).toEqual(1)
   })
 
-  it('continue disable when verifyPassword', () => {
+  it('continue disable when verifyEscrowAccountPassword', () => {
     const mockCallBack = jest.fn()
     wrapper.setProps({
       actionsPending: {
-        verifyPassword: true
+        verifyEscrowAccountPassword: true
       },
-      verifyPassword: mockCallBack,
+      verifyEscrowAccountPassword: mockCallBack,
       transfer: {}
     })
-    wrapper.find(Button).filter('#continue').simulate('click')
+    wrapper
+      .find(Button)
+      .filter('#continue')
+      .simulate('click')
     expect(mockCallBack.mock.calls.length).toEqual(0)
   })
 
   it('click cancel btn', () => {
-    const mockclearVerifyPasswordError = jest.fn()
+    const mockclearVerifyEscrowAccountPasswordError = jest.fn()
     const mockGoToStep = jest.fn()
     wrapper.setProps({
-      clearVerifyPasswordError: mockclearVerifyPasswordError,
+      clearVerifyEscrowAccountPasswordError: mockclearVerifyEscrowAccountPasswordError,
       error: 'deadly error',
       goToStep: mockGoToStep
     })
-    wrapper.find(Button).filter('#cancel').simulate('click')
-    expect(mockclearVerifyPasswordError.mock.calls.length).toEqual(1)
+    wrapper
+      .find(Button)
+      .filter('#cancel')
+      .simulate('click')
+    expect(mockclearVerifyEscrowAccountPasswordError.mock.calls.length).toEqual(1)
     expect(mockGoToStep.mock.calls.length).toEqual(1)
 
     wrapper.setProps({
       error: null
     })
-    wrapper.find(Button).filter('#cancel').simulate('click')
-    expect(mockclearVerifyPasswordError.mock.calls.length).toEqual(1)
+    wrapper
+      .find(Button)
+      .filter('#cancel')
+      .simulate('click')
+    expect(mockclearVerifyEscrowAccountPasswordError.mock.calls.length).toEqual(1)
     expect(mockGoToStep.mock.calls.length).toEqual(2)
   })
 
@@ -114,9 +149,13 @@ describe('Interaction', () => {
     const mockCallBack = jest.fn()
     wrapper.setProps({
       error: 'error',
-      clearVerifyPasswordError: mockCallBack
+      clearVerifyEscrowAccountPasswordError: mockCallBack
     })
-    wrapper.find(TextField).filter('#password').props().onChange({ target: { value: 20 } })
+    wrapper
+      .find(TextField)
+      .filter('#password')
+      .props()
+      .onChange({ target: { value: 20 } })
     expect(mockCallBack.mock.calls.length).toEqual(1)
   })
 
@@ -131,15 +170,23 @@ describe('Interaction', () => {
   })
 
   it('submit on enter', () => {
-    const mockVerifyPassword = jest.fn()
+    const mockverifyEscrowAccountPassword = jest.fn()
     wrapper.setProps({
-      verifyPassword: mockVerifyPassword,
+      verifyEscrowAccountPassword: mockverifyEscrowAccountPassword,
       transfer: { cryptoType: 'ethereum' }
     })
-    wrapper.find(TextField).filter('#password').props().onKeyPress({ key: 'other key' })
-    expect(mockVerifyPassword.mock.calls.length).toEqual(0)
+    wrapper
+      .find(TextField)
+      .filter('#password')
+      .props()
+      .onKeyPress({ key: 'other key' })
+    expect(mockverifyEscrowAccountPassword.mock.calls.length).toEqual(0)
 
-    wrapper.find(TextField).filter('#password').props().onKeyPress({ key: 'Enter' })
-    expect(mockVerifyPassword.mock.calls.length).toEqual(1)
+    wrapper
+      .find(TextField)
+      .filter('#password')
+      .props()
+      .onKeyPress({ key: 'Enter' })
+    expect(mockverifyEscrowAccountPassword.mock.calls.length).toEqual(1)
   })
 })

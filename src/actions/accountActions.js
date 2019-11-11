@@ -4,6 +4,7 @@ import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { getWallet } from '../drive.js'
 import { Base64 } from 'js-base64'
+import { getTransferData } from '../drive.js'
 import { accountStatus } from '../types/account.flow'
 
 async function _syncWithNetwork (accountData: AccountData) {
@@ -76,6 +77,39 @@ function decryptCloudWalletAccount (accountData: AccountData, password: string) 
   }
 }
 
+async function _verifyEscrowAccountPassword (transferInfo: {
+  transferId: ?string,
+  account: AccountData,
+  password: string
+}) {
+  let { transferId, account, password } = transferInfo
+
+  if (transferId) {
+    // retrieve password from drive
+    let transferData = await getTransferData(transferId)
+    password = Base64.decode(transferData.password)
+  }
+
+  let _account = createAccount(account)
+  await _account.decryptAccount(password)
+  return _account.getAccountData()
+}
+
+function verifyEscrowAccountPassword (transferInfo: {
+  transferId: ?string,
+  account: AccountData,
+  password: string
+}) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'VERIFY_ESCROW_ACCOUNT_PASSWORD',
+      payload: _verifyEscrowAccountPassword(transferInfo)
+    }).catch(error => {
+      console.warn(error)
+    })
+  }
+}
+
 function markAccountDirty (accountData: AccountData) {
   return {
     type: 'MARK_ACCOUNT_DIRTY',
@@ -87,4 +121,10 @@ function markAccountDirty (accountData: AccountData) {
   }
 }
 
-export { syncWithNetwork, getTxFee, decryptCloudWalletAccount, markAccountDirty }
+export {
+  syncWithNetwork,
+  getTxFee,
+  decryptCloudWalletAccount,
+  verifyEscrowAccountPassword,
+  markAccountDirty
+}

@@ -12,7 +12,7 @@ const destinationAddress = '0x4cAa4D1CA9170A72871898dA6a89D4DcbF957551'
 const initialProps = {
   actionsPending: {
     getTransfer: false,
-    verifyPassword: false,
+    verifyEscrowAccountPassword: false,
     cancelTransfer: false,
     getTxFee: false
   },
@@ -149,8 +149,8 @@ describe('CancelReviewComponent render', () => {
     expect(wrapper.find(CircularProgress)).toHaveLength(1)
   })
 
-  it('actionPending.verifyPassword', () => {
-    wrapper.setProps(update(initialProps, { actionsPending: { verifyPassword: { $set: true } } }))
+  it('actionPending.verifyEscrowAccountPassword', () => {
+    wrapper.setProps(update(initialProps, { actionsPending: { verifyEscrowAccountPassword: { $set: true } } }))
     expect(wrapper.find(CircularProgress)).toHaveLength(1)
   })
 

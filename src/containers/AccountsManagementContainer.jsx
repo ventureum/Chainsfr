@@ -4,7 +4,7 @@ import AccountsManagementComponent from '../components/AccountsManagementCompone
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getCryptoAccounts, addCryptoAccount, removeCryptoAccount } from '../actions/userActions'
 import { accountStatus } from '../types/account.flow'
-import { syncWithNetwork } from '../actions/accountAction'
+import { syncWithNetwork } from '../actions/accountActions'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
 

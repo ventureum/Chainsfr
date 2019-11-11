@@ -167,7 +167,7 @@ export default function (state = initState, action) {
     //     }
     //   })
     // case 'SYNC_FULFILLED':
-    // case 'VERIFY_PASSWORD_FULFILLED':
+    // case 'VERIFY_ESCROW_ACCOUNT_PASSWORD_FULFILLED':
     // case 'CLEAR_DECRYPTED_WALLET':
     // case 'DECRYPT_CLOUD_WALLET_FULFILLED':
     //   return updateWalletState(state, action.payload)

@@ -6,7 +6,7 @@ import {
   generateSecurityAnswer,
   clearSecurityAnswer
 } from '../actions/formActions'
-import { syncWithNetwork } from '../actions/accountAction.js'
+import { syncWithNetwork } from '../actions/accountActions.js'
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'

@@ -17,6 +17,7 @@ import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
+import { createAccount } from '../accounts/AccountFactory'
 
 const transferStates = {
   SEND_PENDING: 'SEND_PENDING',
@@ -381,18 +382,15 @@ async function _cancelTransferTransactionHashRetrieved (txRequest: {|
   return { ...response, ...txRequest }
 }
 
+// fetch transferData and convert it into an escrow account
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
-  let walletData
-  // = WalletUtils.toWalletData('escrow', transferData.cryptoType, [
-  //   {
-  //     balance: transferData.balance,
-  //     ethBalance: transferData.ethBalance,
-  //     address: transferData.address,
-  //     encryptedPrivateKey: transferData.data
-  //   }
-  // ])
-  return { transferData, walletData }
+  let escrowAccount = createAccount({
+    walletType: 'escrow',
+    cryptoType: transferData.cryptoType,
+    encryptedPrivateKey: transferData.data
+  }).getAccountData()
+  return { transferData, escrowAccount }
 }
 
 async function _getTransferHistory (offset: number = 0) {
@@ -659,9 +657,9 @@ function getTransferHistory (offset: number) {
   }
 }
 
-function clearVerifyPasswordError () {
+function clearVerifyEscrowAccountPasswordError () {
   return {
-    type: 'CLEAR_VERIFY_PASSWORD_ERROR'
+    type: 'CLEAR_VERIFY_ESCROW_ACCOUNT_PASSWORD_ERROR'
   }
 }
 
@@ -673,6 +671,6 @@ export {
   getTxFee,
   getTransfer,
   getTransferHistory,
-  clearVerifyPasswordError,
+  clearVerifyEscrowAccountPasswordError,
   transferStates
 }
