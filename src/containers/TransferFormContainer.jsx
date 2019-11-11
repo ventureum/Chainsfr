@@ -13,17 +13,17 @@ import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getTxFee } from '../actions/transferActions.js'
-import { getRecipients, addRecipient } from '../actions/userActions'
+import { getRecipients, addRecipient, getCryptoAccounts } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
+import { accountStatus } from '../types/account.flow'
 
 type Props = {
   updateTransferForm: Function,
   generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
-  cryptoSelection: string,
   transferForm: Object,
   txFee: any,
   wallet: Object,
@@ -50,7 +50,8 @@ class TransferFormContainer extends Component<Props, State> {
       cryptoTypePrefilled,
       addressPrefilled,
       cryptoAccounts,
-      walletSelectionPrefilled
+      walletSelectionPrefilled,
+      getCryptoAccounts
     } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
@@ -74,6 +75,9 @@ class TransferFormContainer extends Component<Props, State> {
         })
       )
       getRecipients()
+      if (cryptoAccounts.length === 0) {
+        getCryptoAccounts()
+      }
     }
   }
 
@@ -84,7 +88,7 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { transferForm, actionsPending } = this.props
+    const { transferForm, actionsPending, syncWithNetwork } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
       // if transfer amount changed, update tx fee
       const { accountSelection } = transferForm
@@ -111,6 +115,13 @@ class TransferFormContainer extends Component<Props, State> {
     ) {
       // if add recipient successfully, close dialog
       this.toggleAddRecipientDialog()
+    }
+    if (
+      transferForm.accountSelection &&
+      (transferForm.accountSelection.status === accountStatus.initialized ||
+        transferForm.accountSelection.status === accountStatus.dirty)
+    ) {
+      syncWithNetwork(transferForm.accountSelection)
     }
   }
 
@@ -220,14 +231,7 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const {
-      transferForm,
-      cryptoPrice,
-      cryptoSelection,
-      recipients,
-      syncWithNetwork,
-      cryptoAccounts
-    } = this.props
+    const { transferForm, cryptoPrice, recipients, syncWithNetwork, cryptoAccounts } = this.props
 
     // helper functions for converting currency
     const { accountSelection } = transferForm
@@ -310,18 +314,12 @@ class TransferFormContainer extends Component<Props, State> {
       }
     }
 
-    if (name === 'accountSelection' && event.target.value !== 'addCryptoAccount') {
-      // sync account when select
-      this.props.syncWithNetwork(event.target.value)
-    }
-
     this.props.updateTransferForm(_transferForm)
   }
 
   render () {
     const {
       cryptoPrice,
-      cryptoSelection,
       currency,
       actionsPending,
       addRecipient,
@@ -329,9 +327,7 @@ class TransferFormContainer extends Component<Props, State> {
       cryptoAccounts,
       walletSelectionPrefilled
     } = this.props
-    // default to use first account
     const { accountSelection } = transferForm
-
     let balance = '0'
     let balanceCurrencyAmount = '0'
     if (accountSelection) {
@@ -374,6 +370,7 @@ const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const errorSelector = createErrorSelector(['GET_TX_COST', 'ADD_RECIPIENT'])
 const getRecipientsSelector = createLoadingSelector(['GET_RECIPIENTS'])
 const addRecipientSelector = createLoadingSelector(['ADD_RECIPIENT'])
+const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -384,7 +381,8 @@ const mapDispatchToProps = dispatch => {
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
     addRecipient: recipient => dispatch(addRecipient(recipient)),
-    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
+    getCryptoAccounts: () => dispatch(getCryptoAccounts())
   }
 }
 
@@ -400,7 +398,8 @@ const mapStateToProps = state => {
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
       getRecipients: getRecipientsSelector(state),
-      addRecipient: addRecipientSelector(state)
+      addRecipient: addRecipientSelector(state),
+      getCryptoAccounts: getCryptoAccountsSelector(state)
     },
     error: errorSelector(state)
   }

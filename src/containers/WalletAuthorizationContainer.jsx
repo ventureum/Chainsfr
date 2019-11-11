@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import WalletAuthorizationComponent from '../components/WalletAuthorizationComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { verifyAccount, checkWalletConnection } from '../actions/walletActions'
-import { decryptCloudWalletAccount } from '../actions/accountAction.js'
+import { decryptCloudWalletAccount, markAccountDirty } from '../actions/accountAction.js'
 import { submitTx } from '../actions/transferActions'
 import { goToStep } from '../actions/navigationActions'
 import { clearError } from '../actions/userActions'
@@ -23,7 +23,8 @@ type Props = {
   checkWalletConnectionError: string,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
-  clearError: Function
+  clearError: Function,
+  markAccountDirty: Function
 }
 
 type State = {
@@ -47,7 +48,8 @@ class WalletAuthorizationContainer extends Component<Props> {
       goToStep,
       submitTxError,
       verifyAccount,
-      checkWalletConnectionError
+      checkWalletConnectionError,
+      markAccountDirty
     } = this.props
     const {
       accountSelection,
@@ -71,6 +73,8 @@ class WalletAuthorizationContainer extends Component<Props> {
       !actionsPending.verifyAccount &&
       accountSelection.connected
     ) {
+      // mart account dirty
+      markAccountDirty(accountSelection)
       // submit tx
       submitTx({
         fromAccount: accountSelection,
@@ -130,7 +134,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(checkWalletConnection(accountData, options)),
     decryptCloudWalletAccount: (accountData, password) =>
       dispatch(decryptCloudWalletAccount(accountData, password)),
-    clearError: () => dispatch(clearError())
+    clearError: () => dispatch(clearError()),
+    markAccountDirty: accountData => dispatch(markAccountDirty(accountData))
   }
 }
 

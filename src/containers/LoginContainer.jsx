@@ -44,19 +44,6 @@ class LoginContainer extends Component {
       )
     }
 
-    // if (
-    //   profile.idToken &&
-    //   profile.newUser &&
-    //   (!actionsPending.getCloudWallet || actionsPending.createCloudWallet)
-    // ) {
-    //   return (
-    //     <OnboardingComponent
-    //       createCloudWallet={createCloudWallet}
-    //       profile={profile}
-    //       actionsPending={actionsPending}
-    //     />
-    //   )
-    // }
     return (
       <LoginComponent
         onLogin={this.onLogin}

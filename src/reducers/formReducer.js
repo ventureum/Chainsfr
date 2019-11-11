@@ -3,6 +3,7 @@
  */
 
 import update from 'immutability-helper'
+import Utils from '../utils'
 
 const initialState = {
   walletSelection: null,
@@ -33,9 +34,17 @@ export default function (state = initialState, action) {
     case 'SYNC_WITH_NETWORK_FULFILLED': {
       if (
         state.transferForm.accountSelection &&
-        action.payload.name === state.transferForm.accountSelection.name
+        Utils.accountsEqual(action.payload, state.transferForm.accountSelection)
       ) {
         return update(state, { transferForm: { accountSelection: { $set: action.payload } } })
+      }
+    }
+    case 'SYNC_WITH_NETWORK_PENDING': {
+      if (
+        state.transferForm.accountSelection &&
+        Utils.accountsEqual(action.meta, state.transferForm.accountSelection)
+      ) {
+        return update(state, { transferForm: { accountSelection: { $set: action.meta } } })
       }
     }
     case 'SELECT_CRYPTO':

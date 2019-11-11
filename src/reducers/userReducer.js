@@ -71,6 +71,8 @@ export default function (state = initState, action) {
           $set: action.payload
         }
       })
+
+    case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
       return updateCryptoAccount(state, action.payload)
     case 'SYNC_WITH_NETWORK_PENDING':
