@@ -7,6 +7,7 @@ import { Base64 } from 'js-base64'
 import { createWallet } from '../wallets/WalletFactory.js'
 
 import { getTransferData, saveWallet, getWallet } from '../drive.js'
+import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports, cryptoInWallet } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
@@ -349,13 +350,13 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
         if (ethereumBasedAccountData && ['ethereum', 'dai'].includes(cryptoType)) {
           // share the same privateKey for ethereum based coins
-          await _wallet.newAccount(`Cloud Wallet ${cryptoType}`, cryptoType, {
+          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
             privateKey: ethereumBasedAccountData.privateKey
           })
           account = _wallet.getAccount()
           accountData = account.getAccountData()
         } else {
-          await _wallet.newAccount(`Cloud Wallet ${cryptoType}`, cryptoType, {
+          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
             getPrefilled: true
           })
           account = _wallet.getAccount()
@@ -381,7 +382,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   } catch (error) {
     console.warn(error)
   }
-  
+
   walletFileData = { accounts: Base64.encode(JSON.stringify(walletFileData)) }
   // save the encrypted wallet into drive
   if (progress) progress('STORE')
@@ -446,6 +447,10 @@ function getCloudWallet () {
     }).catch(error => {
       if (error.message === 'WALLET_NOT_EXIST') {
         console.warn(error)
+        dispatch({
+          type: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
+          payload: API.clearCloudWalletCryptoAccounts()
+        })
       } else {
         throw error
       }

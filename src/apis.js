@@ -348,6 +348,21 @@ async function removeCryptoAccount (
   }
 }
 
+async function clearCloudWalletCryptoAccounts (): Promise<{
+  cryptoAccounts: Array<BackEndCryptoAccountType>
+}> {
+  const { idToken } = store.getState().userReducer.profile
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
+      idToken: idToken
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Clear cloud wallet crypto accounts failed: ${err}`)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -368,5 +383,6 @@ export default {
   referralCreate,
   addCryptoAccount,
   getCryptoAccounts,
-  removeCryptoAccount
+  removeCryptoAccount,
+  clearCloudWalletCryptoAccounts
 }
