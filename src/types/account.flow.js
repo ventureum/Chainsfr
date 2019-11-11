@@ -40,7 +40,8 @@ export type HDWalletVariables = {
 export const accountStatus = {
   synced: 'SYNCED',
   syncing: 'SYNCING',
-  initialized: 'INITIALIZED'
+  initialized: 'INITIALIZED',
+  dirty: 'DIRTY'
 }
 
 export type BitcoinAccountData = {

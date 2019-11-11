@@ -76,4 +76,15 @@ function decryptCloudWalletAccount (accountData: AccountData, password: string) 
   }
 }
 
-export { syncWithNetwork, getTxFee, decryptCloudWalletAccount }
+function markAccountDirty (accountData: AccountData) {
+  return {
+    type: 'MARK_ACCOUNT_DIRTY',
+    payload: {
+      ...accountData,
+      status: accountStatus.dirty,
+      connected: false
+    }
+  }
+}
+
+export { syncWithNetwork, getTxFee, decryptCloudWalletAccount, markAccountDirty }
