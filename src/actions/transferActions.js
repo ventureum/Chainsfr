@@ -295,7 +295,7 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {|
 }
 
 async function _cancelTransfer (txRequest: {
-  escrowWallet: WalletData,
+  escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
@@ -304,7 +304,7 @@ async function _cancelTransfer (txRequest: {
   walletId: string
 }) {
   let {
-    escrowWallet,
+    escrowAccount,
     transferId,
     sendTxHash,
     transferAmount,
@@ -318,10 +318,13 @@ async function _cancelTransfer (txRequest: {
     cancelMessage = MESSAGE_NOT_PROVIDED
   }
 
-  let { cryptoType } = escrowWallet
+  let { cryptoType } = escrowAccount
 
   // assuming wallet has been decrypted
-  let wallet = WalletFactory.createWallet(escrowWallet)
+  let wallet = createWallet(escrowAccount)
+
+  // verify wallet
+  await wallet.verifyAccount()
 
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
@@ -329,7 +332,7 @@ async function _cancelTransfer (txRequest: {
     .toString()
   let senderAddress: Address
 
-  let multisig
+  let multiSig
 
   if (cryptoType === 'bitcoin') {
     senderAddress = await getFirstFromAddress(sendTxHash)
@@ -338,7 +341,7 @@ async function _cancelTransfer (txRequest: {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
-    multisig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
+    multiSig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
   } else if (cryptoType === 'libra') {
     // txHash is the sender's address for libra
     senderAddress = sendTxHash
@@ -353,7 +356,7 @@ async function _cancelTransfer (txRequest: {
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      multisig
+      multiSig
     }
   })
 

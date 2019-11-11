@@ -23,15 +23,15 @@ class CancelReviewComponent extends Component {
     const { transfer, escrowAccount, txFee } = this.props
     const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
     const { cancelMessage } = this.state
-    // this.props.cancelTransfer({
-    //   escrowWallet: WalletUtils.toWalletDataFromState('escrow', cryptoType, escrowWallet),
-    //   transferId: transferId,
-    //   sendTxHash: sendTxHash,
-    //   transferAmount: transferAmount,
-    //   txFee: txFee,
-    //   cancelMessage: cancelMessage,
-    //   walletId: walletId
-    // })
+    this.props.cancelTransfer({
+       escrowAccount: escrowAccount,
+       transferId: transferId,
+       sendTxHash: sendTxHash,
+       transferAmount: transferAmount,
+       txFee: txFee,
+      cancelMessage: cancelMessage,
+       walletId: walletId
+     })
   }
 
   handleInputChange = name => event => {
