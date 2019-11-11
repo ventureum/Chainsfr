@@ -394,7 +394,7 @@ const mapStateToProps = state => {
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     recipients: state.userReducer.recipients,
-    cryptoAccounts: state.userReducer.cryptoAccounts,
+    cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
       getRecipients: getRecipientsSelector(state),

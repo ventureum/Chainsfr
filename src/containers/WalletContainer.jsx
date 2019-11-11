@@ -46,7 +46,7 @@ const errorSelector = createErrorSelector(['GET_TRANSFER_HISTORY'])
 
 const mapStateToProps = state => {
   return {
-    cloudWalletAccounts: state.userReducer.cryptoAccounts.filter(
+    cloudWalletAccounts: state.accountReducer.cryptoAccounts.filter(
       account => account.walletType === 'drive'
     ),
     actionsPending: {

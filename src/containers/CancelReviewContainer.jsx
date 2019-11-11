@@ -96,7 +96,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
-    escrowAccount: state.userReducer.escrowAccount,
+    escrowAccount: state.accountReducer.escrowAccount,
     txFee: state.transferReducer.txFee,
     receipt: state.transferReducer.receipt,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,

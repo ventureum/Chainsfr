@@ -57,7 +57,7 @@ const errorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS', 'ADD_CRYPTO_AC
 
 const mapStateToProps = state => {
   return {
-    cryptoAccounts: state.userReducer.cryptoAccounts,
+    cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       addCryptoAccount: addCryptoAccountSelector(state),
       getCryptoAccounts: getCryptoAccountsSelector(state),
