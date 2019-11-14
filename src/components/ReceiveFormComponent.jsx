@@ -5,20 +5,16 @@ import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
-// import WalletUtils from '../wallets/utils'
+import update from 'immutability-helper'
+import AccountDropdownContainer from '../containers/AccountDropdownContainer'
 
-class ReceivePasswordComponent extends Component {
+class ReceiveFormComponent extends Component {
   state = {
     password: ''
   }
 
   componentDidMount () {
-    let { transfer, escrowWallet } = this.props
-    // if (escrowWallet.crypto[transfer.cryptoType]) {
-    //   this.props.clearDecryptedWallet(
-    //     WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet)
-    //   )
-    // }
+    this.clearError()
   }
 
   onChange = event => {
@@ -27,12 +23,13 @@ class ReceivePasswordComponent extends Component {
   }
 
   handleNext = () => {
-    let { verifyEscrowAccountPassword, transfer, escrowWallet } = this.props
+    let { verifyEscrowAccountPassword, escrowAccount } = this.props
     let { password } = this.state
-    // verifyEscrowAccountPassword({
-    //   fromWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-    //   password: password
-    // })
+    verifyEscrowAccountPassword({
+      transferId: null,
+      account: escrowAccount,
+      password: password
+    })
   }
 
   clearError = () => {
@@ -42,8 +39,13 @@ class ReceivePasswordComponent extends Component {
     }
   }
 
+  onAccountChange = event => {
+    const { transferForm, updateTransferForm } = this.props
+    updateTransferForm(update(transferForm, { accountSelection: { $set: event.target.value } }))
+  }
+
   render () {
-    const { classes, error, actionsPending } = this.props
+    const { classes, accountSelection, transfer, error, actionsPending } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' className={classes.root}>
@@ -90,6 +92,10 @@ class ReceivePasswordComponent extends Component {
             </Grid>
           </Grid>
         )}
+        <AccountDropdownContainer
+          onChange={this.onAccountChange}
+          filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
+        />
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center'>
             <Grid item>
@@ -114,7 +120,7 @@ class ReceivePasswordComponent extends Component {
                 color='primary'
                 size='large'
                 onClick={this.handleNext}
-                disabled={actionsPending.verifyEscrowAccountPassword}
+                disabled={actionsPending.verifyEscrowAccountPassword || !accountSelection}
               >
                 Continue
               </Button>
@@ -145,4 +151,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(ReceivePasswordComponent)
+export default withStyles(styles)(ReceiveFormComponent)

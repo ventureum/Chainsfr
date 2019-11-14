@@ -12,21 +12,17 @@ import Divider from '@material-ui/core/Divider'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { transfer, escrowWallet, lastUsedWallet, txFee, walletSelection, wallet } = this.props
+    const { destinationAddress, transfer, escrowAccount, txFee, walletSelection, wallet } = this.props
     const { receivingId, transferAmount, walletId } = transfer
     // accept transfer
-    // this.props.acceptTransfer({
-    //   receivingId: receivingId,
-    //   escrowWallet: WalletUtils.toWalletDataFromState('escrow', transfer.cryptoType, escrowWallet),
-    //   receiveWallet: WalletUtils.toWalletDataFromState(
-    //     walletSelection,
-    //     transfer.cryptoType,
-    //     lastUsedWallet || wallet
-    //   ),
-    //   transferAmount: transferAmount,
-    //   txFee: txFee,
-    //   walletId: walletId
-    // })
+    this.props.acceptTransfer({
+      receivingId: receivingId,
+      escrowAccount: escrowAccount,
+      destinationAddress: destinationAddress,
+      transferAmount: transferAmount,
+      txFee: txFee,
+      walletId: walletId
+    })
   }
 
   render () {
