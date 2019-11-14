@@ -216,8 +216,8 @@ async function _transactionHashRetrieved (txRequest: {|
 }
 
 async function _acceptTransfer (txRequest: {
-  escrowWallet: WalletData,
-  receiveWallet: WalletData,
+  escrowAccount: AccountData,
+  destinationAddress: Address,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -225,9 +225,9 @@ async function _acceptTransfer (txRequest: {
   walletId: string
 }) {
   let {
-    escrowWallet,
+    escrowAccount,
     txFee,
-    receiveWallet,
+    destinationAddress,
     transferAmount,
     receivingId,
     receiveMessage,
@@ -239,31 +239,36 @@ async function _acceptTransfer (txRequest: {
     receiveMessage = MESSAGE_NOT_PROVIDED
   }
 
-  let { cryptoType } = escrowWallet
+  let { cryptoType } = escrowAccount
+
+  // assuming wallet has been decrypted
+  let wallet = createWallet(escrowAccount)
+
+  // verify wallet
+  await wallet.verifyAccount()
+
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  let multisig
+  let multiSig
+
   if (['ethereum', 'dai'].includes(cryptoType)) {
-    multisig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
+    // ethereum based coins
+    multiSig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
   }
 
   // $FlowFixMe
-  let { receiveTxHash, receiveTimestamp }: any = await WalletFactory.createWallet(
-    escrowWallet
-  ).sendTransaction({
-    to: WalletFactory.createWallet(receiveWallet).getAccount().address,
+  let { receiveTxHash, receiveTimestamp }: any = await wallet.sendTransaction({
+    to: destinationAddress,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      multisig
+      multiSig
     }
   })
-
-  if (Array.isArray(receiveTxHash)) throw new Error('receiveTxHash should not be an array')
 
   return _acceptTransferTransactionHashRetrieved({
     receiveTxHash: receiveTxHash,
@@ -565,13 +570,6 @@ function submitTx (txRequest: {
   }
 }
 
-function setLastUsedAddress ({ idToken, cryptoType, walletType, address }) {
-  return {
-    type: 'SET_LAST_USED_ADDRESS',
-    payload: API.setLastUsedAddress({ idToken, cryptoType, walletType, address })
-  }
-}
-
 function directTransfer (txRequest: {
   fromWallet: Object,
   transferAmount: StandardTokenUnit,
@@ -587,8 +585,8 @@ function directTransfer (txRequest: {
 }
 
 function acceptTransfer (txRequest: {
-  escrowWallet: WalletData,
-  receiveWallet: WalletData,
+  escrowAccount: AccountData,
+  destinationAddress: Address,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -596,32 +594,17 @@ function acceptTransfer (txRequest: {
   walletId: string
 }) {
   return (dispatch: Function, getState: Function) => {
-    const { receiveWallet } = txRequest
-    const { walletType, cryptoType } = receiveWallet
     return dispatch({
       type: 'ACCEPT_TRANSFER',
       payload: _acceptTransfer(txRequest)
     }).then(() => {
-      const { profile } = getState().userReducer
-      if (profile.isAuthenticated && profile.idToken) {
-        const idToken = profile.idToken
-        dispatch(
-          setLastUsedAddress({
-            idToken,
-            cryptoType,
-            walletType,
-            address: WalletFactory.createWallet(receiveWallet).getAccount().address
-          })
-        )
-      }
-
       dispatch(goToStep('receive', 1))
     })
   }
 }
 
 function cancelTransfer (txRequest: {
-  escrowWallet: WalletData,
+  escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
