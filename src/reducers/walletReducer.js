@@ -57,30 +57,6 @@ const initState = {
       network: null,
       crypto: {}
     }
-  },
-  lastUsedWallet: {
-    notUsed: false,
-    drive: {
-      crypto: {}
-    },
-    metamask: {
-      crypto: {}
-    },
-    ledger: {
-      crypto: {}
-    },
-    metamaskWalletConnect: {
-      crypto: {}
-    },
-    trustWalletConnect: {
-      crypto: {}
-    },
-    coinomiWalletConnect: {
-      crypto: {}
-    },
-    coinbaseWalletLink: {
-      crypto: {}
-    }
   }
 }
 
@@ -111,7 +87,9 @@ function updateWalletState (state, walletDataList, extra = {}) {
     if (extra.override) {
       _state = update(_state, { wallet: { [walletType]: { crypto: { $set: cryptoList } } } })
     } else {
-      _state = update(_state, { wallet: { [walletType]: { crypto: { $merge: cryptoList } } } })
+      _state = update(_state, {
+        wallet: { [walletType]: { crypto: { $merge: cryptoList } } }
+      })
     }
   })
   return _state
@@ -179,18 +157,6 @@ export default function (state = initState, action) {
     //           $set: action.payload
     //         }
     //       }
-    //     }
-    //   })
-    // case 'GET_LAST_USED_ADDRESS_FULFILLED':
-    //   return update(state, {
-    //     lastUsedWallet: {
-    //       $merge: { ...action.payload }
-    //     }
-    //   })
-    // case 'NOT_USED_LAST_ADDRESS':
-    //   return update(state, {
-    //     lastUsedWallet: {
-    //       notUsed: { $set: true }
     //     }
     //   })
     // case 'GET_TRANSFER_FULFILLED':

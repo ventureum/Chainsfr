@@ -535,46 +535,6 @@ function clearDecryptCloudWalletError () {
   }
 }
 
-async function _getLastUsedAddress (idToken: string) {
-  let response = await API.getLastUsedAddress({ idToken })
-  let rv = {}
-  const walletTypeList = [
-    'drive',
-    'metamask',
-    'ledger',
-    'metamaskWalletConnect',
-    'coinbaseWalletLink'
-  ]
-  const cryptoTypeList = ['bitcoin', 'ethereum', 'dai', 'libra']
-  // convert response to our wallet struct
-  if (response) {
-    walletTypeList.forEach(walletType => {
-      if (response[walletType]) {
-        rv[walletType] = { crypto: {} }
-        cryptoTypeList.forEach(cryptoType => {
-          if (response[walletType][cryptoType]) {
-            rv[walletType].crypto[cryptoType] = [response[walletType][cryptoType]]
-          }
-        })
-      }
-    })
-  }
-  return rv
-}
-
-function getLastUsedAddress (idToken: string) {
-  return {
-    type: 'GET_LAST_USED_ADDRESS',
-    payload: _getLastUsedAddress(idToken)
-  }
-}
-
-function notUseLastAddress () {
-  return {
-    type: 'NOT_USED_LAST_ADDRESS'
-  }
-}
-
 async function _verifyAccount (accountData: AccountData, options: ?Object) {
   let wallet = createWallet(accountData)
   await wallet.verifyAccount(options)
@@ -647,8 +607,6 @@ export {
   checkCloudWalletConnection,
   decryptCloudWallet,
   unlockCloudWallet,
-  getLastUsedAddress,
-  notUseLastAddress,
   clearDecryptCloudWalletError,
   checkLedgerDeviceConnection,
   checkLedgerAppConnection,
