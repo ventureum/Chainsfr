@@ -53,7 +53,7 @@ class AccountDropdownContainer extends Component<Props, State> {
   }
 
   render () {
-    const { cryptoAccounts, actionsPending, error } = this.props
+    const { cryptoAccounts, actionsPending, cryptoPrice, currency, error } = this.props
     const { account } = this.state
     let { filterCriteria } = this.props
     if (!filterCriteria) {
@@ -65,6 +65,7 @@ class AccountDropdownContainer extends Component<Props, State> {
         account={account}
         cryptoAccounts={cryptoAccounts.filter(filterCriteria)}
         onChange={this.onChange}
+        toCurrencyAmount={(balanceInStandardUnit, cryptoType) => utils.toCurrencyAmount(balanceInStandardUnit, cryptoPrice[cryptoType], currency)}
         pending={actionsPending.getCryptoAccounts}
         error={error}
       />
@@ -79,6 +80,8 @@ const errorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS', 'ADD_CRYPTO_AC
 const mapStateToProps = state => {
   return {
     cryptoAccounts: state.accountReducer.cryptoAccounts,
+    cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
+    currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       getCryptoAccounts: getCryptoAccountsSelector(state)
     },

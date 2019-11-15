@@ -108,13 +108,15 @@ class TransferFormComponent extends Component<Props> {
             disabled
           />
         </Grid>
-        <AccountDropdownContainer
-          onChange={handleTransferFormChange('accountSelection')}
-          prefilledAccount={prefilledAccount}
-          filterCriteria={accountData =>
-            !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
-          }
-        />
+        <Grid item>
+          <AccountDropdownContainer
+            onChange={handleTransferFormChange('accountSelection')}
+            prefilledAccount={prefilledAccount}
+            filterCriteria={accountData =>
+              !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
+            }
+          />
+        </Grid>
         <Grid item>
           <FormControl className={classes.formControl} variant='outlined'>
             <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>

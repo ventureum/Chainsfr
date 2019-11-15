@@ -1,6 +1,6 @@
-import EthereumLogo from './images/eth.svg'
-import BitcoinLogo from './images/btc.svg'
-import DaiLogo from './images/dai.svg'
+import EthereumLogo from './images/eth.png'
+import BitcoinLogo from './images/btc.png'
+import DaiLogo from './images/dai.png'
 import LibraLogo from './images/libra.png'
 
 export const cryptoSelections = [

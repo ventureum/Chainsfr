@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react'
-import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
@@ -14,34 +13,91 @@ import FormControl from '@material-ui/core/FormControl'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
+import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
+import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
+import { getWalletTitle } from '../wallet.js'
 
 type Props = {
   classes: Object,
   account: ?Object,
   cryptoAccounts: Array<Object>,
   error: Object,
-  onChange: Function
+  onChange: Function,
+  toCurrencyAmount: Function
 }
 
 class AccountDropdownComponent extends Component<Props> {
   renderAccountItem = item => {
-    const { classes } = this.props
+    const { toCurrencyAmount } = this.props
+
+    if (item.skeletonOnly) {
+      return (
+        <React.Fragment>
+          <Box pr={1} mb={1}>
+            <Skeleton variant='circle' width={40} height={40} />
+          </Box>
+          <Skeleton height={6} />
+          <Skeleton height={6} width='80%' />
+        </React.Fragment>
+      )
+    }
+
     return (
-      <div>
-        <Typography>{item.name}</Typography>
-        <Typography className={classes.securityAnswerBtnHelperText}>
-          {item.address}
-        </Typography>
-      </div>
+      <Grid container direction='row' alignItems='center'>
+        {/* crypto icon */}
+        <Grid item xs={1}>
+          <Avatar src={getCryptoLogo(item.cryptoType)}></Avatar>
+        </Grid>
+        {/* name and address */}
+        <Grid item xs={8}>
+          <Grid container direction='column'>
+            <Grid item>
+              <Typography variant='body2'>
+                {item.name} ({getWalletTitle(item.walletType)})
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='caption'>{item.address}</Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+        {/* balance */}
+        <Grid item xs={3}>
+          <Grid container direction='column' alignItems='flex-end'>
+            <Grid item>
+              <Typography variant='body2'>
+                {item.status === accountStatus.syncing ? (
+                  <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
+                ) : (
+                  `${item.balanceInStandardUnit} ${getCryptoSymbol(item.cryptoType)}`
+                )}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='caption'>
+                {toCurrencyAmount(item.balanceInStandardUnit, item.cryptoType)}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
     )
   }
 
   render () {
-    const { classes, account, cryptoAccounts, onChange, error } = this.props
+    const { classes, account, cryptoAccounts, onChange, pending, error } = this.props
+    let skeletonCryptoAccounts = []
+    if (pending) {
+      skeletonCryptoAccounts = [
+        { skeletonOnly: true },
+        { skeletonOnly: true },
+        { skeletonOnly: true }
+      ]
+    }
+
     return (
-      <>
-        <Grid item>
+      <Grid container direction='column'>
           <FormControl className={classes.formControl} variant='outlined'>
             <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
             <Select
@@ -52,9 +108,9 @@ class AccountDropdownComponent extends Component<Props> {
                     <Typography className={classes.securityAnswerBtnHelperText}>
                       {value.cryptoType === 'bitcoin'
                         ? `${value.hdWalletVariables.xpub.slice(
-                          0,
-                          16
-                        )}...${value.hdWalletVariables.xpub.slice(-24)}`
+                            0,
+                            16
+                          )}...${value.hdWalletVariables.xpub.slice(-24)}`
                         : value.address}
                     </Typography>
                   </div>
@@ -66,6 +122,13 @@ class AccountDropdownComponent extends Component<Props> {
               error={!!error}
               id='accountSelection'
             >
+              {skeletonCryptoAccounts.map((accountData, index) => {
+                return (
+                  <MenuItem key={index} value={accountData}>
+                    {this.renderAccountItem(accountData)}
+                  </MenuItem>
+                )
+              })}
               {cryptoAccounts.map((accountData, index) => {
                 return (
                   <MenuItem key={index} value={accountData}>
@@ -95,17 +158,11 @@ class AccountDropdownComponent extends Component<Props> {
               <LinearProgress />
             </Box>
           )}
-        </Grid>
-      </>
+      </Grid>
     )
   }
 }
 
-const styles = theme => ({
-  formControl: {
-    width: '100%',
-    margin: '5px 0px 5px 0px'
-  }
-})
+const styles = theme => ({})
 
 export default withStyles(styles)(AccountDropdownComponent)
