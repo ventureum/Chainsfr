@@ -51,6 +51,12 @@ export default function (state = initState, action) {
       }
     case 'LOGOUT_FULFILLED':
       return initState
+    case 'GET_CLOUD_WALLET_FULFILLED':
+    case 'CREATE_CLOUD_WALLET_FULFILLED':
+      return {
+        ...state,
+        cloudWalletConnected: true
+      }
     case 'SET_NEW_USER_TAG':
       return update(state, { profile: { newUser: { $set: action.payload } } })
     case 'GET_RECIPIENTS_FULFILLED':
