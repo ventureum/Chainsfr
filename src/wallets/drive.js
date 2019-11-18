@@ -6,7 +6,7 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
 import BitcoinAccount from '../accounts/BitcoinAccount.js'
-import bitcoin from 'bitcoinjs-lib'
+import * as bitcoin from 'bitcoinjs-lib'
 import Web3 from 'web3'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'

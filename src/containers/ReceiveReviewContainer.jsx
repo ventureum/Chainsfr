@@ -4,21 +4,39 @@ import ReceiveReview from '../components/ReceiveReviewComponent'
 import { acceptTransfer, getTxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-// import WalletUtils from '../wallets/utils'
+import { syncWithNetwork } from '../actions/accountActions'
 import moment from 'moment'
 import utils from '../utils'
 
 class ReceiveReviewContainer extends Component {
   componentDidMount () {
-    const { transfer, escrowAccount } = this.props
-    this.props.getTxFee({
-      fromAccount: escrowAccount,
-      transferAmount: transfer.transferAmount
-    })
+    const { escrowAccount, syncWithNetwork } = this.props
+    syncWithNetwork(escrowAccount)
+  }
+
+  componentDidUpdate (prevProps) {
+    if (
+      prevProps.actionsPending.syncWithNetwork &&
+      !this.props.actionsPending.syncWithNetwork &&
+      !this.props.error
+    ) {
+      this.props.getTxFee({
+        fromAccount: this.props.escrowAccount,
+        transferAmount: this.props.transfer.transferAmount
+      })
+    }
   }
 
   render () {
-    const { accountSelection, transfer, cryptoPrice, currency, txFee } = this.props
+    const {
+      accountSelection,
+      transfer,
+      cryptoPrice,
+      currency,
+      txFee,
+      actionsPending,
+      error
+    } = this.props
     const { sendTimestamp } = transfer
     const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
@@ -44,6 +62,12 @@ class ReceiveReviewContainer extends Component {
           txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit),
           receiveAmount: receiveAmount && toCurrencyAmount(receiveAmount)
         }}
+        proceedable={
+          (!actionsPending.syncWithNetwork ||
+            !actionsPending.getTxFee ||
+            !actionsPending.acceptTransfer) &&
+          !error
+        }
       />
     )
   }
@@ -51,14 +75,16 @@ class ReceiveReviewContainer extends Component {
 
 const acceptTransferSelector = createLoadingSelector(['ACCEPT_TRANSFER'])
 const getTxFeeSelector = createLoadingSelector(['GET_TX_COST'])
+const syncWithNetworkSelector = createLoadingSelector(['SYNC_WITH_NETWORK'])
 
-const errorSelector = createErrorSelector(['ACCEPT_TRANSFER'])
+const errorSelector = createErrorSelector(['ACCEPT_TRANSFER', 'SYNC_WITH_NETWORK'])
 
 const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: txRequest => dispatch(acceptTransfer(txRequest)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
-    goToStep: n => dispatch(goToStep('receive', n))
+    goToStep: n => dispatch(goToStep('receive', n)),
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
   }
 }
 
@@ -72,10 +98,14 @@ const mapStateToProps = state => {
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       acceptTransfer: acceptTransferSelector(state),
-      getTxFee: getTxFeeSelector(state)
+      getTxFee: getTxFeeSelector(state),
+      syncWithNetwork: syncWithNetworkSelector(state)
     },
     error: errorSelector(state)
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReceiveReviewContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ReceiveReviewContainer)

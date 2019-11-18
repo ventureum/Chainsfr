@@ -332,6 +332,29 @@ async function clearCloudWalletCryptoAccounts (): Promise<{
   }
 }
 
+async function getBtcMultisigPublicKey (): Promise<{ btcPublicKey: string }> {
+  try {
+    let rv = await chainsferApi.post('/transfer', {
+      action: 'GET_BTC_MULTI_SIG_PUBLIC_KEY'
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Get Chainsfr Btc public key failed: ${err}`)
+  }
+}
+
+async function sendBtcMultiSigTransaction (psbt: string): Promise<{ txHash: string }> {
+  try {
+    let rv = await chainsferApi.post('/transfer', {
+      action: 'SEND_BTC_MULTI_SIG_TRANSACTION',
+      psbt: psbt
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Send BTC from escrow account failed: ${err}`)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -351,5 +374,7 @@ export default {
   addCryptoAccount,
   getCryptoAccounts,
   removeCryptoAccount,
-  clearCloudWalletCryptoAccounts
+  clearCloudWalletCryptoAccounts,
+  getBtcMultisigPublicKey,
+  sendBtcMultiSigTransaction
 }

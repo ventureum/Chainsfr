@@ -38,6 +38,7 @@ export default function (state = initialState, action) {
       ) {
         return update(state, { transferForm: { accountSelection: { $set: action.payload } } })
       }
+      return state
     }
     case 'SYNC_WITH_NETWORK_PENDING': {
       if (
@@ -46,6 +47,7 @@ export default function (state = initialState, action) {
       ) {
         return update(state, { transferForm: { accountSelection: { $set: action.meta } } })
       }
+      return state
     }
     case 'SELECT_CRYPTO':
       return {

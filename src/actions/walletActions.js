@@ -11,10 +11,7 @@ import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports, cryptoInWallet } from '../wallet.js'
 import WalletFactory from '../wallets/factory'
 import API from '../apis'
-// import WalletUtils from '../wallets/utils'
-// import type { WalletData, AccountEthereum } from '../types/wallet.flow.js'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
-import LedgerNanoS from '../ledgerSigner'
 import env from '../typedEnv'
 
 // metamask
@@ -237,56 +234,56 @@ function getLedgerWalletData (cryptoType: string) {
   }
 }
 
-function checkLedgerDeviceConnection () {
-  return {
-    type: 'CHECK_LEDGER_DEVICE_CONNECTION',
-    payload: async () => {
-      let ledger = new LedgerNanoS()
-      try {
-        if (!LedgerNanoS.webUsbTransport) {
-          await ledger.getWebUsbTransport()
-        }
-      } catch (e) {
-        if (e.name !== 'TransportInterfaceNotAvailable') {
-          return Promise.reject(e)
-        }
-      }
-    }
-  }
-}
+// function checkLedgerDeviceConnection () {
+//   return {
+//     type: 'CHECK_LEDGER_DEVICE_CONNECTION',
+//     payload: async () => {
+//       let ledger = new LedgerNanoS()
+//       try {
+//         if (!LedgerNanoS.webUsbTransport) {
+//           await ledger.getWebUsbTransport()
+//         }
+//       } catch (e) {
+//         if (e.name !== 'TransportInterfaceNotAvailable') {
+//           return Promise.reject(e)
+//         }
+//       }
+//     }
+//   }
+// }
 
-function checkLedgerAppConnection (cryptoType: string) {
-  return {
-    type: 'CHECK_LEDGER_APP_CONNECTION',
-    payload: async () => {
-      function sleep (time) {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve()
-          }, time)
-        })
-      }
-      if (!cryptoInWallet(cryptoType, 'ledger')) {
-        throw new Error('Invalid cryptoType for Ledger')
-      }
-      let ledger = new LedgerNanoS()
-      while (true) {
-        try {
-          if (['ethereum', 'dai'].includes(cryptoType)) {
-            await ledger.getEthAddress(0)
-            break
-          } else {
-            await ledger.getBtcAddresss(0)
-            break
-          }
-        } catch (e) {
-          console.warn(e)
-          await sleep(2000)
-        }
-      }
-    }
-  }
-}
+// function checkLedgerAppConnection (cryptoType: string) {
+//   return {
+//     type: 'CHECK_LEDGER_APP_CONNECTION',
+//     payload: async () => {
+//       function sleep (time) {
+//         return new Promise((resolve, reject) => {
+//           setTimeout(() => {
+//             resolve()
+//           }, time)
+//         })
+//       }
+//       if (!cryptoInWallet(cryptoType, 'ledger')) {
+//         throw new Error('Invalid cryptoType for Ledger')
+//       }
+//       let ledger = new LedgerNanoS()
+//       while (true) {
+//         try {
+//           if (['ethereum', 'dai'].includes(cryptoType)) {
+//             await ledger.getEthAddress(0)
+//             break
+//           } else {
+//             await ledger.getBtcAddresss(0)
+//             break
+//           }
+//         } catch (e) {
+//           console.warn(e)
+//           await sleep(2000)
+//         }
+//       }
+//     }
+//   }
+// }
 
 function sync (walletData: any, progress?: Function) {
   return {
@@ -608,8 +605,6 @@ export {
   decryptCloudWallet,
   unlockCloudWallet,
   clearDecryptCloudWalletError,
-  checkLedgerDeviceConnection,
-  checkLedgerAppConnection,
   checkReferralWalletConnection,
   verifyAccount,
   checkWalletConnection,

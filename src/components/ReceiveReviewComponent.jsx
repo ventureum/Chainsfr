@@ -7,12 +7,18 @@ import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
-// import WalletUtils from '../wallets/utils'
 import Divider from '@material-ui/core/Divider'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { destinationAddress, transfer, escrowAccount, txFee, walletSelection, wallet } = this.props
+    const {
+      destinationAddress,
+      transfer,
+      escrowAccount,
+      txFee,
+      walletSelection,
+      wallet
+    } = this.props
     const { receivingId, transferAmount, walletId } = transfer
     // accept transfer
     this.props.acceptTransfer({
@@ -34,7 +40,8 @@ class ReceiveReviewComponent extends Component {
       destinationAddress,
       sendTime,
       receiveAmount,
-      currencyAmount
+      currencyAmount,
+      proceedable
     } = this.props
     const { transferAmount, senderName, sender, destination, receiverName, cryptoType } = transfer
 
@@ -197,7 +204,7 @@ class ReceiveReviewComponent extends Component {
                 size='large'
                 onClick={() => this.props.goToStep(-1)}
                 id='cancel'
-                disabled={actionsPending.acceptTransfer || actionsPending.getTxFee}
+                disabled={!proceedable}
               >
                 Cancel
               </Button>
@@ -208,7 +215,7 @@ class ReceiveReviewComponent extends Component {
                 variant='contained'
                 color='primary'
                 size='large'
-                disabled={actionsPending.acceptTransfer || actionsPending.getTxFee}
+                disabled={!proceedable}
                 onClick={this.handleReviewNext}
                 id='complete'
               >

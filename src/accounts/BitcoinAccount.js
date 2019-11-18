@@ -4,7 +4,7 @@ import { accountStatus } from '../types/account.flow.js'
 import type { BasicTokenUnit } from '../types/token.flow'
 import type { TxFee } from '../types/transfer.flow'
 
-import bitcoin from 'bitcoinjs-lib'
+import * as bitcoin from 'bitcoinjs-lib'
 import BN from 'bn.js'
 import * as bip32 from 'bip32'
 import axios from 'axios'
@@ -32,7 +32,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       cryptoType: accountData.cryptoType,
       walletType: accountData.walletType,
       // address in hardware wallet is the next receiving address
-      address: accountData.Address || '0x0',
+      address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
 
       balance: accountData.balance || '0',
@@ -75,12 +75,13 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     if (!this.accountData.hdWalletVariables.xpriv) {
       throw new Error('PrivateKey does not exist')
     }
-    // shouldn't we delete privKey here?
+
     this.accountData.encryptedPrivateKey = await utils.encryptMessage(
       this.accountData.hdWalletVariables.xpriv,
       password
     )
     this.accountData.privateKey = null
+    this.accountData.hdWalletVariables.xpriv = null
   }
 
   decryptAccount = async (password: string) => {
@@ -93,24 +94,24 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     this.accountData.hdWalletVariables.xpriv = xpriv
     const path = `m/${BASE_BTC_PATH}/${DEFAULT_ACCOUNT}'`
     const firstAddressNode = bip32.fromBase58(xpriv, NETWORK).derivePath(path + '/0/0')
-    const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({
-        // change = 0, addressIdx = 0
-        pubkey: firstAddressNode.publicKey,
-        network: NETWORK
-      }),
-      network: NETWORK
-    })
-    this.accountData.privateKey = bip32
-      .fromBase58(xpriv, NETWORK)
-      .derivePath(path + '/0/0')
-      .toWIF()
+
+    this.accountData.privateKey = firstAddressNode.toWIF()
     this.accountData.hdWalletVariables.xpub = bip32
       .fromBase58(xpriv, NETWORK)
       .derivePath(path)
       .neutered()
       .toBase58()
-    this.accountData.address = address
+    if (this.accountData.address === '0x0') {
+      const { address } = bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({
+          // change = 0, addressIdx = 0
+          pubkey: firstAddressNode.publicKey,
+          network: NETWORK
+        }),
+        network: NETWORK
+      })
+      this.accountData.address = address
+    }
   }
 
   syncWithNetwork = async () => {
@@ -118,7 +119,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     let { xpub } = hdWalletVariables
     let addressPool = []
 
-    if (['drive', 'escrow'].includes(walletType)) {
+    if (walletType === 'drive') {
       // only use the first derived address
       hdWalletVariables.nextAddressIndex = 0
       hdWalletVariables.nextChangeIndex = 0
@@ -126,6 +127,23 @@ export default class BitcoinAccount implements IAccount<AccountData> {
         {
           // use default address if xpub is not provided
           address: this._getDerivedAddress(xpub, 0, 0),
+          path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
+          utxos: []
+        }
+      ]
+      this.accountData.address = this._getDerivedAddress(
+        xpub,
+        0,
+        hdWalletVariables.nextAddressIndex
+      )
+    } else if (walletType === 'escrow') {
+      hdWalletVariables.nextAddressIndex = 0
+      hdWalletVariables.nextChangeIndex = 0
+      hdWalletVariables.addresses = [
+        {
+          // the address of an escrow wallet account is not derived from its xpub
+          // it is a P2SH(P2WSH(P2MS)) address with Chainsfr's public key.
+          address: this.accountData.address,
           path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
           utxos: []
         }
@@ -165,8 +183,12 @@ export default class BitcoinAccount implements IAccount<AccountData> {
 
       // append discovered addresses to the old address pool
       hdWalletVariables.addresses.push(...addressPool)
+      this.accountData.address = this._getDerivedAddress(
+        xpub,
+        0,
+        hdWalletVariables.nextAddressIndex
+      )
     }
-    this.accountData.address = this._getDerivedAddress(xpub, 0, hdWalletVariables.nextAddressIndex)
 
     // retrieve utxos and calcualte balance for each address
     let utxoData = await Promise.all(
@@ -290,11 +312,9 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
       const address = this._getDerivedAddress(xpub, change, currentIdx)
 
-      const response = (
-        await axios.get(
-          `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
-        )
-      ).data
+      const response = (await axios.get(
+        `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+      )).data
 
       if (response.txs.length === 0) {
         gap++
