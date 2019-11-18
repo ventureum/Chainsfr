@@ -151,37 +151,6 @@ async function getPrefilledAccount () {
   }
 }
 
-async function setLastUsedAddress (request: {
-  idToken: string,
-  walletType: string,
-  cryptoType: string,
-  address: string
-}) {
-  try {
-    var rv = await chainsferApi.post('/transfer', {
-      clientId: 'test-client',
-      action: 'SET_LAST_USED_ADDRESS',
-      ...request
-    })
-    return rv.data
-  } catch (e) {
-    console.warn(e)
-  }
-}
-
-async function getLastUsedAddress (request: { idToken: string }) {
-  try {
-    let rv = await chainsferApi.post('/transfer', {
-      clientId: 'test-client',
-      action: 'GET_LAST_USED_ADDRESS',
-      ...request
-    })
-    return rv.data
-  } catch (e) {
-    console.warn(e)
-  }
-}
-
 async function getRecipients (request: { idToken: string }) {
   try {
     let rv = await chainsferApi.post('/user', {
@@ -371,8 +340,6 @@ export default {
   getTransfer,
   getPrefilledAccount,
   getBatchTransfers,
-  setLastUsedAddress,
-  getLastUsedAddress,
   getRecipients,
   addRecipient,
   removeRecipient,

@@ -2,10 +2,7 @@
 import React, { Component } from 'react'
 import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
-import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
@@ -13,8 +10,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import Icon from '@material-ui/core/Icon'
 import IconButton from '@material-ui/core/IconButton'
 import RefreshIcon from '@material-ui/icons/Refresh'
-import numeral from 'numeral'
-import { getCryptoSymbol, getCryptoLogo } from '../tokens'
+import { getCryptoSymbol } from '../tokens'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -22,22 +18,23 @@ import FormControl from '@material-ui/core/FormControl'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import Divider from '@material-ui/core/Divider'
 import Tooltip from '@material-ui/core/Tooltip'
-import { accountStatus } from '../types/account.flow'
+import AccountDropdownContainer from '../containers/AccountDropdownContainer'
+
 type Props = {
   generateSecurityAnswer: Function,
   goToStep: Function,
   handleTransferFormChange: Function,
   validateForm: Function,
-  balanceAmount: string,
   balanceCurrencyAmount: string,
-  cryptoSelection: string,
   transferForm: Object,
   currency: string,
   classes: Object,
   actionsPending: Object,
   recipients: Array<Object>,
   addRecipient: Function,
-  cryptoAccounts: Array<Object>
+  walletSelectionPrefilled: string,
+  cryptoTypePrefilled: string,
+  addressPrefilled: string
 }
 
 class TransferFormComponent extends Component<Props> {
@@ -45,17 +42,17 @@ class TransferFormComponent extends Component<Props> {
     const {
       classes,
       transferForm,
-      cryptoSelection,
       handleTransferFormChange,
       validateForm,
       currency,
-      balanceAmount,
       balanceCurrencyAmount,
       actionsPending,
       recipients,
       addRecipient,
       generateSecurityAnswer,
-      cryptoAccounts
+      walletSelectionPrefilled,
+      cryptoTypePrefilled,
+      addressPrefilled
     } = this.props
     const {
       accountSelection,
@@ -69,6 +66,12 @@ class TransferFormComponent extends Component<Props> {
       formError
     } = transferForm
 
+    const prefilledAccount = walletSelectionPrefilled && cryptoTypePrefilled && addressPrefilled &&
+    {
+      walletType: walletSelectionPrefilled,
+      cryptoType: cryptoTypePrefilled,
+      address: addressPrefilled
+    }
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={1}>
         <Grid item>
@@ -106,77 +109,14 @@ class TransferFormComponent extends Component<Props> {
           />
         </Grid>
         <Grid item>
-          <FormControl className={classes.formControl} variant='outlined'>
-            <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
-            <Select
-              renderValue={value => {
-                return (
-                  <div>
-                    <Typography>{value.name}</Typography>
-                    <Typography className={classes.securityAnswerBtnHelperText}>
-                      {value.cryptoType === 'bitcoin'
-                        ? `${value.hdWalletVariables.xpub.slice(
-                            0,
-                            16
-                          )}...${value.hdWalletVariables.xpub.slice(-24)}`
-                        : value.address}
-                    </Typography>
-                  </div>
-                )
-              }}
-              value={accountSelection || ''}
-              onChange={handleTransferFormChange('accountSelection')}
-              input={<OutlinedInput labelWidth={125} name='Select Account' />}
-              error={!!formError.accountSelection}
-              id={'accountSelection'}
-            >
-              {cryptoAccounts.map((accountData, index) => {
-                return (
-                  <MenuItem key={index} value={accountData}>
-                    <Grid container spacing={2}>
-                      <Grid item>
-                        <Avatar src={getCryptoLogo(accountData.cryptoType)}></Avatar>
-                      </Grid>
-                      <Grid item>
-                        <Typography>{accountData.name}</Typography>
-                        <Typography className={classes.securityAnswerBtnHelperText}>
-                          {accountData.cryptoType === 'bitcoin'
-                            ? `${accountData.hdWalletVariables.xpub.slice(
-                                0,
-                                16
-                              )}...${accountData.hdWalletVariables.xpub.slice(-24)}`
-                            : accountData.address}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </MenuItem>
-                )
-              })}
-              {cryptoAccounts.length !== 0 && <Divider />}
-              <MenuItem value='addCryptoAccount'>
-                <Button onClick={() => {}} style={{ width: '100%' }}>
-                  <Typography>Add Account</Typography>
-                </Button>
-              </MenuItem>
-            </Select>
-          </FormControl>
+          <AccountDropdownContainer
+            onChange={handleTransferFormChange('accountSelection')}
+            prefilledAccount={prefilledAccount}
+            filterCriteria={accountData =>
+              !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
+            }
+          />
         </Grid>
-        {accountSelection && accountSelection.status === accountStatus.syncing && (
-          <Grid item>
-            <Box
-              style={{
-                padding: '20px',
-                backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                borderRadius: '4px'
-              }}
-            >
-              <Typography variant='body2' style={{ marginBottom: '10px' }}>
-                Checking your account
-              </Typography>
-              <LinearProgress />
-            </Box>
-          </Grid>
-        )}
         <Grid item>
           <FormControl className={classes.formControl} variant='outlined'>
             <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>
@@ -249,8 +189,8 @@ class TransferFormComponent extends Component<Props> {
                   formError.transferAmount ||
                   (accountSelection
                     ? `Balance: ${accountSelection.balanceInStandardUnit} ${getCryptoSymbol(
-                        accountSelection.cryptoType
-                      )}`
+                      accountSelection.cryptoType
+                    )}`
                     : '')
                 }
                 disabled={!accountSelection}

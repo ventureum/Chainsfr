@@ -13,7 +13,7 @@ import validator from 'validator'
 import BN from 'bn.js'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getTxFee } from '../actions/transferActions.js'
-import { getRecipients, addRecipient, getCryptoAccounts } from '../actions/userActions'
+import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
@@ -46,12 +46,7 @@ class TransferFormContainer extends Component<Props, State> {
       updateTransferForm,
       getRecipients,
       destinationPrefilled,
-      receiverNamePrefilled,
-      cryptoTypePrefilled,
-      addressPrefilled,
-      cryptoAccounts,
-      walletSelectionPrefilled,
-      getCryptoAccounts
+      receiverNamePrefilled
     } = this.props
     this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
@@ -61,23 +56,10 @@ class TransferFormContainer extends Component<Props, State> {
           sender: { $set: profile.profileObj.email },
           senderName: { $set: profile.profileObj.name },
           destination: { $set: destinationPrefilled },
-          receiverName: { $set: receiverNamePrefilled },
-          accountSelection: {
-            $set:
-              cryptoAccounts.find(item => {
-                return utils.accountsEqual(item, {
-                  cryptoType: cryptoTypePrefilled,
-                  address: addressPrefilled,
-                  walletType: walletSelectionPrefilled
-                })
-              }) || null
-          }
+          receiverName: { $set: receiverNamePrefilled }
         })
       )
       getRecipients()
-      if (cryptoAccounts.length === 0) {
-        getCryptoAccounts()
-      }
     }
   }
 
@@ -323,9 +305,7 @@ class TransferFormContainer extends Component<Props, State> {
       currency,
       actionsPending,
       addRecipient,
-      transferForm,
-      cryptoAccounts,
-      walletSelectionPrefilled
+      transferForm
     } = this.props
     const { accountSelection } = transferForm
     let balance = '0'
@@ -339,15 +319,10 @@ class TransferFormContainer extends Component<Props, State> {
       )
     }
 
-    const filterCryptoAccounts = cryptoAccounts.filter(accountData => {
-      return !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
-    })
-
     return (
       <>
         <TransferForm
           {...this.props}
-          cryptoAccounts={filterCryptoAccounts}
           handleTransferFormChange={this.handleTransferFormChange}
           validate={this.validate}
           validateForm={this.validateForm}
@@ -370,7 +345,6 @@ const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const errorSelector = createErrorSelector(['GET_TX_COST', 'ADD_RECIPIENT'])
 const getRecipientsSelector = createLoadingSelector(['GET_RECIPIENTS'])
 const addRecipientSelector = createLoadingSelector(['ADD_RECIPIENT'])
-const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -381,8 +355,7 @@ const mapDispatchToProps = dispatch => {
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
     addRecipient: recipient => dispatch(addRecipient(recipient)),
-    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
-    getCryptoAccounts: () => dispatch(getCryptoAccounts())
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
   }
 }
 
@@ -394,12 +367,10 @@ const mapStateToProps = state => {
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     recipients: state.userReducer.recipients,
-    cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       getTxFee: gettxFeeSelector(state),
       getRecipients: getRecipientsSelector(state),
-      addRecipient: addRecipientSelector(state),
-      getCryptoAccounts: getCryptoAccountsSelector(state)
+      addRecipient: addRecipientSelector(state)
     },
     error: errorSelector(state)
   }

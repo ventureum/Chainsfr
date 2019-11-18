@@ -216,8 +216,8 @@ async function _transactionHashRetrieved (txRequest: {|
 }
 
 async function _acceptTransfer (txRequest: {
-  escrowWallet: WalletData,
-  receiveWallet: WalletData,
+  escrowAccount: AccountData,
+  destinationAddress: Address,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -225,9 +225,9 @@ async function _acceptTransfer (txRequest: {
   walletId: string
 }) {
   let {
-    escrowWallet,
+    escrowAccount,
     txFee,
-    receiveWallet,
+    destinationAddress,
     transferAmount,
     receivingId,
     receiveMessage,
@@ -239,31 +239,36 @@ async function _acceptTransfer (txRequest: {
     receiveMessage = MESSAGE_NOT_PROVIDED
   }
 
-  let { cryptoType } = escrowWallet
+  let { cryptoType } = escrowAccount
+
+  // assuming wallet has been decrypted
+  let wallet = createWallet(escrowAccount)
+
+  // verify wallet
+  await wallet.verifyAccount()
+
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  let multisig
+  let multiSig
+
   if (['ethereum', 'dai'].includes(cryptoType)) {
-    multisig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
+    // ethereum based coins
+    multiSig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
   }
 
   // $FlowFixMe
-  let { receiveTxHash, receiveTimestamp }: any = await WalletFactory.createWallet(
-    escrowWallet
-  ).sendTransaction({
-    to: WalletFactory.createWallet(receiveWallet).getAccount().address,
+  let { receiveTxHash, receiveTimestamp }: any = await wallet.sendTransaction({
+    to: destinationAddress,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      multisig
+      multiSig
     }
   })
-
-  if (Array.isArray(receiveTxHash)) throw new Error('receiveTxHash should not be an array')
 
   return _acceptTransferTransactionHashRetrieved({
     receiveTxHash: receiveTxHash,
@@ -295,7 +300,7 @@ async function _acceptTransferTransactionHashRetrieved (txRequest: {|
 }
 
 async function _cancelTransfer (txRequest: {
-  escrowWallet: WalletData,
+  escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,
@@ -304,7 +309,7 @@ async function _cancelTransfer (txRequest: {
   walletId: string
 }) {
   let {
-    escrowWallet,
+    escrowAccount,
     transferId,
     sendTxHash,
     transferAmount,
@@ -318,10 +323,13 @@ async function _cancelTransfer (txRequest: {
     cancelMessage = MESSAGE_NOT_PROVIDED
   }
 
-  let { cryptoType } = escrowWallet
+  let { cryptoType } = escrowAccount
 
   // assuming wallet has been decrypted
-  let wallet = WalletFactory.createWallet(escrowWallet)
+  let wallet = createWallet(escrowAccount)
+
+  // verify wallet
+  await wallet.verifyAccount()
 
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
@@ -329,7 +337,7 @@ async function _cancelTransfer (txRequest: {
     .toString()
   let senderAddress: Address
 
-  let multisig
+  let multiSig
 
   if (cryptoType === 'bitcoin') {
     senderAddress = await getFirstFromAddress(sendTxHash)
@@ -338,7 +346,7 @@ async function _cancelTransfer (txRequest: {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
-    multisig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
+    multiSig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
   } else if (cryptoType === 'libra') {
     // txHash is the sender's address for libra
     senderAddress = sendTxHash
@@ -353,7 +361,7 @@ async function _cancelTransfer (txRequest: {
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      multisig
+      multiSig
     }
   })
 
@@ -434,110 +442,80 @@ async function _getTransferHistory (offset: number = 0) {
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = await API.getBatchTransfers({
-    transferIds: transferIds,
-    receivingIds: receivingIds
+  let transferData = (
+    await API.getBatchTransfers({
+      transferIds: transferIds,
+      receivingIds: receivingIds
+    })
+  ).map(item => {
+    let state = null
+    let transferType: ?string = null
+    let password: ?string = null
+    if (!item.error) {
+      if (
+        item.transferId &&
+        transferIdsSet.has(item.transferId) &&
+        transfersDict[item.transferId]
+      ) {
+        password = Base64.decode(transfersDict[item.transferId].password)
+        transferType = 'SENDER'
+      } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
+        transferType = 'RECEIVER'
+      } else {
+        item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
+      }
+      const { sendTxState, receiveTxState, cancelTxState } = item
+      switch (sendTxState) {
+        case 'Pending': {
+          // SEND_PENDING
+          state = transferStates.SEND_PENDING
+          break
+        }
+        case 'Confirmed': {
+          switch (receiveTxState) {
+            // SEND_CONFIRMED_RECEIVE_PENDING
+            case 'Pending':
+              state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+              break
+            // SEND_CONFIRMED_RECEIVE_CONFIRMED
+            case 'Confirmed':
+              state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+              break
+            // SEND_CONFIRMED_RECEIVE_FAILURE
+            case 'Failed':
+              state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+              break
+            case null:
+              state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+              break
+            case 'Expired': {
+              // SEND_CONFIRMED_RECEIVE_EXPIRED
+              state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+              break
+            }
+            default:
+              break
+          }
+          switch (cancelTxState) {
+            // SEND_CONFIRMED_CANCEL_PENDING
+            case 'Pending':
+              state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+              break
+            // SEND_CONFIRMED_CANCEL_CONFIRMED
+            case 'Confirmed':
+              state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+              break
+            // SEND_CONFIRMED_CANCEL_FAILURE
+            case 'Failed':
+              state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+              break
+            default:
+              break
+          }
+        }
+      }
+    }
   })
-
-  transferData = transferData
-    .sort((a, b) => {
-      // we have to re-sort since API.getBatchTransfers does not persist order
-      // sort transfers by timestamp in descending order
-      let getTimestamp = item => {
-        let rv = item.sendTimestamp ? item.sendTimestamp : item.receiveTimestamp
-        if (!rv) {
-          console.warn(
-            `Missing timestamp in transfer history data. Transfer ID: ${item.transferId}`
-          )
-          return 0
-        }
-        return rv
-      }
-      return getTimestamp(b) - getTimestamp(a)
-    })
-    .map(item => {
-      let state = null
-      let transferType: ?string = null
-      let password: ?string = null
-      if (!item.error) {
-        if (
-          item.transferId &&
-          transferIdsSet.has(item.transferId) &&
-          transfersDict[item.transferId]
-        ) {
-          password = Base64.decode(transfersDict[item.transferId].password)
-          transferType = 'SENDER'
-        } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
-          transferType = 'RECEIVER'
-        } else {
-          item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
-        }
-        const { sendTxState, receiveTxState, cancelTxState } = item
-        switch (sendTxState) {
-          case 'Pending': {
-            // SEND_PENDING
-            state = transferStates.SEND_PENDING
-            break
-          }
-          case 'Confirmed': {
-            switch (receiveTxState) {
-              // SEND_CONFIRMED_RECEIVE_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
-                break
-              // SEND_CONFIRMED_RECEIVE_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
-                break
-              // SEND_CONFIRMED_RECEIVE_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
-                break
-              case null:
-                state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
-                break
-              case 'Expired': {
-                // SEND_CONFIRMED_RECEIVE_EXPIRED
-                state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
-                break
-              }
-              default:
-                break
-            }
-            switch (cancelTxState) {
-              // SEND_CONFIRMED_CANCEL_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
-                break
-              // SEND_CONFIRMED_CANCEL_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
-                break
-              // SEND_CONFIRMED_CANCEL_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
-                break
-              default:
-                break
-            }
-            break
-          }
-          case 'Failed': {
-            // SEND_FAILURE
-            state = transferStates.SEND_FAILURE
-            break
-          }
-          default:
-            state = 'UNKNOW'
-        }
-      }
-      return {
-        ...item,
-        transferType,
-        password,
-        state
-      }
-    })
 
   return { hasMore, transferData, offset }
 }
@@ -562,13 +540,6 @@ function submitTx (txRequest: {
   }
 }
 
-function setLastUsedAddress ({ idToken, cryptoType, walletType, address }) {
-  return {
-    type: 'SET_LAST_USED_ADDRESS',
-    payload: API.setLastUsedAddress({ idToken, cryptoType, walletType, address })
-  }
-}
-
 function directTransfer (txRequest: {
   fromWallet: Object,
   transferAmount: StandardTokenUnit,
@@ -584,8 +555,8 @@ function directTransfer (txRequest: {
 }
 
 function acceptTransfer (txRequest: {
-  escrowWallet: WalletData,
-  receiveWallet: WalletData,
+  escrowAccount: AccountData,
+  destinationAddress: Address,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -593,32 +564,17 @@ function acceptTransfer (txRequest: {
   walletId: string
 }) {
   return (dispatch: Function, getState: Function) => {
-    const { receiveWallet } = txRequest
-    const { walletType, cryptoType } = receiveWallet
     return dispatch({
       type: 'ACCEPT_TRANSFER',
       payload: _acceptTransfer(txRequest)
     }).then(() => {
-      const { profile } = getState().userReducer
-      if (profile.isAuthenticated && profile.idToken) {
-        const idToken = profile.idToken
-        dispatch(
-          setLastUsedAddress({
-            idToken,
-            cryptoType,
-            walletType,
-            address: WalletFactory.createWallet(receiveWallet).getAccount().address
-          })
-        )
-      }
-
       dispatch(goToStep('receive', 1))
     })
   }
 }
 
 function cancelTransfer (txRequest: {
-  escrowWallet: WalletData,
+  escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
   transferAmount: StandardTokenUnit,

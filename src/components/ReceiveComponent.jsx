@@ -3,8 +3,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
-import ReceivePassword from '../containers/ReceivePasswordContainer'
-import ReceiveWalletSelection from '../containers/ReceiveWalletSelectionContainer'
+import ReceiveForm from '../containers/ReceiveFormContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
 import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
 import ReceiveLandingPage from '../containers/ReceiveLandingPageContainer'
@@ -21,20 +20,15 @@ class ReceiveComponent extends React.Component {
           ) : (
             <Grid container direction='column'>
               <Grid item>
-                {step <= 3 && step >= 1 && <Stepper actionType='receive' step={step - 1} />}
+                <Stepper actionType='receive' step={step - 1} />
               </Grid>
               <Grid item>
                 {/* receipt page requires a different background color */}
                 <Grid container direction='column' alignItems='center'>
-                  {step === 2 && (
-                    <Grid item className={classes.walletSelectionContainer}>
-                      <ReceiveWalletSelection />
-                    </Grid>
-                  )}
                   <Grid item className={classes.subComponent}>
-                    {step === 1 && <ReceivePassword />}
-                    {step === 3 && <ReceiveReview />}
-                    {step === 4 && <ReceiveReceipt />}
+                    {step === 1 && <ReceiveForm />}
+                    {step === 2 && <ReceiveReview />}
+                    {step === 3 && <ReceiveReceipt />}
                   </Grid>
                 </Grid>
               </Grid>

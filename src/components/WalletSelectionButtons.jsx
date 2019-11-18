@@ -75,7 +75,7 @@ export function WalletButton (props) {
 }
 
 export default function WalletSelectionButtons (props) {
-  const { handleClick, walletSelection, cryptoType, lastUsedWallet, purpose } = props
+  const { handleClick, walletSelection, cryptoType, purpose } = props
   const classes = useStyles()
   return (
     <Grid
@@ -104,12 +104,7 @@ export default function WalletSelectionButtons (props) {
                 walletType={w.walletType}
                 selected={w.walletType === walletSelection}
                 disabled={
-                  (w.disabled &&
-                    !(
-                      lastUsedWallet &&
-                      lastUsedWallet[w.walletType] &&
-                      lastUsedWallet[w.walletType].crypto[cryptoType]
-                    )) ||
+                  w.disabled ||
                   (cryptoType && walletDisabledByCrypto(w.walletType, cryptoType))
                 }
                 handleClick={handleClick}

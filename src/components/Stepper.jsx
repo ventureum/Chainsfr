@@ -6,7 +6,7 @@ import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 
 const stepsByActionType = {
-  receive: ['Security Answer', 'Wallet', 'Review'],
+  receive: ['Security Answer', 'Review', 'Receipt'],
   transfer: ['Transfer Form', 'Review', 'Wallet Authentication', 'Receipt']
 }
 
