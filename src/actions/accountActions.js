@@ -6,6 +6,8 @@ import { getWallet } from '../drive.js'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
 import { accountStatus } from '../types/account.flow'
+import { enqueueSnackbar } from './notificationActions.js'
+import API from '../apis.js'
 
 async function _syncWithNetwork (accountData: AccountData) {
   let account = createAccount(accountData)
@@ -121,10 +123,88 @@ function markAccountDirty (accountData: AccountData) {
   }
 }
 
+function syncHelper (dispatch, accounts) {
+  accounts.forEach(cryptoAccount => {
+    if ([accountStatus.initialized, accountStatus.dirty].includes(cryptoAccount.status)) {
+      dispatch(syncWithNetwork(cryptoAccount))
+    }
+  })
+}
+
+async function _addCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.addCryptoAccount(accountData)).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
+function addCryptoAccount (accountData: AccountData) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'ADD_CRYPTO_ACCOUNT',
+      payload: _addCryptoAccount(accountData)
+    })
+      .then(data =>
+        syncHelper(dispatch, [
+          // only sync one account
+          data.value.find(account => utils.accountsEqual(accountData, account))
+        ])
+      )
+      .then(() => {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Account added successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
+  }
+}
+
+function getCryptoAccounts () {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'GET_CRYPTO_ACCOUNTS',
+      payload: _getCryptoAccounts()
+    }).then(data => syncHelper(dispatch, data.value))
+  }
+}
+
+async function _getCryptoAccounts (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.getCryptoAccounts()).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
+function removeCryptoAccount (accountData: AccountData) {
+  return {
+    type: 'REMOVE_CRYPTO_ACCOUNT',
+    payload: _removeCryptoAccount(accountData)
+  }
+}
+
+async function _removeCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.removeCryptoAccount(accountData)).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
 export {
   syncWithNetwork,
   getTxFee,
   decryptCloudWalletAccount,
   verifyEscrowAccountPassword,
-  markAccountDirty
+  markAccountDirty,
+  getCryptoAccounts,
+  addCryptoAccount,
+  removeCryptoAccount
 }

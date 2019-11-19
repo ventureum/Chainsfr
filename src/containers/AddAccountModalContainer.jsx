@@ -9,7 +9,7 @@ import {
   checkWalletConnection,
   newCryptoAccountFromWallet
 } from '../actions/walletActions'
-import { addCryptoAccount } from '../actions/userActions.js'
+import { addCryptoAccount } from '../actions/accountActions.js'
 
 type Props = {
   actionsPending: Object,

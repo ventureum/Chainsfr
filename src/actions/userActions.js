@@ -2,9 +2,6 @@
 import { gapiLoad } from '../drive'
 import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
-import type { AccountData } from '../types/account.flow.js'
-
-import { createAccount } from '../accounts/AccountFactory.js'
 import { enqueueSnackbar } from './notificationActions.js'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
@@ -170,64 +167,6 @@ function removeRecipient (recipient: Recipient) {
   }
 }
 
-async function _addCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.addCryptoAccount(accountData)).cryptoAccounts
-  // transform to front-end accountData type
-  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
-    createAccount(cryptoAccount).getAccountData()
-  )
-  return cryptoAccounts
-}
-
-function addCryptoAccount (accountData: AccountData) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'ADD_CRYPTO_ACCOUNT',
-      payload: _addCryptoAccount(accountData)
-    }).then(() => {
-      dispatch(
-        enqueueSnackbar({
-          message: 'Account added successfully.',
-          key: new Date().getTime() + Math.random(),
-          options: { variant: 'info', autoHideDuration: 3000 }
-        })
-      )
-    })
-  }
-}
-
-function getCryptoAccounts () {
-  return {
-    type: 'GET_CRYPTO_ACCOUNTS',
-    payload: _getCryptoAccounts()
-  }
-}
-
-async function _getCryptoAccounts (accountData: AccountData): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.getCryptoAccounts()).cryptoAccounts
-  // transform to front-end accountData type
-  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
-    createAccount(cryptoAccount).getAccountData()
-  )
-  return cryptoAccounts
-}
-
-function removeCryptoAccount (accountData: AccountData) {
-  return {
-    type: 'REMOVE_CRYPTO_ACCOUNT',
-    payload: _removeCryptoAccount(accountData)
-  }
-}
-
-async function _removeCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.removeCryptoAccount(accountData)).cryptoAccounts
-  // transform to front-end accountData type
-  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
-    createAccount(cryptoAccount).getAccountData()
-  )
-  return cryptoAccounts
-}
-
 export {
   clearError,
   register,
@@ -238,8 +177,5 @@ export {
   getRecipients,
   addRecipient,
   removeRecipient,
-  editRecipient,
-  getCryptoAccounts,
-  addCryptoAccount,
-  removeCryptoAccount
+  editRecipient
 }

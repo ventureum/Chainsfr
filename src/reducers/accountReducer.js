@@ -1,6 +1,4 @@
 import update from 'immutability-helper'
-import { createAccount } from '../accounts/AccountFactory'
-import utils from '../utils.js'
 /*
  *  Handle accounts
  */
@@ -11,31 +9,72 @@ const initState = {
   newCryptoAccountFromWallet: null
 }
 
-function updateCryptoAccount (state, newAccountData) {
-  if (newAccountData.walletType === 'escrow') {
-    return update(state, { escrowAccount: { $set: newAccountData } })
+/*
+ * @param overwriteExisting Solving key collision using the newCryptoAccounts
+ * @param remove Deleting the account if the acount is not found in newCryptoAccounts
+ */
+function updateCryptoAccount (state, newCryptoAccounts, remove = false, overwriteExisting = true) {
+  let cryptoAccountMap = {}
+  let newCryptoAccountMap = {}
+  let accounts = []
+  const { cryptoAccounts } = state
+
+  const accountToId = account => {
+    const { walletType, cryptoType, address } = account
+    return JSON.stringify({ walletType, cryptoType, address })
   }
-  let { cryptoAccounts } = state
-  cryptoAccounts = cryptoAccounts.map(accountData => {
-    if (utils.accountsEqual(newAccountData, accountData)) {
-      return { ...accountData, ...newAccountData }
+
+  if (!Array.isArray(newCryptoAccounts)) {
+    const newCryptoAccount = newCryptoAccounts
+    if (newCryptoAccount.walletType === 'escrow') {
+      return update(state, { escrowAccount: { $set: newCryptoAccount } })
     }
-    return accountData
+    // convert to array when necessary
+    newCryptoAccounts = [newCryptoAccounts]
+  }
+
+  cryptoAccounts.forEach((account, idx) => {
+    cryptoAccountMap[accountToId(account)] = { idx, account }
   })
-  return update(state, { cryptoAccounts: { $set: cryptoAccounts } })
+
+  newCryptoAccounts.forEach((account, idx) => {
+    newCryptoAccountMap[accountToId(account)] = { idx, account }
+  })
+
+  cryptoAccounts.forEach((account, idx) => {
+    const id = accountToId(account)
+    if (id in newCryptoAccountMap) {
+      if (overwriteExisting) {
+        // Solving key collision using the newCryptoAccounts
+        accounts.push({ ...account, ...newCryptoAccountMap[id].account })
+      } else {
+        accounts.push({ ...newCryptoAccountMap[id].account, ...account })
+      }
+    } else if (!remove) {
+      // account not found in newCryptoAccounts
+      // do not remove existing account
+      accounts.push(account)
+    }
+  })
+
+  // append new accounts
+  newCryptoAccounts.forEach(account => {
+    const id = accountToId(account)
+    if (!(id in cryptoAccountMap)) {
+      accounts.push(account)
+    }
+  })
+
+  return update(state, { cryptoAccounts: { $set: accounts } })
 }
 
 export default function (state = initState, action) {
   switch (action.type) {
+    // following three actions return a complete list of accounts after actions
     case 'GET_CRYPTO_ACCOUNTS_FULFILLED':
     case 'REMOVE_CRYPTO_ACCOUNT_FULFILLED':
     case 'ADD_CRYPTO_ACCOUNT_FULFILLED':
-      return update(state, {
-        cryptoAccounts: {
-          $set: action.payload
-        }
-      })
-
+      return updateCryptoAccount(state, action.payload, true, false)
     case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
       return updateCryptoAccount(state, action.payload)
