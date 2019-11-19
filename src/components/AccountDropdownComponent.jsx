@@ -99,7 +99,7 @@ class AccountDropdownComponent extends Component<Props> {
 
     return (
       <Grid container direction='column'>
-          <FormControl className={classes.formControl} variant='outlined'>
+          <FormControl variant='outlined'>
             <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
             <Select
               renderValue={value => {
@@ -145,19 +145,20 @@ class AccountDropdownComponent extends Component<Props> {
               </MenuItem>
             </Select>
           </FormControl>
-          {account && account.status === accountStatus.syncing && (
-            <Box
-              style={{
-                padding: '20px',
-                backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                borderRadius: '4px'
-              }}
-            >
-              <Typography variant='body2' style={{ marginBottom: '10px' }}>
-                Checking your account
-              </Typography>
-              <LinearProgress />
-            </Box>
+          {(
+              <Box
+                style={{
+                  marginTop: '10px',
+                  padding: '20px',
+                  backgroundColor: 'rgba(57, 51, 134, 0.05)',
+                  borderRadius: '4px'
+                }}
+              >
+                <Typography variant='body2' style={{ marginBottom: '10px' }}>
+                  Checking your account
+                </Typography>
+                <LinearProgress />
+              </Box>
           )}
       </Grid>
     )
