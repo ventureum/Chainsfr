@@ -447,75 +447,97 @@ async function _getTransferHistory (offset: number = 0) {
       transferIds: transferIds,
       receivingIds: receivingIds
     })
-  ).map(item => {
-    let state = null
-    let transferType: ?string = null
-    let password: ?string = null
-    if (!item.error) {
-      if (
-        item.transferId &&
-        transferIdsSet.has(item.transferId) &&
-        transfersDict[item.transferId]
-      ) {
-        password = Base64.decode(transfersDict[item.transferId].password)
-        transferType = 'SENDER'
-      } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
-        transferType = 'RECEIVER'
-      } else {
-        item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
-      }
-      const { sendTxState, receiveTxState, cancelTxState } = item
-      switch (sendTxState) {
-        case 'Pending': {
-          // SEND_PENDING
-          state = transferStates.SEND_PENDING
-          break
+  )
+    .sort((a, b) => {
+      // we have to re-sort since API.getBatchTransfers does not persist order
+      // sort transfers by timestamp in descending order
+      let getTimestamp = item => {
+        let rv = item.sendTimestamp ? item.sendTimestamp : item.receiveTimestamp
+        if (!rv) {
+          console.warn(
+            `Missing timestamp in transfer history data. Transfer ID: ${item.transferId}`
+          )
+          return 0
         }
-        case 'Confirmed': {
-          switch (receiveTxState) {
-            // SEND_CONFIRMED_RECEIVE_PENDING
-            case 'Pending':
-              state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
-              break
-            // SEND_CONFIRMED_RECEIVE_CONFIRMED
-            case 'Confirmed':
-              state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
-              break
-            // SEND_CONFIRMED_RECEIVE_FAILURE
-            case 'Failed':
-              state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
-              break
-            case null:
-              state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
-              break
-            case 'Expired': {
-              // SEND_CONFIRMED_RECEIVE_EXPIRED
-              state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
-              break
+        return rv
+      }
+      return getTimestamp(b) - getTimestamp(a)
+    })
+    .map(item => {
+      let state = null
+      let transferType: ?string = null
+      let password: ?string = null
+      if (!item.error) {
+        if (
+          item.transferId &&
+          transferIdsSet.has(item.transferId) &&
+          transfersDict[item.transferId]
+        ) {
+          password = Base64.decode(transfersDict[item.transferId].password)
+          transferType = 'SENDER'
+        } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
+          transferType = 'RECEIVER'
+        } else {
+          item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
+        }
+        const { sendTxState, receiveTxState, cancelTxState } = item
+        switch (sendTxState) {
+          case 'Pending': {
+            // SEND_PENDING
+            state = transferStates.SEND_PENDING
+            break
+          }
+          case 'Confirmed': {
+            switch (receiveTxState) {
+              // SEND_CONFIRMED_RECEIVE_PENDING
+              case 'Pending':
+                state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+                break
+              // SEND_CONFIRMED_RECEIVE_CONFIRMED
+              case 'Confirmed':
+                state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+                break
+              // SEND_CONFIRMED_RECEIVE_FAILURE
+              case 'Failed':
+                state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+                break
+              case null:
+                state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+                break
+              case 'Expired': {
+                // SEND_CONFIRMED_RECEIVE_EXPIRED
+                state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+                break
+              }
+              default:
+                break
             }
-            default:
-              break
-          }
-          switch (cancelTxState) {
-            // SEND_CONFIRMED_CANCEL_PENDING
-            case 'Pending':
-              state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
-              break
-            // SEND_CONFIRMED_CANCEL_CONFIRMED
-            case 'Confirmed':
-              state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
-              break
-            // SEND_CONFIRMED_CANCEL_FAILURE
-            case 'Failed':
-              state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
-              break
-            default:
-              break
+            switch (cancelTxState) {
+              // SEND_CONFIRMED_CANCEL_PENDING
+              case 'Pending':
+                state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+                break
+              // SEND_CONFIRMED_CANCEL_CONFIRMED
+              case 'Confirmed':
+                state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+                break
+              // SEND_CONFIRMED_CANCEL_FAILURE
+              case 'Failed':
+                state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+                break
+              default:
+                break
+            }
           }
         }
       }
-    }
-  })
+      return {
+        ...item,
+        transferType,
+        password,
+        state
+      }
+    })
 
   return { hasMore, transferData, offset }
 }
