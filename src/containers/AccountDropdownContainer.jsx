@@ -58,7 +58,9 @@ class AccountDropdownContainer extends Component<Props, State> {
     }
     return (
       <AccountDropdownComponent
-        account={account}
+        // only use internal account state for id matching
+        // latest account data fetched from redux directly
+        account={account ? cryptoAccounts.find(_account => utils.accountsEqual(_account, account)): null}
         cryptoAccounts={cryptoAccounts.filter(filterCriteria)}
         onChange={this.onChange}
         toCurrencyAmount={(balanceInStandardUnit, cryptoType) => utils.toCurrencyAmount(balanceInStandardUnit, cryptoPrice[cryptoType], currency)}
