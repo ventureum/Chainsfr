@@ -4,6 +4,7 @@ import LoginComponent from '../components/LoginComponent'
 import OnboardingComponent from '../components/OnboardingComponent'
 import { onLogin, setNewUserTag, register } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
+import { getCryptoAccounts } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import env from '../typedEnv'
 
@@ -20,6 +21,8 @@ class LoginContainer extends Component {
     if (prevProps.actionsPending.register && !actionsPending.register) {
       // try to fetch user's cloud wallet after registration
       this.props.getCloudWallet()
+      // fetch user accounts after explicitly logging in
+      this.props.getCryptoAccounts()
     }
   }
 
@@ -57,7 +60,7 @@ class LoginContainer extends Component {
 const registerSelector = createLoadingSelector(['REGISTER'])
 const createCloudWalletSelector = createLoadingSelector(['CREATE_CLOUD_WALLET'])
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
-const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WALLET', 'REGISTER'])
+const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WALLET', 'REGISTER', 'GET_CRYPTO_ACCOUNTS'])
 
 const mapStateToProps = state => {
   return {
@@ -76,9 +79,9 @@ const mapDispatchToProps = dispatch => {
   return {
     onLogin: loginData => dispatch(onLogin(loginData)),
     register: idToken => dispatch(register(idToken)),
+    getCryptoAccounts: idToken => dispatch(getCryptoAccounts()),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
-    getCloudWallet: () => dispatch(getCloudWallet()),
-    setNewUserTag: isNewUser => dispatch(setNewUserTag(isNewUser))
+    getCloudWallet: () => dispatch(getCloudWallet())
   }
 }
 

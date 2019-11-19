@@ -22,6 +22,7 @@ type Props = {
   classes: Object,
   account: ?Object,
   cryptoAccounts: Array<Object>,
+  pending: boolean,
   error: Object,
   onChange: Function,
   toCurrencyAmount: Function

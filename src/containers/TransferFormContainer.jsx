@@ -6,7 +6,6 @@ import {
   generateSecurityAnswer,
   clearSecurityAnswer
 } from '../actions/formActions'
-import { syncWithNetwork } from '../actions/accountActions.js'
 import { goToStep } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
@@ -17,7 +16,6 @@ import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
-import { accountStatus } from '../types/account.flow'
 
 type Props = {
   updateTransferForm: Function,
@@ -70,7 +68,7 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { transferForm, actionsPending, syncWithNetwork } = this.props
+    const { transferForm, actionsPending } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
       // if transfer amount changed, update tx fee
       const { accountSelection } = transferForm
@@ -97,13 +95,6 @@ class TransferFormContainer extends Component<Props, State> {
     ) {
       // if add recipient successfully, close dialog
       this.toggleAddRecipientDialog()
-    }
-    if (
-      transferForm.accountSelection &&
-      (transferForm.accountSelection.status === accountStatus.initialized ||
-        transferForm.accountSelection.status === accountStatus.dirty)
-    ) {
-      syncWithNetwork(transferForm.accountSelection)
     }
   }
 
@@ -213,7 +204,7 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, cryptoPrice, recipients, syncWithNetwork, cryptoAccounts } = this.props
+    const { transferForm, cryptoPrice, recipients } = this.props
 
     // helper functions for converting currency
     const { accountSelection } = transferForm
@@ -308,10 +299,8 @@ class TransferFormContainer extends Component<Props, State> {
       transferForm
     } = this.props
     const { accountSelection } = transferForm
-    let balance = '0'
     let balanceCurrencyAmount = '0'
     if (accountSelection) {
-      balance = accountSelection.balance
       balanceCurrencyAmount = utils.toCurrencyAmount(
         accountSelection.balanceInStandardUnit,
         cryptoPrice[accountSelection.cryptoType],
@@ -355,7 +344,6 @@ const mapDispatchToProps = dispatch => {
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
     addRecipient: recipient => dispatch(addRecipient(recipient)),
-    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
   }
 }
 

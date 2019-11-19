@@ -25,6 +25,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
+import { getCryptoAccounts } from './actions/accountActions'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -126,6 +127,11 @@ class App extends Component {
     store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
     // refresh price every 60 seconds
     setInterval(() => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai'])), 60000)
+
+    // fetch accounts after logging in
+    if (store.getState().userReducer.profile.isAuthenticated) {
+      store.dispatch(getCryptoAccounts())
+    }
   }
 
   render () {
