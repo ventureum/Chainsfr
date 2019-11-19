@@ -67,13 +67,13 @@ class AccountDropdownComponent extends Component<Props> {
         <Grid item xs={3}>
           <Grid container direction='column' alignItems='flex-end'>
             <Grid item>
-              <Typography variant='body2'>
-                {item.status === accountStatus.syncing ? (
-                  <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
-                ) : (
+              {item.status === accountStatus.syncing ? (
+                <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
+              ) : (
+                <Typography variant='body2'>
                   `${item.balanceInStandardUnit} ${getCryptoSymbol(item.cryptoType)}`
-                )}
-              </Typography>
+                </Typography>
+              )}
             </Grid>
             <Grid item>
               <Typography variant='caption'>
@@ -99,67 +99,67 @@ class AccountDropdownComponent extends Component<Props> {
 
     return (
       <Grid container direction='column'>
-          <FormControl variant='outlined'>
-            <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
-            <Select
-              renderValue={value => {
-                return (
-                  <div>
-                    <Typography>{value.name}</Typography>
-                    <Typography className={classes.securityAnswerBtnHelperText}>
-                      {value.cryptoType === 'bitcoin'
-                        ? `${value.hdWalletVariables.xpub.slice(
-                            0,
-                            16
-                          )}...${value.hdWalletVariables.xpub.slice(-24)}`
-                        : value.address}
-                    </Typography>
-                  </div>
-                )
-              }}
-              value={account || ''}
-              onChange={onChange}
-              input={<OutlinedInput labelWidth={125} name='Select Account' />}
-              error={!!error}
-              id='accountSelection'
-            >
-              {skeletonCryptoAccounts.map((accountData, index) => {
-                return (
-                  <MenuItem key={index} value={accountData}>
-                    {this.renderAccountItem(accountData)}
-                  </MenuItem>
-                )
-              })}
-              {cryptoAccounts.map((accountData, index) => {
-                return (
-                  <MenuItem key={index} value={accountData}>
-                    {this.renderAccountItem(accountData)}
-                  </MenuItem>
-                )
-              })}
-              {cryptoAccounts.length !== 0 && <Divider />}
-              <MenuItem value='addCryptoAccount'>
-                <Button onClick={() => {}} style={{ width: '100%' }}>
-                  <Typography>Add Account</Typography>
-                </Button>
-              </MenuItem>
-            </Select>
-          </FormControl>
-          {(
-              <Box
-                style={{
-                  marginTop: '10px',
-                  padding: '20px',
-                  backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                  borderRadius: '4px'
-                }}
-              >
-                <Typography variant='body2' style={{ marginBottom: '10px' }}>
-                  Checking your account
-                </Typography>
-                <LinearProgress />
-              </Box>
-          )}
+        <FormControl variant='outlined'>
+          <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
+          <Select
+            renderValue={value => {
+              return (
+                <div>
+                  <Typography>{value.name}</Typography>
+                  <Typography className={classes.securityAnswerBtnHelperText}>
+                    {value.cryptoType === 'bitcoin'
+                      ? `${value.hdWalletVariables.xpub.slice(
+                          0,
+                          16
+                        )}...${value.hdWalletVariables.xpub.slice(-24)}`
+                      : value.address}
+                  </Typography>
+                </div>
+              )
+            }}
+            value={account || ''}
+            onChange={onChange}
+            input={<OutlinedInput labelWidth={125} name='Select Account' />}
+            error={!!error}
+            id='accountSelection'
+          >
+            {skeletonCryptoAccounts.map((accountData, index) => {
+              return (
+                <MenuItem key={index} value={accountData}>
+                  {this.renderAccountItem(accountData)}
+                </MenuItem>
+              )
+            })}
+            {cryptoAccounts.map((accountData, index) => {
+              return (
+                <MenuItem key={index} value={accountData}>
+                  {this.renderAccountItem(accountData)}
+                </MenuItem>
+              )
+            })}
+            {cryptoAccounts.length !== 0 && <Divider />}
+            <MenuItem value='addCryptoAccount'>
+              <Button onClick={() => {}} style={{ width: '100%' }}>
+                <Typography>Add Account</Typography>
+              </Button>
+            </MenuItem>
+          </Select>
+        </FormControl>
+        {account && account.status === accountStatus.syncing && (
+          <Box
+            style={{
+              marginTop: '10px',
+              padding: '20px',
+              backgroundColor: 'rgba(57, 51, 134, 0.05)',
+              borderRadius: '4px'
+            }}
+          >
+            <Typography variant='body2' style={{ marginBottom: '10px' }}>
+              Checking your account
+            </Typography>
+            <LinearProgress />
+          </Box>
+        )}
       </Grid>
     )
   }
