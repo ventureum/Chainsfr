@@ -1,5 +1,4 @@
 import update from 'immutability-helper'
-import { createAccount } from '../accounts/AccountFactory'
 import utils from '../utils.js'
 /*
  *  Handle user profile
@@ -13,20 +12,6 @@ const initState = {
   },
   recipients: [],
   cloudWalletConnected: false
-}
-
-function updateCryptoAccount (state, newAccountData) {
-  if (newAccountData.walletType === 'escrow') {
-    return update(state, { escrowAccount: { $set: newAccountData } })
-  }
-  let { cryptoAccounts } = state
-  cryptoAccounts = cryptoAccounts.map(accountData => {
-    if (utils.accountsEqual(newAccountData, accountData)) {
-      return { ...accountData, ...newAccountData }
-    }
-    return accountData
-  })
-  return update(state, { cryptoAccounts: { $set: cryptoAccounts } })
 }
 
 export default function (state = initState, action) {

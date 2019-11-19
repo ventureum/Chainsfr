@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import AccountDropdownComponent from '../components/AccountDropdownComponent'
-import { getCryptoAccounts } from '../actions/userActions'
 import utils from '../utils'
 
 type Props = {
@@ -13,11 +12,12 @@ type Props = {
     cryptoType: string,
     address: string
   },
+  cryptoPrice: {[string]: Number},
+  currency: string,
   onChange: Function,
   filterCriteria: Function,
   // redux function & states
   cryptoAccounts: Array<Object>,
-  getCryptoAccounts: Function,
   actionsPending: Object,
   error: Object
 }
@@ -35,10 +35,6 @@ class AccountDropdownContainer extends Component<Props, State> {
 
     // notify changes
     this.props.onChange(event)
-  }
-
-  componentDidMount () {
-    this.props.getCryptoAccounts()
   }
 
   componentDidUpdate (prevProps) {
@@ -62,7 +58,9 @@ class AccountDropdownContainer extends Component<Props, State> {
     }
     return (
       <AccountDropdownComponent
-        account={account}
+        // only use internal account state for id matching
+        // latest account data fetched from redux directly
+        account={account ? cryptoAccounts.find(_account => utils.accountsEqual(_account, account)): null}
         cryptoAccounts={cryptoAccounts.filter(filterCriteria)}
         onChange={this.onChange}
         toCurrencyAmount={(balanceInStandardUnit, cryptoType) => utils.toCurrencyAmount(balanceInStandardUnit, cryptoPrice[cryptoType], currency)}
@@ -74,8 +72,7 @@ class AccountDropdownContainer extends Component<Props, State> {
 }
 
 const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
-
-const errorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS', 'ADD_CRYPTO_ACCOUNT'])
+const errorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS'])
 
 const mapStateToProps = state => {
   return {
@@ -89,13 +86,7 @@ const mapStateToProps = state => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    getCryptoAccounts: () => dispatch(getCryptoAccounts())
-  }
-}
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(AccountDropdownContainer)

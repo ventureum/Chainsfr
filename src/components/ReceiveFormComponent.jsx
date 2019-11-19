@@ -48,7 +48,7 @@ class ReceiveFormComponent extends Component {
     const { classes, accountSelection, transfer, error, actionsPending } = this.props
     const { password } = this.state
     return (
-      <Grid container direction='column' className={classes.root}>
+      <Grid container direction='column' justify='center' alignItems='stretch' spacing={1}>
         <Grid item>
           <Typography variant='h2' align='left'>
             Enter Security Answer
@@ -92,10 +92,12 @@ class ReceiveFormComponent extends Component {
             </Grid>
           </Grid>
         )}
-        <AccountDropdownContainer
-          onChange={this.onAccountChange}
-          filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
-        />
+        <Grid item>
+          <AccountDropdownContainer
+            onChange={this.onAccountChange}
+            filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
+          />
+        </Grid>
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center'>
             <Grid item>
