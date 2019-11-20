@@ -25,6 +25,7 @@ type Props = {
   pending: boolean,
   error: Object,
   onChange: Function,
+  addAccount: Function,
   toCurrencyAmount: Function
 }
 
@@ -71,7 +72,7 @@ class AccountDropdownComponent extends Component<Props> {
                 <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
               ) : (
                 <Typography variant='body2'>
-                  `${item.balanceInStandardUnit} ${getCryptoSymbol(item.cryptoType)}`
+                  {item.balanceInStandardUnit} {getCryptoSymbol(item.cryptoType)}
                 </Typography>
               )}
             </Grid>
@@ -87,7 +88,7 @@ class AccountDropdownComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, account, cryptoAccounts, onChange, pending, error } = this.props
+    const { classes, account, cryptoAccounts, onChange, addAccount, pending, error } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
       skeletonCryptoAccounts = [
@@ -139,7 +140,7 @@ class AccountDropdownComponent extends Component<Props> {
             })}
             {cryptoAccounts.length !== 0 && <Divider />}
             <MenuItem value='addCryptoAccount'>
-              <Button onClick={() => {}} style={{ width: '100%' }}>
+              <Button onClick={() => addAccount()} style={{ width: '100%' }}>
                 <Typography>Add Account</Typography>
               </Button>
             </MenuItem>
