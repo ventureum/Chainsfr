@@ -5,9 +5,7 @@ import API from '../apis'
 import Web3 from 'web3'
 import BN from 'bn.js'
 import ERC20 from '../ERC20'
-import LedgerNanoS from '../ledgerSigner'
 import { getCryptoDecimals } from '../tokens'
-import { networkIdMap } from '../ledgerSigner/utils'
 import utils from '../utils'
 import type { IWallet, WalletDataEthereum, AccountEthereum } from '../types/wallet.flow'
 import type { TxFee, TxHash } from '../types/transfer.flow'
@@ -29,7 +27,6 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       }
       this.walletData = walletData
       if (this.walletData.walletType === 'ledger') {
-        this.ledger = new LedgerNanoS()
       }
     }
   }
@@ -54,7 +51,6 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
       accounts: [await this.createAccount()]
     }
     if (this.walletData.walletType === 'ledger') {
-      this.ledger = new LedgerNanoS()
     }
   }
 
@@ -138,11 +134,11 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     } else if (walletType === 'metamask') {
       // retrieve the first address from metamask
       if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-        if (
-          window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
-        ) {
-          throw new Error('Incorrect MetaMask network') // eslint-disable-line
-        }
+        // if (
+        //   window.ethereum.networkVersion !== networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+        // ) {
+        //   throw new Error('Incorrect MetaMask network') // eslint-disable-line
+        // }
         let addresses = await window.ethereum.enable()
         this.walletData.accounts[accountIdx].address = addresses[0]
       } else {
@@ -151,12 +147,12 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
     } else if (walletType.endsWith('WalletLink')) {
       // retrieve the first address from metamask
       if (typeof window.walletLinkProvider !== 'undefined') {
-        if (
-          window.walletLinkProvider.networkVersion !==
-          networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
-        ) {
-          throw new Error('Incorrect WalletLink network') // eslint-disable-line
-        }
+        // if (
+        //   window.walletLinkProvider.networkVersion !==
+        //   networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
+        // ) {
+        //   throw new Error('Incorrect WalletLink network') // eslint-disable-line
+        // }
         let addresses = await window.walletLinkProvider.enable()
         this.walletData.accounts[accountIdx].address = addresses[0]
       } else {
@@ -331,11 +327,11 @@ export default class WalletEthereum implements IWallet<WalletDataEthereum, Accou
         _web3.eth.accounts.wallet.add(account.privateKey)
         return web3SendTransactions(_web3.eth.sendTransaction, txObj)
       } else if (walletType === 'ledger') {
-        const ledgerNanoS = new LedgerNanoS()
-        return web3SendTransactions(
-          _web3.eth.sendSignedTransaction,
-          (await ledgerNanoS.signSendTransaction(txObj)).rawTransaction
-        )
+        // const ledgerNanoS = new LedgerNanoS()
+        // return web3SendTransactions(
+        //   _web3.eth.sendSignedTransaction,
+        //   (await ledgerNanoS.signSendTransaction(txObj)).rawTransaction
+        // )
       } else if (walletType.endsWith('WalletLink')) {
         return web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObj)
       } else if (walletType.endsWith('WalletConnect')) {

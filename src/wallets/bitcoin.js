@@ -1,12 +1,11 @@
 // @flow
 import BN from 'bn.js'
-import LedgerNanoS from '../ledgerSigner'
 import utils from '../utils'
 import axios from 'axios'
 import url from '../url'
 import env from '../typedEnv'
 import moment from 'moment'
-import bitcoin from 'bitcoinjs-lib'
+import * as bitcoin from 'bitcoinjs-lib'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 import type {
@@ -35,7 +34,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       }
       this.walletData = walletData
       if (this.walletData.walletType === 'ledger') {
-        this.ledger = new LedgerNanoS()
       }
     }
   }
@@ -63,7 +61,6 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       accounts: [await this.createAccount({ xpriv: xpriv, accountIdx: 0 })]
     }
     if (this.walletData.walletType === 'ledger') {
-      this.ledger = new LedgerNanoS()
     }
   }
 
@@ -511,9 +508,11 @@ export default class WalletBitcoin implements IWallet<WalletDataBitcoin, Account
       const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
       const address = this.getDerivedAddress(xpub, change, currentIdx)
 
-      const response = (await axios.get(
-        `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
-      )).data
+      const response = (
+        await axios.get(
+          `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+        )
+      ).data
 
       if (response.txs.length === 0) {
         gap++
