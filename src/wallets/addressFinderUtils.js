@@ -1,6 +1,6 @@
 // Modified and referenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/master/src/PathFinderUtils.js
 import 'babel-polyfill'
-import bitcoinjs from 'bitcoinjs-lib'
+import * as bitcoinjs from 'bitcoinjs-lib'
 import bs58 from 'bs58'
 import padStart from 'lodash/padStart'
 import * as BIP32 from 'bip32'
@@ -64,14 +64,7 @@ function encodeBase58Check (vchIn) {
   return bs58.encode(Buffer.from(hash))
 }
 
-function createXPUB (
-  depth,
-  fingerprint,
-  childnum,
-  chaincode,
-  publicKey,
-  network
-) {
+function createXPUB (depth, fingerprint, childnum, chaincode, publicKey, network) {
   let xpub = toHexInt(network)
   xpub = xpub + padStart(depth.toString(16), 2, '0')
   xpub = xpub + padStart(fingerprint.toString(16), 8, '0')
@@ -102,9 +95,7 @@ export async function getAccountXPub (btcLedger, prevPath, account, segwit) {
   publicKey = parseHexString(publicKey)
   let result = bitcoinjs.crypto.sha256(Buffer.from(publicKey))
   result = bitcoinjs.crypto.ripemd160(Buffer.from(result))
-  let fingerprint =
-    ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>>
-    0
+  let fingerprint = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
   return finalize(fingerprint)
 }
 
@@ -118,9 +109,7 @@ export async function findAddress (path, segwit, xpub58) {
     toPrefixBuffer(networks[env.REACT_APP_BITCOIN_JS_LIB_NETWORK])
   )
   let pubKeyToSegwitAddress = (pubKey, scriptVersion, segwit) => {
-    let script = [0x00, 0x14].concat(
-      Array.from(bitcoinjs.crypto.hash160(pubKey))
-    )
+    let script = [0x00, 0x14].concat(Array.from(bitcoinjs.crypto.hash160(pubKey)))
     let hash160 = bitcoinjs.crypto.hash160(Buffer.from(script))
     return bitcoinjs.address.toBase58Check(hash160, scriptVersion)
   }

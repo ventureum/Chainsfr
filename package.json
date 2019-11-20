@@ -26,7 +26,7 @@
     "bcryptjs": "^2.4.3",
     "bip32": "^2.0.3",
     "bip39": "^3.0.2",
-    "bitcoinjs-lib": "^4.0.5",
+    "bitcoinjs-lib": "^5.1.6",
     "bitcore-lib": "^8.1.0",
     "bn.js": "^4.11.8",
     "classnames": "^2.2.6",

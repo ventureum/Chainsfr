@@ -10,6 +10,7 @@ import ERC20 from '../ERC20'
 
 import type { TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
+import type { BitcoinAddress } from '../types/account.flow.js'
 import type { TxFee } from '../types/transfer.flow'
 import SimpleMultiSig from '../SimpleMultiSig'
 
@@ -171,6 +172,89 @@ async function getTxFee ({
   return getGasCost(txObj)
 }
 
+function collectUtxos (
+  addressPool: Array<BitcoinAddress>,
+  value: BasicTokenUnit = '0',
+  txFeePerByte: number = 15
+) {
+  let utxosCollected = []
+  let valueCollected = new BN(0)
+  let i = 0
+  let size = 0
+  let fee = new BN(0)
+  while (i < addressPool.length) {
+    let utxos = addressPool[i].utxos
+    for (let j = 0; j < utxos.length; j++) {
+      const utxo = utxos[j]
+      utxosCollected.push({
+        ...utxo,
+        keyPath: addressPool[i].path
+      })
+      size = estimateTransactionSize(utxosCollected.length, 2, true).max
+      fee = new BN(size).mul(new BN(txFeePerByte))
+      valueCollected = valueCollected.add(new BN(utxo.value))
+      if (valueCollected.gte(new BN(value).add(fee))) {
+        return {
+          fee: fee.toString(),
+          size,
+          utxosCollected
+        }
+      }
+    }
+    i += 1
+  }
+  console.warn('Transfer amount greater and fee than utxo values.')
+  return {
+    fee: fee.toString(),
+    size,
+    utxosCollected
+  }
+}
+
+function estimateTransactionSize (inputsCount: number, outputsCount: number, handleSegwit: boolean) {
+  var maxNoWitness, maxSize, maxWitness, minNoWitness, minSize, minWitness, varintLength
+  if (inputsCount < 0xfd) {
+    varintLength = 1
+  } else if (inputsCount < 0xffff) {
+    varintLength = 3
+  } else {
+    varintLength = 5
+  }
+  if (handleSegwit) {
+    minNoWitness = varintLength + 4 + 2 + 59 * inputsCount + 1 + 31 * outputsCount + 4
+    maxNoWitness = varintLength + 4 + 2 + 59 * inputsCount + 1 + 33 * outputsCount + 4
+    minWitness =
+      varintLength + 4 + 2 + 59 * inputsCount + 1 + 31 * outputsCount + 4 + 106 * inputsCount
+    maxWitness =
+      varintLength + 4 + 2 + 59 * inputsCount + 1 + 33 * outputsCount + 4 + 108 * inputsCount
+    minSize = (minNoWitness * 3 + minWitness) / 4
+    maxSize = (maxNoWitness * 3 + maxWitness) / 4
+  } else {
+    minSize = varintLength + 4 + 146 * inputsCount + 1 + 31 * outputsCount + 4
+    maxSize = varintLength + 4 + 148 * inputsCount + 1 + 33 * outputsCount + 4
+  }
+  return {
+    min: minSize,
+    max: maxSize
+  }
+}
+
+async function getBtcTxFee ({
+  value,
+  addressesPool
+}: {
+  value: BasicTokenUnit,
+  addressesPool: Array<BitcoinAddress>
+}): Promise<TxFee> {
+  let txFeePerByte = await utils.getBtcTxFeePerByte()
+  const { size, fee } = collectUtxos(addressesPool, value, txFeePerByte)
+  let price = txFeePerByte.toString()
+  let gas = size.toString()
+  let costInBasicUnit = fee
+  let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 8, 8).toString()
+  return { price, gas, costInBasicUnit, costInStandardUnit }
+}
+
 export default {
   broadcastBtcRawTx,
   networkIdMap,
@@ -182,5 +266,6 @@ export default {
   bufferToHex,
   getBufferFromHex,
   getGasCost,
-  getTxFee
+  getTxFee,
+  getBtcTxFee
 }

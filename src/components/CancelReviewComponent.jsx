@@ -9,7 +9,6 @@ import Dialog from '@material-ui/core/Dialog'
 import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import TextField from '@material-ui/core/TextField'
-// import WalletUtils from '../wallets/utils'
 import Divider from '@material-ui/core/Divider'
 import url from '../url'
 
@@ -24,14 +23,14 @@ class CancelReviewComponent extends Component {
     const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
     const { cancelMessage } = this.state
     this.props.cancelTransfer({
-       escrowAccount: escrowAccount,
-       transferId: transferId,
-       sendTxHash: sendTxHash,
-       transferAmount: transferAmount,
-       txFee: txFee,
+      escrowAccount: escrowAccount,
+      transferId: transferId,
+      sendTxHash: sendTxHash,
+      transferAmount: transferAmount,
+      txFee: txFee,
       cancelMessage: cancelMessage,
-       walletId: walletId
-     })
+      walletId: walletId
+    })
   }
 
   handleInputChange = name => event => {
@@ -104,7 +103,8 @@ class CancelReviewComponent extends Component {
                   >
                     Cancel Transfer
                   </Button>
-                  {(actionsPending.verifyEscrowAccountPassword || actionsPending.cancelTransfer) && (
+                  {(actionsPending.verifyEscrowAccountPassword ||
+                    actionsPending.cancelTransfer) && (
                     <CircularProgress
                       size={24}
                       color='primary'
@@ -151,7 +151,12 @@ class CancelReviewComponent extends Component {
       var hasCancelled = !!cancelTxHash
     }
 
-    if (actionsPending.getTransfer || actionsPending.verifyEscrowAccountPassword || !transfer || !escrowAccount) {
+    if (
+      actionsPending.getTransfer ||
+      actionsPending.verifyEscrowAccountPassword ||
+      !transfer ||
+      !escrowAccount
+    ) {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>

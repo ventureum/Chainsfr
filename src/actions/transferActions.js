@@ -112,7 +112,6 @@ async function _submitTx (txRequest: {
   let escrowWallet = createWallet({ walletType: 'escrow' })
 
   let escrowAccount = await escrowWallet.newAccount('escrow', cryptoType)
-
   await escrowAccount.encryptAccount(password)
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
 
@@ -140,6 +139,9 @@ async function _submitTx (txRequest: {
     if (['ethereum', 'dai'].includes(cryptoType)) {
       walletId = new SimpleMultiSig().createWalletId()
       multisig = new SimpleMultiSig({ walletId })
+    }
+    if (cryptoType === 'bitcoin') {
+      walletId = escrowAccount.getAccountData().address
     }
     const _wallet = createWallet(fromAccount)
 
@@ -260,21 +262,23 @@ async function _acceptTransfer (txRequest: {
   }
 
   // $FlowFixMe
-  let { receiveTxHash, receiveTimestamp }: any = await wallet.sendTransaction({
+  let txhash = await wallet.sendTransaction({
     to: destinationAddress,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
-      multiSig
+      multiSig,
+      receiveMessage,
+      receivingId
     }
   })
 
   return _acceptTransferTransactionHashRetrieved({
-    receiveTxHash: receiveTxHash,
+    receiveTxHash: txhash,
     receivingId: receivingId,
     receiveMessage: receiveMessage,
-    receiveTimestamp: receiveTimestamp
+    receiveTimestamp: Math.floor(Date.now() / 1000)
   })
 }
 
@@ -354,40 +358,26 @@ async function _cancelTransfer (txRequest: {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
-  // $FlowFixMe
-  let { cancelTxHash, cancelTimestamp }: any = await wallet.sendTransaction({
+  await wallet.verifyAccount()
+
+  let txhash = await wallet.sendTransaction({
     to: senderAddress,
     // actual value to be received = transferAmount - txFee
-    value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
+    value: new BN(value).sub(new BN(txFee.costInBasicUnit)).toString(),
     txFee: txFee,
     options: {
-      multiSig
+      multiSig,
+      cancelMessage,
+      transferId
     }
   })
 
-  return _cancelTransferTransactionHashRetrieved({
+  return {
     transferId: transferId,
-    cancelTxHash: cancelTxHash,
+    cancelTxHash: txhash,
     cancelMessage: cancelMessage,
-    cancelTimestamp: cancelTimestamp
-  })
-}
-
-async function _cancelTransferTransactionHashRetrieved (txRequest: {|
-  transferId: string,
-  cancelTxHash: TxHash,
-  cancelMessage: ?string,
-  cancelTimestamp: number
-|}) {
-  // temp disabled, accept is invoked inside ethereum.sendTransaction()
-  // let response = await API.cancel(txRequest)
-  // mock response
-  const { cancelTimestamp } = txRequest
-  const response = {
-    cancelTimestamp: cancelTimestamp
+    cancelTimestamp: Math.floor(Date.now() / 1000)
   }
-
-  return { ...response, ...txRequest }
 }
 
 // fetch transferData and convert it into an escrow account
@@ -396,7 +386,8 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let escrowAccount = createAccount({
     walletType: 'escrow',
     cryptoType: transferData.cryptoType,
-    encryptedPrivateKey: transferData.data
+    encryptedPrivateKey: transferData.data,
+    address: transferData.walletId
   }).getAccountData()
   return { transferData, escrowAccount }
 }
@@ -442,12 +433,10 @@ async function _getTransferHistory (offset: number = 0) {
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = (
-    await API.getBatchTransfers({
-      transferIds: transferIds,
-      receivingIds: receivingIds
-    })
-  )
+  let transferData = (await API.getBatchTransfers({
+    transferIds: transferIds,
+    receivingIds: receivingIds
+  }))
     .sort((a, b) => {
       // we have to re-sort since API.getBatchTransfers does not persist order
       // sort transfers by timestamp in descending order

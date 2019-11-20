@@ -157,6 +157,15 @@ function addCryptoAccount (accountData: AccountData) {
           enqueueSnackbar({
             message: 'Account added successfully.',
             key: new Date().getTime() + Math.random(),
+            options: { variant: 'success', autoHideDuration: 3000 }
+          })
+        )
+      })
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
             options: { variant: 'info', autoHideDuration: 3000 }
           })
         )
@@ -169,7 +178,17 @@ function getCryptoAccounts () {
     return dispatch({
       type: 'GET_CRYPTO_ACCOUNTS',
       payload: _getCryptoAccounts()
-    }).then(data => syncHelper(dispatch, data.value))
+    })
+      .then(data => syncHelper(dispatch, data.value))
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
   }
 }
 
@@ -183,9 +202,29 @@ async function _getCryptoAccounts (accountData: AccountData): Promise<Array<Acco
 }
 
 function removeCryptoAccount (accountData: AccountData) {
-  return {
-    type: 'REMOVE_CRYPTO_ACCOUNT',
-    payload: _removeCryptoAccount(accountData)
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'REMOVE_CRYPTO_ACCOUNT',
+      payload: _removeCryptoAccount(accountData)
+    })
+      .then(() => {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Account is removed successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'success', autoHideDuration: 3000 }
+          })
+        )
+      })
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
   }
 }
 

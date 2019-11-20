@@ -239,7 +239,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
     const MAX_ATTEMPTS = 15
     let attemp = 0
     if (accountData.cryptoType === 'bitcoin') {
-      let xpub = await this._getBtcAddresss(DEFAULT_ACCOUNT)
+      let { xpub } = await this._getBtcAddresss(DEFAULT_ACCOUNT)
       if (xpub !== accountData.hdWalletVariables.xpub) {
         accountData.connected = false
         throw new Error('Account verification with Ledger failed: does not match')
@@ -247,7 +247,6 @@ export default class LedgerWallet implements IWallet<AccountData> {
     } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
       let address = await this._getEthAddress(DEFAULT_ACCOUNT)
       if (address !== accountData.address) {
-        console.log(address)
         accountData.connected = false
         throw new Error('Account verification with Ledger failed: does not match')
       }
@@ -335,11 +334,18 @@ export default class LedgerWallet implements IWallet<AccountData> {
     options?: Object
   }): Promise<TxFee> => {
     const accountData = this.getAccount().getAccountData()
-    return WalletUtils.getTxFee({
-      value,
-      cryptoType: accountData.cryptoType,
-      directTransfer: !!options && options.directTransfer
-    })
+    if (accountData.cryptoType === 'bitcoin') {
+      return WalletUtils.getBtcTxFee({
+        value,
+        addressesPool: accountData.hdWalletVariables.addresses
+      })
+    } else {
+      return WalletUtils.getTxFee({
+        value,
+        cryptoType: accountData.cryptoType,
+        directTransfer: !!options && options.directTransfer
+      })
+    }
   }
 
   _sleep = (time: number): Promise<any> => {

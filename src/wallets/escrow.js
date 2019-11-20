@@ -1,16 +1,17 @@
 // @flow
 import type { IWallet } from '../types/wallet.flow.js'
-import type { IAccount, AccountData } from '../types/account.flow.js'
+import type { IAccount, AccountData, Utxos } from '../types/account.flow.js'
 import type { TxFee, TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
 import BitcoinAccount from '../accounts/BitcoinAccount.js'
-import bitcoin from 'bitcoinjs-lib'
+import * as bitcoin from 'bitcoinjs-lib'
 import Web3 from 'web3'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 
+import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
@@ -24,6 +25,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
   WALLET_TYPE = 'escrow'
 
   account: IAccount
+  static chainsfrBtcMultiSigPublicKey: string
 
   constructor (accountData?: AccountData) {
     if (accountData && accountData.cryptoType) {
@@ -39,6 +41,13 @@ export default class EscrowWallet implements IWallet<AccountData> {
           throw new Error('Invalid crypto type')
       }
     }
+  }
+
+  getChainsfrBtcMultiSigPublicKey = async () => {
+    if (!EscrowWallet.chainsfrBtcMultiSigPublicKey) {
+      EscrowWallet.chainsfrBtcMultiSigPublicKey = (await API.getBtcMultisigPublicKey()).btcPublicKey
+    }
+    return EscrowWallet.chainsfrBtcMultiSigPublicKey
   }
 
   getAccount = (): IAccount => {
@@ -84,7 +93,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
     return this.account
   }
 
-  _newBitcoinAccount = (name: string): BitcoinAccount => {
+  _newBitcoinAccount = async (name: string): Promise<BitcoinAccount> => {
     const seed = bip39.mnemonicToSeedSync(bip39.generateMnemonic())
     const root = bip32.fromSeed(seed, NETWORK)
     let xpriv = root.toBase58()
@@ -93,32 +102,38 @@ export default class EscrowWallet implements IWallet<AccountData> {
     const accountXPub = child.neutered().toBase58()
     const firstAddressNode = child.derive(0).derive(0)
     const firstAddressNodePrivateKey = firstAddressNode.toWIF()
-    const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({
-        // change = 0, addressIdx = 0
-        pubkey: firstAddressNode.publicKey,
+
+    const keyPair = bitcoin.ECPair.fromWIF(firstAddressNodePrivateKey, NETWORK)
+
+    const chainsfrBtcMultiSigPublicKey = await this.getChainsfrBtcMultiSigPublicKey()
+    const chainsfrBtcMultiSigPublicKeyBuffer = Buffer.from(chainsfrBtcMultiSigPublicKey, 'hex')
+
+    const pubkeys = [keyPair.publicKey, chainsfrBtcMultiSigPublicKeyBuffer].sort()
+    const payment = bitcoin.payments.p2sh({
+      // use P2WSH to reduce size
+      redeem: bitcoin.payments.p2wsh({
+        redeem: bitcoin.payments.p2ms({ m: 2, pubkeys, network: NETWORK }),
         network: NETWORK
       }),
       network: NETWORK
     })
-
     let accountData = {
       cryptoType: 'bitcoin',
       walletType: this.WALLET_TYPE,
       name: name,
       balance: '0',
       balanceInStandardUnit: '0',
-      address: address,
+      address: payment.address,
       privateKey: firstAddressNodePrivateKey,
       hdWalletVariables: {
         xpriv: xpriv,
         xpub: accountXPub,
         nextAddressIndex: 0,
         nextChangeIndex: 0,
-        changeAddress: address,
+        changeAddress: payment.address,
         addresses: [
           {
-            address: address,
+            address: payment.address,
             path: env.REACT_APP_BTC_PATH + `/${DEFAULTaccountData}'/0/0`,
             utxos: []
           }
@@ -174,12 +189,16 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
     if (accountData.privateKey) {
       if (accountData.cryptoType === 'bitcoin') {
+        const chainsfrBtcMultiSigPublicKey = await this.getChainsfrBtcMultiSigPublicKey()
+        const chainsfrBtcMultiSigPublicKeyBuffer = Buffer.from(chainsfrBtcMultiSigPublicKey, 'hex')
+
         const root = bip32.fromBase58(accountData.hdWalletVariables.xpriv, NETWORK)
 
         const path = `m/${BASE_BTC_PATH}/${DEFAULTaccountData}'`
         const child = root.derivePath(path)
         const firstAddressNode = child.derive(0).derive(0)
         const firstAddressNodePrivateKey = firstAddressNode.toWIF()
+
         if (firstAddressNodePrivateKey !== accountData.privateKey) {
           accountData.connected = false
           throw new Error('Account verification failed: Invalid Private Key')
@@ -219,24 +238,44 @@ export default class EscrowWallet implements IWallet<AccountData> {
     }
 
     const { cryptoType } = accountData
-
+    if (!options) throw new Error('Options must not be null for escrow wallet')
     if (['dai', 'ethereum'].includes(cryptoType)) {
-      if (!options) throw new Error('Options must not be null for escrow wallet')
       if (!options.multiSig) throw new Error('MultiSig missing in options')
       if (!accountData.privateKey) throw new Error('privateKey does not exist in account')
-      return options.multiSig.sendFromEscrow(accountData.privateKey, to)
+      const { cancelTxHash } = await options.multiSig.sendFromEscrow(accountData.privateKey, to)
+      return cancelTxHash
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       if (!txFee) throw new Error('Missing txFee')
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
-      const signedTxRaw = await this._xPrivSigner(
+
+      const signedTxRaw = await this._psbtSigner(
         utxosCollected,
         to,
         Number(value), // actual value to be sent
         Number(fee),
-        account.hdWalletVariables.nextChangeIndex
+        accountData.hdWalletVariables.nextChangeIndex
       )
-      return WalletUtils.broadcastBtcRawTx(signedTxRaw)
+      let rv
+      let txHash
+      if (options.transferId) {
+        // cancel
+        rv = await API.cancel({
+          transferId: options.transferId,
+          clientSig: signedTxRaw,
+          cancelMessage: options.cancelMessage
+        })
+        txHash = rv.cancelTxHash
+      } else {
+        // receive
+        rv = await API.accept({
+          receivingId: options.receivingId,
+          clientSig: signedTxRaw,
+          receiveMessage: options.receiveMessage
+        })
+        txHash = rv.receiveTxHash
+      }
+      return txHash
     } else {
       throw new Error('Invalid crypto type')
     }
@@ -249,17 +288,26 @@ export default class EscrowWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     options: Object
   }): Promise<TxFee> => {
-    // send from escrow incurs no tx fees
-    return {
-      price: '0',
-      gas: '0',
-      costInBasicUnit: '0',
-      costInStandardUnit: '0'
+    const accountData = this.getAccount().getAccountData()
+    if (accountData.cryptoType === 'bitcoin') {
+      return WalletUtils.getBtcTxFee({
+        value,
+        addressesPool: accountData.hdWalletVariables.addresses
+      })
+    } else if (['ethereum', 'dai'].includes(accountData.cryptoType)) {
+      // send from escrow incurs no tx fees for eth
+      return {
+        price: '0',
+        gas: '0',
+        costInBasicUnit: '0',
+        costInStandardUnit: '0'
+      }
     }
+    throw new Error('Invalid cryptoType')
   }
 
-  _xPrivSigner = (
-    inputs: Array<Object>,
+  _psbtSigner = async (
+    inputs: Utxos,
     to: string,
     // value to be sent
     satoshiValue: number,
@@ -268,40 +316,46 @@ export default class EscrowWallet implements IWallet<AccountData> {
     changeIndex: number
   ) => {
     // use the first account
+
     const accountData = this.getAccount().getAccountData()
     const keyPair = bitcoin.ECPair.fromWIF(accountData.privateKey, NETWORK)
-    const p2wpkh = bitcoin.payments.p2wpkh({
-      pubkey: keyPair.publicKey,
+    const chainsfrBtcMultiSigPublicKey = await this.getChainsfrBtcMultiSigPublicKey()
+    const chainsfrBtcMultiSigPublicKeyBuffer = Buffer.from(chainsfrBtcMultiSigPublicKey, 'hex')
+
+    const pubkeys = [keyPair.publicKey, chainsfrBtcMultiSigPublicKeyBuffer].sort()
+    const payment = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wsh({
+        redeem: bitcoin.payments.p2ms({ m: 2, pubkeys, network: NETWORK }),
+        network: NETWORK
+      }),
       network: NETWORK
     })
 
-    const { address } = bitcoin.payments.p2sh({
-      redeem: p2wpkh,
-      network: NETWORK
-    })
-
-    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: NETWORK })
-    const txb = new bitcoin.TransactionBuilder(NETWORK)
-
-    // add all inputs
-    inputs.map(input => txb.addInput(input.txHash, input.outputIndex))
-
-    // the actual "spend"
-    txb.addOutput(to, satoshiValue)
-
-    // change
-    const inputValueTotal = inputs.reduce((total, input) => total + input.value, 0)
-    const change = inputValueTotal - satoshiValue - fee
-    txb.addOutput(address, change)
-
-    // sign with first address's privateKey
+    let psbt = new bitcoin.Psbt({ network: NETWORK })
     for (let i = 0; i < inputs.length; i++) {
-      txb.sign(i, keyPair, p2sh.redeem.output, null, inputs[i].value)
+      const utxo = inputs[i]
+      psbt.addInput({
+        hash: utxo.txHash,
+        index: utxo.outputIndex,
+        witnessUtxo: {
+          script: Buffer.from(utxo.script, 'hex'),
+          value: utxo.value
+        },
+        redeemScript: payment.redeem.output,
+        witnessScript: payment.redeem.redeem.output
+      })
     }
 
-    const tx = txb.build()
+    if (satoshiValue - fee < 0) {
+      throw new Error('invalid outputs')
+    }
 
-    // return raw tx in hex
-    return tx.toHex()
+    psbt.addOutput({
+      value: satoshiValue - fee,
+      address: to
+    })
+
+    psbt.signAllInputs(keyPair)
+    return psbt.toBase64()
   }
 }
