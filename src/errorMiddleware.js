@@ -11,6 +11,7 @@ export default function errorMiddleware (store) {
 
       return next(action).catch(error => {
         console.error(error.message)
+        throw error
       })
     } else {
       // process as usual, do not handle errors

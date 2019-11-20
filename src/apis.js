@@ -276,7 +276,7 @@ async function addCryptoAccount (
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Add crypto account failed: ${err}`)
+    throw new Error(`Add crypto account failed: ${err.response.data}`)
   }
 }
 
@@ -289,7 +289,7 @@ async function getCryptoAccounts (): Promise<{ cryptoAccounts: Array<BackEndCryp
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Get crypto account failed: ${err}`)
+    throw new Error(`Get crypto account failed: ${err.response.data}`)
   }
 }
 
@@ -313,7 +313,7 @@ async function removeCryptoAccount (
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Remove crypto account failed: ${err}`)
+    throw new Error(`Remove crypto account failed: ${err.response.data}`)
   }
 }
 
@@ -328,7 +328,7 @@ async function clearCloudWalletCryptoAccounts (): Promise<{
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Clear cloud wallet crypto accounts failed: ${err}`)
+    throw new Error(`Clear cloud wallet crypto accounts failed: ${err.response.data}`)
   }
 }
 
@@ -339,7 +339,7 @@ async function getBtcMultisigPublicKey (): Promise<{ btcPublicKey: string }> {
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Get Chainsfr Btc public key failed: ${err}`)
+    throw new Error(`Get Chainsfr Btc public key failed: ${err.response.data}`)
   }
 }
 
@@ -351,7 +351,7 @@ async function sendBtcMultiSigTransaction (psbt: string): Promise<{ txHash: stri
     })
     return rv.data
   } catch (err) {
-    throw new Error(`Send BTC from escrow account failed: ${err}`)
+    throw new Error(`Send BTC from escrow account failed: ${err.response.data}`)
   }
 }
 
