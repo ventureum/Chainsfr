@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Button, Grid } from '@material-ui/core'
-import AccountCircle from '@material-ui/icons/AccountCircle'
 import Avatar from '@material-ui/core/Avatar'
 import { btnTexts } from '../styles/typography'
 import { uiColors } from '../styles/color'
@@ -12,12 +11,10 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
-import SendIcon from '@material-ui/icons/Send'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
 import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import Tooltip from '@material-ui/core/Tooltip'
 import Table from '@material-ui/core/Table'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
@@ -170,7 +167,7 @@ class AccountsManagementComponent extends Component {
   }
 
   renderMoreMenu = () => {
-    const { removeCryptoAccount, handleTransferFrom } = this.props
+    const { handleTransferFrom } = this.props
     const { anchorEl, chosenAccount } = this.state
     return (
       <Menu
@@ -206,7 +203,7 @@ class AccountsManagementComponent extends Component {
     )
   }
   render () {
-    const { classes, addCryptoAccount } = this.props
+    const { classes } = this.props
     const { addAccountModal } = this.state
     return (
       <Grid container justify='center'>

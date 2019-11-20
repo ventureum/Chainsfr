@@ -6,13 +6,9 @@ import Button from '@material-ui/core/Button'
 import CropFreeIcon from '@material-ui/icons/CropFree'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import TextField from '@material-ui/core/TextField'
 import LinearProgress from '@material-ui/core/LinearProgress'
-import Radio from '@material-ui/core/Radio'
 import UsbIcon from '@material-ui/icons/Usb'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
@@ -67,15 +63,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderDriveConnectSteps = () => {
-    const {
-      transferForm,
-      actionsPending,
-      checkWalletConnection,
-      checkWalletConnectionError,
-      decryptCloudWalletAccount
-    } = this.props
-    const { accountSelection } = transferForm
-    const { walletType } = accountSelection
+    const { checkWalletConnection, checkWalletConnectionError } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' spacing={2}>
@@ -121,10 +109,8 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderLedgerConnectSteps = () => {
-    const { transferForm, actionsPending, checkWalletConnection } = this.props
+    const { transferForm, checkWalletConnection } = this.props
     const { accountSelection } = transferForm
-    const { walletType } = accountSelection
-
     return (
       <Grid container spacing={2} direction='column'>
         {!accountSelection.connected && (
@@ -152,9 +138,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderMetamaskConnectSteps = () => {
-    const { transferForm, actionsPending, checkWalletConnection } = this.props
-    const { accountSelection } = transferForm
-    const { walletType } = accountSelection
+    const { checkWalletConnection } = this.props
 
     return (
       <Grid container direction='column'>

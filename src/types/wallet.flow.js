@@ -1,6 +1,4 @@
 // @flow
-import WalletBitcoin from '../wallets/bitcoin.js'
-import WalletEthereum from '../wallets/ethereum.js'
 import WalletLibra from '../wallets/libra.js'
 import type { IAccount, Account } from './account.flow.js'
 

@@ -13,13 +13,10 @@ import * as bip39 from 'bip39'
 
 import { getWallet } from '../drive.js'
 import { Base64 } from 'js-base64'
-import ERC20 from '../ERC20'
 import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
-import utils from '../utils'
 import WalletUtils from './utils.js'
-import SimpleMultiSig from '../SimpleMultiSig'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULTaccountData = 0
@@ -210,7 +207,6 @@ export default class DriveWallet implements IWallet<AccountData> {
 
         const path = `m/${BASE_BTC_PATH}/${DEFAULTaccountData}'`
         const child = root.derivePath(path)
-        const accountXPub = child.neutered().toBase58()
         const firstAddressNode = child.derive(0).derive(0)
         const firstAddressNodePrivateKey = firstAddressNode.toWIF()
         if (firstAddressNodePrivateKey !== accountData.privateKey) {

@@ -189,9 +189,6 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
     if (accountData.privateKey) {
       if (accountData.cryptoType === 'bitcoin') {
-        const chainsfrBtcMultiSigPublicKey = await this.getChainsfrBtcMultiSigPublicKey()
-        const chainsfrBtcMultiSigPublicKeyBuffer = Buffer.from(chainsfrBtcMultiSigPublicKey, 'hex')
-
         const root = bip32.fromBase58(accountData.hdWalletVariables.xpriv, NETWORK)
 
         const path = `m/${BASE_BTC_PATH}/${DEFAULTaccountData}'`

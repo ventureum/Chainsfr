@@ -11,16 +11,10 @@ import { Transaction as EthTx } from 'ethereumjs-tx'
 import EthApp from '@ledgerhq/hw-app-eth'
 import BtcApp from '@ledgerhq/hw-app-btc'
 import { address, networks } from 'bitcoinjs-lib'
-
 import Web3 from 'web3'
-import * as bip32 from 'bip32'
-import * as bip39 from 'bip39'
 
-import ERC20 from '../ERC20'
-import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
-import utils from '../utils'
 import WalletUtils from './utils.js'
 import { getAccountXPub } from './addressFinderUtils'
 
@@ -236,8 +230,6 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
   verifyAccount = async (additionalInfo: ?Object): Promise<boolean> => {
     let accountData = this.getAccount().getAccountData()
-    const MAX_ATTEMPTS = 15
-    let attemp = 0
     if (accountData.cryptoType === 'bitcoin') {
       let { xpub } = await this._getBtcAddresss(DEFAULT_ACCOUNT)
       if (xpub !== accountData.hdWalletVariables.xpub) {

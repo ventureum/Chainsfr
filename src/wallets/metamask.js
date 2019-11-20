@@ -7,10 +7,8 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 import EthereumAccount from '../accounts/EthereumAccount.js'
 import Web3 from 'web3'
 
-import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
-import SimpleMultiSig from '../SimpleMultiSig'
 
 const DEFAULT_ACCOUNT = 0
 

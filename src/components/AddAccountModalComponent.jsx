@@ -198,7 +198,7 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderWalletConnect = () => {
-    const { onConnect, checkWalletConnection } = this.props
+    const { checkWalletConnection } = this.props
     const { walletType, cryptoType } = this.state
     let connectText, buttonText, buttonIcon
 
@@ -223,6 +223,8 @@ class AddAccountModalComponent extends Component<Props, State> {
         buttonText = 'Scan QR Code'
         buttonIcon = <CropFreeIcon />
         break
+      default:
+        throw new Error('Invalid wallet type')
     }
     return (
       <Grid container spacing={1} direction='column'>
@@ -298,6 +300,8 @@ class AddAccountModalComponent extends Component<Props, State> {
         return this.renderCryptoSelections()
       case 2:
         return this.renderNameNewAccount()
+      default:
+        return this.renderWalletSelections()
     }
   }
 

@@ -9,10 +9,7 @@ import Web3 from 'web3'
 import WalletConnect from '@walletconnect/browser'
 import WalletConnectQRCodeModal from '@walletconnect/qrcode-modal'
 
-import ERC20 from '../ERC20'
-import API from '../apis.js'
 import url from '../url'
-import utils from '../utils'
 import WalletUtils from './utils.js'
 
 const DEFAULT_ACCOUNT = 0

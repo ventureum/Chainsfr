@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { getWalletTitle } from '../wallet'
-// import WalletUtils from '../wallets/utils'
 import MetamaskPendingIcon from '../images/metamask_pending.png'
 import Divider from '@material-ui/core/Divider'
 
@@ -125,45 +124,6 @@ const WALLET_INSTRUCTION = {
 }
 
 class ReviewComponent extends Component<Props> {
-  handleReviewNext = () => {
-    const {
-      userProfile,
-      wallet,
-      transferForm,
-      currency,
-      cryptoSelection,
-      walletSelection,
-      txFee
-    } = this.props
-    const {
-      transferAmount,
-      transferCurrencyAmount,
-      sender,
-      senderName,
-      destination,
-      receiverName,
-      password,
-      sendMessage
-    } = transferForm
-
-    // submit tx
-    // this.props.submitTx({
-    //   fromWallet: WalletUtils.toWalletDataFromState(walletSelection, cryptoSelection, wallet),
-    //   transferAmount: transferAmount,
-    //   transferFiatAmountSpot: transferCurrencyAmount,
-    //   fiatType: currency,
-    //   // receiver
-    //   destination: destination,
-    //   receiverName: receiverName,
-    //   // sender
-    //   senderName: senderName,
-    //   senderAvatar: userProfile.imageUrl,
-    //   sender: sender,
-    //   password: password,
-    //   sendMessage: sendMessage,
-    //   txFee: txFee
-    // })
-  }
   render () {
     const { classes, transferForm, actionsPending, txFee, currencyAmount } = this.props
     const {

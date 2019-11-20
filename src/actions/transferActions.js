@@ -10,8 +10,6 @@ import moment from 'moment'
 import { Base64 } from 'js-base64'
 import { getCryptoDecimals } from '../tokens'
 import url from '../url'
-// import WalletUtils from '../wallets/utils'
-import WalletFactory from '../wallets/factory'
 import SimpleMultiSig from '../SimpleMultiSig'
 import type { TxFee, TxHash } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
@@ -53,28 +51,28 @@ async function _getTxFee (txRequest: {
   return txFee
 }
 
-async function _directTransfer (txRequest: {
-  fromWallet: WalletData,
-  transferAmount: StandardTokenUnit,
-  destinationAddress: Address,
-  txFee: TxFee
-}) {
-  let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
+// async function _directTransfer (txRequest: {
+//   fromWallet: WalletData,
+//   transferAmount: StandardTokenUnit,
+//   destinationAddress: Address,
+//   txFee: TxFee
+// }) {
+//   let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
 
-  // convert transferAmount to basic token unit
-  let value: BasicTokenUnit = utils
-    .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
-    .toString()
+//   // convert transferAmount to basic token unit
+//   let value: BasicTokenUnit = utils
+//     .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
+//     .toString()
 
-  return {
-    cryptoType: fromWallet.cryptoType,
-    sendTxHash: await WalletFactory.createWallet(fromWallet).sendTransaction({
-      to: destinationAddress,
-      value: value,
-      txFee: txFee
-    })
-  }
-}
+//   return {
+//     cryptoType: fromWallet.cryptoType,
+//     sendTxHash: await WalletFactory.createWallet(fromWallet).sendTransaction({
+//       to: destinationAddress,
+//       value: value,
+//       txFee: txFee
+//     })
+//   }
+// }
 
 async function _submitTx (txRequest: {
   fromAccount: AccountData,
@@ -433,10 +431,12 @@ async function _getTransferHistory (offset: number = 0) {
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = (await API.getBatchTransfers({
-    transferIds: transferIds,
-    receivingIds: receivingIds
-  }))
+  let transferData = (
+    await API.getBatchTransfers({
+      transferIds: transferIds,
+      receivingIds: receivingIds
+    })
+  )
     .sort((a, b) => {
       // we have to re-sort since API.getBatchTransfers does not persist order
       // sort transfers by timestamp in descending order
@@ -517,7 +517,10 @@ async function _getTransferHistory (offset: number = 0) {
               default:
                 break
             }
+            break
           }
+          default:
+            break
         }
       }
       return {
@@ -551,19 +554,19 @@ function submitTx (txRequest: {
   }
 }
 
-function directTransfer (txRequest: {
-  fromWallet: Object,
-  transferAmount: StandardTokenUnit,
-  destinationAddress: Address,
-  txFee: TxFee
-}) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'DIRECT_TRANSFER',
-      payload: _directTransfer(txRequest)
-    })
-  }
-}
+// function directTransfer (txRequest: {
+//   fromWallet: Object,
+//   transferAmount: StandardTokenUnit,
+//   destinationAddress: Address,
+//   txFee: TxFee
+// }) {
+//   return (dispatch: Function, getState: Function) => {
+//     return dispatch({
+//       type: 'DIRECT_TRANSFER',
+//       payload: _directTransfer(txRequest)
+//     })
+//   }
+// }
 
 function acceptTransfer (txRequest: {
   escrowAccount: AccountData,
@@ -632,7 +635,6 @@ function clearVerifyEscrowAccountPasswordError () {
 
 export {
   submitTx,
-  directTransfer,
   acceptTransfer,
   cancelTransfer,
   getTxFee,

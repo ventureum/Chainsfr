@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveFormComponent from '../components/ReceiveFormComponent'
-import { clearDecryptedWallet } from '../actions/walletActions'
 import { verifyEscrowAccountPassword } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { clearVerifyEscrowAccountPasswordError } from '../actions/transferActions'
 import { updateTransferForm } from '../actions/formActions'
 class ReceiveFormContainer extends Component {
   componentDidUpdate (prevProps) {
@@ -13,8 +11,8 @@ class ReceiveFormContainer extends Component {
     const prevActionPending = prevProps.actionsPending
     if (
       prevActionPending.verifyEscrowAccountPassword &&
-            !actionsPending.verifyEscrowAccountPassword &&
-            !error
+      !actionsPending.verifyEscrowAccountPassword &&
+      !error
     ) {
       // verified password successfully
       // go to next step
@@ -36,10 +34,7 @@ const mapDispatchToProps = dispatch => {
     updateTransferForm: form => dispatch(updateTransferForm(form)),
     verifyEscrowAccountPassword: transferInfo =>
       dispatch(verifyEscrowAccountPassword(transferInfo)),
-    clearDecryptedWallet: wallet => dispatch(clearDecryptedWallet(wallet)),
-    goToStep: n => dispatch(goToStep('receive', n)),
-    clearVerifyEscrowAccountPasswordError: () =>
-      dispatch(clearVerifyEscrowAccountPasswordError())
+    goToStep: n => dispatch(goToStep('receive', n))
   }
 }
 

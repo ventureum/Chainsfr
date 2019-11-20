@@ -1,5 +1,4 @@
 import update from 'immutability-helper'
-import utils from '../utils.js'
 /*
  *  Handle user profile
  */
