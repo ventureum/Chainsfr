@@ -224,7 +224,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash> => {
     const account = this.getAccount()

@@ -1,5 +1,4 @@
 // @flow
-import WalletLibra from '../wallets/libra.js'
 import type { IAccount, Account } from './account.flow.js'
 
 import type { TxFee, TxHash } from './transfer.flow'
@@ -22,7 +21,8 @@ export interface IWallet<IAccount> {
   sendTransaction({
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    // txFee is mandatory
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash | Array<TxHash>>;
 

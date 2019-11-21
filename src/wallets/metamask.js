@@ -121,7 +121,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash | Array<TxHash>> => {
     const account = this.getAccount()

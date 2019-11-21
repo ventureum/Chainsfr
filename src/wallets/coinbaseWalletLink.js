@@ -7,8 +7,6 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 import EthereumAccount from '../accounts/EthereumAccount.js'
 import Web3 from 'web3'
 import WalletLink from 'walletlink'
-
-import url from '../url'
 import WalletUtils from './utils.js'
 import env from '../typedEnv'
 
@@ -138,7 +136,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash | Array<TxHash>> => {
     const account = this.getAccount()
@@ -148,40 +146,18 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
       throw new Error('Must connect and verify account first')
     }
 
-    let txObjs: any = []
-    if (!txFee) txFee = await account.getTxFee({ to, value, options: options })
+    if (!txFee) throw new Error('Missing txFee')
+    if (!options) throw new Error('Options must not be null')
 
-    const { cryptoType } = accountData
-    txObjs = await WalletUtils.buildEthereumTxObjs({
-      cryptoType: cryptoType,
-      value: value,
-      from: accountData.address,
-      to: to,
-      txFee: txFee,
-      options: options
-    })
+    const { multisig } = options
+    const txObj = multisig.getSendToEscrowTxObj(
+      accountData.address,
+      to,
+      value,
+      accountData.cryptoType
+    )
 
-    let txHashList = []
-    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-    for (let txObj of txObjs) {
-      const _txObj = {
-        from: txObj.from,
-        to: txObj.to,
-        data: txObj.data,
-        gasPrice: _web3.utils.numberToHex(txObj.gasPrice),
-        gasLimit: _web3.utils.numberToHex(txObj.gas),
-        value: _web3.utils.numberToHex(txObj.value),
-        nonce: txObj.nonce ? _web3.utils.numberToHex(txObj.nonce) : undefined
-      }
-
-      const txHash = await WalletUtils.web3SendTransactions(
-        window._walletLinkWeb3.eth.sendTransaction,
-        _txObj
-      )
-      txHashList.push(txHash)
-    }
-
-    return txHashList.length === 1 ? txHashList[0] : txHashList
+    return WalletUtils.web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObj)
   }
 
   _createWalletLinkProvider = async (): Promise<any> => {

@@ -256,7 +256,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash | Array<TxHash>> => {
     const account = this.getAccount()
@@ -272,7 +272,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
       // init web3
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
-      if (!options) throw new Error('Options must not be null for metamask wallet')
+      if (!options) throw new Error('Options must not be null')
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address

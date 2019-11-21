@@ -237,7 +237,7 @@ export default class DriveWallet implements IWallet<AccountData> {
   }: {
     to: Address,
     value: BasicTokenUnit,
-    txFee?: TxFee,
+    txFee: TxFee,
     options?: Object
   }): Promise<TxHash> => {
     const account = this.getAccount()
@@ -256,7 +256,7 @@ export default class DriveWallet implements IWallet<AccountData> {
       // add private key
       _web3.eth.accounts.wallet.add(accountData.privateKey)
 
-      if (!options) throw new Error('Options must not be null for metamask wallet')
+      if (!options) throw new Error('Options must not be null')
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address
