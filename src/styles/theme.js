@@ -164,5 +164,14 @@ export const themeChainsfr = createMuiTheme({
         }
       }
     }
+  },
+  zIndex: {
+    mobileStepper: 60,
+    speedDial: 65,
+    appBar: 70,
+    drawer: 80,
+    modal: 90,
+    snackbar: 100,
+    tooltip: 110
   }
 })
