@@ -6,10 +6,9 @@ import BN from 'bn.js'
 
 import utils from '../utils'
 import url from '../url'
-import ERC20 from '../ERC20'
 
 import type { TxHash } from '../types/transfer.flow'
-import type { BasicTokenUnit, Address } from '../types/token.flow'
+import type { BasicTokenUnit } from '../types/token.flow'
 import type { BitcoinAddress } from '../types/account.flow.js'
 import type { TxFee } from '../types/transfer.flow'
 import SimpleMultiSig from '../SimpleMultiSig'
@@ -31,64 +30,6 @@ async function _web3SendTransactionPromise (web3Function: Function, txObj: Objec
 
 async function web3SendTransactions (web3Function: Function, txObj: Object) {
   return _web3SendTransactionPromise(web3Function, txObj)
-}
-
-async function buildEthereumTxObjs ({
-  cryptoType,
-  from,
-  to,
-  value,
-  txFee,
-  options
-}: {
-  cryptoType: string,
-  from: Address,
-  to: Address,
-  value: BasicTokenUnit,
-  txFee: TxFee,
-  options?: Object
-}): Promise<Array<any>> {
-  let txObjs = []
-  const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-
-  if (cryptoType === 'ethereum') {
-    txObjs.push({
-      from: from,
-      to: to,
-      value: value,
-      gas: txFee.gas,
-      gasPrice: txFee.price
-    })
-  } else if (cryptoType === 'dai') {
-    let ERC20TxObj = await ERC20.getTransferTxObj(from, to, value, cryptoType)
-    ERC20TxObj.gas = txFee.gas
-    ERC20TxObj.gasPrice = txFee.price
-
-    if (options && options.prepayTxFee) {
-      // need to prepay tx fee, tx fees are classified by tx type: ERC20 and ETH
-      // set ERC20 type tx gas
-      if (txFee.costByType && txFee.costByType.txFeeERC20) {
-        ERC20TxObj.gas = txFee.costByType.txFeeERC20.gas
-        ERC20TxObj.gasPrice = txFee.costByType.txFeeERC20.price
-      } else {
-        throw new Error('txFeeERC20 not found in txFee')
-      }
-      // send eth as prepaid tx fee
-      var txFeeEthTxObj = {
-        from: from,
-        to: to,
-        value: txFee.costByType && txFee.costByType.ethTransfer,
-        gas: txFee.costByType && txFee.costByType.txFeeEth.gas,
-        gasPrice: txFee.costByType && txFee.costByType.txFeeEth.price,
-        nonce: await _web3.eth.getTransactionCount(from)
-      }
-      // consecutive tx, need to set nonce manually
-      ERC20TxObj.nonce = txFeeEthTxObj.nonce + 1
-      txObjs.push(txFeeEthTxObj)
-    }
-    txObjs.push(ERC20TxObj)
-  }
-  return txObjs
 }
 
 const getBufferFromHex = (hex: string) => {
@@ -259,7 +200,6 @@ export default {
   broadcastBtcRawTx,
   networkIdMap,
   web3SendTransactions,
-  buildEthereumTxObjs,
   getUtxoDetails,
   getSignTransactionObject,
   calculateChainIdFromV,
