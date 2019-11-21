@@ -6,7 +6,7 @@ import {
   generateSecurityAnswer,
   clearSecurityAnswer
 } from '../actions/formActions'
-import { goToStep } from '../actions/navigationActions'
+import { goToStep, backToHome } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
 import BN from 'bn.js'
@@ -23,6 +23,7 @@ type Props = {
   clearSecurityAnswer: Function,
   goToStep: Function,
   transferForm: Object,
+  accountSelection: Object,
   txFee: any,
   wallet: Object,
   actionsPending: Object,
@@ -44,9 +45,11 @@ class TransferFormContainer extends Component<Props, State> {
       updateTransferForm,
       getRecipients,
       destinationPrefilled,
-      receiverNamePrefilled
+      receiverNamePrefilled,
+      walletSelectionPrefilled,
+      cryptoTypePrefilled,
+      addressPrefilled
     } = this.props
-    this.props.clearSecurityAnswer()
     if (profile.isAuthenticated) {
       // prefill form
       updateTransferForm(
@@ -54,7 +57,14 @@ class TransferFormContainer extends Component<Props, State> {
           sender: { $set: profile.profileObj.email },
           senderName: { $set: profile.profileObj.name },
           destination: { $set: destinationPrefilled },
-          receiverName: { $set: receiverNamePrefilled }
+          receiverName: { $set: receiverNamePrefilled },
+          accountId: {
+            $set: {
+              walletType: walletSelectionPrefilled,
+              cryptoType: cryptoTypePrefilled,
+              address: addressPrefilled
+            }
+          }
         })
       )
       getRecipients()
@@ -68,10 +78,9 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { transferForm, actionsPending } = this.props
+    const { transferForm, actionsPending, accountSelection } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
       // if transfer amount changed, update tx fee
-      const { accountSelection } = transferForm
       this.props.getTxFee({
         fromAccount: accountSelection,
         transferAmount: transferForm.transferAmount
@@ -128,10 +137,9 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   validate = (name, value, transferForm) => {
-    const { txFee } = this.props
+    const { txFee, accountSelection } = this.props
 
     if (name === 'transferAmount') {
-      const { accountSelection } = transferForm
       const { cryptoType, balance } = accountSelection
       const decimals = getCryptoDecimals(cryptoType)
       if (
@@ -204,10 +212,9 @@ class TransferFormContainer extends Component<Props, State> {
   }
 
   handleTransferFormChange = name => event => {
-    const { transferForm, cryptoPrice, recipients } = this.props
+    const { transferForm, cryptoPrice, recipients, accountSelection } = this.props
 
     // helper functions for converting currency
-    const { accountSelection } = transferForm
     const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[accountSelection.cryptoType])
     const toCryptoAmount = currencyAmount =>
@@ -296,9 +303,11 @@ class TransferFormContainer extends Component<Props, State> {
       currency,
       actionsPending,
       addRecipient,
-      transferForm
+      walletSelectionPrefilled,
+      cryptoTypePrefilled,
+      addressPrefilled,
+      accountSelection
     } = this.props
-    const { accountSelection } = transferForm
     let balanceCurrencyAmount = '0'
     if (accountSelection) {
       balanceCurrencyAmount = utils.toCurrencyAmount(
@@ -317,6 +326,11 @@ class TransferFormContainer extends Component<Props, State> {
           validateForm={this.validateForm}
           balanceCurrencyAmount={balanceCurrencyAmount}
           addRecipient={() => this.toggleAddRecipientDialog()}
+          prefilledAccount={{
+            walletType: walletSelectionPrefilled,
+            crytoType: cryptoTypePrefilled,
+            address: addressPrefilled
+          }}
         />
         {this.state.openAddRecipientDialog && (
           <AddRecipientDialog
@@ -344,12 +358,16 @@ const mapDispatchToProps = dispatch => {
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
     addRecipient: recipient => dispatch(addRecipient(recipient)),
+    backToHome: () => dispatch(backToHome())
   }
 }
 
 const mapStateToProps = state => {
   return {
     transferForm: state.formReducer.transferForm,
+    accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
+      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+    ),
     profile: state.userReducer.profile,
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
@@ -364,7 +382,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TransferFormContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(TransferFormContainer)

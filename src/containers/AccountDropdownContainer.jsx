@@ -8,7 +8,7 @@ import utils from '../utils'
 
 type Props = {
   // param passed in
-  prefilledAccount: {
+  accountId: {
     walletType: string,
     cryptoType: string,
     address: string
@@ -24,18 +24,14 @@ type Props = {
 }
 
 type State = {
-  account: ?Object,
   openAddAccountModal: ?boolean
 }
 
 class AccountDropdownContainer extends Component<Props, State> {
-  state = { account: null, openAddAccountModal: false }
+  state = { openAddAccountModal: false }
 
   onChange = event => {
-    if(event.target.value === 'addCryptoAccount') return
-    // update internal state
-    this.setState({ account: event.target.value })
-
+    if (event.target.value === 'addCryptoAccount') return
     // notify changes
     this.props.onChange(event)
   }
@@ -47,34 +43,18 @@ class AccountDropdownContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { prefilledAccount, cryptoAccounts, actionsPending, error } = this.props
-    if (
-      prevProps.actionsPending.getCryptoAccounts &&
-      !actionsPending.getCryptoAccounts &&
-      prefilledAccount &&
-      cryptoAccounts.length > 0
-    ) {
-      // set prefilled account after fetching accounts
-      this.onChange({
-        target: {
-          value:
-            cryptoAccounts.find(item => {
-              return utils.accountsEqual(item, prefilledAccount)
-            }) || null
-        }
-      })
-    }
+    const { cryptoAccounts, actionsPending, error } = this.props
 
     if (prevProps.actionsPending.addCryptoAccount && !actionsPending.addCryptoAccount && !error) {
       // just added an account
       // use the newly added account (last item in the cryptoAccounts array)
-      this.onChange({target: {value: cryptoAccounts[cryptoAccounts.length - 1]}})
+      this.onChange({ target: { value: cryptoAccounts[cryptoAccounts.length - 1] } })
     }
   }
 
   render () {
-    const { cryptoAccounts, actionsPending, cryptoPrice, currency, error } = this.props
-    const { account, openAddAccountModal } = this.state
+    const { cryptoAccounts, actionsPending, cryptoPrice, currency, error, accountId } = this.props
+    const { openAddAccountModal } = this.state
     let { filterCriteria } = this.props
     if (!filterCriteria) {
       // default not filtering
@@ -86,7 +66,9 @@ class AccountDropdownContainer extends Component<Props, State> {
           // only use internal account state for id matching
           // latest account data fetched from redux directly
           account={
-            account ? cryptoAccounts.find(_account => utils.accountsEqual(_account, account)) : null
+            accountId
+              ? cryptoAccounts.find(_account => utils.accountsEqual(_account, accountId))
+              : null
           }
           cryptoAccounts={cryptoAccounts.filter(filterCriteria)}
           onChange={this.onChange}

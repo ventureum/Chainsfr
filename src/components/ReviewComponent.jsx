@@ -16,8 +16,6 @@ type Props = {
   goToStep: Function,
   classes: Object,
   transferForm: Object,
-  cryptoSelection: string,
-  walletSelection: string,
   wallet: Object,
   txFee: Object,
   currencyAmount: Object,
@@ -127,16 +125,16 @@ class ReviewComponent extends Component<Props> {
   render () {
     const { classes, transferForm, actionsPending, txFee, currencyAmount } = this.props
     const {
-      accountSelection,
       transferAmount,
       sender,
       senderName,
       destination,
       receiverName,
       password,
-      sendMessage
+      sendMessage,
+      accountId
     } = transferForm
-    const { cryptoType, walletType } = accountSelection
+    const { cryptoType, walletType } = accountId
     return (
       <Grid container direction='column'>
         <Grid item>

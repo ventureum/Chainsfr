@@ -9,6 +9,7 @@ import { decryptCloudWalletAccount, markAccountDirty } from '../actions/accountA
 import { submitTx } from '../actions/transferActions'
 import { goToStep } from '../actions/navigationActions'
 import { clearError } from '../actions/userActions'
+import utils from '../utils'
 
 type Props = {
   transferForm: Object,
@@ -18,6 +19,7 @@ type Props = {
   currency: String,
   userProfile: Object,
   txFee: Object,
+  accountSelection: Object,
   goToStep: Function,
   submitTxError: string,
   decryptCloudWalletAccountError: string,
@@ -30,8 +32,8 @@ type Props = {
 
 class WalletAuthorizationContainer extends Component<Props> {
   checkWalletConnection = additionalInfo => {
-    const { transferForm } = this.props
-    this.props.checkWalletConnection(transferForm.accountSelection, additionalInfo)
+    const { accountSelection } = this.props
+    this.props.checkWalletConnection(accountSelection, additionalInfo)
   }
 
   componentDidUpdate (prevProps) {
@@ -46,10 +48,10 @@ class WalletAuthorizationContainer extends Component<Props> {
       submitTxError,
       verifyAccount,
       checkWalletConnectionError,
-      markAccountDirty
+      markAccountDirty,
+      accountSelection
     } = this.props
     const {
-      accountSelection,
       transferAmount,
       transferCurrencyAmount,
       sender,
@@ -101,10 +103,12 @@ class WalletAuthorizationContainer extends Component<Props> {
       decryptCloudWalletAccount,
       clearError,
       checkWalletConnectionError,
-      decryptCloudWalletAccountError
+      decryptCloudWalletAccountError,
+      accountSelection
     } = this.props
     return (
       <WalletAuthorizationComponent
+        accountSelection={accountSelection}
         transferForm={transferForm}
         actionsPending={actionsPending}
         checkWalletConnection={this.checkWalletConnection}
@@ -144,6 +148,9 @@ const mapStateToProps = state => {
     currency: state.cryptoPriceReducer.currency,
     txFee: state.transferReducer.txFee,
     transferForm: state.formReducer.transferForm,
+    accountSelection: state.accountReducer.cryptoAccounts.find(_account => {
+      return utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+    }),
     actionsPending: {
       submitTx: submitTxSelector(state),
       verifyAccount: verifyAccountSelector(state),

@@ -4,9 +4,7 @@ import ReceiveComponent from '../components/ReceiveComponent'
 
 class ReceiveContainer extends Component {
   render () {
-    return (
-      <ReceiveComponent step={this.props.step} history={this.props.history} />
-    )
+    return <ReceiveComponent step={this.props.step} history={this.props.history} />
   }
 }
 
@@ -16,6 +14,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps
-)(ReceiveContainer)
+export default connect(mapStateToProps)(ReceiveContainer)

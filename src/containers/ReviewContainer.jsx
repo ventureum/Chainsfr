@@ -65,7 +65,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReviewContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(ReviewContainer)

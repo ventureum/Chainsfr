@@ -16,6 +16,7 @@ import { WalletButton } from './WalletSelectionButtons'
 type Props = {
   transferForm: Object,
   actionsPending: Object,
+  accountSelection: Object,
   checkWalletConnection: Function,
   clearError: Function,
   decryptCloudWalletAccount: Function,
@@ -109,8 +110,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderLedgerConnectSteps = () => {
-    const { transferForm, checkWalletConnection } = this.props
-    const { accountSelection } = transferForm
+    const { checkWalletConnection, accountSelection } = this.props
     return (
       <Grid container spacing={2} direction='column'>
         {!accountSelection.connected && (
@@ -185,8 +185,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderWalletAuthorizationSteps = () => {
-    const { transferForm, actionsPending } = this.props
-    const { accountSelection } = transferForm
+    const { actionsPending, accountSelection } = this.props
     const { walletType } = accountSelection
     let instruction = ''
     let walletSteps
@@ -271,8 +270,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   render () {
-    const { transferForm } = this.props
-    const { accountSelection } = transferForm
+    const { accountSelection } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
