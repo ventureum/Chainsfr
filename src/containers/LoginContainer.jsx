@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
 import OnboardingComponent from '../components/OnboardingComponent'
-import { onLogin, setNewUserTag, register } from '../actions/userActions'
+import { onLogin, register } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { getCryptoAccounts } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
@@ -60,7 +60,12 @@ class LoginContainer extends Component {
 const registerSelector = createLoadingSelector(['REGISTER'])
 const createCloudWalletSelector = createLoadingSelector(['CREATE_CLOUD_WALLET'])
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
-const errorSelector = createErrorSelector(['CREATE_CLOUD_WALLET', 'GET_CLOUD_WALLET', 'REGISTER', 'GET_CRYPTO_ACCOUNTS'])
+const errorSelector = createErrorSelector([
+  'CREATE_CLOUD_WALLET',
+  'GET_CLOUD_WALLET',
+  'REGISTER',
+  'GET_CRYPTO_ACCOUNTS'
+])
 
 const mapStateToProps = state => {
   return {
@@ -85,7 +90,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LoginContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer)

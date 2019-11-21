@@ -5,7 +5,6 @@ import LandingPageComponent from '../components/LandingPageComponent'
 import { getTransferHistory } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import utils from '../utils'
-import { getCryptoDecimals } from '../tokens'
 import { push } from 'connected-react-router'
 
 class LandingPageContainer extends Component {
@@ -64,7 +63,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LandingPageContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(LandingPageContainer)

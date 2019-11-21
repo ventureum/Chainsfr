@@ -125,7 +125,7 @@ const getSignTransactionObject = (tx: Object) => {
   }
 }
 
-async function getUtxoDetails (txHash: string) {
+async function getUtxoDetails (txHash: TxHash) {
   const details = await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}/hex`)
   return details.data[0].hex
 }

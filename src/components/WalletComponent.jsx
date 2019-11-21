@@ -1,8 +1,6 @@
-import React, { Component, useState } from 'react'
+import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container'
@@ -13,32 +11,30 @@ import MenuItem from '@material-ui/core/MenuItem'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
-import utils from '../utils'
-import validator from 'validator'
+import { getCryptoSymbol } from '../tokens'
 import { UserRecentTransactions } from './LandingPageComponent.jsx'
 import { accountStatus } from '../types/account.flow'
 
-function SendToAnotherAccount (props) {
-  const { accounts } = props
-  const [amount, setAmount] = useState(null)
-  const [memo, setMemo] = useState(null)
+// function SendToAnotherAccount (props) {
+//   const { accounts } = props
+//   const [amount, setAmount] = useState(null)
+//   const [memo, setMemo] = useState(null)
 
-  function validateAmount (cryptoType, balance, amount) {
-    const decimals = getCryptoDecimals(cryptoType)
-    if (
-      !validator.isFloat(amount, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })
-    ) {
-      if (amount === '-' || parseFloat(amount) < 0.001) {
-        return 'The amount must be greater than 0.001'
-      } else {
-        return `Exceed your balance of ${utils.toHumanReadableUnit(balance, decimals)}`
-      }
-    }
-  }
+//   function validateAmount (cryptoType, balance, amount) {
+//     const decimals = getCryptoDecimals(cryptoType)
+//     if (
+//       !validator.isFloat(amount, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })
+//     ) {
+//       if (amount === '-' || parseFloat(amount) < 0.001) {
+//         return 'The amount must be greater than 0.001'
+//       } else {
+//         return `Exceed your balance of ${utils.toHumanReadableUnit(balance, decimals)}`
+//       }
+//     }
+//   }
 
-  return
-}
+//   return
+// }
 
 class WalletComponent extends Component {
   state = {
@@ -46,7 +42,7 @@ class WalletComponent extends Component {
   }
 
   renderChainsfrWalletSection = () => {
-    const { classes, cloudWalletAccounts, actionsPending } = this.props
+    const { classes, cloudWalletAccounts } = this.props
     const { anchorEl } = this.state
 
     return (

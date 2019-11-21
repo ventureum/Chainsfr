@@ -20,7 +20,7 @@ class CancelReviewComponent extends Component {
 
   handleReviewNext = () => {
     const { transfer, escrowAccount, txFee } = this.props
-    const { transferId, sendTxHash, transferAmount, cryptoType, walletId } = transfer
+    const { transferId, sendTxHash, transferAmount, walletId } = transfer
     const { cancelMessage } = this.state
     this.props.cancelTransfer({
       escrowAccount: escrowAccount,

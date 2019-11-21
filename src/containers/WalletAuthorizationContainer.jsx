@@ -20,15 +20,12 @@ type Props = {
   txFee: Object,
   goToStep: Function,
   submitTxError: string,
+  decryptCloudWalletAccountError: string,
   checkWalletConnectionError: string,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
   markAccountDirty: Function
-}
-
-type State = {
-  connectMethod: string
 }
 
 class WalletAuthorizationContainer extends Component<Props> {
@@ -103,7 +100,8 @@ class WalletAuthorizationContainer extends Component<Props> {
       actionsPending,
       decryptCloudWalletAccount,
       clearError,
-      checkWalletConnectionError
+      checkWalletConnectionError,
+      decryptCloudWalletAccountError
     } = this.props
     return (
       <WalletAuthorizationComponent
@@ -113,6 +111,7 @@ class WalletAuthorizationContainer extends Component<Props> {
         decryptCloudWalletAccount={decryptCloudWalletAccount}
         clearError={clearError}
         checkWalletConnectionError={checkWalletConnectionError}
+        decryptCloudWalletAccountError={decryptCloudWalletAccountError}
       />
     )
   }
@@ -151,11 +150,9 @@ const mapStateToProps = state => {
       checkWalletConnection: checkWalletConnectionSelector(state)
     },
     submitTxError: submitTxErrorSelector(state),
-    checkWalletConnectionError: checkWalletConnectionErrorSelector(state)
+    checkWalletConnectionError: checkWalletConnectionErrorSelector(state),
+    decryptCloudWalletAccountError: decryptCloudWalletAccountErrorSelector(state)
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WalletAuthorizationContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(WalletAuthorizationContainer)

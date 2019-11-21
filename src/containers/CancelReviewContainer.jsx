@@ -7,8 +7,6 @@ import { getTransfer, cancelTransfer, getTxFee } from '../actions/transferAction
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
 import { verifyEscrowAccountPassword, syncWithNetwork } from '../actions/accountActions'
-import { createWallet } from '../wallets/WalletFactory'
-// import WalletUtils from '../wallets/utils'
 import utils from '../utils'
 
 class CancelReviewContainer extends Component {
@@ -36,7 +34,11 @@ class CancelReviewContainer extends Component {
       ) {
         // verifyEscrowAccountPassword completed, currently not syncing
         this.props.syncWithNetwork(escrowAccount)
-      } else if (prevActionPending.syncWithNetwork && !actionsPending.syncWithNetwork && !actionsPending.getTxFee) {
+      } else if (
+        prevActionPending.syncWithNetwork &&
+        !actionsPending.syncWithNetwork &&
+        !actionsPending.getTxFee
+      ) {
         // sync completed, currently not executing getTxFee action
         this.props.getTxFee({ fromAccount: escrowAccount, transferAmount: transfer.transferAmount })
       }
@@ -66,7 +68,9 @@ class CancelReviewContainer extends Component {
 }
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
-const verifyEscrowAccountPasswordSelector = createLoadingSelector(['VERIFY_ESCROW_ACCOUNT_PASSWORD'])
+const verifyEscrowAccountPasswordSelector = createLoadingSelector([
+  'VERIFY_ESCROW_ACCOUNT_PASSWORD'
+])
 const gettxFeeSelector = createLoadingSelector(['GET_TX_COST'])
 const cancelTransferSelector = createLoadingSelector([
   'CANCEL_TRANSFER',
@@ -85,7 +89,8 @@ const errorSelector = createErrorSelector([
 const mapDispatchToProps = dispatch => {
   return {
     getTransfer: id => dispatch(getTransfer(id)), // here we use transferId
-    verifyEscrowAccountPassword: transferInfo => dispatch(verifyEscrowAccountPassword(transferInfo)),
+    verifyEscrowAccountPassword: transferInfo =>
+      dispatch(verifyEscrowAccountPassword(transferInfo)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     cancelTransfer: txRequest => dispatch(cancelTransfer(txRequest)),
     syncWithNetwork: txRequest => dispatch(syncWithNetwork(txRequest)),
@@ -112,7 +117,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CancelReviewContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(CancelReviewContainer)

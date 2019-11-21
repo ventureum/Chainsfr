@@ -8,10 +8,7 @@ import EthereumAccount from '../accounts/EthereumAccount.js'
 import Web3 from 'web3'
 import WalletLink from 'walletlink'
 
-import ERC20 from '../ERC20'
-import API from '../apis.js'
 import url from '../url'
-import utils from '../utils'
 import WalletUtils from './utils.js'
 import env from '../typedEnv'
 
@@ -119,7 +116,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
     return true
   }
 
-  verifyAccount = async (): Promise<boolean> => {
+  verifyAccount = async (additionalInfo: ?Object): Promise<boolean> => {
     let accountData = this.getAccount().getAccountData()
 
     const addresses = await this._getCoinbaseWalletLinkAddresses()
@@ -179,7 +176,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
 
       const txHash = await WalletUtils.web3SendTransactions(
         window._walletLinkWeb3.eth.sendTransaction,
-        txObj
+        _txObj
       )
       txHashList.push(txHash)
     }
