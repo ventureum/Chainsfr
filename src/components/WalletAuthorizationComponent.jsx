@@ -47,7 +47,6 @@ export default class WalletAuthorizationComponent extends Component<Props, State
         <Grid item>
           <Typography variant='body1'>Connect your wallet via MetaMask App</Typography>
         </Grid>
-        MetaMask
         <Grid item>
           <Button
             onClick={() => {
@@ -269,7 +268,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     )
   }
 
-  render () {
+  render() {
     const { accountSelection } = this.props
 
     return (

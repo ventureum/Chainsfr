@@ -98,9 +98,6 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
     if (!window.walletConnector) {
       return false
     }
-    if (!window.walletConnector.connected) {
-      await this._CreateWalletConnectSession()
-    }
 
     // If connection is already established
     if (window.walletConnector.connected) {
