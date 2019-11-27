@@ -6,7 +6,6 @@ import Grid from '@material-ui/core/Grid'
 import ReceiveForm from '../containers/ReceiveFormContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
 import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
-import ReceiveLandingPage from '../containers/ReceiveLandingPageContainer'
 
 class ReceiveComponent extends React.Component {
   render () {
@@ -15,25 +14,20 @@ class ReceiveComponent extends React.Component {
     return (
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
-          {step === 0 ? (
-            <ReceiveLandingPage location={history.location} />
-          ) : (
-            <Grid container direction='column'>
-              <Grid item>
-                <Stepper actionType='receive' step={step - 1} />
-              </Grid>
-              <Grid item>
-                {/* receipt page requires a different background color */}
-                <Grid container direction='column' alignItems='center'>
-                  <Grid item className={classes.subComponent}>
-                    {step === 1 && <ReceiveForm />}
-                    {step === 2 && <ReceiveReview />}
-                    {step === 3 && <ReceiveReceipt />}
-                  </Grid>
+          <Grid container direction='column'>
+            <Grid item>
+              <Stepper actionType='receive' step={step} />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='center'>
+                <Grid item className={classes.subComponent}>
+                  {step === 0 && <ReceiveForm location={history.location} />}
+                  {step === 1 && <ReceiveReview />}
+                  {step === 2 && <ReceiveReceipt />}
                 </Grid>
               </Grid>
             </Grid>
-          )}
+          </Grid>
         </Grid>
       </Grid>
     )

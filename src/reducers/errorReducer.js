@@ -16,6 +16,11 @@ const errorReducer = (state = {}, action) => {
   } else if (type === 'LOGOUT_FULFILLED') {
     // reset errors
     return {}
+  } else if (type === 'CLEAR_VERIFY_ESCROW_ACCOUNT_PASSWORD_ERROR') {
+    return {
+      ...state,
+      VERIFY_ESCROW_ACCOUNT_PASSWORD: null
+    }
   }
 
   const matches = /(.*)_(PENDING|REJECTED|CLEAR)/.exec(type)
