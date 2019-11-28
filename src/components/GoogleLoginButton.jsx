@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-
-import { withStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 
 class GoogleLoginButton extends Component {
   gapiLoad = () => {
@@ -64,43 +61,19 @@ class GoogleLoginButton extends Component {
   }
 
   render () {
-    const { classes, disabled } = this.props
+    const { disabled } = this.props
     return (
-      <Grid
-        container
-        direction='row'
-        alignItems='center'
-        justify='center'
-        className={disabled ? classes.btnDisabled : classes.btn}
+      <Button
+        fullWidth
+        variant='contained'
+        color='primary'
         onClick={() => this.login()}
+        disabled={disabled}
       >
-        <Grid item>
-          <Typography className={classes.text}>Sign in with Google</Typography>
-        </Grid>
-      </Grid>
+        Sign in with Google
+      </Button>
     )
   }
 }
 
-const styles = theme => ({
-  btn: {
-    backgroundColor: '#4285F4',
-    opacity: 1,
-    '&:hover': {
-      cursor: 'pointer',
-      opacity: 0.9
-    },
-    borderRadius: 8
-  },
-  btnDisabled: {
-    backgroundColor: '#4285F4',
-    opacity: 0.5,
-    borderRadius: 8
-  },
-  text: {
-    color: '#ffffff',
-    fontWeight: '500',
-    fontSize: '20px'
-  }
-})
-export default withStyles(styles)(GoogleLoginButton)
+export default GoogleLoginButton

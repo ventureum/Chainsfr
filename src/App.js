@@ -10,6 +10,7 @@ import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
 import WalletContainer from './containers/WalletContainer'
 import RecipientsContainer from './containers/RecipientsContainer'
+import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
@@ -41,7 +42,7 @@ const userIsAuthenticated = connectedRouterRedirect({
 const locationHelper = locationHelperBuilder({})
 
 const userIsNotAuthenticated = connectedRouterRedirect({
-  // This sends the user either to the query param route if we have one, or to the landing page if none is specified and the user is already logged in
+  // This sends the user either to the query param route *if we have one, or to the landing page if none is specified and the user is already logged in
   redirectPath: (state, ownProps) => locationHelper.getRedirectQueryParam(ownProps) || '/',
   // This prevents us from adding the query parameter when we send the user away from the login page
   allowRedirectBack: false,
@@ -57,12 +58,6 @@ const defaultLayoutStyle = {
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column'
-}
-
-const loginLayoutStyle = {
-  minHeight: '100vh',
-  flexDirection: 'column',
-  display: 'flex'
 }
 
 const componentStyle = {
@@ -91,21 +86,6 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
           </div>
           <NotifierComponent />
           <Footer />
-        </div>
-      )}
-    />
-  )
-}
-
-const LoginLayout = ({ component: Component, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={matchProps => (
-        <div style={loginLayoutStyle}>
-          <StyledCookieConsent />
-          <Component {...matchProps} />
-          <NotifierComponent />
         </div>
       )}
     />
@@ -146,7 +126,7 @@ class App extends Component {
           >
             <ConnectedRouter history={history}>
               <Switch>
-                <LoginLayout
+                <DefaultLayout
                   path={paths.login}
                   component={userIsNotAuthenticated(LoginContainer)}
                 />
@@ -179,6 +159,10 @@ class App extends Component {
                 <DefaultLayout
                   path={`${paths.accounts}`}
                   component={userIsAuthenticated(AccountsManagementContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.receipt}`}
+                  component={userIsAuthenticated(ReceiptContainer)}
                 />
               </Switch>
             </ConnectedRouter>

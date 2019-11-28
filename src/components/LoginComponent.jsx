@@ -11,6 +11,7 @@ import ChainsfrLogo from '../images/chainsfr_logo.svg'
 import ChainsfrLogoWhite from '../images/chainsfr_logo_white.svg'
 import classNames from 'classnames'
 import env from '../typedEnv'
+import { ReceiveTransferDataSection } from './ReceiveFormComponent'
 
 const data = {
   mainNet: {
@@ -74,10 +75,75 @@ class LoginComponent extends Component {
     console.log(response)
   }
 
+  renderLoginBtn = () => {
+    const { classes, actionsPending } = this.props
+    return (
+      <Grid className={classes.btnContainer}>
+        <GoogleLoginButton
+          onSuccess={this.loginSuccess}
+          onFailure={this.loginFailure}
+          disabled={
+            actionsPending.getTransfer || actionsPending.getCloudWallet || actionsPending.register
+          }
+        />
+        {(actionsPending.getCloudWallet || actionsPending.register) && (
+          <CircularProgress size={24} color='primary' className={classes.buttonProgress} />
+        )}
+      </Grid>
+    )
+  }
+
+  renderReceiveLogin = () => {
+    let { classes, transfer, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
+
+    let isInvalidTransfer = false
+    if (transfer) {
+      var { receiveTxHash, cancelTxHash } = transfer
+      if (receiveTxHash || cancelTxHash) isInvalidTransfer = true
+    }
+
+    return (
+      <Grid container direction='column' alignItems='center'>
+        {/* struct copied from ReceiveComponent */}
+        <Grid item className={classes.sectionContainer}>
+          <Grid container direction='column'>
+            <Grid item>
+              <Grid container direction='column' alignItems='center'>
+                <Grid item className={classes.subComponent}>
+                  <Grid
+                    container
+                    direction='column'
+                    justify='center'
+                    alignItems='stretch'
+                    spacing={2}
+                  >
+                    <ReceiveTransferDataSection
+                      transfer={transfer}
+                      sendTime={sendTime}
+                      receiveTime={receiveTime}
+                      cancelTime={cancelTime}
+                      currencyAmount={currencyAmount}
+                    />
+
+                    {!isInvalidTransfer && <Grid item>{this.renderLoginBtn()}</Grid>}
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
+
   render () {
-    let { classes, actionsPending, isMainNet } = this.props
+    let { classes, renderReceiveLogin, actionsPending, isMainNet } = this.props
 
     const envSuffix = isMainNet ? 'MainNet' : 'TestNet'
+
+    if (renderReceiveLogin) {
+      return this.renderReceiveLogin()
+    }
 
     return (
       <Grid
@@ -283,12 +349,11 @@ const styles = theme => ({
     borderTop: 'solid 1px #e9e9e9'
   },
   btnContainer: {
-    paddingTop: 30,
-    paddingBottom: 30,
-    maxHeight: 60,
+    display: 'flex',
+    maxHeight: 40,
     position: 'relative',
     '&:first-child p': {
-      padding: 15,
+      padding: 5,
       fontFamily: 'Poppins',
       fontSize: 16
     }
@@ -359,6 +424,16 @@ const styles = theme => ({
     textTransform: 'capitalize',
     lineHeight: '22px',
     color: '#FFF'
+  },
+  subComponent: {
+    width: '100%',
+    maxWidth: '680px',
+    margin: '0px 0px 16px 0px',
+    padding: '30px'
+  },
+  sectionContainer: {
+    width: '100%',
+    maxWidth: '1200px'
   }
 })
 

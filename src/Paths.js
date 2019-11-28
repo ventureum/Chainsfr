@@ -7,7 +7,8 @@ const paths = {
   cancel: '/cancel',
   recipients: '/recipients',
   referral: '/referral',
-  accounts: '/accounts'
+  accounts: '/accounts',
+  receipt: '/receipt'
 }
 
 export default paths
