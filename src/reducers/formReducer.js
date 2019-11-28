@@ -3,13 +3,18 @@
  */
 
 import update from 'immutability-helper'
-import Utils from '../utils'
+
+/*
+  accountId: {
+    cryptoType: string,
+    walletType: string,
+    address: string
+  }
+*/
 
 const initialState = {
-  walletSelection: null,
-  cryptoSelection: null,
   transferForm: {
-    accountSelection: null,
+    accountId: {},
     transferAmount: '',
     transferCurrencyAmount: '',
     password: '',
@@ -29,38 +34,6 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case 'VERIFY_ACCOUNT_FULFILLED':
-    case 'CHECK_WALLET_CONNECTION_FULFILLED':
-    case 'SYNC_WITH_NETWORK_FULFILLED': {
-      if (
-        state.transferForm.accountSelection &&
-        Utils.accountsEqual(action.payload, state.transferForm.accountSelection)
-      ) {
-        return update(state, { transferForm: { accountSelection: { $set: action.payload } } })
-      }
-      return state
-    }
-    case 'SYNC_WITH_NETWORK_PENDING': {
-      if (
-        state.transferForm.accountSelection &&
-        Utils.accountsEqual(action.meta, state.transferForm.accountSelection)
-      ) {
-        return update(state, { transferForm: { accountSelection: { $set: action.meta } } })
-      }
-      return state
-    }
-    case 'SELECT_CRYPTO':
-      return {
-        ...state,
-        cryptoSelection: state.cryptoSelection === action.payload ? null : action.payload,
-        transferForm: initialState.transferForm
-      }
-    case 'SELECT_WALLET':
-      return {
-        ...state,
-        walletSelection: state.walletSelection === action.payload ? null : action.payload,
-        cryptoSelection: null
-      }
     case 'UPDATE_TRANSFER_FORM':
       return {
         ...state,

@@ -23,6 +23,7 @@ import AccountDropdownContainer from '../containers/AccountDropdownContainer'
 type Props = {
   generateSecurityAnswer: Function,
   goToStep: Function,
+  backToHome: Function,
   handleTransferFormChange: Function,
   validateForm: Function,
   balanceCurrencyAmount: string,
@@ -33,8 +34,7 @@ type Props = {
   recipients: Array<Object>,
   addRecipient: Function,
   walletSelectionPrefilled: string,
-  cryptoTypePrefilled: string,
-  addressPrefilled: string
+  accountSelection: Object
 }
 
 class TransferFormComponent extends Component<Props> {
@@ -51,11 +51,9 @@ class TransferFormComponent extends Component<Props> {
       addRecipient,
       generateSecurityAnswer,
       walletSelectionPrefilled,
-      cryptoTypePrefilled,
-      addressPrefilled
+      accountSelection
     } = this.props
     const {
-      accountSelection,
       transferAmount,
       transferCurrencyAmount,
       destination,
@@ -66,12 +64,6 @@ class TransferFormComponent extends Component<Props> {
       formError
     } = transferForm
 
-    const prefilledAccount = walletSelectionPrefilled && cryptoTypePrefilled && addressPrefilled &&
-    {
-      walletType: walletSelectionPrefilled,
-      cryptoType: cryptoTypePrefilled,
-      address: addressPrefilled
-    }
     return (
       <Grid container direction='column' justify='center' alignItems='stretch' spacing={1}>
         <Grid item>
@@ -110,11 +102,11 @@ class TransferFormComponent extends Component<Props> {
         </Grid>
         <Grid item>
           <AccountDropdownContainer
-            onChange={handleTransferFormChange('accountSelection')}
-            prefilledAccount={prefilledAccount}
+            onChange={handleTransferFormChange('accountId')}
             filterCriteria={accountData =>
               !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
             }
+            accountId={accountSelection}
           />
         </Grid>
         <Grid item>
@@ -189,8 +181,8 @@ class TransferFormComponent extends Component<Props> {
                   formError.transferAmount ||
                   (accountSelection
                     ? `Balance: ${accountSelection.balanceInStandardUnit} ${getCryptoSymbol(
-                      accountSelection.cryptoType
-                    )}`
+                        accountSelection.cryptoType
+                      )}`
                     : '')
                 }
                 disabled={!accountSelection}
@@ -226,7 +218,12 @@ class TransferFormComponent extends Component<Props> {
               endAdornment: accountSelection && (
                 <InputAdornment position='end'>
                   <Tooltip title='Generate Security Answer' position='left'>
-                    <IconButton color='primary' onClick={generateSecurityAnswer}>
+                    <IconButton
+                      color='primary'
+                      onClick={() => {
+                        generateSecurityAnswer()
+                      }}
+                    >
                       <RefreshIcon />
                     </IconButton>
                   </Tooltip>
@@ -257,7 +254,7 @@ class TransferFormComponent extends Component<Props> {
               <Button
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(-1)}
+                onClick={() => this.props.backToHome()}
                 id='back'
               >
                 Back to previous

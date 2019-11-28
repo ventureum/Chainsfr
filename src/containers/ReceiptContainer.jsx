@@ -42,7 +42,13 @@ class ReceiptContainer extends Component<Props> {
 const mapStateToProps = state => {
   return {
     txFee: state.transferReducer.txFee,
-    receipt: { ...state.formReducer.transferForm, ...state.transferReducer.receipt },
+    receipt: {
+      ...state.formReducer.transferForm,
+      ...state.transferReducer.receipt,
+      accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
+        utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+      )
+    },
     password: state.formReducer.transferForm.password,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency
@@ -56,7 +62,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReceiptContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(ReceiptContainer)
