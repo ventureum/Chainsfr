@@ -40,6 +40,10 @@ export default class EthereumAccount implements IAccount<AccountData> {
     this.accountData = _accountData
   }
 
+  clearPrivateKey = () => {
+    this.accountData.privateKey = null
+  }
+
   getAccountData = (): AccountData => {
     return this.accountData
   }
@@ -53,7 +57,7 @@ export default class EthereumAccount implements IAccount<AccountData> {
       password
     )
     // errase private key
-    this.accountData.privateKey = null
+    this.clearPrivateKey()
   }
 
   decryptAccount = async (password: string) => {

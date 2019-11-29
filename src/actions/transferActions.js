@@ -16,6 +16,7 @@ import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
+import { clearAccountPrivateKey } from './accountActions'
 
 const transferStates = {
   SEND_PENDING: 'SEND_PENDING',
@@ -61,7 +62,7 @@ function directTransfer (txRequest: {
     return dispatch({
       type: 'DIRECT_TRANSFER',
       payload: _directTransfer(txRequest)
-    })
+    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
   }
 }
 
@@ -565,9 +566,11 @@ function submitTx (txRequest: {
   sendMessage: ?string,
   txFee: TxFee
 }) {
-  return {
-    type: 'SUBMIT_TX',
-    payload: _submitTx(txRequest)
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'SUBMIT_TX',
+      payload: _submitTx(txRequest)
+    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
   }
 }
 
