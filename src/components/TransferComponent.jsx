@@ -2,7 +2,6 @@
 import React from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
 import TransferForm from '../containers/FormContainer'
 import WalletAuthorization from '../containers/WalletAuthorizationContainer'
@@ -25,9 +24,6 @@ class TransferComponent extends React.Component<Props> {
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' alignItems='stretch'>
-            <Grid item>
-              <Stepper actionType='transfer' step={step} />
-            </Grid>
             <Grid item>
               <Grid container direction='column' alignItems='center'>
                 {step === 0 && (

@@ -15,6 +15,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Divider from '@material-ui/core/Divider'
 import { uiColors, fontColors } from '../styles/color'
 import ChainsfrLogo from '../images/chainsfr_logo.svg'
+import Stepper from './Stepper'
 
 class NavBarComponent extends Component {
   state = {
@@ -33,9 +34,62 @@ class NavBarComponent extends Component {
     this.setState({ anchorEl: null })
   }
 
-  render () {
-    const { classes, backToHome, profile, disabled } = this.props
+  renderProfileButton = () => {
+    const { classes, profile, disabled } = this.props
     const { anchorEl } = this.state
+    return (
+      <>
+        <Button
+          aria-owns={anchorEl ? 'simple-menu' : undefined}
+          aria-haspopup='true'
+          onClick={this.handleToggle}
+          id='avatarBtn'
+          style={{ textTransform: 'none' }}
+          disabled={disabled}
+        >
+          {profile && profile.profileObj && profile.profileObj.imageUrl ? (
+            <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
+          ) : (
+            <AccountCircle className={classes.userIcon} id='accountCircle' />
+          )}
+          <Typography variant='body2'>{profile.profileObj.name}</Typography>
+        </Button>
+        <Menu
+          id='simple-menu'
+          anchorEl={anchorEl}
+          getContentAnchorEl={null}
+          open={Boolean(anchorEl)}
+          onClose={this.handleClose()}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right'
+          }}
+        >
+          <Container className={classes.menuContainer}>
+            {profile && profile.profileObj && profile.profileObj.imageUrl ? (
+              <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
+            ) : (
+              <AccountCircle className={classes.userIcon} id='accountCircle' />
+            )}
+            <Typography className={classes.menuItemUserName}>{profile.profileObj.name}</Typography>
+            <Typography className={classes.menuItemEmail}>{profile.profileObj.email}</Typography>
+            <Divider />
+            <Button onClick={this.handleClose('logout')} id='logout' className={classes.logoutBtn}>
+              <ExitIcon className={classes.logoutIcon} id='exitIcon' />
+              <Typography>Logout</Typography>
+            </Button>
+          </Container>
+        </Menu>
+      </>
+    )
+  }
+
+  render () {
+    const { classes, backToHome, profile, disabled, location, step } = this.props
 
     return (
       <AppBar position='static' color='primary' className={classes.appBar}>
@@ -57,95 +111,50 @@ class NavBarComponent extends Component {
                     <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
                   </Button>
                 </Grid>
-                {profile.isAuthenticated && (
-                  <Grid item>
-                    <Grid container alignItems='center'>
-                      <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.home}>
-                          Home
-                        </Button>
+                {profile.isAuthenticated &&
+                  ([path.receive, path.transfer].includes(location.pathname) ? (
+                    <>
+                      <Grid item xs style={{ maxWidth: '480px' }}>
+                        {location.pathname === path.transfer && (
+                          <Stepper actionType='transfer' step={step} />
+                        )}
+                        {location.pathname === path.receive && (
+                          <Stepper actionType='receive' step={step} />
+                        )}
                       </Grid>
                       <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.recipients}>
-                          Recipients
-                        </Button>
+                        {this.renderProfileButton()}
                       </Grid>
-                      <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.accounts}>
-                          Accounts
-                        </Button>
-                      </Grid>
-                      <Grid item xs={12} sm='auto'>
-                        <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
-                          Chainsfr Wallet
-                        </Button>
-                      </Grid>
-                      <Grid item xs={12} sm='auto'>
-                        <Button
-                          aria-owns={anchorEl ? 'simple-menu' : undefined}
-                          aria-haspopup='true'
-                          onClick={this.handleToggle}
-                          id='avatarBtn'
-                          style={{ textTransform: 'none' }}
-                          disabled={disabled}
-                        >
-                          {profile && profile.profileObj && profile.profileObj.imageUrl ? (
-                            <Avatar
-                              alt=''
-                              src={profile.profileObj.imageUrl}
-                              className={classes.avatar}
-                            />
-                          ) : (
-                            <AccountCircle className={classes.userIcon} id='accountCircle' />
-                          )}
-                          <Typography>{profile.profileObj.name}</Typography>
-                        </Button>
-                        <Menu
-                          id='simple-menu'
-                          anchorEl={anchorEl}
-                          getContentAnchorEl={null}
-                          open={Boolean(anchorEl)}
-                          onClose={this.handleClose()}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right'
-                          }}
-                        >
-                          <Container className={classes.menuContainer}>
-                            {profile && profile.profileObj && profile.profileObj.imageUrl ? (
-                              <Avatar
-                                alt=''
-                                src={profile.profileObj.imageUrl}
-                                className={classes.avatar}
-                              />
-                            ) : (
-                              <AccountCircle className={classes.userIcon} id='accountCircle' />
-                            )}
-                            <Typography className={classes.menuItemUserName}>
-                              {profile.profileObj.name}
-                            </Typography>
-                            <Typography className={classes.menuItemEmail}>
-                              {profile.profileObj.email}
-                            </Typography>
-                            <Divider />
-                            <Button
-                              onClick={this.handleClose('logout')}
-                              id='logout'
-                              className={classes.logoutBtn}
-                            >
-                              <ExitIcon className={classes.logoutIcon} id='exitIcon' />
-                              <Typography>Logout</Typography>
-                            </Button>
-                          </Container>
-                        </Menu>
+                    </>
+                  ) : (
+                    <Grid item>
+                      <Grid container alignItems='center'>
+                        <Grid item xs={12} sm='auto'>
+                          <Button className={classes.NaviBtn} component={Link} to={path.home}>
+                            Home
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12} sm='auto'>
+                          <Button className={classes.NaviBtn} component={Link} to={path.recipients}>
+                            Recipients
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12} sm='auto'>
+                          <Button className={classes.NaviBtn} component={Link} to={path.accounts}>
+                            Accounts
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12} sm='auto'>
+                          <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
+                            Chainsfr Wallet
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12} sm='auto'>
+                          {this.renderProfileButton()}
+                        </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                )}
+                  ))}
               </Grid>
             </Grid>
           </Grid>
