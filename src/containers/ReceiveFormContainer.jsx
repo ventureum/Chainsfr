@@ -78,7 +78,9 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
-    accountSelection: state.formReducer.transferForm.accountSelection,
+    accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
+      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+    ),
     escrowAccount: state.accountReducer.escrowAccount,
     transferForm: state.formReducer.transferForm,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,

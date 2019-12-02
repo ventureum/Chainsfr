@@ -242,7 +242,7 @@ class ReceiveFormComponent extends Component {
 
   onAccountChange = event => {
     const { transferForm, updateTransferForm } = this.props
-    updateTransferForm(update(transferForm, { accountSelection: { $set: event.target.value } }))
+    updateTransferForm(update(transferForm, { accountId: { $set: event.target.value } }))
   }
 
   renderUnableToAccept () {
@@ -307,6 +307,7 @@ class ReceiveFormComponent extends Component {
               <AccountDropdownContainer
                 onChange={this.onAccountChange}
                 filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
+                accountId={accountSelection}
               />
             </Grid>
             <Grid item>
