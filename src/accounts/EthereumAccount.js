@@ -63,7 +63,6 @@ export default class EthereumAccount implements IAccount<AccountData> {
     let privateKey = await utils.decryptMessage(this.accountData.encryptedPrivateKey, password)
     if (!privateKey) throw new Error('Incorrect password')
     this.accountData.privateKey = privateKey
-    this.accountData.encryptedPrivateKey = undefined
 
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     this.accountData.address = _web3.eth.accounts.privateKeyToAccount(privateKey).address
@@ -79,10 +78,9 @@ export default class EthereumAccount implements IAccount<AccountData> {
 
     // set token balance
     if (['dai'].includes(cryptoType)) {
-      this.accountData.balance = (await ERC20.getBalance(
-        this.accountData.address,
-        cryptoType
-      )).toString()
+      this.accountData.balance = (
+        await ERC20.getBalance(this.accountData.address, cryptoType)
+      ).toString()
     } else {
       // copy eth balance
       this.accountData.balance = this.accountData.ethBalance

@@ -261,7 +261,7 @@ export default class DriveWallet implements IWallet<AccountData> {
       if (options.directTransfer) {
         // direct transfer to another address
         txObj = {
-          from: account.address,
+          from: accountData.address,
           to: to,
           value: value
         }

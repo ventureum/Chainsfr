@@ -77,6 +77,7 @@ export default function (state = initState, action) {
       return updateCryptoAccount(state, action.payload, true, false)
     case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
+    case 'CHECK_WALLET_CONNECTION_FULFILLED':
     case 'VERIFY_ACCOUNT_FULFILLED':
       return updateCryptoAccount(state, action.payload)
     case 'SYNC_WITH_NETWORK_PENDING':

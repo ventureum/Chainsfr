@@ -51,28 +51,45 @@ async function _getTxFee (txRequest: {
   return txFee
 }
 
-// async function _directTransfer (txRequest: {
-//   fromWallet: WalletData,
-//   transferAmount: StandardTokenUnit,
-//   destinationAddress: Address,
-//   txFee: TxFee
-// }) {
-//   let { fromWallet, transferAmount, destinationAddress, txFee } = txRequest
+function directTransfer (txRequest: {
+  fromAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+  destinationAddress: Address,
+  txFee: TxFee
+}) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'DIRECT_TRANSFER',
+      payload: _directTransfer(txRequest)
+    })
+  }
+}
 
-//   // convert transferAmount to basic token unit
-//   let value: BasicTokenUnit = utils
-//     .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromWallet.cryptoType))
-//     .toString()
+async function _directTransfer (txRequest: {
+  fromAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+  destinationAddress: Address,
+  txFee: TxFee
+}) {
+  let { fromAccount, transferAmount, destinationAddress, txFee } = txRequest
 
-//   return {
-//     cryptoType: fromWallet.cryptoType,
-//     sendTxHash: await WalletFactory.createWallet(fromWallet).sendTransaction({
-//       to: destinationAddress,
-//       value: value,
-//       txFee: txFee
-//     })
-//   }
-// }
+  // convert transferAmount to basic token unit
+  let value: BasicTokenUnit = utils
+    .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromAccount.cryptoType))
+    .toString()
+  const _wallet = createWallet(fromAccount)
+
+  let txHash = await _wallet.sendTransaction({
+    to: destinationAddress,
+    value: value,
+    txFee: txFee,
+    options: { directTransfer: true }
+  })
+  return {
+    txHash: txHash,
+    timestamp: moment().unix()
+  }
+}
 
 async function _submitTx (txRequest: {
   fromAccount: AccountData,
@@ -554,20 +571,6 @@ function submitTx (txRequest: {
   }
 }
 
-// function directTransfer (txRequest: {
-//   fromWallet: Object,
-//   transferAmount: StandardTokenUnit,
-//   destinationAddress: Address,
-//   txFee: TxFee
-// }) {
-//   return (dispatch: Function, getState: Function) => {
-//     return dispatch({
-//       type: 'DIRECT_TRANSFER',
-//       payload: _directTransfer(txRequest)
-//     })
-//   }
-// }
-
 function acceptTransfer (txRequest: {
   escrowAccount: AccountData,
   destinationAddress: Address,
@@ -641,5 +644,6 @@ export {
   getTransfer,
   getTransferHistory,
   clearVerifyEscrowAccountPasswordError,
-  transferStates
+  transferStates,
+  directTransfer
 }
