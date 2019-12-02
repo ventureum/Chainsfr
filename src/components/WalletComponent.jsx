@@ -14,31 +14,18 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol } from '../tokens'
 import { UserRecentTransactions } from './LandingPageComponent.jsx'
 import { accountStatus } from '../types/account.flow'
-
-// function SendToAnotherAccount (props) {
-//   const { accounts } = props
-//   const [amount, setAmount] = useState(null)
-//   const [memo, setMemo] = useState(null)
-
-//   function validateAmount (cryptoType, balance, amount) {
-//     const decimals = getCryptoDecimals(cryptoType)
-//     if (
-//       !validator.isFloat(amount, { min: 0.001, max: utils.toHumanReadableUnit(balance, decimals) })
-//     ) {
-//       if (amount === '-' || parseFloat(amount) < 0.001) {
-//         return 'The amount must be greater than 0.001'
-//       } else {
-//         return `Exceed your balance of ${utils.toHumanReadableUnit(balance, decimals)}`
-//       }
-//     }
-//   }
-
-//   return
-// }
+import SendToAnotherAccountModal from '../containers/SendToAnotherAccountModalContainer'
 
 class WalletComponent extends Component {
   state = {
-    anchorEl: null
+    anchorEl: null,
+    sendToAnotherAccountModal: false
+  }
+
+  handleModalClose = () => {
+    this.setState({
+      sendToAnotherAccountModal: false
+    })
   }
 
   renderChainsfrWalletSection = () => {
@@ -84,7 +71,11 @@ class WalletComponent extends Component {
                         horizontal: 'left'
                       }}
                     >
-                      <MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          this.setState({ sendToAnotherAccountModal: true, anchorEl: null })
+                        }}
+                      >
                         <ListItemText primary='Send to my accounts' />
                       </MenuItem>
                       <MenuItem>
@@ -100,8 +91,8 @@ class WalletComponent extends Component {
             <Grid container direction='row' alignItems='center' justify='center' spacing={2}>
               {cloudWalletAccounts.map((account, index) => {
                 return (
-                  <Grid item>
-                    <Card className={classes.balanceCard} key={index}>
+                  <Grid item key={index}>
+                    <Card className={classes.balanceCard}>
                       <Grid container alignItems='center' justify='center' direction='column'>
                         <Grid item>
                           {account.status !== accountStatus.syncing ? (
@@ -129,7 +120,7 @@ class WalletComponent extends Component {
 
   render () {
     const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
-
+    const { sendToAnotherAccountModal } = this.state
     return (
       <div>
         {this.renderChainsfrWalletSection()}
@@ -138,6 +129,14 @@ class WalletComponent extends Component {
           transferHistory={transferHistory}
           loadMoreTransferHistory={loadMoreTransferHistory}
         />
+        {sendToAnotherAccountModal && (
+          <SendToAnotherAccountModal
+            handleClose={() => {
+              this.handleModalClose()
+            }}
+            open={sendToAnotherAccountModal}
+          />
+        )}
       </div>
     )
   }

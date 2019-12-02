@@ -268,7 +268,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     )
   }
 
-  render() {
+  render () {
     const { accountSelection } = this.props
 
     return (

@@ -39,7 +39,7 @@ const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transactio
 class FormContainer extends Component<Props, State> {
   state = { openAddRecipientDialog: false }
 
-  componentDidMount() {
+  componentDidMount () {
     let {
       profile,
       transferForm,
@@ -78,7 +78,7 @@ class FormContainer extends Component<Props, State> {
     })
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     const { transferForm, actionsPending, accountSelection } = this.props
     if (prevProps.transferForm.transferAmount !== this.props.transferForm.transferAmount) {
       // if transfer amount changed, update tx fee
@@ -149,6 +149,9 @@ class FormContainer extends Component<Props, State> {
           max: parseFloat(accountSelection.balanceInStandardUnit)
         })
       ) {
+        if (!parseFloat(value)) {
+          return null
+        }
         if (parseFloat(value) < 0.001) {
           return 'The amount must be greater than 0.001'
         } else if (parseFloat(value) > parseFloat(accountSelection.balanceInStandardUnit)) {
@@ -306,7 +309,9 @@ class FormContainer extends Component<Props, State> {
                 _account.cryptoType === event.target.value.cryptoType
             )
           },
-          destination: { $set: event.target.value }
+          destination: { $set: event.target.value },
+          transferAmount: { $set: '' },
+          transferCurrencyAmount: { $set: '' }
         })
       } else {
         const recipient = recipients.find(recipient => recipient.email === event.target.value)
@@ -319,7 +324,7 @@ class FormContainer extends Component<Props, State> {
     this.props.updateTransferForm(_transferForm)
   }
 
-  render() {
+  render () {
     const {
       cryptoPrice,
       currency,
