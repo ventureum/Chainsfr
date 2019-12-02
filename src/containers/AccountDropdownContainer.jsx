@@ -13,6 +13,7 @@ type Props = {
     cryptoType: string,
     address: string
   },
+  inputLabel: ?string,
   cryptoPrice: { [string]: Number },
   currency: string,
   onChange: Function,
@@ -53,7 +54,15 @@ class AccountDropdownContainer extends Component<Props, State> {
   }
 
   render () {
-    const { cryptoAccounts, actionsPending, cryptoPrice, currency, error, accountId } = this.props
+    const {
+      cryptoAccounts,
+      actionsPending,
+      cryptoPrice,
+      currency,
+      error,
+      accountId,
+      inputLabel
+    } = this.props
     const { openAddAccountModal } = this.state
     let { filterCriteria } = this.props
     if (!filterCriteria) {
@@ -78,6 +87,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           addAccount={this.toggleAddAccountModal}
           pending={actionsPending.getCryptoAccounts}
           error={error}
+          inputLabel={inputLabel ? inputLabel : 'Select Account'}
         />
         <AddAccountModal open={openAddAccountModal} handleClose={this.toggleAddAccountModal} />
       </>
