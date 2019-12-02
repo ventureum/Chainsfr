@@ -4,7 +4,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
-import TransferForm from '../containers/TransferFormContainer'
+import TransferForm from '../containers/FormContainer'
 import WalletAuthorization from '../containers/WalletAuthorizationContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
@@ -38,6 +38,7 @@ class TransferComponent extends React.Component<Props> {
                       cryptoTypePrefilled={urlParams && urlParams.cryptoType}
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
                       receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
+                      form='email_transfer'
                     />
                   </Grid>
                 )}

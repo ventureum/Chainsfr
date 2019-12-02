@@ -9,7 +9,12 @@ import update from 'immutability-helper'
     cryptoType: string,
     walletType: string,
     address: string
-  }
+  },
+  destination: string | Object<{
+    walletType: string,
+    cryptoType: string,
+    address: string
+  }>,
 */
 
 const initialState = {
