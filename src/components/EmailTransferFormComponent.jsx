@@ -37,7 +37,7 @@ type Props = {
   accountSelection: Object
 }
 
-class TransferFormComponent extends Component<Props> {
+class EmailTransferFormComponent extends Component<Props> {
   render () {
     const {
       classes,
@@ -187,7 +187,7 @@ class TransferFormComponent extends Component<Props> {
                 }
                 disabled={!accountSelection}
                 onChange={handleTransferFormChange('transferAmount')}
-                value={transferAmount || 0}
+                value={transferAmount}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
@@ -323,4 +323,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(TransferFormComponent)
+export default withStyles(styles)(EmailTransferFormComponent)

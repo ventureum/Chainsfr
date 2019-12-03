@@ -7,7 +7,7 @@ import StepLabel from '@material-ui/core/StepLabel'
 
 const stepsByActionType = {
   receive: ['Security Answer', 'Review', 'Receipt'],
-  transfer: ['Transfer Form', 'Review', 'Wallet Authentication', 'Receipt']
+  transfer: ['Set up', 'Review', 'Authorize']
 }
 
 type Props = {

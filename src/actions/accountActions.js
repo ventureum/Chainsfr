@@ -237,6 +237,19 @@ async function _removeCryptoAccount (accountData: AccountData): Promise<Array<Ac
   return cryptoAccounts
 }
 
+function _clearAccountPrivateKey (accountData: AccountData) {
+  let _account = createAccount(accountData)
+  _account.clearPrivateKey()
+  return _account.getAccountData()
+}
+
+function clearAccountPrivateKey (accountData: AccountData) {
+  return {
+    type: 'CLEAR_ACCOUNT_PRIVATE_KEY',
+    payload: _clearAccountPrivateKey(accountData)
+  }
+}
+
 export {
   syncWithNetwork,
   getTxFee,
@@ -245,5 +258,6 @@ export {
   markAccountDirty,
   getCryptoAccounts,
   addCryptoAccount,
-  removeCryptoAccount
+  removeCryptoAccount,
+  clearAccountPrivateKey
 }

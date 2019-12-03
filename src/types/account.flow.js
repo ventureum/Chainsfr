@@ -101,6 +101,7 @@ export interface IAccount<AccountData> {
   accountData: AccountData;
 
   constructor(account?: AccountData): void;
+  clearPrivateKey(): void;
   getAccountData(): AccountData;
   encryptAccount(password: string): Promise<void>;
   decryptAccount(password: string): Promise<void>;

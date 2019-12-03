@@ -30,6 +30,7 @@ class AccountsManagementContainer extends Component {
 
 const addCryptoAccountSelector = createLoadingSelector(['ADD_CRYPTO_ACCOUNT'])
 const removeCryptoAccountSelector = createLoadingSelector(['REMOVE_CRYPTO_ACCOUNT'])
+const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
 
 const errorSelector = createErrorSelector(['ADD_CRYPTO_ACCOUNT', 'REMOVE_CRYPTO_ACCOUNT'])
 
@@ -38,7 +39,8 @@ const mapStateToProps = state => {
     cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       addCryptoAccount: addCryptoAccountSelector(state),
-      removeCryptoAccount: removeCryptoAccountSelector(state)
+      removeCryptoAccount: removeCryptoAccountSelector(state),
+      getCryptoAccounts: getCryptoAccountsSelector(state)
     },
     error: errorSelector(state)
   }
@@ -52,7 +54,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AccountsManagementContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(AccountsManagementContainer)

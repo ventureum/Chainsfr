@@ -67,6 +67,11 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     this.accountData = _accountData
   }
 
+  clearPrivateKey = () => {
+    this.accountData.privateKey = null
+    this.accountData.hdWalletVariables.xpriv = null
+  }
+
   getAccountData = (): AccountData => {
     return this.accountData
   }
@@ -80,8 +85,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       this.accountData.hdWalletVariables.xpriv,
       password
     )
-    this.accountData.privateKey = null
-    this.accountData.hdWalletVariables.xpriv = null
+    this.clearPrivateKey()
   }
 
   decryptAccount = async (password: string) => {
@@ -312,9 +316,11 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
       const address = this._getDerivedAddress(xpub, change, currentIdx)
 
-      const response = (await axios.get(
-        `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
-      )).data
+      const response = (
+        await axios.get(
+          `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+        )
+      ).data
 
       if (response.txs.length === 0) {
         gap++

@@ -7,7 +7,7 @@ import path from '../Paths.js'
 import moment from 'moment'
 
 class NavBarContainer extends Component {
-  backToHome=() => {
+  backToHome = () => {
     const { location, backToHome } = this.props
     if (location.pathname === path.transfer) {
       backToHome()
@@ -28,22 +28,29 @@ class NavBarContainer extends Component {
 
   componentDidMount () {
     this.checkLoginStatus()
-    setInterval(
-      () => {
-        this.checkLoginStatus()
-      },
-      1000 * 60 * 30
-    )
+    setInterval(() => {
+      this.checkLoginStatus()
+    }, 1000 * 60 * 30)
   }
 
   render () {
-    let { onLogout, profile } = this.props
+    let { onLogout, profile, location, steps } = this.props
+    let step = 0
+    if (location.pathname === path.receive) {
+      step = steps.receive
+    }
+    if (location.pathname === path.transfer) {
+      step = steps.send
+    }
     return (
       <NavBarComponent
         onLogout={onLogout}
         profile={profile}
         backToHome={this.backToHome}
-      />)
+        location={location}
+        step={step}
+      />
+    )
   }
 }
 
@@ -57,11 +64,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    profile: state.userReducer.profile
+    profile: state.userReducer.profile,
+    steps: state.navigationReducer
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NavBarContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(NavBarContainer)

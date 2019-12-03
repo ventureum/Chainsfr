@@ -26,10 +26,28 @@ type Props = {
   error: Object,
   onChange: Function,
   addAccount: Function,
-  toCurrencyAmount: Function
+  toCurrencyAmount: Function,
+  inputLabel: string
 }
 
-class AccountDropdownComponent extends Component<Props> {
+type State = {
+  inputLabelWidth: number
+}
+
+class AccountDropdownComponent extends Component<Props, State> {
+  inputLabelRef: any
+
+  constructor (props) {
+    super(props)
+    this.state = {
+      inputLabelWidth: 0
+    }
+    this.inputLabelRef = React.createRef()
+  }
+  componentDidMount () {
+    this.setState({ inputLabelWidth: this.inputLabelRef.current.offsetWidth })
+  }
+
   renderAccountItem = item => {
     const { toCurrencyAmount } = this.props
 
@@ -88,7 +106,16 @@ class AccountDropdownComponent extends Component<Props> {
   }
 
   render () {
-    const { classes, account, cryptoAccounts, onChange, addAccount, pending, error } = this.props
+    const {
+      classes,
+      account,
+      cryptoAccounts,
+      onChange,
+      addAccount,
+      pending,
+      error,
+      inputLabel
+    } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
       skeletonCryptoAccounts = [
@@ -101,7 +128,9 @@ class AccountDropdownComponent extends Component<Props> {
     return (
       <Grid container direction='column'>
         <FormControl variant='outlined'>
-          <InputLabel htmlFor='destination-helper'>Select Account</InputLabel>
+          <InputLabel ref={this.inputLabelRef} htmlFor='destination-helper'>
+            {inputLabel}
+          </InputLabel>
           <Select
             renderValue={value => {
               return (
@@ -120,7 +149,7 @@ class AccountDropdownComponent extends Component<Props> {
             }}
             value={account || ''}
             onChange={onChange}
-            input={<OutlinedInput labelWidth={125} name='Select Account' />}
+            input={<OutlinedInput labelWidth={this.state.inputLabelWidth} name='Select Account' />}
             error={!!error}
             id='accountSelection'
           >

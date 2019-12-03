@@ -6,6 +6,7 @@ import Avatar from '@material-ui/core/Avatar'
 import { btnTexts } from '../styles/typography'
 import { uiColors } from '../styles/color'
 import CloseIcon from '@material-ui/icons/Close'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -107,6 +108,8 @@ class AccountsManagementComponent extends Component {
           <Typography variant='body1' align='center'>
             It seems you don't have any accounts saved
           </Typography>
+        ) : actionsPending.getCryptoAccounts ? (
+          <CircularProgress style={{ marginTop: '10px', alignSelf: 'center' }} />
         ) : (
           <Table>
             <TableHead>

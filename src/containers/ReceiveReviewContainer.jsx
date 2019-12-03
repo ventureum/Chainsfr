@@ -92,7 +92,9 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     escrowAccount: state.accountReducer.escrowAccount,
-    accountSelection: state.formReducer.transferForm.accountSelection,
+    accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
+      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+    ),
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
@@ -105,7 +107,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReceiveReviewContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(ReceiveReviewContainer)

@@ -2,9 +2,8 @@
 import React from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import Stepper from './Stepper'
 import Grid from '@material-ui/core/Grid'
-import TransferForm from '../containers/TransferFormContainer'
+import TransferForm from '../containers/FormContainer'
 import WalletAuthorization from '../containers/WalletAuthorizationContainer'
 import Review from '../containers/ReviewContainer'
 import Receipt from '../containers/ReceiptContainer'
@@ -26,9 +25,6 @@ class TransferComponent extends React.Component<Props> {
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' alignItems='stretch'>
             <Grid item>
-              <Stepper actionType='transfer' step={step} />
-            </Grid>
-            <Grid item>
               <Grid container direction='column' alignItems='center'>
                 {step === 0 && (
                   <Grid item className={classes.formContainer}>
@@ -38,6 +34,7 @@ class TransferComponent extends React.Component<Props> {
                       cryptoTypePrefilled={urlParams && urlParams.cryptoType}
                       destinationPrefilled={urlParams && (urlParams.destination || '')}
                       receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
+                      form='email_transfer'
                     />
                   </Grid>
                 )}
