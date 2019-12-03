@@ -17,19 +17,7 @@ import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
 import { clearAccountPrivateKey } from './accountActions'
-
-const transferStates = {
-  SEND_PENDING: 'SEND_PENDING',
-  SEND_FAILURE: 'SEND_FAILURE',
-  SEND_CONFIRMED_RECEIVE_PENDING: 'SEND_CONFIRMED_RECEIVE_PENDING',
-  SEND_CONFIRMED_RECEIVE_FAILURE: 'SEND_CONFIRMED_RECEIVE_FAILURE',
-  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
-  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
-  SEND_CONFIRMED_RECEIVE_EXPIRED: 'SEND_CONFIRMED_RECEIVE_EXPIRED',
-  SEND_CONFIRMED_CANCEL_PENDING: 'SEND_CONFIRMED_CANCEL_PENDING',
-  SEND_CONFIRMED_CANCEL_CONFIRMED: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
-  SEND_CONFIRMED_CANCEL_FAILURE: 'SEND_CONFIRMED_CANCEL_FAILURE'
-}
+import transferStates from '../transferStates'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -396,9 +384,71 @@ async function _cancelTransfer (txRequest: {
   }
 }
 
+// helper function
+function getTransferState (transferData: Object): string {
+  let state
+  const { sendTxState, receiveTxState, cancelTxState } = transferData
+  switch (sendTxState) {
+    case 'Pending': {
+      // SEND_PENDING
+      state = transferStates.SEND_PENDING
+      break
+    }
+    case 'Confirmed': {
+      switch (receiveTxState) {
+        // SEND_CONFIRMED_RECEIVE_PENDING
+        case 'Pending':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+          break
+        // SEND_CONFIRMED_RECEIVE_CONFIRMED
+        case 'Confirmed':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+          break
+        // SEND_CONFIRMED_RECEIVE_FAILURE
+        case 'Failed':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+          break
+        case null:
+          state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+          break
+        case 'Expired': {
+          // SEND_CONFIRMED_RECEIVE_EXPIRED
+          state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+          break
+        }
+        default:
+          break
+      }
+      switch (cancelTxState) {
+        // SEND_CONFIRMED_CANCEL_PENDING
+        case 'Pending':
+          state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+          break
+        // SEND_CONFIRMED_CANCEL_CONFIRMED
+        case 'Confirmed':
+          state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+          break
+        // SEND_CONFIRMED_CANCEL_FAILURE
+        case 'Failed':
+          state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+          break
+        default:
+          break
+      }
+      break
+    }
+    default:
+      break
+  }
+  if (!state) throw new Error('Unable to calculate transfer state')
+  return state
+}
+
 // fetch transferData and convert it into an escrow account
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
+  transferData.state = getTransferState(transferData)
+  transferData.transferType = transferId ? 'SENDER' : 'RECEIVER'
   let escrowAccount = createAccount({
     walletType: 'escrow',
     cryptoType: transferData.cryptoType,
@@ -471,7 +521,7 @@ async function _getTransferHistory (offset: number = 0) {
       return getTimestamp(b) - getTimestamp(a)
     })
     .map(item => {
-      let state = null
+      let state: ?string = null
       let transferType: ?string = null
       let password: ?string = null
       if (!item.error) {
@@ -487,59 +537,7 @@ async function _getTransferHistory (offset: number = 0) {
         } else {
           item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
         }
-        const { sendTxState, receiveTxState, cancelTxState } = item
-        switch (sendTxState) {
-          case 'Pending': {
-            // SEND_PENDING
-            state = transferStates.SEND_PENDING
-            break
-          }
-          case 'Confirmed': {
-            switch (receiveTxState) {
-              // SEND_CONFIRMED_RECEIVE_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
-                break
-              // SEND_CONFIRMED_RECEIVE_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
-                break
-              // SEND_CONFIRMED_RECEIVE_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
-                break
-              case null:
-                state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
-                break
-              case 'Expired': {
-                // SEND_CONFIRMED_RECEIVE_EXPIRED
-                state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
-                break
-              }
-              default:
-                break
-            }
-            switch (cancelTxState) {
-              // SEND_CONFIRMED_CANCEL_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
-                break
-              // SEND_CONFIRMED_CANCEL_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
-                break
-              // SEND_CONFIRMED_CANCEL_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
-                break
-              default:
-                break
-            }
-            break
-          }
-          default:
-            break
-        }
+        state = getTransferState(item)
       }
       return {
         ...item,
@@ -550,6 +548,15 @@ async function _getTransferHistory (offset: number = 0) {
     })
 
   return { hasMore, transferData, offset }
+}
+
+async function _getTransferPassword (transferId: string): Promise<string> {
+  let transfersDict = await getAllTransfers()
+  if (transfersDict && transfersDict[transferId]) {
+    return transfersDict[transferId].password
+  } else {
+    throw new Error(`Transfer ${transferId} does not exist`)
+  }
 }
 
 function submitTx (txRequest: {
@@ -633,6 +640,13 @@ function getTransferHistory (offset: number) {
   }
 }
 
+function getTransferPassword (transferId: string) {
+  return {
+    type: 'GET_TRANSFER_PASSWORD',
+    payload: _getTransferPassword(transferId)
+  }
+}
+
 function clearVerifyEscrowAccountPasswordError () {
   return {
     type: 'CLEAR_VERIFY_ESCROW_ACCOUNT_PASSWORD_ERROR'
@@ -646,6 +660,7 @@ export {
   getTxFee,
   getTransfer,
   getTransferHistory,
+  getTransferPassword,
   clearVerifyEscrowAccountPasswordError,
   transferStates,
   directTransfer

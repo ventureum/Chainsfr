@@ -28,6 +28,11 @@ export default function (state = initialState, action) {
         ...state,
         transfer: action.payload.transferData
       }
+    case 'GET_TRANSFER_PASSWORD_FULFILLED':
+      return {
+        ...state,
+        transfer: { ...state.transfer, password: action.payload }
+      }
     case 'GET_TX_COST_FULFILLED':
       return {
         ...state,

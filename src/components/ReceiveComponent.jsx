@@ -4,7 +4,8 @@ import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import ReceiveForm from '../containers/ReceiveFormContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
-import ReceiveReceipt from '../containers/ReceiveReceiptContainer'
+import { Redirect } from 'react-router'
+import paths from '../Paths'
 
 class ReceiveComponent extends React.Component {
   render () {
@@ -19,7 +20,7 @@ class ReceiveComponent extends React.Component {
                 <Grid item className={classes.subComponent}>
                   {step === 0 && <ReceiveForm location={history.location} />}
                   {step === 1 && <ReceiveReview />}
-                  {step === 2 && <ReceiveReceipt />}
+                  {step === 2 && <Redirect push to={paths.receipt} />}
                 </Grid>
               </Grid>
             </Grid>

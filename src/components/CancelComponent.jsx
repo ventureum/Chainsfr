@@ -3,8 +3,9 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import CancelReview from '../containers/CancelReviewContainer'
-import CancelReceipt from '../containers/CancelReceiptContainer'
 import queryString from 'query-string'
+import { Redirect } from 'react-router'
+import paths from '../Paths'
 
 class CancelComponent extends React.Component {
   render () {
@@ -18,7 +19,7 @@ class CancelComponent extends React.Component {
           <Grid container direction='column' alignItems='center'>
             <Grid item className={classes.subComponent}>
               {step === 0 && <CancelReview transferId={value && value.id} />}
-              {step === 1 && <CancelReceipt />}
+              {step === 1 && <Redirect push to={paths.receipt} />}
             </Grid>
           </Grid>
         </Grid>
