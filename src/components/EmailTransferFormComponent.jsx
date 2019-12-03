@@ -210,6 +210,7 @@ class EmailTransferFormComponent extends Component<Props> {
             variant='outlined'
             error={!!formError.password}
             helperText={
+              formError.password ||
               'We recommend you to use auto-generated security password for better security'
             }
             onChange={handleTransferFormChange('password')}
