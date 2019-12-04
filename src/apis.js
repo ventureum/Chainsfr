@@ -17,6 +17,7 @@ async function transfer (request: {|
   senderName: string,
   senderAvatar: string,
   sender: string,
+  senderAccount: string,
   destination: string,
   receiverName: string,
   transferAmount: string,
@@ -25,7 +26,7 @@ async function transfer (request: {|
   sendMessage: ?string,
   cryptoType: string,
   data: string,
-  sendTxHash: Array<TxHash> | TxHash,
+  sendTxHash: TxHash,
   walletId?: string
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {
@@ -38,6 +39,7 @@ async function transfer (request: {|
 
 async function accept (request: {|
   receivingId: string,
+  receiverAccount: string,
   receiveMessage: ?string,
   clientSig: string
 |}) {

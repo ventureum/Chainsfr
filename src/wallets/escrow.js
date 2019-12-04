@@ -267,6 +267,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
         // receive
         rv = await API.accept({
           receivingId: options.receivingId,
+          receiverAccount: options.receiverAccount,
           clientSig: signedTxRaw,
           receiveMessage: options.receiveMessage
         })

@@ -21,7 +21,8 @@ export default class SimpleMultiSig {
     transferId?: string,
     receivingId?: string,
     cancelMessage?: string,
-    receiveMessage?: string
+    receiveMessage?: string,
+    receiverAccount?: string
   }) {
     // set walletId if available
     this.extraData = extraData
@@ -59,9 +60,10 @@ export default class SimpleMultiSig {
   }
 
   receive = async (privateKey: string, destinationAddress: string) => {
-    const { receivingId, receiveMessage } = this.extraData
+    const { receivingId, receiveMessage, receiverAccount } = this.extraData
     if (!receivingId) throw new Error('Missing receivingId for receiving')
     if (!receiveMessage) throw new Error('Missing receiveMessage for receiving')
+    if (!receiverAccount) throw new Error('Missing receiveAccount for receiving')
 
     // fetch signing data
     let signingData = await API.getMultiSigSigningData({
@@ -78,6 +80,7 @@ export default class SimpleMultiSig {
     // transfer sig back to server
     return API.accept({
       receivingId: receivingId,
+      receiverAccount: receiverAccount,
       receiveMessage: receiveMessage,
       clientSig: clientSig
     })

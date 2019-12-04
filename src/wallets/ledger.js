@@ -258,7 +258,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     txFee: TxFee,
     options?: Object
-  }): Promise<TxHash | Array<TxHash>> => {
+  }): Promise<TxHash> => {
     const account = this.getAccount()
     const accountData = account.getAccountData()
 

@@ -120,7 +120,6 @@ async function _submitTx (txRequest: {
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
 
   let sendTxHash
-  let sendTxFeeTxHash
 
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
@@ -149,23 +148,16 @@ async function _submitTx (txRequest: {
     }
     const _wallet = createWallet(fromAccount)
 
-    let txHashList = await _wallet.sendTransaction({
+    sendTxHash = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
       txFee: txFee,
       options: { multisig }
     })
-    if (Array.isArray(txHashList)) {
-      sendTxHash = txHashList[0]
-      sendTxFeeTxHash = txHashList[1]
-    } else {
-      sendTxHash = txHashList
-    }
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
-  if (sendTxFeeTxHash) sendTxHash = [sendTxHash, sendTxFeeTxHash]
   // update tx data
   return _transactionHashRetrieved({
     transferAmount,
@@ -174,6 +166,12 @@ async function _submitTx (txRequest: {
     senderName,
     senderAvatar,
     sender,
+    senderAccount: JSON.stringify({
+      cryptoType: fromAccount.cryptoType,
+      walletType: fromAccount.walletType,
+      address: fromAccount.address,
+      name: fromAccount.name
+    }),
     sendMessage,
     destination,
     receiverName,
@@ -192,12 +190,13 @@ async function _transactionHashRetrieved (txRequest: {|
   senderName: string,
   senderAvatar: string,
   sender: string,
+  senderAccount: string,
   destination: string,
   receiverName: string,
   cryptoType: string,
   sendMessage: ?string,
   data: string,
-  sendTxHash: Array<TxHash> | TxHash,
+  sendTxHash: TxHash,
   password: string,
   walletId?: string
 |}) {
@@ -223,7 +222,7 @@ async function _transactionHashRetrieved (txRequest: {|
 
 async function _acceptTransfer (txRequest: {
   escrowAccount: AccountData,
-  destinationAddress: Address,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -233,7 +232,7 @@ async function _acceptTransfer (txRequest: {
   let {
     escrowAccount,
     txFee,
-    destinationAddress,
+    destinationAccount,
     transferAmount,
     receivingId,
     receiveMessage,
@@ -259,22 +258,32 @@ async function _acceptTransfer (txRequest: {
     .toString()
 
   let multiSig
-
+  const receiverAccount = JSON.stringify({
+    cryptoType: destinationAccount.cryptoType,
+    walletType: destinationAccount.walletType,
+    address: destinationAccount.address,
+    name: destinationAccount.name
+  })
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
-    multiSig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
+    multiSig = new SimpleMultiSig({
+      walletId,
+      receivingId,
+      receiveMessage,
+      receiverAccount: receiverAccount
+    })
   }
 
-  // $FlowFixMe
   let txhash = await wallet.sendTransaction({
-    to: destinationAddress,
+    to: destinationAccount.address,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
       multiSig,
       receiveMessage,
-      receivingId
+      receivingId,
+      receiverAccountId: receiverAccount
     }
   })
 
@@ -583,7 +592,7 @@ function submitTx (txRequest: {
 
 function acceptTransfer (txRequest: {
   escrowAccount: AccountData,
-  destinationAddress: Address,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
