@@ -13,17 +13,23 @@ import utils from '../utils'
 import moment from 'moment'
 
 class LoginContainer extends Component {
-  state = { renderReceiveLogin: false }
+  state = { renderReceiveLogin: false, renderReceiptLogin: false }
   componentDidMount () {
-    const { history } = this.props
+    const { history, getTransfer } = this.props
     const value = queryString.parse(history.location.search)
     if (value) {
       const redirect = value.redirect
       if (redirect && redirect.includes('/receive?id=')) {
         // get transfer data for receive login page rendering
         const receivingId = queryString.parse(value.redirect.slice(8)).id
-        this.props.getTransfer(receivingId)
+        getTransfer(null, receivingId)
         this.setState({ renderReceiveLogin: true })
+      }
+      if (redirect && redirect.includes('/receipt?')) {
+        // get transfer data for receipt login page rendering
+        const { transferId, receivingId } = queryString.parse(value.redirect.slice(8))
+        getTransfer(transferId, receivingId)
+        this.setState({ renderReceiptLogin: true })
       }
     }
   }
@@ -90,6 +96,7 @@ class LoginContainer extends Component {
         actionsPending={actionsPending}
         isMainNet={env.REACT_APP_ENV === 'prod'}
         renderReceiveLogin={this.state.renderReceiveLogin}
+        renderReceiptLogin={this.state.renderReceiptLogin}
         transfer={transfer}
         sendTime={sendTime}
         receiveTime={receiveTime}
@@ -137,7 +144,7 @@ const mapDispatchToProps = dispatch => {
     getCryptoAccounts: idToken => dispatch(getCryptoAccounts()),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),
-    getTransfer: id => dispatch(getTransfer(null, id))
+    getTransfer: (transferId, receivingId) => dispatch(getTransfer(transferId, receivingId))
   }
 }
 

@@ -136,13 +136,50 @@ class LoginComponent extends Component {
     )
   }
 
+  renderReceiptLogin = () => {
+    let { classes } = this.props
+    return (
+      <Grid container direction='column' alignItems='center'>
+        {/* struct copied from ReceiveComponent */}
+        <Grid item className={classes.sectionContainer}>
+          <Grid container direction='column'>
+            <Grid item>
+              <Grid container direction='column' alignItems='center'>
+                <Grid item className={classes.subComponent}>
+                  <Grid
+                    container
+                    direction='column'
+                    justify='center'
+                    alignItems='stretch'
+                    spacing={2}
+                  >
+                    <Grid container direction='column' spacing={4}>
+                      <Grid item>
+                        <Grid container direction='column' justify='center' align='center'>
+                          <Typography variant='h3'> Please login to view this receipt </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item>{this.renderLoginBtn()}</Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
+
   render () {
-    let { classes, renderReceiveLogin, actionsPending, isMainNet } = this.props
+    let { classes, renderReceiveLogin, renderReceiptLogin, actionsPending, isMainNet } = this.props
 
     const envSuffix = isMainNet ? 'MainNet' : 'TestNet'
 
     if (renderReceiveLogin) {
       return this.renderReceiveLogin()
+    } else if (renderReceiptLogin) {
+      return this.renderReceiptLogin()
     }
 
     return (
