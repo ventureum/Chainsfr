@@ -16,6 +16,7 @@ export default class EthereumAccount implements IAccount<AccountData> {
       throw new Error('Invalid crypto type')
     }
     let _accountData = {
+      id: accountData.id,
       cryptoType: accountData.cryptoType,
       walletType: accountData.walletType,
       // address in hardware wallet is the next receiving address
@@ -37,6 +38,16 @@ export default class EthereumAccount implements IAccount<AccountData> {
       privateKey: accountData.privateKey,
       encryptedPrivateKey: accountData.encryptedPrivateKey
     }
+
+    // set id
+    if (!_accountData.id) {
+      _accountData.id = JSON.stringify({
+        cryptoType: accountData.cryptoType,
+        walletType: accountData.walletType,
+        address: accountData.address
+      })
+    }
+
     this.accountData = _accountData
   }
 
