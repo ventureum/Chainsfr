@@ -45,6 +45,7 @@ export const accountStatus = {
 }
 
 export type BitcoinAccountData = {
+  id: string,
   cryptoType: string,
   walletType: string,
   // address in hardware wallet is the next receiving address
@@ -71,6 +72,7 @@ export type BitcoinAccountData = {
 }
 
 export type EthereumAccountData = {
+  id: string,
   cryptoType: string,
   walletType: string,
 

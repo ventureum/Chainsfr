@@ -2,62 +2,108 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Receipt from '../components/ReceiptComponent'
-import { goToStep, backToHome } from '../actions/navigationActions'
 import moment from 'moment'
-import utils from '../utils'
+import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { getTransfer, getTransferPassword } from '../actions/transferActions'
+import { backToHome } from '../actions/navigationActions'
+import queryString from 'query-string'
+import paths from '../Paths'
 
 type Props = {
-  wallet: Object,
-  txFee: Object,
+  history: Object,
+  location: Object,
+  profile: Object,
+  transfer: Object,
   receipt: Object,
-  password: string,
+  actionsPending: Object,
   cryptoPrice: Object,
   currency: string,
+  error: string,
+  getTransfer: Function,
+  getTransferPassword: Function,
   backToHome: Function
 }
 
-class ReceiptContainer extends Component<Props> {
+type State = {
+  transferId: ?string,
+  receivingId: ?string
+}
+
+class ReceiptContainer extends Component<Props, State> {
+  componentDidMount () {
+    let { receipt, history, location } = this.props
+    const value = queryString.parse(location.search)
+
+    if (location.search === '' && !receipt) return
+
+    const { transferId, receivingId } = location.search !== '' ? value : receipt
+    this.getTransfer(transferId, receivingId)
+
+    if (location.search === '') {
+      // add receipt id (if available) to url param and replace url
+      history.replace(
+        `${paths.receipt}?${transferId ? 'transferId' : 'receivingId'}=${transferId || receivingId}`
+      )
+    }
+  }
+
+  getTransfer = (transferId, receivingId) => {
+    let { getTransfer, getTransferPassword, actionsPending } = this.props
+    if (!actionsPending.getTransfer) {
+      getTransfer(transferId, receivingId)
+    }
+    if (transferId && !actionsPending.getTransferPassword) {
+      getTransferPassword(transferId)
+    }
+  }
+
   render () {
-    const { receipt, cryptoPrice, currency, txFee, backToHome, password } = this.props
-    const { accountSelection } = receipt
-    const sendTime = moment.unix(receipt.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
-    const toCurrencyAmount = cryptoAmount =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[accountSelection.cryptoType], currency)
+    const { transfer, error, backToHome } = this.props
+
+    if (transfer) {
+      const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
+      var sendTime = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      if (receiveTimestamp) {
+        var receiveTime = moment.unix(receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      }
+      if (cancelTimestamp)
+        var cancelTime = moment.unix(cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+    }
     return (
       <Receipt
-        backToHome={backToHome}
-        txFee={txFee}
-        password={password}
-        receipt={receipt}
+        transfer={transfer}
         sendTime={sendTime}
-        currencyAmount={{
-          transferAmount: receipt && toCurrencyAmount(receipt.transferAmount),
-          txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit)
-        }}
+        receiveTime={receiveTime}
+        cancelTime={cancelTime}
+        error={error}
+        backToHome={backToHome}
       />
     )
   }
 }
 
+const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
+const getTransferPasswordSelector = createLoadingSelector(['GET_TRANSFER_PASSWORD'])
+const errorSelector = createErrorSelector(['GET_TRANSFER', 'GET_TRANSFER_PASSWORD'])
+
 const mapStateToProps = state => {
   return {
-    txFee: state.transferReducer.txFee,
-    receipt: {
-      ...state.formReducer.transferForm,
-      ...state.transferReducer.receipt,
-      accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
-        utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
-      )
-    },
-    password: state.formReducer.transferForm.password,
+    transfer: state.transferReducer.transfer,
+    receipt: state.transferReducer.receipt,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
-    currency: state.cryptoPriceReducer.currency
+    currency: state.cryptoPriceReducer.currency,
+    actionsPending: {
+      getTransfer: getTransferSelector(state),
+      getTransferPassword: getTransferPasswordSelector(state)
+    },
+    error: errorSelector(state)
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    goToStep: n => dispatch(goToStep('send', n)),
+    getTransfer: (transferId, receivingId) => dispatch(getTransfer(transferId, receivingId)),
+    getTransferPassword: transferId => dispatch(getTransferPassword(transferId)),
     backToHome: () => dispatch(backToHome())
   }
 }

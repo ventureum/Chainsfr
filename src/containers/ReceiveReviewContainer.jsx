@@ -41,7 +41,7 @@ class ReceiveReviewContainer extends Component {
     const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
 
-    let destinationAddress = accountSelection.address
+    let destinationAccount = accountSelection
     let sendTime = moment.unix(sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
 
     let receiveAmount
@@ -54,7 +54,7 @@ class ReceiveReviewContainer extends Component {
     return (
       <ReceiveReview
         {...this.props}
-        destinationAddress={destinationAddress}
+        destinationAccount={destinationAccount}
         receiveAmount={receiveAmount}
         sendTime={sendTime}
         currencyAmount={{

@@ -29,6 +29,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     }
 
     let _accountData = {
+      id: accountData.id,
       cryptoType: accountData.cryptoType,
       walletType: accountData.walletType,
       // address in hardware wallet is the next receiving address
@@ -62,6 +63,15 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     // set address
     if (accountData.xpub) {
       _accountData.address = this._getDerivedAddress(accountData.xpub, 0, 0)
+    }
+
+    // set id
+    if (!_accountData.id) {
+      _accountData.id = JSON.stringify({
+        cryptoType: accountData.cryptoType,
+        walletType: accountData.walletType,
+        xpub: accountData.xpub
+      })
     }
 
     this.accountData = _accountData

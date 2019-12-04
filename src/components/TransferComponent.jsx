@@ -6,8 +6,9 @@ import Grid from '@material-ui/core/Grid'
 import TransferForm from '../containers/FormContainer'
 import WalletAuthorization from '../containers/WalletAuthorizationContainer'
 import Review from '../containers/ReviewContainer'
-import Receipt from '../containers/ReceiptContainer'
 import queryString from 'query-string'
+import paths from '../Paths'
+import { Redirect } from 'react-router'
 
 type Props = {
   classes: Object,
@@ -50,9 +51,7 @@ class TransferComponent extends React.Component<Props> {
                   </Grid>
                 )}
                 {step === 3 && (
-                  <Grid item className={classes.subContainer}>
-                    <Receipt />
-                  </Grid>
+                  <Redirect push to={paths.receipt} />
                 )}
               </Grid>
             </Grid>

@@ -17,10 +17,11 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import { getWalletTitle } from '../wallet.js'
+import type { AccountData } from '../types/account.flow'
 
 type Props = {
   classes: Object,
-  account: ?Object,
+  account: ?AccountData,
   cryptoAccounts: Array<Object>,
   pending: boolean,
   error: Object,
@@ -107,7 +108,6 @@ class AccountDropdownComponent extends Component<Props, State> {
 
   render () {
     const {
-      classes,
       account,
       cryptoAccounts,
       onChange,
@@ -134,17 +134,25 @@ class AccountDropdownComponent extends Component<Props, State> {
           <Select
             renderValue={value => {
               return (
-                <div>
-                  <Typography>{value.name}</Typography>
-                  <Typography className={classes.securityAnswerBtnHelperText}>
-                    {value.cryptoType === 'bitcoin'
-                      ? `${value.hdWalletVariables.xpub.slice(
-                          0,
-                          16
-                        )}...${value.hdWalletVariables.xpub.slice(-24)}`
-                      : value.address}
-                  </Typography>
-                </div>
+                <Grid container direction='row' alignItems='center'>
+                  {/* crypto icon */}
+                  <Grid item xs={1}>
+                    <Avatar src={getCryptoLogo(value.cryptoType)}></Avatar>
+                  </Grid>
+                  {/* name and address */}
+                  <Grid item xs={8}>
+                    <Grid container direction='column'>
+                      <Grid item>
+                        <Typography variant='body2'>
+                          {value.name} ({getWalletTitle(value.walletType)})
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography variant='caption'>{value.address}</Typography>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
               )
             }}
             value={account || ''}

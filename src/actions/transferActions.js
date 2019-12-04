@@ -17,19 +17,7 @@ import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
 import { clearAccountPrivateKey } from './accountActions'
-
-const transferStates = {
-  SEND_PENDING: 'SEND_PENDING',
-  SEND_FAILURE: 'SEND_FAILURE',
-  SEND_CONFIRMED_RECEIVE_PENDING: 'SEND_CONFIRMED_RECEIVE_PENDING',
-  SEND_CONFIRMED_RECEIVE_FAILURE: 'SEND_CONFIRMED_RECEIVE_FAILURE',
-  SEND_CONFIRMED_RECEIVE_CONFIRMED: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
-  SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
-  SEND_CONFIRMED_RECEIVE_EXPIRED: 'SEND_CONFIRMED_RECEIVE_EXPIRED',
-  SEND_CONFIRMED_CANCEL_PENDING: 'SEND_CONFIRMED_CANCEL_PENDING',
-  SEND_CONFIRMED_CANCEL_CONFIRMED: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
-  SEND_CONFIRMED_CANCEL_FAILURE: 'SEND_CONFIRMED_CANCEL_FAILURE'
-}
+import transferStates from '../transferStates'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -132,7 +120,6 @@ async function _submitTx (txRequest: {
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
 
   let sendTxHash
-  let sendTxFeeTxHash
 
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
@@ -161,23 +148,16 @@ async function _submitTx (txRequest: {
     }
     const _wallet = createWallet(fromAccount)
 
-    let txHashList = await _wallet.sendTransaction({
+    sendTxHash = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
       txFee: txFee,
       options: { multisig }
     })
-    if (Array.isArray(txHashList)) {
-      sendTxHash = txHashList[0]
-      sendTxFeeTxHash = txHashList[1]
-    } else {
-      sendTxHash = txHashList
-    }
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
-  if (sendTxFeeTxHash) sendTxHash = [sendTxHash, sendTxFeeTxHash]
   // update tx data
   return _transactionHashRetrieved({
     transferAmount,
@@ -186,6 +166,12 @@ async function _submitTx (txRequest: {
     senderName,
     senderAvatar,
     sender,
+    senderAccount: JSON.stringify({
+      cryptoType: fromAccount.cryptoType,
+      walletType: fromAccount.walletType,
+      address: fromAccount.address,
+      name: fromAccount.name
+    }),
     sendMessage,
     destination,
     receiverName,
@@ -204,12 +190,13 @@ async function _transactionHashRetrieved (txRequest: {|
   senderName: string,
   senderAvatar: string,
   sender: string,
+  senderAccount: string,
   destination: string,
   receiverName: string,
   cryptoType: string,
   sendMessage: ?string,
   data: string,
-  sendTxHash: Array<TxHash> | TxHash,
+  sendTxHash: TxHash,
   password: string,
   walletId?: string
 |}) {
@@ -235,7 +222,7 @@ async function _transactionHashRetrieved (txRequest: {|
 
 async function _acceptTransfer (txRequest: {
   escrowAccount: AccountData,
-  destinationAddress: Address,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -245,7 +232,7 @@ async function _acceptTransfer (txRequest: {
   let {
     escrowAccount,
     txFee,
-    destinationAddress,
+    destinationAccount,
     transferAmount,
     receivingId,
     receiveMessage,
@@ -271,22 +258,32 @@ async function _acceptTransfer (txRequest: {
     .toString()
 
   let multiSig
-
+  const receiverAccount = JSON.stringify({
+    cryptoType: destinationAccount.cryptoType,
+    walletType: destinationAccount.walletType,
+    address: destinationAccount.address,
+    name: destinationAccount.name
+  })
   if (['ethereum', 'dai'].includes(cryptoType)) {
     // ethereum based coins
-    multiSig = new SimpleMultiSig({ walletId, receivingId, receiveMessage })
+    multiSig = new SimpleMultiSig({
+      walletId,
+      receivingId,
+      receiveMessage,
+      receiverAccount: receiverAccount
+    })
   }
 
-  // $FlowFixMe
   let txhash = await wallet.sendTransaction({
-    to: destinationAddress,
+    to: destinationAccount.address,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
     txFee: txFee,
     options: {
       multiSig,
       receiveMessage,
-      receivingId
+      receivingId,
+      receiverAccountId: receiverAccount
     }
   })
 
@@ -396,9 +393,71 @@ async function _cancelTransfer (txRequest: {
   }
 }
 
+// helper function
+function getTransferState (transferData: Object): string {
+  let state
+  const { sendTxState, receiveTxState, cancelTxState } = transferData
+  switch (sendTxState) {
+    case 'Pending': {
+      // SEND_PENDING
+      state = transferStates.SEND_PENDING
+      break
+    }
+    case 'Confirmed': {
+      switch (receiveTxState) {
+        // SEND_CONFIRMED_RECEIVE_PENDING
+        case 'Pending':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+          break
+        // SEND_CONFIRMED_RECEIVE_CONFIRMED
+        case 'Confirmed':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+          break
+        // SEND_CONFIRMED_RECEIVE_FAILURE
+        case 'Failed':
+          state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+          break
+        case null:
+          state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+          break
+        case 'Expired': {
+          // SEND_CONFIRMED_RECEIVE_EXPIRED
+          state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
+          break
+        }
+        default:
+          break
+      }
+      switch (cancelTxState) {
+        // SEND_CONFIRMED_CANCEL_PENDING
+        case 'Pending':
+          state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+          break
+        // SEND_CONFIRMED_CANCEL_CONFIRMED
+        case 'Confirmed':
+          state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+          break
+        // SEND_CONFIRMED_CANCEL_FAILURE
+        case 'Failed':
+          state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+          break
+        default:
+          break
+      }
+      break
+    }
+    default:
+      break
+  }
+  if (!state) throw new Error('Unable to calculate transfer state')
+  return state
+}
+
 // fetch transferData and convert it into an escrow account
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
+  transferData.state = getTransferState(transferData)
+  transferData.transferType = transferId ? 'SENDER' : 'RECEIVER'
   let escrowAccount = createAccount({
     walletType: 'escrow',
     cryptoType: transferData.cryptoType,
@@ -471,7 +530,7 @@ async function _getTransferHistory (offset: number = 0) {
       return getTimestamp(b) - getTimestamp(a)
     })
     .map(item => {
-      let state = null
+      let state: ?string = null
       let transferType: ?string = null
       let password: ?string = null
       if (!item.error) {
@@ -487,59 +546,7 @@ async function _getTransferHistory (offset: number = 0) {
         } else {
           item.error = `Cannot identify transferType for item ${JSON.stringify(item)}`
         }
-        const { sendTxState, receiveTxState, cancelTxState } = item
-        switch (sendTxState) {
-          case 'Pending': {
-            // SEND_PENDING
-            state = transferStates.SEND_PENDING
-            break
-          }
-          case 'Confirmed': {
-            switch (receiveTxState) {
-              // SEND_CONFIRMED_RECEIVE_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
-                break
-              // SEND_CONFIRMED_RECEIVE_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
-                break
-              // SEND_CONFIRMED_RECEIVE_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
-                break
-              case null:
-                state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
-                break
-              case 'Expired': {
-                // SEND_CONFIRMED_RECEIVE_EXPIRED
-                state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
-                break
-              }
-              default:
-                break
-            }
-            switch (cancelTxState) {
-              // SEND_CONFIRMED_CANCEL_PENDING
-              case 'Pending':
-                state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
-                break
-              // SEND_CONFIRMED_CANCEL_CONFIRMED
-              case 'Confirmed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
-                break
-              // SEND_CONFIRMED_CANCEL_FAILURE
-              case 'Failed':
-                state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
-                break
-              default:
-                break
-            }
-            break
-          }
-          default:
-            break
-        }
+        state = getTransferState(item)
       }
       return {
         ...item,
@@ -550,6 +557,15 @@ async function _getTransferHistory (offset: number = 0) {
     })
 
   return { hasMore, transferData, offset }
+}
+
+async function _getTransferPassword (transferId: string): Promise<string> {
+  let transfersDict = await getAllTransfers()
+  if (transfersDict && transfersDict[transferId]) {
+    return transfersDict[transferId].password
+  } else {
+    throw new Error(`Transfer ${transferId} does not exist`)
+  }
 }
 
 function submitTx (txRequest: {
@@ -576,7 +592,7 @@ function submitTx (txRequest: {
 
 function acceptTransfer (txRequest: {
   escrowAccount: AccountData,
-  destinationAddress: Address,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   txFee: TxFee,
   receivingId: string,
@@ -633,6 +649,13 @@ function getTransferHistory (offset: number) {
   }
 }
 
+function getTransferPassword (transferId: string) {
+  return {
+    type: 'GET_TRANSFER_PASSWORD',
+    payload: _getTransferPassword(transferId)
+  }
+}
+
 function clearVerifyEscrowAccountPasswordError () {
   return {
     type: 'CLEAR_VERIFY_ESCROW_ACCOUNT_PASSWORD_ERROR'
@@ -646,6 +669,7 @@ export {
   getTxFee,
   getTransfer,
   getTransferHistory,
+  getTransferPassword,
   clearVerifyEscrowAccountPasswordError,
   transferStates,
   directTransfer

@@ -11,13 +11,13 @@ import Divider from '@material-ui/core/Divider'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
-    const { destinationAddress, transfer, escrowAccount, txFee } = this.props
+    const { destinationAccount, transfer, escrowAccount, txFee } = this.props
     const { receivingId, transferAmount, walletId } = transfer
     // accept transfer
     this.props.acceptTransfer({
       receivingId: receivingId,
       escrowAccount: escrowAccount,
-      destinationAddress: destinationAddress,
+      destinationAccount: destinationAccount,
       transferAmount: transferAmount,
       txFee: txFee,
       walletId: walletId
