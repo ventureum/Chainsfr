@@ -307,11 +307,18 @@ export default class DriveWallet implements IWallet<AccountData> {
     options?: Object
   }): Promise<TxFee> => {
     const accountData = this.getAccount().getAccountData()
-    return WalletUtils.getTxFee({
-      value,
-      cryptoType: accountData.cryptoType,
-      directTransfer: !!options && options.directTransfer
-    })
+    if (accountData.cryptoType === 'bitcoin') {
+      return WalletUtils.getBtcTxFee({
+        value,
+        addressesPool: accountData.hdWalletVariables.addresses
+      })
+    } else {
+      return WalletUtils.getTxFee({
+        value,
+        cryptoType: accountData.cryptoType,
+        directTransfer: !!options && options.directTransfer
+      })
+    }
   }
 
   _xPrivSigner = (
