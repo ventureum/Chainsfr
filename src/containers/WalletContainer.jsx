@@ -4,6 +4,7 @@ import WalletComponent from '../components/WalletComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { getTransferHistory } from '../actions/transferActions'
 import utils from '../utils'
+import { push } from 'connected-react-router'
 
 class WalletContainer extends Component {
   componentDidMount () {
@@ -16,7 +17,14 @@ class WalletContainer extends Component {
   }
 
   render () {
-    let { cryptoPrice, transferHistory, currency, actionsPending, cloudWalletAccounts } = this.props
+    let {
+      cryptoPrice,
+      transferHistory,
+      currency,
+      actionsPending,
+      cloudWalletAccounts,
+      push
+    } = this.props
 
     const toCurrencyAmount = (cryptoAmount, cryptoType) =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoType], currency)
@@ -35,6 +43,7 @@ class WalletContainer extends Component {
         transferHistory={transferHistory}
         actionsPending={actionsPending}
         loadMoreTransferHistory={this.loadMoreTransferHistory}
+        push={push}
       />
     )
   }
@@ -60,7 +69,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransferHistory: offset => dispatch(getTransferHistory(offset))
+    getTransferHistory: offset => dispatch(getTransferHistory(offset)),
+    push: path => dispatch(push(path))
   }
 }
 

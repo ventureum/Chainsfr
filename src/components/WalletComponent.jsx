@@ -15,6 +15,7 @@ import { getCryptoSymbol } from '../tokens'
 import { UserRecentTransactions } from './LandingPageComponent.jsx'
 import { accountStatus } from '../types/account.flow'
 import SendToAnotherAccountModal from '../containers/SendToAnotherAccountModalContainer'
+import path from '../Paths.js'
 
 class WalletComponent extends Component {
   state = {
@@ -29,7 +30,7 @@ class WalletComponent extends Component {
   }
 
   renderChainsfrWalletSection = () => {
-    const { classes, cloudWalletAccounts } = this.props
+    const { classes, cloudWalletAccounts, push } = this.props
     const { anchorEl } = this.state
 
     return (
@@ -78,7 +79,7 @@ class WalletComponent extends Component {
                       >
                         <ListItemText primary='Send to my accounts' />
                       </MenuItem>
-                      <MenuItem>
+                      <MenuItem onClick={() => push(`${path.transfer}?walletSelection=drive`)}>
                         <ListItemText primary='Send to others' />
                       </MenuItem>
                     </Menu>
