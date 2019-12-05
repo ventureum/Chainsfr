@@ -34,7 +34,7 @@ class NavBarContainer extends Component {
   }
 
   render () {
-    let { onLogout, profile, location, steps } = this.props
+    let { onLogout, profile, location, steps, cloudWalletConnected } = this.props
     let step = 0
     if (location.pathname === path.receive) {
       step = steps.receive
@@ -46,6 +46,7 @@ class NavBarContainer extends Component {
       <NavBarComponent
         onLogout={onLogout}
         profile={profile}
+        cloudWalletConnected={cloudWalletConnected}
         backToHome={this.backToHome}
         location={location}
         step={step}
@@ -65,6 +66,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     profile: state.userReducer.profile,
+    cloudWalletConnected: state.userReducer.cloudWalletConnected,
     steps: state.navigationReducer
   }
 }
