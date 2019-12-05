@@ -30,7 +30,7 @@ class ReceiveReviewComponent extends Component {
       transfer,
       actionsPending,
       txFee,
-      destinationAddress,
+      destinationAccount,
       sendTime,
       receiveAmount,
       currencyAmount,
@@ -83,7 +83,7 @@ class ReceiveReviewComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Typography variant='body2' id='destinationAddress'>
-                    {destinationAddress}
+                    {destinationAccount.address}
                   </Typography>
                 </Grid>
               </Grid>
