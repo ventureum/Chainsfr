@@ -104,10 +104,12 @@ class WalletAuthorizationContainer extends Component<Props> {
       clearError,
       checkWalletConnectionError,
       decryptCloudWalletAccountError,
-      accountSelection
+      accountSelection,
+      goToStep
     } = this.props
     return (
       <WalletAuthorizationComponent
+        goToStep={goToStep}
         accountSelection={accountSelection}
         transferForm={transferForm}
         actionsPending={actionsPending}
