@@ -562,7 +562,7 @@ async function _getTransferHistory (offset: number = 0) {
 
 async function _getTransferPassword (transferId: string): Promise<string> {
   let transfersDict = await getAllTransfers()
-  if (transfersDict && transfersDict[transferId]) {
+  if (transfersDict && transfersDict[transferId] && transfersDict[transferId].password) {
     return transfersDict[transferId].password
   } else {
     throw new Error(`Transfer ${transferId} does not exist`)

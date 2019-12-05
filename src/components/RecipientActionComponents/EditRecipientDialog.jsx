@@ -41,12 +41,12 @@ class EditRecipientDialog extends Component<Props, State> {
   handleChange = prop => event => {
     if (prop === 'email') {
       this.setState({
-        [prop]: event.target.value,
+        email: event.target.value,
         validEmail: validator.isEmail(event.target.value)
       })
     } else if (prop === 'name') {
       this.setState({
-        [prop]: event.target.value,
+        name: event.target.value,
         validName: !!event.target.value && event.target.value === event.target.value.trim()
       })
     }

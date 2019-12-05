@@ -20,8 +20,8 @@ type Props = {
   accountSelection: Object,
   checkWalletConnection: Function,
   clearError: Function,
-  decryptCloudWalletAccount: Function,
-  errors: Object
+  errors: Object,
+  goToStep: Function
 }
 
 type State = {

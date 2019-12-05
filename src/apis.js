@@ -110,7 +110,8 @@ async function getTransfer (request: { transferId: ?string, receivingId: ?string
   let rv = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'GET',
-    ...request
+    transferId: request.transferId,
+    receivingId: request.receivingId
   })
 
   let responseData = normalizeTransferData(rv.data)
@@ -125,7 +126,8 @@ async function getBatchTransfers (request: {
   let rv = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
     action: 'BATCH_GET',
-    ...request
+    transferIds: request.transferIds,
+    receivingIds: request.receivingIds
   })
 
   let responseData = rv.data
@@ -158,7 +160,7 @@ async function getRecipients (request: { idToken: string }) {
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'GET_RECIPIENTS',
-      ...request
+      idToken: request.idToken
     })
     return rv.data.recipients
   } catch (e) {
@@ -171,7 +173,8 @@ async function addRecipient (request: { idToken: string, recipient: Recipient })
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'ADD_RECIPIENT',
-      ...request
+      idToken: request.idToken,
+      recipient: request.recipient
     })
     return rv.data.recipients
   } catch (e) {
@@ -184,7 +187,8 @@ async function removeRecipient (request: { idToken: string, recipient: Recipient
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'REMOVE_RECIPIENT',
-      ...request
+      idToken: request.idToken,
+      recipient: request.recipient
     })
     return rv.data.recipients
   } catch (e) {
@@ -197,7 +201,7 @@ async function register (request: { idToken: string }) {
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'REGISTER',
-      ...request
+      idToken: request.idToken
     })
     return rv.data
   } catch (e) {
@@ -213,7 +217,8 @@ async function mintLibra (request: {
     let rv = await chainsferApi.post('/transfer', {
       clientId: 'test-client',
       action: 'MINT_LIBRA',
-      ...request
+      address: request.address,
+      amount: request.amount
     })
     return rv.data
   } catch (e) {
@@ -235,7 +240,8 @@ async function referralSend (request: { destination: string, transferAmount: str
   let rv = await chainsferApi.post('/referralWallet', {
     action: 'SEND',
     idToken,
-    ...request
+    destination: request.destination,
+    transferAmount: request.transferAmount
   })
   return rv.data
 }
