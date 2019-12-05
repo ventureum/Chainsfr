@@ -48,7 +48,13 @@ export default class MetamaskWallet implements IWallet<AccountData> {
       ) {
         throw new Error(metamaskErrors.incorrectNetwork)
       }
-      return window.ethereum.enable()
+      let address
+      try {
+        address = await window.ethereum.enable()
+      } catch (err) {
+        throw new Error(metamaskErrors.authorizationDenied)
+      }
+      return address
     } else {
       throw new Error(metamaskErrors.extendsionNotFound)
     }

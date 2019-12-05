@@ -3,7 +3,8 @@ export default {
     incorrectNetwork: 'Incorrect MetaMask network',
     extendsionNotFound: 'MetaMask not found',
     incorrectAccount: 'MetaMask extendsion holds different account',
-    noOptions: 'Options must not be null for metamask wallet'
+    noOptions: 'Options must not be null for metamask wallet',
+    authorizationDenied: 'MetaMask wallet authorization denied by user'
   },
   drive: {
     walletNotExist: 'Drive wallet does not exist',

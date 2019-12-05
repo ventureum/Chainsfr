@@ -12,6 +12,7 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import UsbIcon from '@material-ui/icons/Usb'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
+import WalletErrors from '../wallets/walletErrors'
 
 type Props = {
   transferForm: Object,
@@ -20,7 +21,7 @@ type Props = {
   checkWalletConnection: Function,
   clearError: Function,
   decryptCloudWalletAccount: Function,
-  checkWalletConnectionError: string
+  errors: Object
 }
 
 type State = {
@@ -33,9 +34,9 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   handleChange = (prop: any) => (event: any) => {
-    const { checkWalletConnectionError, clearError } = this.props
+    const { errors, clearError } = this.props
     this.setState({ [prop]: event.target.value })
-    if (checkWalletConnectionError) {
+    if (errors.submitTx || errors.verifyAccount || errors.checkWalletConnection) {
       clearError()
     }
   }
@@ -63,7 +64,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderDriveConnectSteps = () => {
-    const { checkWalletConnection, checkWalletConnectionError } = this.props
+    const { checkWalletConnection, errors } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' spacing={2}>
@@ -77,12 +78,12 @@ export default class WalletAuthorizationComponent extends Component<Props, State
               autoComplete='drive-wallet-independent-password'
               variant='outlined'
               fullWidth
-              error={!!checkWalletConnectionError}
+              error={!!errors.checkWalletConnection}
               type={'password'}
               label='Password'
               value={password}
               onChange={this.handleChange('password')}
-              helperText={checkWalletConnectionError ? 'Incorrect password' : ''}
+              helperText={errors.checkWalletConnection ? 'Incorrect password' : ''}
               onKeyPress={ev => {
                 if (ev.key === 'Enter') {
                   this.setState({ password: '' })
@@ -184,10 +185,11 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   renderWalletAuthorizationSteps = () => {
-    const { actionsPending, accountSelection } = this.props
-    const { walletType } = accountSelection
+    const { actionsPending, accountSelection, errors } = this.props
+    const { walletType, cryptoType } = accountSelection
     let instruction = ''
     let walletSteps
+    let errorInstruction
     switch (walletType) {
       case 'metamask':
         if (actionsPending.checkWalletConnection) {
@@ -196,6 +198,15 @@ export default class WalletAuthorizationComponent extends Component<Props, State
           instruction = 'Waiting for authorization...'
         }
         walletSteps = this.renderMetamaskConnectSteps()
+        if (errors.checkWalletConnection === WalletErrors.metamask.extendsionNotFound) {
+          errorInstruction = 'MetaMask extension is not available'
+        } else if (errors.verifyAccount === WalletErrors.metamask.incorrectAccount) {
+          errorInstruction = 'Wrong account, please switch to the correct account'
+        } else if (errors.verifyAccount === WalletErrors.metamask.authorizationDenied) {
+          errorInstruction = 'MetaMask authorization denied'
+        } else if (errors.verifyAccount === WalletErrors.metamask.incorrectNetwork) {
+          errorInstruction = 'Incorrect MetaMask network'
+        }
         break
       case 'metamaskWalletConnect':
         if (actionsPending.checkWalletConnection) {
@@ -204,14 +215,26 @@ export default class WalletAuthorizationComponent extends Component<Props, State
           instruction = 'Please scan the QR code with MetaMask Mobile app...'
         }
         walletSteps = this.renderMetamaskWalletConnectSteps()
+        if (errors.checkWalletConnection) {
+          errorInstruction = 'MetaMask WalletConnect loading failed'
+        } else if (errors.verifyAccount === WalletErrors.metamaskWalletConnect.incorrectAccount) {
+          errorInstruction = 'Wrong account, please switch to the correct account'
+        }
         break
       case 'ledger':
         if (actionsPending.checkWalletConnection) {
           instruction = 'Please connect your Ledger Device and connect it through popup window...'
         } else if (actionsPending.verifyAccount) {
-          instruction = 'Please navigate to selected crypto on your Ledger device...'
+          instruction = 'Please navigate to selected crypto app on your Ledger device...'
         }
         walletSteps = this.renderLedgerConnectSteps()
+        if (errors.checkWalletConnection === WalletErrors.ledger.deviceNotConnected) {
+          errorInstruction = 'Ledger device is not connected'
+        } else if (errors.verifyAccount === WalletErrors.ledger.ledgerAppCommunicationFailed) {
+          errorInstruction = `Ledger ${cryptoType} app is not available`
+        } else if (errors.verifyAccount === WalletErrors.ledger.incorrectAccount) {
+          errorInstruction = 'Wrong Ledger account, please connect the correct Ledger device'
+        }
         break
       case 'drive':
         if (actionsPending.checkWalletConnection) {
@@ -226,6 +249,12 @@ export default class WalletAuthorizationComponent extends Component<Props, State
           instruction = 'Creating connection...'
         } else if (actionsPending.verifyAccount) {
           instruction = 'Please scan the QR code with Coinbase WalletLink Mobile app...'
+        }
+        if (errors.checkWalletConnection) {
+          errorInstruction = 'WalletLink loading failed'
+        }
+        if (errors.verifyAccount === WalletErrors.coinbaseWalletLink.incorrectAccount) {
+          errorInstruction = `Incorrect WalletLink account, please switch to the correct account`
         }
         walletSteps = this.renderCoinbaseWalletLinkConnectSteps()
         break
@@ -245,6 +274,22 @@ export default class WalletAuthorizationComponent extends Component<Props, State
             ) : (
               <Typography>Account xpub: {accountSelection.hdWalletVariables.xpub}</Typography>
             )}
+          </Grid>
+        )}
+
+        {(errors.checkWalletConnection || errors.verifyAccount) && (
+          <Grid item>
+            <Box
+              style={{
+                backgroundColor: 'rgba(57, 51, 134, 0.05)',
+                borderRadius: '4px',
+                padding: '20px'
+              }}
+            >
+              <Typography variant='body2' color='error'>
+                {errorInstruction}
+              </Typography>
+            </Box>
           </Grid>
         )}
 
