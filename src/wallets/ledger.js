@@ -1,7 +1,7 @@
 // @flow
 import type { IWallet } from '../types/wallet.flow.js'
 import type { IAccount, AccountData } from '../types/account.flow.js'
-import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { TxFee, TxHash, Signature } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
@@ -258,7 +258,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     txFee: TxFee,
     options?: Object
-  }): Promise<TxHash> => {
+  }): Promise<{ txHash?: TxHash, clientSig?: Signature }> => {
     const account = this.getAccount()
     const accountData = account.getAccountData()
 
@@ -298,10 +298,12 @@ export default class LedgerWallet implements IWallet<AccountData> {
         gas: txFee.gas,
         gasPrice: txFee.price
       }
-      return WalletUtils.web3SendTransactions(
-        _web3.eth.sendSignedTransaction,
-        (await this._signSendTransaction(txObj)).rawTransaction
-      )
+      return {
+        txHash: await WalletUtils.web3SendTransactions(
+          _web3.eth.sendSignedTransaction,
+          (await this._signSendTransaction(txObj)).rawTransaction
+        )
+      }
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
@@ -312,7 +314,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
         Number(fee),
         accountData.hdWalletVariables.nextChangeIndex
       )
-      return WalletUtils.broadcastBtcRawTx(signedTxRaw)
+      return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
     } else {
       throw new Error('Invalid crypto type')
     }

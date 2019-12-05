@@ -1,7 +1,7 @@
 // @flow
 import type { IAccount, Account } from './account.flow.js'
 
-import type { TxFee, TxHash } from './transfer.flow'
+import type { TxFee, TxHash, Signature } from './transfer.flow'
 import type { Address, BasicTokenUnit } from './token.flow'
 
 export interface IWallet<IAccount> {
@@ -24,7 +24,7 @@ export interface IWallet<IAccount> {
     // txFee is mandatory
     txFee: TxFee,
     options?: Object
-  }): Promise<TxHash | Array<TxHash>>;
+  }): Promise<{ txHash?: TxHash, clientSig?: Signature }>;
 
   getTxFee({ value: BasicTokenUnit, options: Object }): Promise<TxFee>;
 }
