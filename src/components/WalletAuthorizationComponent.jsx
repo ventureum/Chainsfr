@@ -285,7 +285,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                   <WalletButton walletType={accountSelection.walletType} />
                 </Grid>
                 <Grid item>
-                  <Typography variant='body2'>{accountSelection.name}</Typography>
+                  <Typography variant='body2'>{accountSelection.displayName}</Typography>
                 </Grid>
                 <Grid item>
                   <Typography variant='caption'>

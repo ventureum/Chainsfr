@@ -14,6 +14,7 @@ import utils from '../utils'
 import url from '../url'
 import env from '../typedEnv'
 import { getCryptoDecimals } from '../tokens'
+import { getWalletTitle } from '../wallet'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
@@ -35,6 +36,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       // address in hardware wallet is the next receiving address
       address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
+      displayName: `${accountData.name} (${getWalletTitle(accountData.walletType)})`,
 
       balance: accountData.balance || '0',
       balanceInStandardUnit: accountData.balanceInStandardUnit || '0',

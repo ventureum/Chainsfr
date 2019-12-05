@@ -7,6 +7,7 @@ import utils from '../utils'
 import url from '../url'
 import ERC20 from '../ERC20'
 import { getCryptoDecimals } from '../tokens'
+import { getWalletTitle } from '../wallet'
 
 export default class EthereumAccount implements IAccount<AccountData> {
   accountData: AccountData
@@ -22,6 +23,7 @@ export default class EthereumAccount implements IAccount<AccountData> {
       // address in hardware wallet is the next receiving address
       address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
+      displayName: `${accountData.name} (${getWalletTitle(accountData.walletType)})`,
 
       // token balance for erc20 tokens/
       balance: accountData.balance || '0',
