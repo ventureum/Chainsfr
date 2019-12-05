@@ -119,8 +119,6 @@ async function _submitTx (txRequest: {
   await escrowAccount.encryptAccount(password)
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
 
-  let sendTxHash
-
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
     sender: sender,
@@ -148,12 +146,14 @@ async function _submitTx (txRequest: {
     }
     const _wallet = createWallet(fromAccount)
 
-    sendTxHash = await _wallet.sendTransaction({
+    const rv = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
       txFee: txFee,
       options: { multisig }
     })
+    var { txHash } = rv
+    if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
@@ -177,7 +177,7 @@ async function _submitTx (txRequest: {
     receiverName,
     data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
     cryptoType: cryptoType,
-    sendTxHash: sendTxHash,
+    sendTxHash: txHash,
     password: Base64.encode(password),
     walletId: walletId
   })
@@ -258,61 +258,50 @@ async function _acceptTransfer (txRequest: {
     .toString()
 
   let multiSig
+
+  if (['ethereum', 'dai'].includes(cryptoType)) {
+    // ethereum based coins
+    multiSig = new SimpleMultiSig({
+      walletId,
+      receivingId
+    })
+  }
+
+  const rv = await wallet.sendTransaction({
+    to: destinationAccount.address,
+    // actual value to be received = transferAmount - txFee
+    value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
+    txFee: txFee,
+    options: {
+      multiSig
+    }
+  })
+
+  if (rv.clientSig) {
+    var { clientSig } = rv
+  } else {
+    throw new Error('clientSig not found')
+  }
+
   const receiverAccount = JSON.stringify({
     cryptoType: destinationAccount.cryptoType,
     walletType: destinationAccount.walletType,
     address: destinationAccount.address,
     name: destinationAccount.name
   })
-  if (['ethereum', 'dai'].includes(cryptoType)) {
-    // ethereum based coins
-    multiSig = new SimpleMultiSig({
-      walletId,
-      receivingId,
-      receiveMessage,
-      receiverAccount: receiverAccount
-    })
-  }
 
-  let txhash = await wallet.sendTransaction({
-    to: destinationAccount.address,
-    // actual value to be received = transferAmount - txFee
-    value: new BN(value).sub(new BN(txFee.costInBasicUnit)),
-    txFee: txFee,
-    options: {
-      multiSig,
-      receiveMessage,
-      receivingId,
-      receiverAccountId: receiverAccount
-    }
+  const response = await API.accept({
+    receivingId,
+    receiverAccount,
+    clientSig,
+    receiveMessage
   })
-
-  return _acceptTransferTransactionHashRetrieved({
-    receiveTxHash: txhash,
-    receivingId: receivingId,
-    receiveMessage: receiveMessage,
-    receiveTimestamp: Math.floor(Date.now() / 1000)
-  })
-}
-
-async function _acceptTransferTransactionHashRetrieved (txRequest: {|
-  receiveTxHash: TxHash,
-  receivingId: string,
-  receiveMessage: ?string,
-  receiveTimestamp: number
-|}) {
-  // temp disabled, accept is invoked inside ethereum.sendTransaction()
-  // let response = await API.accept(txRequest)
-  // mock response
-  const { receiveTimestamp } = txRequest
-  const response = {
-    receiveTimestamp: receiveTimestamp
-  }
 
   await saveHistoryFile({
     receivingId: txRequest.receivingId,
     receiveTimestamp: response.receiveTimestamp
   })
+
   return { ...response, ...txRequest }
 }
 
@@ -363,7 +352,7 @@ async function _cancelTransfer (txRequest: {
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
-    multiSig = new SimpleMultiSig({ walletId, transferId, cancelMessage })
+    multiSig = new SimpleMultiSig({ walletId, transferId })
   } else if (cryptoType === 'libra') {
     // txHash is the sender's address for libra
     senderAddress = sendTxHash
@@ -373,7 +362,7 @@ async function _cancelTransfer (txRequest: {
 
   await wallet.verifyAccount()
 
-  let txhash = await wallet.sendTransaction({
+  const rv = await wallet.sendTransaction({
     to: senderAddress,
     // actual value to be received = transferAmount - txFee
     value: new BN(value).sub(new BN(txFee.costInBasicUnit)).toString(),
@@ -385,12 +374,24 @@ async function _cancelTransfer (txRequest: {
     }
   })
 
-  return {
-    transferId: transferId,
-    cancelTxHash: txhash,
-    cancelMessage: cancelMessage,
-    cancelTimestamp: Math.floor(Date.now() / 1000)
+  if (rv.clientSig) {
+    var { clientSig } = rv
+  } else {
+    throw new Error('clientSig not found')
   }
+
+  const response = await API.cancel({
+    transferId,
+    clientSig,
+    cancelMessage
+  })
+
+  await saveHistoryFile({
+    transferId: transferId,
+    cancelTimestamp: response.cancelTimestamp
+  })
+
+  return { ...response, ...txRequest }
 }
 
 // helper function

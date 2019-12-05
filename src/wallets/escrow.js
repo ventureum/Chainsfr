@@ -1,7 +1,7 @@
 // @flow
 import type { IWallet } from '../types/wallet.flow.js'
 import type { IAccount, AccountData, Utxos } from '../types/account.flow.js'
-import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { TxFee, TxHash, Signature } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
@@ -226,7 +226,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     txFee: TxFee,
     options?: Object
-  }): Promise<TxHash> => {
+  }): Promise<{ txHash?: TxHash, clientSig?: Signature }> => {
     const account = this.getAccount()
     const accountData = account.getAccountData()
 
@@ -236,47 +236,30 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
     const { cryptoType } = accountData
     if (!options) throw new Error('Options must not be null for escrow wallet')
+
+    let clientSig
+
     if (['dai', 'ethereum'].includes(cryptoType)) {
       if (!options.multiSig) throw new Error('MultiSig missing in options')
       if (!accountData.privateKey) throw new Error('privateKey does not exist in account')
-      const { cancelTxHash } = await options.multiSig.sendFromEscrow(accountData.privateKey, to)
-      return cancelTxHash
+      clientSig = await options.multiSig.sendFromEscrow(accountData.privateKey, to)
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       if (!txFee) throw new Error('Missing txFee')
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
 
-      const signedTxRaw = await this._psbtSigner(
+      clientSig = await this._psbtSigner(
         utxosCollected,
         to,
         Number(value), // actual value to be sent
         Number(fee),
         accountData.hdWalletVariables.nextChangeIndex
       )
-      let rv
-      let txHash
-      if (options.transferId) {
-        // cancel
-        rv = await API.cancel({
-          transferId: options.transferId,
-          clientSig: signedTxRaw,
-          cancelMessage: options.cancelMessage
-        })
-        txHash = rv.cancelTxHash
-      } else {
-        // receive
-        rv = await API.accept({
-          receivingId: options.receivingId,
-          receiverAccount: options.receiverAccount,
-          clientSig: signedTxRaw,
-          receiveMessage: options.receiveMessage
-        })
-        txHash = rv.receiveTxHash
-      }
-      return txHash
     } else {
       throw new Error('Invalid crypto type')
     }
+
+    return { clientSig: clientSig }
   }
 
   getTxFee = async ({

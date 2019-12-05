@@ -23,3 +23,5 @@ export type Recipient = {
   name: string,
   email: string
 }
+
+export type Signature = string

@@ -1,7 +1,7 @@
 // @flow
 import type { IWallet } from '../types/wallet.flow.js'
 import type { IAccount, AccountData } from '../types/account.flow.js'
-import type { TxFee, TxHash } from '../types/transfer.flow'
+import type { TxFee, TxHash, Signature } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
@@ -123,7 +123,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     value: BasicTokenUnit,
     txFee: TxFee,
     options?: Object
-  }): Promise<TxHash> => {
+  }): Promise<{ txHash?: TxHash, clientSig?: Signature }> => {
     const account = this.getAccount()
     const accountData = account.getAccountData()
 
@@ -147,7 +147,9 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     }
 
     // boardcast tx
-    return WalletUtils.web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+    return {
+      txHash: await WalletUtils.web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+    }
   }
 
   getTxFee = async ({
