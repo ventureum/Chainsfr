@@ -16,7 +16,6 @@ import Typography from '@material-ui/core/Typography'
 import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
-import { getWalletTitle } from '../wallet.js'
 import type { AccountData } from '../types/account.flow'
 
 type Props = {
@@ -74,9 +73,7 @@ class AccountDropdownComponent extends Component<Props, State> {
         <Grid item xs={8}>
           <Grid container direction='column'>
             <Grid item>
-              <Typography variant='body2'>
-                {item.name} ({getWalletTitle(item.walletType)})
-              </Typography>
+              <Typography variant='body2'>{item.displayName}</Typography>
             </Grid>
             <Grid item>
               <Typography variant='caption'>{item.address}</Typography>
@@ -107,15 +104,7 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   render () {
-    const {
-      account,
-      cryptoAccounts,
-      onChange,
-      addAccount,
-      pending,
-      error,
-      inputLabel
-    } = this.props
+    const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
       skeletonCryptoAccounts = [
@@ -143,9 +132,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                   <Grid item xs={8}>
                     <Grid container direction='column'>
                       <Grid item>
-                        <Typography variant='body2'>
-                          {value.name} ({getWalletTitle(value.walletType)})
-                        </Typography>
+                        <Typography variant='body2'>{value.displayName}</Typography>
                       </Grid>
                       <Grid item>
                         <Typography variant='caption'>{value.address}</Typography>

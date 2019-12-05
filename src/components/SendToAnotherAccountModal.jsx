@@ -55,7 +55,7 @@ class SendToAnotherAccountModal extends Component {
                   <Grid container direction='column' alignItems='flex-start'>
                     <Typography variant='caption'>To</Typography>
                     <Typography variant='body2' id='receiverName'>
-                      {destination.name}
+                      {destination.displayName}
                     </Typography>
                     <Typography variant='caption' id='receiverName'>
                       {destination.address}

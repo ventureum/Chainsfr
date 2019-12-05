@@ -269,7 +269,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   render () {
-    const { accountSelection } = this.props
+    const { accountSelection, actionsPending } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
@@ -285,7 +285,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                   <WalletButton walletType={accountSelection.walletType} />
                 </Grid>
                 <Grid item>
-                  <Typography variant='body2'>{accountSelection.name}</Typography>
+                  <Typography variant='body2'>{accountSelection.displayName}</Typography>
                 </Grid>
                 <Grid item>
                   <Typography variant='caption'>
@@ -293,6 +293,19 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                       -10
                     )}`}
                   </Typography>
+                </Grid>
+                <Grid item style={{ marginTop: '30px' }}>
+                  <Button
+                    onClick={() => this.props.goToStep(-1)}
+                    color='primary'
+                    disabled={
+                      actionsPending.submitTx ||
+                      actionsPending.verifyAccount ||
+                      actionsPending.checkWalletConnection
+                    }
+                  >
+                    Back to Previous
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>

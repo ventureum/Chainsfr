@@ -89,8 +89,15 @@ class NavBarComponent extends Component {
   }
 
   render () {
-    const { classes, backToHome, profile, disabled, location, step } = this.props
-
+    const {
+      classes,
+      backToHome,
+      profile,
+      disabled,
+      location,
+      step,
+      cloudWalletConnected
+    } = this.props
     return (
       <AppBar position='static' color='primary' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
@@ -112,6 +119,7 @@ class NavBarComponent extends Component {
                   </Button>
                 </Grid>
                 {profile.isAuthenticated &&
+                  cloudWalletConnected &&
                   ([path.receive, path.transfer].includes(location.pathname) ? (
                     <>
                       <Grid item xs style={{ maxWidth: '480px' }}>

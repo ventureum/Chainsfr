@@ -51,6 +51,7 @@ export type BitcoinAccountData = {
   // address in hardware wallet is the next receiving address
   address: Address,
   name: String, // the name of this account set by the user.
+  displayName: String, // `${name} (${walletType})`
 
   // token balance for erc20 tokens/
   balance: string,
@@ -78,6 +79,7 @@ export type EthereumAccountData = {
 
   address: Address,
   name: String, // the name of this account set by the user.
+  displayName: String, // `${name} (${walletType})`
 
   // token balance for erc20 tokens/
   balance: string,
