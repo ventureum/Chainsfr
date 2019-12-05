@@ -277,7 +277,6 @@ class AddAccountModalComponent extends Component<Props, State> {
                   id='account name'
                   variant='outlined'
                   label='Account Name'
-                  // disabled={actionsPending.}
                   onChange={event => {
                     this.handleAccountNameChange(event.target.value)
                   }}
