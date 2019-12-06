@@ -447,6 +447,9 @@ function getTransferState (transferData: Object): string {
       }
       break
     }
+    case 'Failed':
+      state = transferStates.SEND_FAILURE
+      break
     default:
       break
   }
