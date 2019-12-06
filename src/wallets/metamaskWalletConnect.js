@@ -8,7 +8,9 @@ import EthereumAccount from '../accounts/EthereumAccount.js'
 import WalletConnect from '@walletconnect/browser'
 import WalletConnectQRCodeModal from '@walletconnect/qrcode-modal'
 import WalletUtils from './utils.js'
+import WalletErrors from './walletErrors'
 
+const metamaskWalletConnectErrors = WalletErrors.metamaskWalletConnect
 const DEFAULT_ACCOUNT = 0
 
 export default class MetamaskWalletConnect implements IWallet<AccountData> {
@@ -114,7 +116,7 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
     return new Promise((resolve, reject) => {
       WalletConnectQRCodeModal.open(uri, () => {
         console.info('QR Code Modal closed')
-        reject(new Error('User closed WalletConnect modal'))
+        reject(new Error(metamaskWalletConnectErrors.modalClosed))
       })
 
       window.walletConnector.on('connect', (error, payload) => {
@@ -138,7 +140,7 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
       return this.account.accountData.connected
     } else {
       this.account.accountData.connected = false
-      throw new Error('Account verfication with MetaMask failed')
+      throw new Error(metamaskWalletConnectErrors.incorrectAccount)
     }
   }
 
@@ -160,8 +162,7 @@ export default class MetamaskWalletConnect implements IWallet<AccountData> {
       throw new Error('Must connect and verify account first')
     }
 
-    if (!txFee) throw new Error('Missing txFee')
-    if (!options) throw new Error('Options must not be null')
+    if (!options) throw new Error(metamaskWalletConnectErrors.noOptions)
     const { multisig } = options
     const txObj = multisig.getSendToEscrowTxObj(
       accountData.address,

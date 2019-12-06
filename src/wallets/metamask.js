@@ -9,7 +9,9 @@ import Web3 from 'web3'
 
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
+import WalletErrors from './walletErrors'
 
+const metamaskErrors = WalletErrors.metamask
 const DEFAULT_ACCOUNT = 0
 
 export default class MetamaskWallet implements IWallet<AccountData> {
@@ -44,11 +46,11 @@ export default class MetamaskWallet implements IWallet<AccountData> {
         window.ethereum.networkVersion !==
         WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK].toString()
       ) {
-        throw new Error('Incorrect MetaMask network') // eslint-disable-line
+        throw new Error(metamaskErrors.incorrectNetwork)
       }
       return window.ethereum.enable()
     } else {
-      throw new Error('MetaMask not found')
+      throw new Error(metamaskErrors.extendsionNotFound)
     }
   }
 
@@ -109,7 +111,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
       return this.account.accountData.connected
     } else {
       this.account.accountData.connected = false
-      throw new Error('Account verfication with MetaMask failed')
+      throw new Error(metamaskErrors.incorrectAccount)
     }
   }
 
@@ -131,7 +133,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
       throw new Error('Must connect and verify account first')
     }
 
-    if (!options) throw new Error('Options must not be null for metamask wallet')
+    if (!options) throw new Error(metamaskErrors.noOptions)
     let txObj
     if (options.directTransfer) {
       // direct transfer to another address

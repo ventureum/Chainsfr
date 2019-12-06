@@ -11,6 +11,7 @@ import env from '../typedEnv'
 import queryString from 'query-string'
 import utils from '../utils'
 import moment from 'moment'
+import WalletErrors from '../wallets/walletErrors'
 
 class LoginContainer extends Component {
   state = { renderReceiveLogin: false, renderReceiptLogin: false }
@@ -65,7 +66,7 @@ class LoginContainer extends Component {
       push
     } = this.props
 
-    if (error === 'WALLET_NOT_EXIST') {
+    if (error === WalletErrors.drive.walletNotExist) {
       return (
         <OnboardingComponent
           createCloudWallet={createCloudWallet}

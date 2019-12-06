@@ -17,7 +17,9 @@ import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import { getAccountXPub } from './addressFinderUtils'
+import WalletErrors from './walletErrors'
 
+const ledgerErrors = WalletErrors.ledger
 const baseEtherPath = "44'/60'/0'/0"
 const baseBtcPath = env.REACT_APP_BTC_PATH
 
@@ -74,7 +76,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
           }
         }, 300000)
       } catch (err) {
-        throw new Error('Acquire Ledger device connection failed')
+        throw new Error(ledgerErrors.deviceNotConnected)
       }
     }
     return LedgerWallet.webUsbTransport
@@ -108,7 +110,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
         await this._sleep(2000)
       }
     }
-    if (!result.address) throw new Error('Unabled to fetch address from Ledger')
+    if (!result.address) throw new Error(ledgerErrors.ledgerAppCommunicationFailed)
     return result.address
   }
 
@@ -134,7 +136,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
       }
     }
 
-    if (!addr.bitcoinAddress) throw new Error('Unabled to fetch address from Ledger')
+    if (!addr.bitcoinAddress) throw new Error(ledgerErrors.ledgerAppCommunicationFailed)
     const xpub = await getAccountXPub(btcApp, baseBtcPath, `${accountIndex}'`, true)
     return { address: addr.bitcoinAddress, xpub: xpub }
   }
@@ -234,13 +236,13 @@ export default class LedgerWallet implements IWallet<AccountData> {
       let { xpub } = await this._getBtcAddresss(DEFAULT_ACCOUNT)
       if (xpub !== accountData.hdWalletVariables.xpub) {
         accountData.connected = false
-        throw new Error('Account verification with Ledger failed: does not match')
+        throw new Error(ledgerErrors.incorrectAccount)
       }
     } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
       let address = await this._getEthAddress(DEFAULT_ACCOUNT)
       if (address !== accountData.address) {
         accountData.connected = false
-        throw new Error('Account verification with Ledger failed: does not match')
+        throw new Error(ledgerErrors.incorrectAccount)
       }
     }
     accountData.verified = true

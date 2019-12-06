@@ -7,6 +7,7 @@ import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
+import WalletErrors from '../wallets/walletErrors'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
@@ -101,7 +102,7 @@ function createCloudWallet (password: string, progress: ?Function) {
 async function _getCloudWallet () {
   let walletFile = await getWallet()
   if (!walletFile) {
-    throw new Error('WALLET_NOT_EXIST')
+    throw new Error(WalletErrors.drive.walletNotExist)
   }
 
   let accountDataList = Base64.decode(walletFile.accounts)
@@ -120,7 +121,7 @@ function getCloudWallet () {
         localErrorHandling: true
       }
     }).catch(error => {
-      if (error.message === 'WALLET_NOT_EXIST') {
+      if (error.message === WalletErrors.drive.walletNotExist) {
         console.warn(error)
         dispatch({
           type: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
