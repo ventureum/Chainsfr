@@ -8,6 +8,7 @@ import { getTransferData } from '../drive.js'
 import { accountStatus } from '../types/account.flow'
 import { enqueueSnackbar } from './notificationActions.js'
 import API from '../apis.js'
+import WalletErrors from '../wallets/walletErrors'
 
 async function _syncWithNetwork (accountData: AccountData) {
   let account = createAccount(accountData)
@@ -54,7 +55,7 @@ async function _decryptCloudWalletAccount (accountData: AccountData, password: s
   if (!accountData.privateKey) {
     let walletFile = await getWallet()
     if (!walletFile) {
-      throw new Error('WALLET_NOT_EXIST')
+      throw new Error(WalletErrors.drive.walletNotExist)
     }
     let accountDataList = JSON.parse(Base64.decode(walletFile.accounts))
     let privateKey
@@ -63,7 +64,7 @@ async function _decryptCloudWalletAccount (accountData: AccountData, password: s
     } else {
       privateKey = accountDataList[accountData.address]
     }
-    if (!privateKey) throw new Error('Account does not exist')
+    if (!privateKey) throw new Error(WalletErrors.drive.accountNotExist)
     accountData.privateKey = privateKey
   }
 

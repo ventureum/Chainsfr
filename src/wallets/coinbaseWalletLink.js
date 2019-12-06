@@ -9,7 +9,9 @@ import Web3 from 'web3'
 import WalletLink from 'walletlink'
 import WalletUtils from './utils.js'
 import env from '../typedEnv'
+import WalletErrors from './walletErrors'
 
+const coinbaseWalletLinkError = WalletErrors.coinbaseWalletLink
 const DEFAULT_ACCOUNT = 0
 const APP_LOGO = 'https://chainsfr-logo.s3.amazonaws.com/logo_wide.png'
 const APP_NAME = 'Chainsfr'
@@ -124,7 +126,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
       return this.account.accountData.connected
     } else {
       this.account.accountData.connected = false
-      throw new Error('Account verfication with WalletLink failed')
+      throw new Error(coinbaseWalletLinkError.incorrectAccount)
     }
   }
 
@@ -147,7 +149,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
     }
 
     if (!txFee) throw new Error('Missing txFee')
-    if (!options) throw new Error('Options must not be null')
+    if (!options) throw new Error(coinbaseWalletLinkError.noOptions)
 
     const { multisig } = options
     const txObj = multisig.getSendToEscrowTxObj(

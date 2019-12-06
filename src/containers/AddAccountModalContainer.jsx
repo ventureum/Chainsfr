@@ -93,7 +93,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AddAccountModalContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(AddAccountModalContainer)

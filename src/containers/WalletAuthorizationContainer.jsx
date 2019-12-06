@@ -21,13 +21,11 @@ type Props = {
   txFee: Object,
   accountSelection: Object,
   goToStep: Function,
-  submitTxError: string,
-  decryptCloudWalletAccountError: string,
-  checkWalletConnectionError: string,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
-  markAccountDirty: Function
+  markAccountDirty: Function,
+  errors: Object
 }
 
 class WalletAuthorizationContainer extends Component<Props> {
@@ -45,11 +43,10 @@ class WalletAuthorizationContainer extends Component<Props> {
       txFee,
       actionsPending,
       goToStep,
-      submitTxError,
       verifyAccount,
-      checkWalletConnectionError,
       markAccountDirty,
-      accountSelection
+      accountSelection,
+      errors
     } = this.props
     const {
       transferAmount,
@@ -64,10 +61,11 @@ class WalletAuthorizationContainer extends Component<Props> {
     if (
       prevProps.actionsPending.checkWalletConnection &&
       !actionsPending.checkWalletConnection &&
-      !checkWalletConnectionError
+      !errors.checkWalletConnection
     ) {
       verifyAccount(accountSelection)
     } else if (
+      !errors.verifyAccount &&
       prevProps.actionsPending.verifyAccount &&
       !actionsPending.verifyAccount &&
       accountSelection.connected
@@ -91,7 +89,7 @@ class WalletAuthorizationContainer extends Component<Props> {
         sendMessage: sendMessage,
         txFee: txFee
       })
-    } else if (prevProps.actionsPending.submitTx && !actionsPending.submitTx && !submitTxError) {
+    } else if (prevProps.actionsPending.submitTx && !actionsPending.submitTx && !errors.submitTx) {
       goToStep(1)
     }
   }
@@ -100,12 +98,10 @@ class WalletAuthorizationContainer extends Component<Props> {
     const {
       transferForm,
       actionsPending,
-      decryptCloudWalletAccount,
       clearError,
-      checkWalletConnectionError,
-      decryptCloudWalletAccountError,
       accountSelection,
-      goToStep
+      goToStep,
+      errors
     } = this.props
     return (
       <WalletAuthorizationComponent
@@ -114,10 +110,8 @@ class WalletAuthorizationContainer extends Component<Props> {
         transferForm={transferForm}
         actionsPending={actionsPending}
         checkWalletConnection={this.checkWalletConnection}
-        decryptCloudWalletAccount={decryptCloudWalletAccount}
         clearError={clearError}
-        checkWalletConnectionError={checkWalletConnectionError}
-        decryptCloudWalletAccountError={decryptCloudWalletAccountError}
+        errors={errors}
       />
     )
   }
@@ -128,8 +122,9 @@ const verifyAccountSelector = createLoadingSelector(['VERIFY_ACCOUNT'])
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_WALLET_CONNECTION'])
 
 const submitTxErrorSelector = createErrorSelector(['SUBMIT_TX'])
-const decryptCloudWalletAccountErrorSelector = createErrorSelector(['DECRYPT_CLOUD_WALLET_ACCOUNT'])
 const checkWalletConnectionErrorSelector = createErrorSelector(['CHECK_WALLET_CONNECTION'])
+const verifyAccountErrorSelector = createErrorSelector(['VERIFY_ACCOUNT'])
+
 const mapDispatchToProps = dispatch => {
   return {
     verifyAccount: (accountData, options) => dispatch(verifyAccount(accountData, options)),
@@ -158,9 +153,11 @@ const mapStateToProps = state => {
       verifyAccount: verifyAccountSelector(state),
       checkWalletConnection: checkWalletConnectionSelector(state)
     },
-    submitTxError: submitTxErrorSelector(state),
-    checkWalletConnectionError: checkWalletConnectionErrorSelector(state),
-    decryptCloudWalletAccountError: decryptCloudWalletAccountErrorSelector(state)
+    errors: {
+      submitTx: submitTxErrorSelector(state),
+      verifyAccount: verifyAccountErrorSelector(state),
+      checkWalletConnection: checkWalletConnectionErrorSelector(state)
+    }
   }
 }
 

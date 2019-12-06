@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
+import { Link } from 'react-router-dom'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -19,6 +20,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput'
 import Divider from '@material-ui/core/Divider'
 import Tooltip from '@material-ui/core/Tooltip'
 import AccountDropdownContainer from '../containers/AccountDropdownContainer'
+import path from '../Paths.js'
 
 type Props = {
   generateSecurityAnswer: Function,
@@ -257,6 +259,8 @@ class EmailTransferFormComponent extends Component<Props> {
                 size='large'
                 onClick={() => this.props.backToHome()}
                 id='back'
+                to={path.home}
+                component={Link}
               >
                 Back to previous
               </Button>

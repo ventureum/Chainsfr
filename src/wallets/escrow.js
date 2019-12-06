@@ -15,7 +15,9 @@ import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
+import WalletErrors from './walletErrors'
 
+const escrowErrors = WalletErrors.escrow
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULTaccountData = 0
 const NETWORK =
@@ -198,14 +200,14 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
         if (firstAddressNodePrivateKey !== accountData.privateKey) {
           accountData.connected = false
-          throw new Error('Account verification failed: Invalid Private Key')
+          throw new Error(escrowErrors.keyPairDoesNotMatch)
         }
       } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
         let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         const web3Account = _web3.eth.accounts.privateKeyToAccount(accountData.privateKey)
         if (web3Account.address !== accountData.address) {
           accountData.connected = false
-          throw new Error('Account verification failed: Invalid Private Key')
+          throw new Error(escrowErrors.keyPairDoesNotMatch)
         }
       }
       accountData.verified = true
@@ -213,7 +215,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
       return this.account.accountData.connected
     }
     accountData.verified = false
-    throw new Error('Account verification failed: Private key is undefined')
+    throw new Error(escrowErrors.privateKeyNotExist)
   }
 
   sendTransaction = async ({
@@ -235,13 +237,13 @@ export default class EscrowWallet implements IWallet<AccountData> {
     }
 
     const { cryptoType } = accountData
-    if (!options) throw new Error('Options must not be null for escrow wallet')
+    if (!options) throw new Error(escrowErrors.noOptions)
 
     let clientSig
 
     if (['dai', 'ethereum'].includes(cryptoType)) {
-      if (!options.multiSig) throw new Error('MultiSig missing in options')
-      if (!accountData.privateKey) throw new Error('privateKey does not exist in account')
+      if (!options.multiSig) throw new Error(escrowErrors.noMultiSig)
+      if (!accountData.privateKey) throw new Error(escrowErrors.noPrivateKeyInAccount)
       clientSig = await options.multiSig.sendFromEscrow(accountData.privateKey, to)
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses

@@ -7,6 +7,8 @@ import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
+import WalletErrors from '../wallets/walletErrors'
+import utils from '../utils'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
@@ -101,7 +103,7 @@ function createCloudWallet (password: string, progress: ?Function) {
 async function _getCloudWallet () {
   let walletFile = await getWallet()
   if (!walletFile) {
-    throw new Error('WALLET_NOT_EXIST')
+    throw new Error(WalletErrors.drive.walletNotExist)
   }
 
   let accountDataList = Base64.decode(walletFile.accounts)
@@ -120,7 +122,7 @@ function getCloudWallet () {
         localErrorHandling: true
       }
     }).catch(error => {
-      if (error.message === 'WALLET_NOT_EXIST') {
+      if (error.message === WalletErrors.drive.walletNotExist) {
         console.warn(error)
         dispatch({
           type: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
@@ -166,10 +168,17 @@ async function _newCryptoAccountFromWallet (
   name: string,
   cryptoType: string,
   walletType: string,
+  cryptoAccounts: Array<AccountData>,
   options: Object
 ) {
   let _wallet = createWallet({ walletType: walletType })
   let _account = await _wallet.newAccount(name, cryptoType, options)
+  let _newAccountData = _account.getAccountData()
+
+  if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
+    throw new Error('Account already exists')
+  }
+
   return _account.getAccountData()
 }
 
@@ -179,9 +188,21 @@ function newCryptoAccountFromWallet (
   walletType: string,
   options: Object
 ) {
-  return {
-    type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
-    payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, options)
+  return (dispatch: Function, getState: Function) => {
+    const cryptoAccounts = getState().accountReducer.cryptoAccounts
+    return dispatch({
+      type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
+      payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, cryptoAccounts, options)
+    }).catch(err => {
+      if ((err.msg = 'Account already exists'))
+        dispatch(
+          enqueueSnackbar({
+            message: err.msg,
+            key: new Date().getTime() + Math.random(),
+            options: { autoHideDuration: 3000 }
+          })
+        )
+    })
   }
 }
 

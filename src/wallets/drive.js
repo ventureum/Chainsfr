@@ -17,7 +17,9 @@ import API from '../apis.js'
 import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
+import WalletErrors from './walletErrors'
 
+const driveErrors = WalletErrors.drive
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULTaccountData = 0
 const NETWORK =
@@ -175,7 +177,7 @@ export default class DriveWallet implements IWallet<AccountData> {
     if (accountData.privateKey === undefined || accountData.privateKey === null) {
       let walletFile = await getWallet()
       if (!walletFile) {
-        throw new Error('WALLET_NOT_EXIST')
+        throw new Error(driveErrors.walletNotExist)
       }
       let accountDataList = JSON.parse(Base64.decode(walletFile.accounts))
 
@@ -185,7 +187,7 @@ export default class DriveWallet implements IWallet<AccountData> {
       } else if (accountDataList[accountData.address]) {
         encryptedPrivateKey = accountDataList[accountData.address].encryptedPrivateKey
       }
-      if (!encryptedPrivateKey) throw new Error('Account does not exist')
+      if (!encryptedPrivateKey) throw new Error(driveErrors.accountNotExist)
 
       accountData.encryptedPrivateKey = encryptedPrivateKey
 
@@ -211,14 +213,14 @@ export default class DriveWallet implements IWallet<AccountData> {
         const firstAddressNodePrivateKey = firstAddressNode.toWIF()
         if (firstAddressNodePrivateKey !== accountData.privateKey) {
           accountData.connected = false
-          throw new Error('Account verification failed: Invalid Private Key')
+          throw new Error(driveErrors.keyPairDoesNotMatch)
         }
       } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
         let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         const web3Account = _web3.eth.accounts.privateKeyToAccount(accountData.privateKey)
         if (web3Account.address !== accountData.address) {
           accountData.connected = false
-          throw new Error('Account verification failed: Invalid Private Key')
+          throw new Error(driveErrors.keyPairDoesNotMatch)
         }
       }
       accountData.verified = true
@@ -226,7 +228,7 @@ export default class DriveWallet implements IWallet<AccountData> {
       return this.account.accountData.connected
     }
     accountData.verified = false
-    throw new Error('Account verification failed: Private key is undefined')
+    throw new Error(driveErrors.privateKeyNotExist)
   }
 
   sendTransaction = async ({
@@ -256,7 +258,7 @@ export default class DriveWallet implements IWallet<AccountData> {
       // add private key
       _web3.eth.accounts.wallet.add(accountData.privateKey)
 
-      if (!options) throw new Error('Options must not be null')
+      if (!options) throw new Error(driveErrors.noOptions)
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address

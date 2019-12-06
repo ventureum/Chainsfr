@@ -1,6 +1,6 @@
 // @flow
 
-import type { AccountData } from '../types/account.flow.js'
+import type { AccountData, IAccount } from '../types/account.flow.js'
 import BitcoinAccount from './BitcoinAccount'
 import EthereumAccount from './EthereumAccount'
 

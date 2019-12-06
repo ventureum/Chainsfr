@@ -125,6 +125,16 @@ export const walletSelections = [
     sendable: true,
     receivable: false,
     hide: true
+  },
+  {
+    walletType: 'escrow',
+    title: 'Escrow Wallet',
+    desc: 'Escrow Wallet',
+    logo: DriveWalletLogo,
+    disabled: false,
+    sendable: true,
+    receivable: true,
+    hide: true
   }
   /* {
     walletType: 'trustWalletConnect',
