@@ -3,6 +3,7 @@ import MetamaskLogo from './images/metamask-button.png'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import CoinbaseWalletLogo from './images/coinbase-wallet.png'
+import TrustWalletLogo from './images/trust-wallet.png'
 import { detect } from 'detect-browser'
 import { isMobile } from 'react-device-detect'
 
@@ -135,14 +136,18 @@ export const walletSelections = [
     sendable: true,
     receivable: true,
     hide: true
-  }
-  /* {
+  },
+  {
     walletType: 'trustWalletConnect',
     title: 'Trust Wallet',
     desc: 'Trust Wallet',
     logo: TrustWalletLogo,
-    disabled: false
-  },
+    disabled: false,
+    sendable: true,
+    receivable: true,
+    hide: false
+  }
+  /*
   {
     walletType: 'coinomiWalletConnect',
     title: 'Coinomi',

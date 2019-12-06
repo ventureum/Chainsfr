@@ -178,6 +178,7 @@ class AddAccountModalComponent extends Component<Props, State> {
           instruction = 'Please navigate to selected crypto on your Ledger device...'
         }
         break
+      case 'trustWalletConnect':
       case 'metamaskWalletConnect':
         if (actionsPending.checkWalletConnection) {
           instruction = 'Creating connection...'
@@ -213,6 +214,7 @@ class AddAccountModalComponent extends Component<Props, State> {
         buttonText = 'Connect to Ledger'
         buttonIcon = <UsbIcon />
         break
+      case 'trustWalletConnect':
       case 'metamaskWalletConnect':
         connectText = 'Connect your wallet via Wallet Connect'
         buttonText = 'Scan QR Code'

@@ -5,6 +5,7 @@ import DriveWallet from './drive.js'
 import LedgerWallet from './ledger.js'
 import EscrowWallet from './escrow.js'
 import MetamaskWalletConnect from './metamaskWalletConnect'
+import TrustWalletConnect from './trustWalletConnect'
 import CoinbaseWalletLink from './coinbaseWalletLink'
 
 export function createWallet (accountData: AccountData) {
@@ -19,6 +20,8 @@ export function createWallet (accountData: AccountData) {
       return new EscrowWallet(accountData)
     case 'metamaskWalletConnect':
       return new MetamaskWalletConnect(accountData)
+    case 'trustWalletConnect':
+      return new TrustWalletConnect(accountData)
     case 'coinbaseWalletLink':
       return new CoinbaseWalletLink(accountData)
     default:

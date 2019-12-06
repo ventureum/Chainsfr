@@ -13,6 +13,7 @@ import UsbIcon from '@material-ui/icons/Usb'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
 import WalletErrors from '../wallets/walletErrors'
+import { getWalletTitle } from '../wallet'
 
 type Props = {
   transferForm: Object,
@@ -41,12 +42,12 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     }
   }
 
-  renderMetamaskWalletConnectSteps = () => {
+  renderWalletConnectSteps = (walletType: string) => {
     const { checkWalletConnection } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <Typography variant='body1'>Connect your wallet via MetaMask App</Typography>
+          <Typography variant='body1'>Connect your wallet via {getWalletTitle(walletType)}</Typography>
         </Grid>
         <Grid item>
           <Button
@@ -56,7 +57,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
             color='primary'
           >
             <CropFreeIcon />
-            Connect to MetaMask Mobile
+            Connect to {getWalletTitle(walletType)}
           </Button>
         </Grid>
       </Grid>
@@ -208,15 +209,17 @@ export default class WalletAuthorizationComponent extends Component<Props, State
           errorInstruction = 'Incorrect MetaMask network'
         }
         break
+      case 'trustWalletConnect':
       case 'metamaskWalletConnect':
         if (actionsPending.checkWalletConnection) {
           instruction = 'Creating connection...'
         } else if (actionsPending.verifyAccount) {
-          instruction = 'Please scan the QR code with MetaMask Mobile app...'
+
+          instruction = `Please scan the QR code with the ${getWalletTitle(walletType)}...`
         }
-        walletSteps = this.renderMetamaskWalletConnectSteps()
+        walletSteps = this.renderWalletConnectSteps(walletType)
         if (errors.checkWalletConnection) {
-          errorInstruction = 'MetaMask WalletConnect loading failed'
+          errorInstruction = 'WalletConnect loading failed'
         } else if (errors.verifyAccount === WalletErrors.metamaskWalletConnect.incorrectAccount) {
           errorInstruction = 'Wrong account, please switch to the correct account'
         }
