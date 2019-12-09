@@ -77,6 +77,7 @@
   "scripts": {
     "start": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired start",
     "build": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired build",
+    "build:test": "env-cmd .env.test npm run build",
     "build:staging": "env-cmd .env.staging npm run build",
     "build:prod": "env-cmd .env.prod npm run build",
     "test": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired test",

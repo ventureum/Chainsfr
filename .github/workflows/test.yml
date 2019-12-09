@@ -1,0 +1,42 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+     
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'us-east-1'
+    steps:
+    - name: Checkout Git
+      uses: actions/checkout@v1
+      
+    # setup node
+    - name: Use Node 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+      env:
+        CI: true
+    - name: Cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    # install dependencies
+    - run: npm ci
+      
+    # lint
+    - run: npm run eslint && npm run flow
+      
+    # build & deploy test 
+    - run: npm run build:test && mv ./build ./build_test
+    - run: aws s3 sync ./build_test s3://test.chainsfr.com --delete
+      if: github.event_name == 'push'
+ 

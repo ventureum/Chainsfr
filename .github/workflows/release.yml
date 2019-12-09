@@ -1,0 +1,37 @@
+name: Release
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'us-east-1'
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL}}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+      env:
+        CI: true
+    - name: Cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - run: npm ci
+    - run: npm run eslint && npm run flow
+      
+    # build & deploy staging and prod
+    - run: npm run build:staging && mv ./build ./build_staging
+    - run: npm run build:prod && mv ./build ./build_prod
+    - run: aws s3 sync ./build_staging s3://testnet.chainsfr.com --delete
+    - run: aws s3 sync ./build_prod s3://app.chainsfr.com --delete
