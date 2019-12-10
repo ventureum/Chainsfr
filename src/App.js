@@ -60,6 +60,12 @@ const defaultLayoutStyle = {
   flexDirection: 'column'
 }
 
+const loginLayoutStyle = {
+  minHeight: '100vh',
+  flexDirection: 'column',
+  display: 'flex'
+}
+
 const componentStyle = {
   minHeight: '100vh',
   flexDirection: 'column'
@@ -70,6 +76,21 @@ const StyledCookieConsent = () => {
     <CookieConsent buttonText='Accept' buttonStyle={{ background: '#4285F4', color: 'white' }}>
       This website uses cookies to enhance the user experience.
     </CookieConsent>
+  )
+}
+
+const LoginLayout = ({ component: Component, ...rest }) => {
+  return (
+    <Route
+      {...rest}
+      render={matchProps => (
+        <div style={loginLayoutStyle}>
+          <StyledCookieConsent />
+          <Component {...matchProps} />
+          <NotifierComponent />
+        </div>
+      )}
+    />
   )
 }
 
@@ -90,6 +111,17 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
       )}
     />
   )
+}
+
+const LoginLayoutSwitch = props => {
+  const query = props.location.search
+  if (query.includes('?redirect=%2Freceipt') || query.includes('?redirect=%2Freceive')) {
+    // special cases
+    // use default layout for receipt and receive before authentication
+    return <DefaultLayout {...props} />
+  } else {
+    return <LoginLayout {...props} />
+  }
 }
 
 class App extends Component {
@@ -126,7 +158,7 @@ class App extends Component {
           >
             <ConnectedRouter history={history}>
               <Switch>
-                <DefaultLayout
+                <LoginLayoutSwitch
                   path={paths.login}
                   component={userIsNotAuthenticated(LoginContainer)}
                 />
