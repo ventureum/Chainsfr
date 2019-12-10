@@ -12,6 +12,7 @@ import WalletContainer from './containers/WalletContainer'
 import RecipientsContainer from './containers/RecipientsContainer'
 import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
+import OfflineComponent from './components/OfflineComponent'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
@@ -26,6 +27,7 @@ import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
 import { getCryptoAccounts } from './actions/accountActions'
+import { Offline, Online } from 'react-detect-offline'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -84,11 +86,18 @@ const LoginLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-        <div style={loginLayoutStyle}>
-          <StyledCookieConsent />
-          <Component {...matchProps} />
-          <NotifierComponent />
-        </div>
+        <>
+          <Offline>
+            <OfflineComponent />
+          </Offline>
+          <Online>
+            <div style={loginLayoutStyle}>
+              <StyledCookieConsent />
+              <Component {...matchProps} />
+              <NotifierComponent />
+            </div>
+          </Online>
+        </>
       )}
     />
   )
@@ -99,15 +108,22 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-        <div style={defaultLayoutStyle}>
-          <StyledCookieConsent />
-          <NaviBar {...matchProps} />
-          <div style={componentStyle}>
-            <Component {...matchProps} />
-          </div>
-          <NotifierComponent />
-          <Footer />
-        </div>
+        <>
+          <Offline>
+            <OfflineComponent />
+          </Offline>
+          <Online>
+            <div style={defaultLayoutStyle}>
+              <StyledCookieConsent />
+              <NaviBar {...matchProps} />
+              <div style={componentStyle}>
+                <Component {...matchProps} />
+              </div>
+              <NotifierComponent />
+              <Footer />
+            </div>
+          </Online>
+        </>
       )}
     />
   )
