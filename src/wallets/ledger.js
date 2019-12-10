@@ -401,7 +401,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
     let inputValueTotal = 0
     for (let i = 0; i < inputs.length; i++) {
       const utxo = inputs[i]
-      const utxoDetails = await WalletUtils.getUtxoDetails(utxo.txHash)
+      const utxoDetails = await WalletUtils.getUtxoDetails(utxo.txHash, true)
 
       const txObj = btcApp.splitTransaction(utxoDetails, true)
       const input = [txObj, utxo.outputIndex]

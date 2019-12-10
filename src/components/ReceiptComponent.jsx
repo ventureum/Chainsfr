@@ -41,7 +41,7 @@ class ReceiptComponent extends Component<Props, State> {
   }
 
   renderReceipt () {
-    const { classes,transfer, sendTime, receiveTime, cancelTime, backToHome } = this.props
+    const { classes, transfer, sendTime, receiveTime, cancelTime, backToHome } = this.props
     const { copied } = this.state
     const {
       transferId,
@@ -61,10 +61,11 @@ class ReceiptComponent extends Component<Props, State> {
       cancelMessage,
       password,
       receiveTxHash,
-      cancelTxHash
+      cancelTxHash,
+      txFee,
+      txFeeCurrencyAmount
     } = transfer
-
-    const id = transferType === 'SENDER' ? transferId: receivingId
+    const id = transferType === 'SENDER' ? transferId : receivingId
 
     let title
     let titleIcon
@@ -77,7 +78,7 @@ class ReceiptComponent extends Component<Props, State> {
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         messageBoxContent =
           'The blockchain is processing your transfer. A notification email will be' +
-           'sent to you once the transfer is ready to be accepted.'
+          'sent to you once the transfer is ready to be accepted.'
         break
       case transferStates.SEND_FAILURE:
         // only accessible to sender
@@ -257,20 +258,43 @@ class ReceiptComponent extends Component<Props, State> {
                 <Divider />
               </Grid>
               <Grid item>
-                <Grid container direction='column' alignItems='flex-start'>
-                  <Grid item>
-                    <Typography variant='caption'>Amount</Typography>
-                  </Grid>
-                  <Grid item>
-                    <Grid container direction='row' alignItems='center'>
-                      <Typography variant='body2'>
-                        {transferAmount} {getCryptoSymbol(cryptoType)}
-                      </Typography>
-                      <Typography style={{ marginLeft: '10px' }} variant='caption'>
-                        ( ≈ {transferFiatAmountSpot} {fiatType} )
-                      </Typography>
+                <Grid container direction='row' alignItems='center' spacing={1}>
+                  <Grid item xs>
+                    <Grid container direction='column' alignItems='flex-start'>
+                      <Grid item>
+                        <Typography variant='caption'>Amount</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Grid container direction='row' alignItems='center'>
+                          <Typography variant='body2'>
+                            {transferAmount} {getCryptoSymbol(cryptoType)}
+                          </Typography>
+                          <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                            ( ≈ {transferFiatAmountSpot} {fiatType} )
+                          </Typography>
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
+                  {txFee && txFeeCurrencyAmount && (
+                    <Grid item xs>
+                      <Grid container direction='column' alignItems='flex-start'>
+                        <Grid item>
+                          <Typography variant='caption'>Network Fee</Typography>
+                        </Grid>
+                        <Grid item>
+                          <Grid container direction='row' alignItems='center'>
+                            <Typography variant='body2'>
+                              {txFee.costInStandardUnit} {getCryptoSymbol(cryptoType)}
+                            </Typography>
+                            <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                              ( ≈ {txFeeCurrencyAmount} )
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
               {transferType === 'SENDER' && (

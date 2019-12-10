@@ -66,9 +66,14 @@ const getSignTransactionObject = (tx: Object) => {
   }
 }
 
-async function getUtxoDetails (txHash: TxHash) {
-  const details = await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}/hex`)
-  return details.data[0].hex
+async function getUtxoDetails (txHash: TxHash, hex: ?boolean) {
+  if (hex) {
+    const details = await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}/hex`)
+    return details.data[0].hex
+  } else {
+    const details = await axios.get(`${url.LEDGER_API_URL}/transactions/${txHash}`)
+    return details.data[0]
+  }
 }
 
 const networkIdMap = {
