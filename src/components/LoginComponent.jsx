@@ -32,7 +32,6 @@ const data = {
       }
     ],
     faqURL: env.REACT_APP_FAQ_URL,
-    loginURL: env.REACT_APP_ENTRYPOINT_MAINNET_URL,
     loginTitle: 'Chainsfr',
     linkText: 'Try it on Testnet',
     backgroundColor: '#F6F9FE',
@@ -57,7 +56,6 @@ const data = {
       }
     ],
     faqURL: env.REACT_APP_FAQ_URL,
-    loginURL: env.REACT_APP_ENTRYPOINT_TESTNET_URL,
     loginTitle: 'Chainsfr Testnet',
     linkText: 'Switch to Mainnet',
     backgroundColor: '#393386',
@@ -288,12 +286,6 @@ class LoginComponent extends Component {
                       />
                     )}
                   </Grid>
-                  <Link
-                    href={isMainNet ? data.testNet.loginURL : data.mainNet.loginURL}
-                    className={classes.paperBtnLink}
-                  >
-                    {isMainNet ? data.mainNet.linkText : data.testNet.linkText}
-                  </Link>
                 </Grid>
                 <Grid item container className={classes.paperFooter} justify='center'>
                   <Link
