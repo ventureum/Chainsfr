@@ -1,5 +1,5 @@
 // @flow
-const env = ((process.env: any): {[string]: string}) // if you're sure that everything will be defined
+const env = ((process.env: any): { [string]: string }) // if you're sure that everything will be defined
 
 export default {
   NODE_ENV: env.NODE_ENV,
@@ -16,8 +16,6 @@ export default {
   REACT_APP_ENV: env.REACT_APP_ENV,
   REACT_APP_BITCOIN_JS_LIB_NETWORK: env.REACT_APP_BTC_NETWORK === 'mainnet' ? 'bitcoin' : 'testnet',
   REACT_APP_BTC_PATH: env.REACT_APP_BTC_NETWORK === 'mainnet' ? "49'/0'" : "49'/1'",
-  REACT_APP_ENTRYPOINT_TESTNET_URL: env.REACT_APP_ENTRYPOINT_TESTNET_URL,
-  REACT_APP_ENTRYPOINT_MAINNET_URL: env.REACT_APP_ENTRYPOINT_MAINNET_URL,
   REACT_APP_TERMS_URL: env.REACT_APP_TERMS_URL,
   REACT_APP_GA_TRACKING_ID: env.REACT_APP_GA_TRACKING_ID,
   REACT_APP_FAQ_URL: env.REACT_APP_FAQ_URL
