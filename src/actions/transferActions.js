@@ -18,6 +18,7 @@ import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
 import { clearAccountPrivateKey } from './accountActions'
 import transferStates from '../transferStates'
+import WalletUtils from '../wallets/utils'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -462,6 +463,14 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
   transferData.state = getTransferState(transferData)
   transferData.transferType = transferId ? 'SENDER' : 'RECEIVER'
+  transferData.txFee = await _getTxFeeForTransfer(transferData)
+  if (transferData.txFee) {
+    transferData.txFeeCurrencyAmount = utils.toCurrencyAmount(
+      transferData.txFee.costInStandardUnit,
+      parseFloat(transferData.transferFiatAmountSpot) / parseFloat(transferData.transferAmount),
+      transferData.fiatType
+    )
+  }
   let escrowAccount = createAccount({
     walletType: 'escrow',
     cryptoType: transferData.cryptoType,
@@ -663,6 +672,58 @@ function getTransferPassword (transferId: string) {
 function clearVerifyEscrowAccountPasswordError () {
   return {
     type: 'CLEAR_VERIFY_ESCROW_ACCOUNT_PASSWORD_ERROR'
+  }
+}
+
+async function _getTxFeeForTransfer (transferData) {
+  const { cryptoType, senderToChainsfer, chainsferToSender, transferType } = transferData
+
+  if (chainsferToSender || transferType === 'RECEIVER') {
+    return {
+      price: '0',
+      gas: '0',
+      costInBasicUnit: '0',
+      costInStandardUnit: '0'
+    }
+  } else {
+    const { txHash } = senderToChainsfer
+    if (cryptoType === 'bitcoin') {
+      const rv = await WalletUtils.getUtxoDetails(txHash)
+      if (!rv) return null
+      return {
+        price: 0,
+        gas: 0,
+        costInBasicUnit: rv.fees.toString(),
+        costInStandardUnit: utils
+          .toHumanReadableUnit(rv.fees.toString(), getCryptoDecimals('bitcoin'), 8)
+          .toString()
+      }
+    } else if (['ethereum', 'dai'].includes(cryptoType)) {
+      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+      const rv = await axios.post(url.INFURA_API_URL, {
+        method: 'eth_getTransactionByHash',
+        params: [txHash],
+        jsonrpc: '2.0',
+        id: 1
+      })
+      if (rv.data.result) {
+        let { gasPrice } = rv.data.result
+        gasPrice = _web3.utils.hexToNumber(gasPrice)
+        const receipt = await _web3.eth.getTransactionReceipt(txHash)
+        let gas = 0
+        if (!receipt) return null
+        gas = receipt.gasUsed
+        const costInBasicUnit = new BN(gasPrice).mul(new BN(gas)).toString()
+        return {
+          price: gasPrice.toString(),
+          gas: gas.toString(),
+          costInBasicUnit: costInBasicUnit,
+          costInStandardUnit: utils
+            .toHumanReadableUnit(costInBasicUnit, getCryptoDecimals('ethereum'), 8)
+            .toString()
+        }
+      } else return null
+    }
   }
 }
 

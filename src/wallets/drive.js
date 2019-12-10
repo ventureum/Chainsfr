@@ -182,8 +182,12 @@ export default class DriveWallet implements IWallet<AccountData> {
       let accountDataList = JSON.parse(Base64.decode(walletFile.accounts))
 
       let encryptedPrivateKey
-      if (accountData.cryptoType === 'bitcoin' && accountDataList[accountData.xpub]) {
-        encryptedPrivateKey = accountDataList[accountData.xpub].encryptedPrivateKey
+      if (
+        accountData.cryptoType === 'bitcoin' &&
+        accountDataList[accountData.hdWalletVariables.xpub]
+      ) {
+        encryptedPrivateKey =
+          accountDataList[accountData.hdWalletVariables.xpub].encryptedPrivateKey
       } else if (accountDataList[accountData.address]) {
         encryptedPrivateKey = accountDataList[accountData.address].encryptedPrivateKey
       }
@@ -293,7 +297,7 @@ export default class DriveWallet implements IWallet<AccountData> {
         to,
         Number(value), // actual value to be sent
         Number(fee),
-        account.hdWalletVariables.nextChangeIndex
+        accountData.hdWalletVariables.nextChangeIndex
       )
       return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
     } else {
