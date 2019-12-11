@@ -37,6 +37,9 @@ class ReceiveReviewContainer extends Component {
       actionsPending,
       error
     } = this.props
+    // To prevent crash when transfer is cleared before transit to receipt page
+    if (!transfer) return null
+
     const { sendTimestamp } = transfer
     const toCurrencyAmount = cryptoAmount =>
       utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
