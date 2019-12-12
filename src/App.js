@@ -67,7 +67,12 @@ const componentStyle = {
 
 const StyledCookieConsent = () => {
   return (
-    <CookieConsent buttonText='Accept' buttonStyle={{ background: '#4285F4', color: 'white' }}>
+    <CookieConsent
+      style={{ justifyContent: 'flex-start' }}
+      contentStyle={{ flex: 'none' }}
+      buttonText='Accept'
+      buttonStyle={{ background: '#4285F4', color: 'white' }}
+    >
       This website uses cookies to enhance the user experience.
     </CookieConsent>
   )
