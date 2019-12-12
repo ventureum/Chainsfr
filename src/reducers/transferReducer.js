@@ -51,7 +51,8 @@ export default function (state = initialState, action) {
     case 'ACCEPT_TRANSFER_FULFILLED':
       return {
         ...state,
-        receipt: action.payload
+        receipt: action.payload,
+        transfer: null
       }
     case 'CANCEL_TRANSFER_FULFILLED':
       return {

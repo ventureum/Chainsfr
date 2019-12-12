@@ -63,7 +63,9 @@ class ReceiptComponent extends Component<Props, State> {
       receiveTxHash,
       cancelTxHash,
       txFee,
-      txFeeCurrencyAmount
+      txFeeCurrencyAmount,
+      receiverAccount,
+      senderAccount
     } = transfer
     const id = transferType === 'SENDER' ? transferId : receivingId
 
@@ -254,6 +256,46 @@ class ReceiptComponent extends Component<Props, State> {
                   </Grid>
                 </Grid>
               </Grid>
+              {transferType === 'SENDER' && senderAccount && (
+                <>
+                  <Grid item>
+                    <Divider />
+                  </Grid>
+                  <Grid item>
+                    <Grid container direction='column' alignItems='flex-start'>
+                      <Grid item>
+                        <Typography variant='caption'>From Account</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Grid container direction='column' alignItems='flex-start'>
+                          <Typography variant='body2'>{senderAccount.displayName}</Typography>
+                          <Typography variant='caption'>{senderAccount.address}</Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </>
+              )}
+              {transferType === 'RECEIVER' && receiverAccount && (
+                <>
+                  <Grid item>
+                    <Divider />
+                  </Grid>
+                  <Grid item>
+                    <Grid container direction='column' alignItems='flex-start'>
+                      <Grid item>
+                        <Typography variant='caption'>Deposit to Account</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Grid container direction='column' alignItems='flex-start'>
+                          <Typography variant='body2'>{receiverAccount.displayName}</Typography>
+                          <Typography variant='caption'>{receiverAccount.address}</Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </>
+              )}
               <Grid item>
                 <Divider />
               </Grid>

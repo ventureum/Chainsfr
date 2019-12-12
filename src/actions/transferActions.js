@@ -461,6 +461,16 @@ function getTransferState (transferData: Object): string {
 // fetch transferData and convert it into an escrow account
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
+  if (transferData.senderAccount) {
+    transferData.senderAccount = createAccount(
+      JSON.parse(transferData.senderAccount)
+    ).getAccountData()
+  }
+  if (transferData.receiverAccount) {
+    transferData.receiverAccount = createAccount(
+      JSON.parse(transferData.receiverAccount)
+    ).getAccountData()
+  }
   transferData.state = getTransferState(transferData)
   transferData.transferType = transferId ? 'SENDER' : 'RECEIVER'
   transferData.txFee = await _getTxFeeForTransfer(transferData)
