@@ -9,6 +9,7 @@ import type { BasicTokenUnit, Address } from './types/token.flow'
 import type { TxEthereum, Signature } from './types/transfer.flow'
 import SimpleMultiSigContractArtifacts from './contracts/SimpleMultiSig.json'
 import env from './typedEnv'
+import WalletUtils from './wallets/utils'
 
 export default class SimpleMultiSig {
   id: ?string
@@ -28,7 +29,7 @@ export default class SimpleMultiSig {
     // setup contract instance
     this.web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
-    const NETWORK_ID = env.NODE_ENV === 'production' ? 1 : 4
+    const NETWORK_ID = WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
     let contractAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address
     this.contractInstance = new this.web3.eth.Contract(
       SimpleMultiSigContractArtifacts.abi,
