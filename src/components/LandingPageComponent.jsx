@@ -272,6 +272,22 @@ export function UserRecentTransactions (props) {
                 </Button>
               </Grid>
             )}
+            {transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED === transfer.state && (
+              <Grid item>
+                <Button
+                  color='primary'
+                  component={Link}
+                  target='_blank'
+                  rel='noopener'
+                  to={`${path.receipt}?${
+                    transfer.transferId ? 'transferId' : 'receivingId'
+                  }=${transfer.transferId || transfer.receivingId}`}
+                  className={classes.recentTransferItemCancelBtn}
+                >
+                  View receipt
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>

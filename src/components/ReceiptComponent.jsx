@@ -80,7 +80,7 @@ class ReceiptComponent extends Component<Props, State> {
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         messageBoxContent =
           'The blockchain is processing your transfer. A notification email will be' +
-          'sent to you once the transfer is ready to be accepted.'
+          ' sent to you once the transfer is ready to be accepted.'
         break
       case transferStates.SEND_FAILURE:
         // only accessible to sender
