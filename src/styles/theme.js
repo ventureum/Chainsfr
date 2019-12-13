@@ -13,9 +13,9 @@ export const themeChainsfr = createMuiTheme({
       contrastText: uiColors.white
     },
     secondary: {
-      main: uiColors.secondary,
-      dark: uiColors.secondaryDark,
-      contrastText: fontColors.primary
+      main: fontColors.secondary,
+      dark: fontColors.secondaryDark,
+      contrastText: fontColors.secondary
     },
     background: {
       default: uiColors.backgroundTint,
@@ -119,7 +119,16 @@ export const themeChainsfr = createMuiTheme({
         paddingTop: componentPaddings.buttons.default.paddingTop,
         paddingBottom: componentPaddings.buttons.default.paddingBottom,
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
-        paddingRight: componentPaddings.buttons.default.paddingRight
+        paddingRight: componentPaddings.buttons.default.paddingRight,
+
+        '&.warning': {
+          backgroundColor: uiColors.error,
+          color: uiColors.white,
+
+          '&:hover': {
+              backgroundColor: uiColors.errorDark
+          },
+      },
       },
       outlined: {
         paddingTop: componentPaddings.buttons.default.paddingTop,
@@ -149,11 +158,24 @@ export const themeChainsfr = createMuiTheme({
         }
       }
     },
+    MuiIcon: {
+      root: {
+        fontSize: 12
+      },
+      fontSizeLarge: {
+        fontSize: 32
+      }
+    },
     MuiMenuItem: {
       root: {
         fontSize: textValues.default.fontSize,
         lineHeight: textValues.default.lineHeight,
         color: textValues.default.color
+      }
+    },
+    MuiSvgIcon: {
+      fontSizeLarge: {
+          fontSize: 32
       }
     },
     MuiToolbar: {

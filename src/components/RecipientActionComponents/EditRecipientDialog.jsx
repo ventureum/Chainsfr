@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Dialog from '@material-ui/core/Dialog'
@@ -106,17 +107,19 @@ class EditRecipientDialog extends Component<Props, State> {
           {loading && <LinearProgress />}
         </DialogContent>
         <DialogActions className={classes.dialogAction}>
-          <Button
-            disabled={loading}
-            onClick={() => {
-              handleClose()
-            }}
-            color='primary'
-            id='cancel'
-            className={classes.cancelBtn}
-          >
-            Cancel
-          </Button>
+          <Box mr={2}>
+            <Button
+              disabled={loading}
+              onClick={() => {
+                handleClose()
+              }}
+              variant='outlined'
+              color='secondary'
+              id='cancel'
+            >
+              Cancel
+            </Button>
+          </Box>
           <Button
             variant='contained'
             disabled={loading || !name || !email || !validEmail}
@@ -125,7 +128,6 @@ class EditRecipientDialog extends Component<Props, State> {
             }}
             color='primary'
             id='save'
-            className={classes.saveBtn}
           >
             Save
           </Button>

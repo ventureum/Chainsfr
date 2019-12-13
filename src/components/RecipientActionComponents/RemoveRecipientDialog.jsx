@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -54,24 +55,27 @@ class RemoveRecipientDialog extends Component<Props> {
           {loading && <LinearProgress />}
         </DialogContent>
         <DialogActions className={classes.dialogAction}>
+          <Box mr={2}>
+            <Button
+              disabled={loading}
+              onClick={() => {
+                handleClose()
+              }}
+              id='cancel'
+              variant='outlined'
+              color='secondary'
+            >
+              Cancel
+            </Button>
+          </Box>
           <Button
-            disabled={loading}
-            onClick={() => {
-              handleClose()
-            }}
-            id='cancel'
-            className={classes.cancelBtn}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
             disabled={loading}
             onClick={() => {
               handleSubmit(this.state)
             }}
+            variant='contained'
+            className='warning'
             id='delete'
-            className={classes.deleteBtn}
           >
             Delete
           </Button>
