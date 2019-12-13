@@ -38,7 +38,7 @@ const ROOT_FOLDER_NAME: string = 'ChainsfrData'
  *  } ...]
  */
 const TEMP_SEND_FILE_NAME: string = `__temp_send_${env.REACT_APP_ENV}__.json`
-const TEMP_SEND_FOLDER_NAME: string = 'TempSend'
+const TEMP_SEND_FOLDER_NAME: string = `TempSend_${env.REACT_APP_ENV}`
 /*
  * A single file storing past transfer data
  * The password in the file will be used for cancellation
@@ -46,7 +46,7 @@ const TEMP_SEND_FOLDER_NAME: string = 'TempSend'
  * Data format: see type TransferData
  */
 const HISTORY_FILE_NAME: string = `__transaction_history_${env.REACT_APP_ENV}__.json`
-const HISTORY_FOLDER_NAME: string = 'TransactionHistory'
+const HISTORY_FOLDER_NAME: string = `TransactionHistory_${env.REACT_APP_ENV}`
 /*
  * A single file storing encrypted wallet data
  *
@@ -57,7 +57,7 @@ const HISTORY_FOLDER_NAME: string = 'TransactionHistory'
  * }
  */
 const WALLET_FILE_NAME: string = `__wallet_${env.REACT_APP_ENV}__.json`
-const WALLET_FOLDER_NAME: string = 'Wallet'
+const WALLET_FOLDER_NAME: string = `Wallet_${env.REACT_APP_ENV}`
 
 // flow type definitions
 
