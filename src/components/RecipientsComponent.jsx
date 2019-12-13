@@ -126,7 +126,7 @@ class RecipientsComponent extends Component {
                   <Typography variant='h2'>Recipients</Typography>
                 </Grid>
                 <Grid item>
-                  <Button className={classes.addRecipientBtn} onClick={() => addRecipient()}>
+                  <Button variant='contained' color='primary' onClick={() => addRecipient()}>
                     Add Recipient
                   </Button>
                 </Grid>

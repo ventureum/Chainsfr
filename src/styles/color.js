@@ -1,8 +1,8 @@
 import { baseColors } from './base'
 
 export const uiColors = {
-  primary: baseColors.blue.b500,
-  primaryDark: baseColors.blue.b600,
+  primary: baseColors.purple.p500,
+  primaryDark: baseColors.purple.p700,
   secondary: baseColors.grey.g500,
   secondaryDark: baseColors.grey.g700,
   border: baseColors.grey.g200,
