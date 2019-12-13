@@ -44,7 +44,7 @@
     "kulap-libra": "^2.0.4",
     "moment": "^2.24.0",
     "notistack": "^0.5.0",
-    "npm": "^6.8.0",
+    "npm": "^6.13.4",
     "numeral": "^2.0.6",
     "query-string": "^6.2.0",
     "randombytes": "^2.0.6",
