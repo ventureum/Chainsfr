@@ -1,4 +1,5 @@
 // @flow
+import 'babel-polyfill' // required by @ledgerhq/hw-transport-webusb
 import type { IWallet } from '../types/wallet.flow.js'
 import type { IAccount, AccountData } from '../types/account.flow.js'
 import type { TxFee, TxHash, Signature } from '../types/transfer.flow'
