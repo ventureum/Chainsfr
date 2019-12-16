@@ -170,5 +170,9 @@ export const btnTexts = {
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
     color: uiColors.primary
-  }
+  },
+  btnTextSmall: {
+    fontSize: fontSize.xs.size,
+    lineHeight: fontSize.xs.lineHeight,
+  },
 }

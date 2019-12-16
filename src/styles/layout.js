@@ -58,6 +58,34 @@ export const componentPaddings = {
       paddingBottom: spacing.xxl
     }
   },
+  modal: {
+    clearfix: {
+      none: 0
+    },
+    default: {
+      paddingTop: spacing.m,
+      paddingBottom: spacing.m,
+      paddingLeft: spacing.l,
+      paddingRight: spacing.l
+    },
+    title: {
+      paddingTop: spacing.s,
+      paddingBottom: spacing.m, // MuiDialogTitle and MuiDialogContent share the 20/30px spacing to support textfield label transformation
+      paddingRight: spacing.s   //for close action
+    },
+    contentForm: {
+      paddingTop: spacing.s, // MuiDialogTitle and MuiDialogContent share the 10/30px spacing to support textfield label transformation
+      paddingBottom: spacing.l
+    },
+    contentText:{
+      paddingBottom: spacing.l
+    }
+  },
+  textField: {
+    default:{
+      paddingBottom: spacing.l
+    }
+  },
   toolbar: {
     default: {
       paddingLeft: spacing.xxl,

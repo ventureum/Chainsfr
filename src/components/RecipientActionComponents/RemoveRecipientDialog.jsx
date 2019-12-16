@@ -35,27 +35,26 @@ class RemoveRecipientDialog extends Component<Props> {
         }}
         aria-labelledby='form-dialog-title'
       >
-        <DialogTitle id='form-dialog-title' className={classes.dialogTitle}>
-          <Grid container direction='column' alignItems='flex-start'>
+        <DialogTitle id='form-dialog-title'>
+          <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
+            <Typography variant='h3'>Delete Recipient</Typography>
             <IconButton
               onClick={() => {
                 handleClose()
               }}
-              className={classes.closeBtn}
             >
-              <CloseIcon className={classes.closeIcon} />
+              <CloseIcon fontSize='small' color='secondary'/>
             </IconButton>
-            <Typography className={classes.title}>Edit Recipient</Typography>
-          </Grid>
+          </Box>
         </DialogTitle>
-        <DialogContent className={classes.dialogContent}>
-          <Typography className={classes.deleteText}>
-            Are you sure you want to delete recipient {recipient.name}?
+        <DialogContent className='dialog-content'>
+          <Typography variant='body2'>
+            Are you sure you want to delete the recipient {recipient.name}?
           </Typography>
           {loading && <LinearProgress />}
         </DialogContent>
-        <DialogActions className={classes.dialogAction}>
-          <Box mr={2}>
+        <DialogActions>
+          <Box mr={1}>
             <Button
               disabled={loading}
               onClick={() => {
@@ -64,6 +63,7 @@ class RemoveRecipientDialog extends Component<Props> {
               id='cancel'
               variant='outlined'
               color='secondary'
+              size='small'
             >
               Cancel
             </Button>
@@ -73,6 +73,7 @@ class RemoveRecipientDialog extends Component<Props> {
             onClick={() => {
               handleSubmit(this.state)
             }}
+            size='small'
             variant='contained'
             className='warning'
             id='delete'

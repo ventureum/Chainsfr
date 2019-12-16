@@ -64,26 +64,24 @@ class EditRecipientDialog extends Component<Props, State> {
         }}
         aria-labelledby='form-dialog-title'
       >
-        <DialogTitle id='form-dialog-title' className={classes.dialogTitle}>
-          <Grid container direction='column' alignItems='flex-start'>
+        <DialogTitle id='form-dialog-title'>
+          <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
+            <Typography variant='h3'>Edit Recipient</Typography>
             <IconButton
               onClick={() => {
                 handleClose()
               }}
-              className={classes.closeBtn}
             >
-              <CloseIcon className={classes.closeIcon} />
+              <CloseIcon fontSize='small' color='secondary'/>
             </IconButton>
-            <Typography className={classes.title}>Edit Recipient</Typography>
-          </Grid>
+          </Box>
         </DialogTitle>
-        <DialogContent className={classes.dialogContent}>
-          <form noValidate className={classes.form}>
+        <DialogContent className='dialog-form'>
+          <form noValidate>
             <TextField
               id='name'
               variant='outlined'
               fullWidth
-              className={classes.textField}
               label='Name'
               value={name}
               onChange={this.handleChange('name')}
@@ -97,7 +95,6 @@ class EditRecipientDialog extends Component<Props, State> {
               fullWidth
               disabled={loading}
               error={!validEmail}
-              className={classes.textField}
               label='Email'
               value={email}
               onChange={this.handleChange('email')}
@@ -106,7 +103,7 @@ class EditRecipientDialog extends Component<Props, State> {
           </form>
           {loading && <LinearProgress />}
         </DialogContent>
-        <DialogActions className={classes.dialogAction}>
+        <DialogActions>
           <Box mr={2}>
             <Button
               disabled={loading}

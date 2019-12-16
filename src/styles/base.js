@@ -50,7 +50,7 @@ const spacingBaseUnit = 10
 
 export const spacing = {
   base: spacingBaseUnit,
-  xs: spacingBaseUnit - 4,
+  xs: spacingBaseUnit - 2,
   s: spacingBaseUnit,
   m: spacingBaseUnit * 2,
   l: spacingBaseUnit * 3,
