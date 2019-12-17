@@ -2,7 +2,6 @@
 import type { IAccount, AccountData, BitcoinAddress, Address } from '../types/account.flow.js'
 import { accountStatus } from '../types/account.flow.js'
 import type { BasicTokenUnit } from '../types/token.flow'
-import type { TxFee } from '../types/transfer.flow'
 
 import * as bitcoin from 'bitcoinjs-lib'
 import BN from 'bn.js'
@@ -249,20 +248,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     this.accountData.status = accountStatus.synced
   }
 
-  getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
-    let txFeePerByte = await utils.getBtcTxFeePerByte()
-    const { size, fee } = this._collectUtxos(
-      this.accountData.hdWalletVariables.addresses,
-      value,
-      txFeePerByte
-    )
-    let price = txFeePerByte.toString()
-    let gas = size.toString()
-    let costInBasicUnit = fee
-    let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 8, 8).toString()
-    return { price, gas, costInBasicUnit, costInStandardUnit }
-  }
-
   _getDerivedAddress = (xpub: string, change: number, addressIdx: number) => {
     const root = bip32.fromBase58(xpub, NETWORK)
     const child = root.derive(change).derive(addressIdx)
@@ -381,7 +366,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       }
       i += 1
     }
-    console.warn('Transfer amount greater and fee than utxo values.')
+    console.warn('Transfer amount plus fee greater than/equal to utxo values.')
     return {
       fee: fee.toString(),
       size,
