@@ -40,14 +40,14 @@ type State = {
 class AccountDropdownComponent extends Component<Props, State> {
   inputLabelRef: any
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       inputLabelWidth: 0
     }
     this.inputLabelRef = React.createRef()
   }
-  componentDidMount() {
+  componentDidMount () {
     this.setState({ inputLabelWidth: this.inputLabelRef.current.offsetWidth })
   }
 
@@ -96,7 +96,7 @@ class AccountDropdownComponent extends Component<Props, State> {
     )
   }
 
-  render() {
+  render () {
     const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
@@ -157,22 +157,15 @@ class AccountDropdownComponent extends Component<Props, State> {
               </Button>
             </MenuItem>
           </Select>
+          {account && account.status === accountStatus.syncing && (
+            <Box mt={1} p={2} bgcolor='background.default' borderRadius={4}>
+              <Typography variant='body2' style={{ marginBottom: '10px' }}>
+                Checking your account
+              </Typography>
+              <LinearProgress />
+            </Box>
+          )}
         </FormControl>
-        {account && account.status === accountStatus.syncing && (
-          <Box
-            style={{
-              marginTop: '10px',
-              padding: '20px',
-              backgroundColor: 'rgba(57, 51, 134, 0.05)',
-              borderRadius: '4px'
-            }}
-          >
-            <Typography variant='body2' style={{ marginBottom: '10px' }}>
-              Checking your account
-            </Typography>
-            <LinearProgress />
-          </Box>
-        )}
       </Grid>
     )
   }

@@ -1,4 +1,3 @@
-
 // Typography
 
 export const fontFamily = {
@@ -74,6 +73,8 @@ export const baseColors = {
     g900: '#111'
   },
   purple: {
+    p100: '#f5f5f9',
+    p200: '#ebebf3',
     p400: '#452bd6',
     p500: '#393386', // primary
     p700: '#1D1960'
@@ -87,14 +88,14 @@ export const baseColors = {
     r600: '#bd0e3a',
     r700: '#9e0a3d',
     r800: '#7f063b',
-    r900: '#69033a',
+    r900: '#69033a'
   },
   blue: {
     b100: '#f6f9fe',
     b200: '#B3D8FD',
     b300: '#8DBFFB',
     b400: '#70A8F8',
-    b500: '#4285F4', 
+    b500: '#4285F4',
     b600: '#3066D1', // temp
     b700: '#214BAF',
     b800: '#15348D',

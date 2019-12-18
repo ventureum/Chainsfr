@@ -7,7 +7,7 @@ export const uiColors = {
   secondaryDark: baseColors.grey.g700,
   border: baseColors.grey.g200,
   backgroundGrey: baseColors.grey.g100,
-  backgroundTint: baseColors.blue.b100,
+  backgroundTint: baseColors.purple.p100,
   backgroundDisabled: baseColors.grey.g200,
   white: baseColors.white,
   error: baseColors.red.r600,
