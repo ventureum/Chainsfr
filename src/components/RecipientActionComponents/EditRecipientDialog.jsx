@@ -82,6 +82,7 @@ class EditRecipientDialog extends Component<Props, State> {
               id='name'
               variant='outlined'
               fullWidth
+              margin='normal'
               label='Name'
               value={name}
               onChange={this.handleChange('name')}
@@ -93,6 +94,7 @@ class EditRecipientDialog extends Component<Props, State> {
               id='email'
               variant='outlined'
               fullWidth
+              margin='normal'
               disabled={loading}
               error={!validEmail}
               label='Email'

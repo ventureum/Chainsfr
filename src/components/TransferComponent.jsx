@@ -17,7 +17,7 @@ type Props = {
 }
 
 class TransferComponent extends React.Component<Props> {
-  render () {
+  render() {
     const { classes, step, history } = this.props
     const urlParams = queryString.parse(history.location.search)
 
@@ -50,9 +50,7 @@ class TransferComponent extends React.Component<Props> {
                     <WalletAuthorization />
                   </Grid>
                 )}
-                {step === 3 && (
-                  <Redirect push to={paths.receipt} />
-                )}
+                {step === 3 && <Redirect push to={paths.receipt} />}
               </Grid>
             </Grid>
           </Grid>
@@ -65,8 +63,8 @@ class TransferComponent extends React.Component<Props> {
 const styles = theme => ({
   formContainer: {
     width: '100%',
-    maxWidth: '680px',
-    margin: '0px 0px 16px 0px',
+    maxWidth: '540px',
+    marginTop: 30,
     padding: '30px'
   },
   subContainer: {

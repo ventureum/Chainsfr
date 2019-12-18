@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Button, Grid, Divider } from '@material-ui/core'
-import AccountCircle from '@material-ui/icons/AccountCircle'
+import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import Box from '@material-ui/core/Box'
 import SendIcon from '@material-ui/icons/SendRounded'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
@@ -75,7 +75,7 @@ class RecipientsComponent extends Component {
               <Grid container justify='space-between'>
                 <Grid item>
                   <Box display='flex' alignItems='flex-top'>
-                    <AccountCircle fontSize="large" color='secondary' id='accountCircle' />
+                    <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
                     <Box ml={1}>
                       <Typography>{recipient.name}</Typography>
                       <Typography variant='caption'>{recipient.email}</Typography>
@@ -85,7 +85,9 @@ class RecipientsComponent extends Component {
                 <Grid item display='flex'>
                   <Box display='inline' mr={2}>
                     <Tooltip title='More'>
-                      <IconButton onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}>
+                      <IconButton
+                        onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
+                      >
                         <MoreIcon color='secondary' id='moreBtn' />
                       </IconButton>
                     </Tooltip>
@@ -107,7 +109,7 @@ class RecipientsComponent extends Component {
     )
   }
 
-  render () {
+  render() {
     const { classes, addRecipient } = this.props
 
     return (
@@ -115,7 +117,9 @@ class RecipientsComponent extends Component {
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column'>
             <Box display='flex' justifyContent='space-between' mb={3}>
-              <Typography variant='h2' display='inline'>Recipients</Typography>
+              <Typography variant='h2' display='inline'>
+                Recipients
+              </Typography>
               <Button variant='contained' color='primary' onClick={() => addRecipient()}>
                 Add Recipient
               </Button>

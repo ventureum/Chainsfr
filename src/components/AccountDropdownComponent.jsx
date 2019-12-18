@@ -18,6 +18,9 @@ import { accountStatus } from '../types/account.flow'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import type { AccountData } from '../types/account.flow'
 
+// Material Icons
+import AddIcon from '@material-ui/icons/AddRounded'
+
 type Props = {
   classes: Object,
   account: ?AccountData,
@@ -37,14 +40,14 @@ type State = {
 class AccountDropdownComponent extends Component<Props, State> {
   inputLabelRef: any
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       inputLabelWidth: 0
     }
     this.inputLabelRef = React.createRef()
   }
-  componentDidMount () {
+  componentDidMount() {
     this.setState({ inputLabelWidth: this.inputLabelRef.current.offsetWidth })
   }
 
@@ -64,46 +67,36 @@ class AccountDropdownComponent extends Component<Props, State> {
     }
 
     return (
-      <Grid container direction='row' alignItems='center'>
-        {/* crypto icon */}
-        <Grid item xs={1}>
-          <Avatar src={getCryptoLogo(item.cryptoType)}></Avatar>
-        </Grid>
-        {/* name and address */}
-        <Grid item xs={8}>
-          <Grid container direction='column'>
-            <Grid item>
-              <Typography variant='body2'>{item.displayName}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant='caption'>{item.address}</Typography>
-            </Grid>
-          </Grid>
-        </Grid>
+      <Box display='flex' justifyContent='space-between' flexGrow={1}>
+        <Box display='flex' flexDirection='row'>
+          <Box mr={1} display='inline'>
+            {/* crypto icon */}
+            <Avatar src={getCryptoLogo(item.cryptoType)}></Avatar>
+          </Box>
+          <Box>
+            {/* name and address */}
+            <Typography variant='body2'>{item.displayName}</Typography>
+            <Typography variant='caption'>{item.address}</Typography>
+          </Box>
+        </Box>
         {/* balance */}
-        <Grid item xs={3}>
-          <Grid container direction='column' alignItems='flex-end'>
-            <Grid item>
-              {item.status === accountStatus.syncing ? (
-                <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
-              ) : (
-                <Typography variant='body2'>
-                  {item.balanceInStandardUnit} {getCryptoSymbol(item.cryptoType)}
-                </Typography>
-              )}
-            </Grid>
-            <Grid item>
-              <Typography variant='caption'>
-                {toCurrencyAmount(item.balanceInStandardUnit, item.cryptoType)}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+        <Box display='flex' flexDirection='column' alignItems='flex-end'>
+          {item.status === accountStatus.syncing ? (
+            <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
+          ) : (
+            <Typography variant='body2'>
+              {item.balanceInStandardUnit} {getCryptoSymbol(item.cryptoType)}
+            </Typography>
+          )}
+          <Typography variant='caption'>
+            {toCurrencyAmount(item.balanceInStandardUnit, item.cryptoType)}
+          </Typography>
+        </Box>
+      </Box>
     )
   }
 
-  render () {
+  render() {
     const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
@@ -116,30 +109,24 @@ class AccountDropdownComponent extends Component<Props, State> {
 
     return (
       <Grid container direction='column'>
-        <FormControl variant='outlined'>
+        <FormControl variant='outlined' margin='normal'>
           <InputLabel ref={this.inputLabelRef} htmlFor='destination-helper'>
             {inputLabel}
           </InputLabel>
           <Select
             renderValue={value => {
               return (
-                <Grid container direction='row' alignItems='center'>
-                  {/* crypto icon */}
-                  <Grid item xs={1}>
+                <Box display='flex' flexDirection='row'>
+                  <Box mr={1} display='inline'>
+                    {/* crypto icon */}
                     <Avatar src={getCryptoLogo(value.cryptoType)}></Avatar>
-                  </Grid>
-                  {/* name and address */}
-                  <Grid item xs={8}>
-                    <Grid container direction='column'>
-                      <Grid item>
-                        <Typography variant='body2'>{value.displayName}</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography variant='caption'>{value.address}</Typography>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
+                  </Box>
+                  <Box>
+                    {/* name and address */}
+                    <Typography variant='body2'>{value.displayName}</Typography>
+                    <Typography variant='caption'>{value.address}</Typography>
+                  </Box>
+                </Box>
               )
             }}
             value={account || ''}
@@ -164,8 +151,9 @@ class AccountDropdownComponent extends Component<Props, State> {
             })}
             {cryptoAccounts.length !== 0 && <Divider />}
             <MenuItem value='addCryptoAccount'>
-              <Button onClick={() => addAccount()} style={{ width: '100%' }}>
-                <Typography>Add Account</Typography>
+              <Button onClick={() => addAccount()} color='primary' fullWidth>
+                <AddIcon fontSize='small' />
+                Add Account
               </Button>
             </MenuItem>
           </Select>

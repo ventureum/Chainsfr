@@ -2,6 +2,7 @@
 import React, { Component } from 'react'
 import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
@@ -22,6 +23,10 @@ import Tooltip from '@material-ui/core/Tooltip'
 import AccountDropdownContainer from '../containers/AccountDropdownContainer'
 import path from '../Paths.js'
 
+// Material Icons
+import AccountCircle from '@material-ui/icons/AccountCircleRounded'
+import AddIcon from '@material-ui/icons/AddRounded'
+
 type Props = {
   generateSecurityAnswer: Function,
   goToStep: Function,
@@ -39,7 +44,24 @@ type Props = {
   accountSelection: Object
 }
 
-class EmailTransferFormComponent extends Component<Props> {
+type State = {
+  inputLabelWidth: number
+}
+
+class EmailTransferFormComponent extends Component<Props, State> {
+  inputLabelRef: any
+  constructor (props) {
+    super(props)
+    this.state = {
+      inputLabelWidth: 0
+    }
+    this.inputLabelRef = React.createRef()
+  }
+
+  componentDidMount () {
+    this.setState({ inputLabelWidth: this.inputLabelRef.current.offsetWidth })
+  }
+
   render () {
     const {
       classes,
@@ -67,14 +89,13 @@ class EmailTransferFormComponent extends Component<Props> {
     } = transferForm
 
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch' spacing={1}>
+      <Grid container direction='column' justify='center' alignItems='stretch'>
         <Grid item>
           <TextField
             fullWidth
             id='sender_name'
             label='Your Name'
             placeholder='John Doe'
-            className={classes.textField}
             margin='normal'
             variant='outlined'
             error={!!formError.senderName}
@@ -89,7 +110,6 @@ class EmailTransferFormComponent extends Component<Props> {
             id='sender'
             label='Your Email'
             placeholder='john@gmail.com'
-            className={classes.textField}
             margin='normal'
             variant='outlined'
             error={!!formError.sender}
@@ -112,24 +132,29 @@ class EmailTransferFormComponent extends Component<Props> {
           />
         </Grid>
         <Grid item>
-          <FormControl className={classes.formControl} variant='outlined'>
-            <InputLabel htmlFor='destination-helper'>Select Recipient</InputLabel>
+          <FormControl variant='outlined' fullWidth margin='normal'>
+            <InputLabel ref={this.inputLabelRef} htmlFor='destination-helper'>
+              Select Recipient
+            </InputLabel>
             <Select
               value={destination || ''}
               onChange={handleTransferFormChange('destination')}
-              input={<OutlinedInput labelWidth={125} name='Select Recipient' />}
+              input={
+                <OutlinedInput labelWidth={this.state.inputLabelWidth} name='Select Recipient' />
+              }
               error={!!formError.destination}
               id={'destination'}
             >
               {recipients.map(recipient => {
                 return (
                   <MenuItem key={recipient.name} value={recipient.email}>
-                    <div>
-                      <Typography>{recipient.name}</Typography>
-                      <Typography className={classes.securityAnswerBtnHelperText}>
-                        {recipient.email}
-                      </Typography>
-                    </div>
+                    <Box display='flex' alignItems='flex-top'>
+                      <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
+                      <Box ml={1}>
+                        <Typography variant='body2'>{recipient.name}</Typography>
+                        <Typography variant='caption'>{recipient.email}</Typography>
+                      </Box>
+                    </Box>
                   </MenuItem>
                 )
               })}
@@ -139,16 +164,19 @@ class EmailTransferFormComponent extends Component<Props> {
                   onClick={() => {
                     addRecipient()
                   }}
-                  style={{ width: '100%' }}
+                  variant='text'
+                  color='primary'
+                  fullWidth
                 >
-                  <Typography>Add Recipient</Typography>
+                  <AddIcon fontSize='small' />
+                  Add Recipient
                 </Button>
               </MenuItem>
             </Select>
           </FormControl>
         </Grid>
         <Grid item>
-          <Grid container direction='row' justify='center' alignItems='center' spacing={3}>
+          <Grid container direction='row' justify='center' alignItems='flex-start' spacing={3}>
             <Grid item xs>
               <TextField
                 margin='normal'
@@ -163,7 +191,13 @@ class EmailTransferFormComponent extends Component<Props> {
                 onChange={handleTransferFormChange('transferCurrencyAmount')}
                 value={transferCurrencyAmount}
                 InputProps={{
-                  startAdornment: <InputAdornment position='start'>{currency}</InputAdornment>
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Typography variant='body2' color='textSecondary'>
+                        {currency}
+                      </Typography>
+                    </InputAdornment>
+                  )
                 }}
               />
             </Grid>
@@ -193,7 +227,9 @@ class EmailTransferFormComponent extends Component<Props> {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
-                      {getCryptoSymbol(accountSelection && accountSelection.cryptoType)}
+                      <Typography variant='body2' color='textSecondary'>
+                        {getCryptoSymbol(accountSelection && accountSelection.cryptoType)}
+                      </Typography>
                     </InputAdornment>
                   )
                 }}
@@ -207,7 +243,6 @@ class EmailTransferFormComponent extends Component<Props> {
             fullWidth
             id='password'
             label='Security Answer'
-            className={classes.textField}
             margin='normal'
             variant='outlined'
             error={!!formError.password}
@@ -240,7 +275,6 @@ class EmailTransferFormComponent extends Component<Props> {
             fullWidth
             id='message'
             label='Message (Optional)'
-            className={classes.textField}
             margin='normal'
             variant='outlined'
             error={!!formError.sendMessage}
@@ -251,27 +285,31 @@ class EmailTransferFormComponent extends Component<Props> {
             disabled={!accountSelection}
           />
         </Grid>
-        <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={3}>
+        <Grid item>
+          <Grid
+            container
+            direction='row'
+            justify='center'
+            spacing={2}
+            className={classes.btnSection}
+          >
             <Grid item>
               <Button
                 color='primary'
-                size='large'
+                variant='text'
                 onClick={() => this.props.backToHome()}
                 id='back'
                 to={path.home}
                 component={Link}
               >
-                Back to previous
+                Back to Previous
               </Button>
             </Grid>
             <Grid item>
               <Button
                 id='continue'
-                fullWidth
                 variant='contained'
                 color='primary'
-                size='large'
                 onClick={() => this.props.goToStep(1)}
                 disabled={!validateForm() || actionsPending.getTxFee}
               >
@@ -286,9 +324,6 @@ class EmailTransferFormComponent extends Component<Props> {
 }
 
 const styles = theme => ({
-  btn: {
-    margin: '16px 0px 16px 0px'
-  },
   generateSecurityAnswerBtnText: {
     fontSize: '12px'
   },
@@ -311,14 +346,11 @@ const styles = theme => ({
     marginRight: '6px'
   },
   btnSection: {
-    marginTop: '60px'
+    marginTop: 30,
+    marginBottom: 30
   },
   icon: {
     color: '#777777'
-  },
-  formControl: {
-    width: '100%',
-    margin: '5px 0px 5px 0px'
   },
   addNewRecipientBtn: {
     margin: '0px 0px 0px 0px'
