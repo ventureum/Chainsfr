@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Dialog from '@material-ui/core/Dialog'
@@ -64,28 +65,26 @@ class AddRecipientDialog extends Component<Props, State> {
           handleClose()
         }}
         aria-labelledby='form-dialog-title'
-        className={classes.dialog}
       >
-        <DialogTitle id='form-dialog-title' className={classes.dialogTitle}>
-          <Grid container direction='column' alignItems='flex-start'>
+        <DialogTitle id='form-dialog-title'>
+          <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
+            <Typography variant='h3'>Add Recipient</Typography>
             <IconButton
               onClick={() => {
                 handleClose()
               }}
-              className={classes.closeBtn}
             >
-              <CloseIcon className={classes.closeIcon} />
+              <CloseIcon fontSize='small' color='secondary'/>
             </IconButton>
-            <Typography className={classes.title}>Add Recipient</Typography>
-          </Grid>
+          </Box>
         </DialogTitle>
-        <DialogContent className={classes.dialogContent}>
-          <form noValidate className={classes.form}>
+        <DialogContent className='dialog-form'>
+          <form noValidate>
             <TextField
               id='name'
               variant='outlined'
               fullWidth
-              className={classes.textField}
+              margin='normal'
               label='Name'
               value={name}
               onChange={this.handleChange('name')}
@@ -97,9 +96,9 @@ class AddRecipientDialog extends Component<Props, State> {
               id='email'
               variant='outlined'
               fullWidth
+              margin='normal'
               disabled={loading}
               error={!validEmail}
-              className={classes.textField}
               label='Email'
               value={email}
               onChange={this.handleChange('email')}
@@ -108,18 +107,20 @@ class AddRecipientDialog extends Component<Props, State> {
           </form>
           {loading && <LinearProgress />}
         </DialogContent>
-        <DialogActions className={classes.dialogAction}>
-          <Button
-            disabled={loading}
-            onClick={() => {
-              handleClose()
-            }}
-            color='primary'
-            id='cancel'
-            className={classes.cancelBtn}
-          >
-            Cancel
-          </Button>
+        <DialogActions>
+          <Box mr={2}>
+            <Button
+              disabled={loading}
+              onClick={() => {
+                handleClose()
+              }}
+              variant='outlined'
+              color='secondary'
+              id='cancel'
+            >
+              Cancel
+            </Button>
+          </Box>
           <Button
             variant='contained'
             disabled={loading || !name || !email || !validEmail}
@@ -128,7 +129,6 @@ class AddRecipientDialog extends Component<Props, State> {
             }}
             color='primary'
             id='add'
-            className={classes.saveBtn}
           >
             Add
           </Button>

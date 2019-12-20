@@ -7,16 +7,16 @@ export const uiColors = {
   secondaryDark: baseColors.grey.g700,
   border: baseColors.grey.g200,
   backgroundGrey: baseColors.grey.g100,
-  backgroundTint: baseColors.blue.b100,
+  backgroundTint: baseColors.purple.p100,
   backgroundDisabled: baseColors.grey.g200,
   white: baseColors.white,
-  error: baseColors.red.r500,
+  error: baseColors.red.r600,
   errorDark: baseColors.red.r700
 }
 
 export const fontColors = {
   primary: baseColors.black,
-  secondary: baseColors.grey.g500,
-  placeholder: baseColors.grey.g400,
+  secondary: baseColors.grey.g700,
+  placeholder: baseColors.grey.g500,
   white: baseColors.white
 }

@@ -22,6 +22,16 @@ export const componentMargins = {
     default: {
       marginBottom: spacing.l
     }
+  },
+  textField: {
+    default: {
+      marginTop: 0,
+      marginBottom: spacing.l
+    },
+    dense: {
+      marginTop: 0,
+      marginBottom: spacing.m
+    }
   }
 }
 
@@ -58,6 +68,40 @@ export const componentPaddings = {
       paddingBottom: spacing.xxl
     }
   },
+  menuItem: {
+    default: {
+      paddingTop: spacing.s,
+      paddingBottom: spacing.s
+    }
+  },
+  modal: {
+    clearfix: {
+      none: 0
+    },
+    default: {
+      paddingTop: spacing.m,
+      paddingBottom: spacing.m,
+      paddingLeft: spacing.l,
+      paddingRight: spacing.l
+    },
+    title: {
+      paddingTop: spacing.s,
+      paddingBottom: spacing.m, // MuiDialogTitle and MuiDialogContent share the 20/30px spacing to support textfield label transformation
+      paddingRight: spacing.s //for close action
+    },
+    contentForm: {
+      paddingTop: spacing.s, // MuiDialogTitle and MuiDialogContent share the 10/30px spacing to support textfield label transformation
+      paddingBottom: spacing.l
+    },
+    contentText: {
+      paddingBottom: spacing.l
+    }
+  },
+  textField: {
+    default: {
+      paddingBottom: spacing.l
+    }
+  },
   toolbar: {
     default: {
       paddingLeft: spacing.xxl,
@@ -67,6 +111,12 @@ export const componentPaddings = {
 }
 
 export const componentSizes = {
+  avatar: {
+    default: {
+      width: 32,
+      height: 32
+    }
+  },
   textField: {
     width: {
       full: elementWidth.fullWidth,

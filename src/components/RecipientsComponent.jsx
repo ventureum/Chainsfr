@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Button, Grid, Divider } from '@material-ui/core'
-import AccountCircle from '@material-ui/icons/AccountCircle'
-import SendIcon from '@material-ui/icons/Send'
+import AccountCircle from '@material-ui/icons/AccountCircleRounded'
+import Box from '@material-ui/core/Box'
+import SendIcon from '@material-ui/icons/SendRounded'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
 import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu'
@@ -73,36 +74,31 @@ class RecipientsComponent extends Component {
             >
               <Grid container justify='space-between'>
                 <Grid item>
-                  <Grid container alignItems='center'>
-                    <AccountCircle className={classes.recipientIcon} id='accountCircle' />
-                    <div>
+                  <Box display='flex' alignItems='flex-top'>
+                    <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
+                    <Box ml={1}>
                       <Typography>{recipient.name}</Typography>
                       <Typography variant='caption'>{recipient.email}</Typography>
-                    </div>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </Grid>
-                <Grid item>
-                  <Grid container alignItems='center'>
-                    <Grid item>
-                      <Tooltip title='Transfer'>
-                        <IconButton
-                          style={{ marginRight: '40px' }}
-                          onClick={() => onSend(recipient)}
-                        >
-                          <SendIcon className={classes.iconBtn} id='sendBtn' />
-                        </IconButton>
-                      </Tooltip>
-                    </Grid>
-                    <Grid item>
-                      <Tooltip title='More'>
-                        <IconButton
-                          onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
-                        >
-                          <MoreIcon className={classes.iconBtn} id='moreBtn' />
-                        </IconButton>
-                      </Tooltip>
-                    </Grid>
-                  </Grid>
+                <Grid item display='flex'>
+                  <Box display='inline' mr={2}>
+                    <Tooltip title='More'>
+                      <IconButton
+                        onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
+                      >
+                        <MoreIcon color='secondary' id='moreBtn' />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Box display='inline'>
+                    <Tooltip title='Send to Recipient'>
+                      <IconButton onClick={() => onSend(recipient)}>
+                        <SendIcon color='primary' id='sendBtn' />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>
@@ -113,26 +109,21 @@ class RecipientsComponent extends Component {
     )
   }
 
-  render () {
+  render() {
     const { classes, addRecipient } = this.props
 
     return (
       <Grid container justify='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column'>
-            <Grid item style={{ width: '100%' }}>
-              <Grid container alignItems='center' justify='space-between'>
-                <Grid item>
-                  <Typography variant='h2'>Recipients</Typography>
-                </Grid>
-                <Grid item>
-                  <Button variant='contained' color='primary' onClick={() => addRecipient()}>
-                    Add Recipient
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Divider className={classes.divider} />
+            <Box display='flex' justifyContent='space-between' mb={3}>
+              <Typography variant='h2' display='inline'>
+                Recipients
+              </Typography>
+              <Button variant='contained' color='primary' onClick={() => addRecipient()}>
+                Add Recipient
+              </Button>
+            </Box>
             <Grid item>{this.renderRecipientsList()}</Grid>
           </Grid>
         </Grid>
@@ -154,24 +145,6 @@ const styles = theme => ({
   recipientItemColored: {
     backgroundColor: '#FAFBFE',
     padding: '20px'
-  },
-  recipientIcon: {
-    fontSize: '40px',
-    marginRight: '10px',
-    color: '#333333'
-  },
-  iconBtn: {
-    color: '#777777',
-    fontSize: '20px'
-  },
-  addRecipientBtn: {
-    border: '1px solid #396EC8',
-    color: '#396EC8',
-    borderRadius: '4px',
-    textTransform: 'none'
-  },
-  divider: {
-    margin: '20px 0px 20px 0px'
   }
 })
 export default withStyles(styles)(RecipientsComponent)

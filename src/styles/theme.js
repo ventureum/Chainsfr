@@ -1,7 +1,7 @@
 import { createMuiTheme } from '@material-ui/core/styles'
 import { uiColors, fontColors } from './color'
 import { baseFont, btnTexts, descriptions, headers, textValues } from './typography'
-import { componentMargins, componentPaddings, radius } from './layout'
+import { componentMargins, componentPaddings, componentSizes, radius } from './layout'
 import { spacing, borderRadius } from './base'
 
 export const themeChainsfr = createMuiTheme({
@@ -13,9 +13,9 @@ export const themeChainsfr = createMuiTheme({
       contrastText: uiColors.white
     },
     secondary: {
-      main: uiColors.secondary,
-      dark: uiColors.secondaryDark,
-      contrastText: fontColors.primary
+      main: fontColors.secondary,
+      dark: fontColors.secondaryDark,
+      contrastText: fontColors.secondary
     },
     background: {
       default: uiColors.backgroundTint,
@@ -114,8 +114,29 @@ export const themeChainsfr = createMuiTheme({
     color: uiColors.border
   },
   overrides: {
+    MuiAvatar: {
+      root: {
+        width: componentSizes.avatar.default.width,
+        height: componentSizes.avatar.default.height
+      }
+    },
     MuiButton: {
       root: {
+        paddingTop: componentPaddings.buttons.default.paddingTop,
+        paddingBottom: componentPaddings.buttons.default.paddingBottom,
+        paddingLeft: componentPaddings.buttons.default.paddingLeft,
+        paddingRight: componentPaddings.buttons.default.paddingRight,
+
+        '&.warning': {
+          backgroundColor: uiColors.error,
+          color: uiColors.white,
+
+          '&:hover': {
+            backgroundColor: uiColors.errorDark
+          }
+        }
+      },
+      text: {
         paddingTop: componentPaddings.buttons.default.paddingTop,
         paddingBottom: componentPaddings.buttons.default.paddingBottom,
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
@@ -126,6 +147,14 @@ export const themeChainsfr = createMuiTheme({
         paddingBottom: componentPaddings.buttons.default.paddingBottom,
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
         paddingRight: componentPaddings.buttons.default.paddingRight
+      },
+      sizeSmall: {
+        paddingTop: componentPaddings.buttons.small.paddingTop,
+        paddingBottom: componentPaddings.buttons.small.paddingBottom,
+        paddingLeft: componentPaddings.buttons.small.paddingLeft,
+        paddingRight: componentPaddings.buttons.small.paddingRight,
+        fontSize: btnTexts.btnTextSmall.fontSize,
+        lineHeight: btnTexts.btnTextSmall.lineHeight
       }
     },
     MuiCard: {
@@ -149,11 +178,90 @@ export const themeChainsfr = createMuiTheme({
         }
       }
     },
+    MuiDialogActions: {
+      root: {
+        paddingTop: componentPaddings.modal.clearfix.none,
+        paddingBottom: componentPaddings.modal.default.paddingBottom,
+        paddingLeft: componentPaddings.modal.default.paddingLeft,
+        paddingRight: componentPaddings.modal.default.paddingRight
+      }
+    },
+    MuiDialogContent: {
+      root: {
+        paddingLeft: componentPaddings.modal.default.paddingLeft,
+        paddingRight: componentPaddings.modal.default.paddingRight,
+
+        '&.dialog-form': {
+          paddingTop: componentPaddings.modal.contentForm.paddingTop,
+          paddingBottom: componentPaddings.modal.contentForm.paddingBottom
+        },
+
+        '&.dialog-content': {
+          paddingTop: componentPaddings.modal.clearfix.none,
+          paddingBottom: componentPaddings.modal.contentText.paddingBottom
+        }
+      }
+    },
+    MuiDialogTitle: {
+      root: {
+        paddingTop: componentPaddings.modal.title.paddingTop,
+        paddingBottom: componentPaddings.modal.title.paddingBottom,
+        paddingLeft: componentPaddings.modal.default.paddingLeft,
+        paddingRight: componentPaddings.modal.title.paddingRight
+      }
+    },
+    MuiFormLabel: {
+      root: {
+        fontSize: 14
+      }
+    },
+    MuiFormControl: {
+      marginNormal: {
+        marginTop: componentMargins.textField.default.marginTop,
+        marginBottom: componentMargins.textField.default.marginBottom
+      },
+      marginDense: {
+        marginTop: componentMargins.textField.dense.marginTop,
+        marginBottom: componentMargins.textField.dense.marginBottom
+      }
+    },
+    MuiIcon: {
+      root: {
+        fontSize: 12
+      },
+      fontSizeLarge: {
+        fontSize: 32
+      }
+    },
+    MuiInputBase: {
+      root: {
+        fontSize: textValues.default.fontSize
+      }
+    },
+    MuiInputAdornment: {
+      root: {
+        fontSize: textValues.default.fontSize
+      }
+    },
     MuiMenuItem: {
       root: {
         fontSize: textValues.default.fontSize,
         lineHeight: textValues.default.lineHeight,
         color: textValues.default.color
+      },
+      gutters: {
+        paddingTop: componentPaddings.menuItem.default.paddingTop,
+        paddingBottom: componentPaddings.menuItem.default.paddingBottom
+      }
+    },
+    MuiSvgIcon: {
+      fontSizeLarge: {
+        fontSize: 32
+      }
+    },
+    MuiTextField: {
+      root: {
+        fontSize: textValues.default.fontSize
       }
     },
     MuiToolbar: {

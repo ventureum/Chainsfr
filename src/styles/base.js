@@ -1,4 +1,3 @@
-
 // Typography
 
 export const fontFamily = {
@@ -50,7 +49,7 @@ const spacingBaseUnit = 10
 
 export const spacing = {
   base: spacingBaseUnit,
-  xs: spacingBaseUnit - 4,
+  xs: spacingBaseUnit - 2,
   s: spacingBaseUnit,
   m: spacingBaseUnit * 2,
   l: spacingBaseUnit * 3,
@@ -61,33 +60,42 @@ export const spacing = {
 // color, 100-lightest, 900-darkest
 export const baseColors = {
   black: '#333',
+  white: '#fff',
   grey: {
     g100: '#f8f8f8',
     g200: '#e9e9e9',
-    g300: '#c4c4c4',
-    g400: '#a8a8a8',
-    g500: '#666',
-    g600: '#444',
-    g700: '#333',
-    g800: '#222',
+    g300: '#d2d2d2',
+    g400: '#c4c4c4',
+    g500: '#a8a8a8',
+    g600: '#777',
+    g700: '#666',
+    g800: '#333',
     g900: '#111'
   },
   purple: {
+    p100: '#f5f5f9',
+    p200: '#ebebf3',
     p400: '#452bd6',
-    p500: '#393386',
+    p500: '#393386', // primary
     p700: '#1D1960'
   },
   red: {
+    r100: '#f8e7eb',
+    r200: '#fbaba0',
+    r300: '#f4726f',
+    r400: '#ea4a55',
     r500: '#dc1434',
-    r700: '#dc1434'
+    r600: '#bd0e3a',
+    r700: '#9e0a3d',
+    r800: '#7f063b',
+    r900: '#69033a'
   },
-  white: '#fff',
   blue: {
     b100: '#f6f9fe',
     b200: '#B3D8FD',
     b300: '#8DBFFB',
     b400: '#70A8F8',
-    b500: '#4285F4', // primary
+    b500: '#4285F4',
     b600: '#3066D1', // temp
     b700: '#214BAF',
     b800: '#15348D',
