@@ -69,8 +69,8 @@ export function getWalletStatus (walletType: ?string) {
 export const walletSelections = [
   {
     walletType: 'drive',
-    title: 'Drive',
-    desc: 'Use Drive Wallet',
+    title: 'Chainsfr Wallet',
+    desc: 'Use Chainsfr Wallet',
     logo: DriveWalletLogo,
     disabled: false,
     sendable: true,
