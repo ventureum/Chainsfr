@@ -22,6 +22,7 @@ import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
 import WalletSelectionButtons from './WalletSelectionButtons'
+import EmptyStateImage from '../images/empty_state_01.png'
 
 const toUserReadableState = {
   SENDER: {
@@ -349,11 +350,14 @@ export function UserRecentTransactions (props) {
               </Grid>
               <Divider />
               {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
-                <Grid container justify='center'>
-                  <Typography variant='subtitle1'>
+                <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
+                  <Box mb={2}>
+                    <img src={EmptyStateImage} alt='Empty State Image' />
+                  </Box>
+                  <Typography variant='subtitle2' color='textSecondary'>
                     It seems you don't have any transactions yet
                   </Typography>
-                </Grid>
+                </Box>
               )}
               {transferHistory.history.map((transfer, i) => renderRecentTransferItem(transfer, i))}
             </InfiniteScroll>
