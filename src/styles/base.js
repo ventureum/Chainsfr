@@ -75,9 +75,11 @@ export const baseColors = {
   purple: {
     p100: '#f5f5f9',
     p200: '#ebebf3',
+    p300: '#6669b5',
     p400: '#452bd6',
     p500: '#393386', // primary
-    p700: '#1D1960'
+    p700: '#1D1960',
+    p900: '#1B183F'
   },
   red: {
     r100: '#f8e7eb',
@@ -101,7 +103,11 @@ export const baseColors = {
     b800: '#15348D',
     b900: '#0C2375'
   },
-  green: ''
+  green: {
+    g100: '#e3f5ee',
+    g500: '#09BC8A',
+    g700: '#008e5c'
+  }
 }
 
 export const borderRadius = {
