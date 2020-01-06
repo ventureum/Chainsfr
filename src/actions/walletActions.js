@@ -198,10 +198,10 @@ function newCryptoAccountFromWallet (
       type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
       payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, cryptoAccounts, options)
     }).catch(err => {
-      if ((err.msg = 'Account already exists'))
+      if ((err.message === 'Account already exists'))
         dispatch(
           enqueueSnackbar({
-            message: err.msg,
+            message: err.message,
             key: new Date().getTime() + Math.random(),
             options: { autoHideDuration: 3000 }
           })
