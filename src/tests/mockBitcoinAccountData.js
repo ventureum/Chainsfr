@@ -90,7 +90,18 @@ const mockLedgerBitcoinAccountData = {
   displayName: 'Bitcoin Ledger Wallet (Ledger)',
   encryptedPrivateKey: undefined,
   hdWalletVariables: {
-    addresses: [],
+    addresses: [{
+      address: '2NA5CaRyYKAwnBGZpbwJu6DXvU9r7WzyfzM',
+      path: "49'/1'/0'/0/0",
+      utxos: [
+        {
+          outputIndex: 1,
+          script: 'a914b894ccf7a32b23c7a79fff1e08d217b1baacd71c87',
+          txHash: '719ab5a99ea73ea4f1b2c2869845b9b1d150befce0566daa0c4cae45c63bded7',
+          value: 100000
+        }
+      ]
+    }],
     endAddressIndex: 0,
     endChangeIndex: 0,
     lastBlockHeight: 0,

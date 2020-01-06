@@ -179,7 +179,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       )
 
       // 2. update addresses
-      const firstSync = hdWalletVariables.addresses.length === 0
+      const firstSync = hdWalletVariables.addresses.length === 1
 
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
       hdWalletVariables.endAddressIndex = externalAddressData.endIndex
@@ -197,7 +197,9 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       ]
 
       // append discovered addresses to the old address pool
-      hdWalletVariables.addresses.push(...addressPool)
+      firstSync
+        ? (hdWalletVariables.addresses = addressPool)
+        : hdWalletVariables.addresses.push(...addressPool)
       this.accountData.address = this._getDerivedAddress(
         xpub,
         0,
