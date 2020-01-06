@@ -179,6 +179,10 @@ async function _newCryptoAccountFromWallet (
     throw new Error('Account already exists')
   }
 
+  if (cryptoType ==='bitcoin'){
+    await _account.syncWithNetwork()
+  }
+
   return _account.getAccountData()
 }
 
