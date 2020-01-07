@@ -140,7 +140,6 @@ export default class EscrowWallet implements IWallet<AccountData> {
             utxos: []
           }
         ],
-        lastBlockHeight: 0,
         lastUpdate: 0,
         endAddressIndex: 0,
         endChangeIndex: 0

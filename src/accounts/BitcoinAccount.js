@@ -45,7 +45,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         addresses: [],
-        lastBlockHeight: 0,
         lastUpdate: 0,
         endAddressIndex: 0,
         endChangeIndex: 0
@@ -246,7 +245,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
 
     // update timestamp and block height
     hdWalletVariables.lastUpdate = moment().unix()
-    hdWalletVariables.lastBlockHeight = await this._getBtcLastBlockHeight()
     this.accountData.status = accountStatus.synced
   }
 
@@ -261,11 +259,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       network: NETWORK
     })
     return address
-  }
-
-  _getBtcLastBlockHeight = async () => {
-    const rv = (await axios.get(url.BLOCKCYPHER_API_URL)).data
-    return rv.height
   }
 
   _getUtxosFromTxs = (txs: Array<Object>, address: string) => {

@@ -29,10 +29,6 @@ const BITCOIN_EXPLORER_BASE_URL =
 const BITCOIN_EXPLORER_ADDRESS_BASE_URL = BITCOIN_EXPLORER_BASE_URL + 'address/'
 const BITCOIN_EXPLORER_TX_BASE_URL = BITCOIN_EXPLORER_BASE_URL + 'tx/'
 
-const BLOCKCYPHER_API_URL =
-  env.REACT_APP_BTC_NETWORK === 'mainnet'
-    ? 'https://api.blockcypher.com/v1/btc/main'
-    : 'https://api.blockcypher.com/v1/btc/test3'
 
 const BTC_FEE_ENDPOINT = 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
 
@@ -98,7 +94,6 @@ function getExplorerAddress (cryptoType, address) {
 
 export default {
   REACT_APP_BTC_NETWORK,
-  BLOCKCYPHER_API_URL,
   INFURA_API_URL,
   LEDGER_API_URL,
   BTC_FEE_ENDPOINT,

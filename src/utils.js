@@ -96,11 +96,6 @@ function generatePassphrase (size: number) {
   return bytesToPassphrase(bytes)
 }
 
-export async function getBtcLastBlockHeight () {
-  const rv = (await axios.get(url.BLOCKCYPHER_API_URL)).data
-  return rv.height
-}
-
 async function getBtcTxFeePerByte () {
   const rv = (await axios.get(url.BTC_FEE_ENDPOINT)).data
   // safety check

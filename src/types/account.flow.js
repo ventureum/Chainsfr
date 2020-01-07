@@ -31,7 +31,6 @@ export type HDWalletVariables = {
   nextAddressIndex: number,
   nextChangeIndex: number,
   addresses: Array<BitcoinAddress>,
-  lastBlockHeight: number,
   lastUpdate: number,
   endAddressIndex: number,
   endChangeIndex: number
