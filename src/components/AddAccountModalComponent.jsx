@@ -91,6 +91,11 @@ class AddAccountModalComponent extends Component<Props, State> {
     this.setState({ name: accountName })
   }
 
+  locked = () => {
+    const { actionsPending } = this.props
+    return actionsPending.checkWalletConnection || actionsPending.newCryptoAccountFromWallet
+  }
+
   renderWalletSelections = () => {
     return (
       <Grid container spacing={3} direction='row' align='center'>
@@ -136,6 +141,7 @@ class AddAccountModalComponent extends Component<Props, State> {
                       onClick={() => {
                         this.handleCryptoSelect(c.cryptoType)
                       }}
+                      disabled={this.locked()}
                     >
                       <Radio checked={cryptoType === c.cryptoType} />
                       <ListItemText primary={getCryptoTitle(c.cryptoType)} />
@@ -241,6 +247,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             onClick={() => {
               checkWalletConnection({ walletType: walletType, cryptoType: cryptoType })
             }}
+            disabled={this.locked()}
           >
             {buttonIcon}
             {buttonText}
@@ -312,10 +319,20 @@ class AddAccountModalComponent extends Component<Props, State> {
     const { open, handleClose, onSubmit, newCryptoAccount, classes } = this.props
     const { step, name } = this.state
     return (
-      <Dialog open={open} onClose={handleClose} maxWidth='md'>
+      <Dialog
+        open={open}
+        onClose={() => {
+          if (!this.locked) handleClose()
+        }}
+        maxWidth='md'
+      >
         <DialogTitle disableTypography>
           <Typography variant='h2'>Connect to Account</Typography>
-          <IconButton onClick={handleClose} className={classes.closeButton}>
+          <IconButton
+            onClick={handleClose}
+            className={classes.closeButton}
+            disabled={this.locked()}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -327,6 +344,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             onClick={() => {
               handleClose()
             }}
+            disabled={this.locked()}
           >
             Cancel
           </Button>
