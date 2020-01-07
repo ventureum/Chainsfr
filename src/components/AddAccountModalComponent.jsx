@@ -161,7 +161,7 @@ class AddAccountModalComponent extends Component<Props, State> {
 
   renderCheckWalletConnectionInstruction = () => {
     const { actionsPending } = this.props
-    const { walletType } = this.state
+    const { walletType, cryptoType } = this.state
     let instruction = ''
     switch (walletType) {
       case 'metamask':
@@ -172,7 +172,9 @@ class AddAccountModalComponent extends Component<Props, State> {
         }
         break
       case 'ledger':
-        if (actionsPending.checkWalletConnection) {
+        if (actionsPending.newCryptoAccountFromWallet && cryptoType === 'bitcoin') {
+          instruction = 'Please wait while we sync your Bitcoin account with the network...'
+        } else if (actionsPending.checkWalletConnection) {
           instruction = 'Please connect your Ledger Device and connect it through popup window...'
         } else {
           instruction = 'Please navigate to selected crypto on your Ledger device...'

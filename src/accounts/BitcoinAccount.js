@@ -2,7 +2,6 @@
 import type { IAccount, AccountData, BitcoinAddress, Address } from '../types/account.flow.js'
 import { accountStatus } from '../types/account.flow.js'
 import type { BasicTokenUnit } from '../types/token.flow'
-import type { TxFee } from '../types/transfer.flow'
 
 import * as bitcoin from 'bitcoinjs-lib'
 import BN from 'bn.js'
@@ -46,7 +45,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         addresses: [],
-        lastBlockHeight: 0,
         lastUpdate: 0,
         endAddressIndex: 0,
         endChangeIndex: 0
@@ -180,7 +178,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       )
 
       // 2. update addresses
-      const firstSync = hdWalletVariables.addresses.length === 0
+      const firstSync = hdWalletVariables.addresses.length === 1
 
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
       hdWalletVariables.endAddressIndex = externalAddressData.endIndex
@@ -198,7 +196,9 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       ]
 
       // append discovered addresses to the old address pool
-      hdWalletVariables.addresses.push(...addressPool)
+      firstSync
+        ? (hdWalletVariables.addresses = addressPool)
+        : hdWalletVariables.addresses.push(...addressPool)
       this.accountData.address = this._getDerivedAddress(
         xpub,
         0,
@@ -245,22 +245,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
 
     // update timestamp and block height
     hdWalletVariables.lastUpdate = moment().unix()
-    hdWalletVariables.lastBlockHeight = await this._getBtcLastBlockHeight()
     this.accountData.status = accountStatus.synced
-  }
-
-  getTxFee = async ({ to, value }: { to?: string, value: string }): Promise<TxFee> => {
-    let txFeePerByte = await utils.getBtcTxFeePerByte()
-    const { size, fee } = this._collectUtxos(
-      this.accountData.hdWalletVariables.addresses,
-      value,
-      txFeePerByte
-    )
-    let price = txFeePerByte.toString()
-    let gas = size.toString()
-    let costInBasicUnit = fee
-    let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 8, 8).toString()
-    return { price, gas, costInBasicUnit, costInStandardUnit }
   }
 
   _getDerivedAddress = (xpub: string, change: number, addressIdx: number) => {
@@ -274,11 +259,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       network: NETWORK
     })
     return address
-  }
-
-  _getBtcLastBlockHeight = async () => {
-    const rv = (await axios.get(url.BLOCKCYPHER_API_URL)).data
-    return rv.height
   }
 
   _getUtxosFromTxs = (txs: Array<Object>, address: string) => {
@@ -381,7 +361,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       }
       i += 1
     }
-    console.warn('Transfer amount greater and fee than utxo values.')
+    console.warn('Transfer amount plus fee greater than/equal to utxo values.')
     return {
       fee: fee.toString(),
       size,

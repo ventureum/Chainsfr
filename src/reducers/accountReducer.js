@@ -12,8 +12,15 @@ const initState = {
 /*
  * @param overwriteExisting Solving key collision using the newCryptoAccounts
  * @param remove Deleting the account if the acount is not found in newCryptoAccounts
+ * @param addition if newCryptoAccounts does not already in exist, add it to state
  */
-function updateCryptoAccount (state, newCryptoAccounts, remove = false, overwriteExisting = true) {
+function updateCryptoAccount (
+  state,
+  newCryptoAccounts,
+  remove = false,
+  overwriteExisting = true,
+  addition = true
+) {
   let cryptoAccountMap = {}
   let newCryptoAccountMap = {}
   let accounts = []
@@ -62,7 +69,7 @@ function updateCryptoAccount (state, newCryptoAccounts, remove = false, overwrit
   // append new accounts
   newCryptoAccounts.forEach(account => {
     const id = accountToId(account)
-    if (!(id in cryptoAccountMap)) {
+    if (!(id in cryptoAccountMap) && addition) {
       accounts.push(account)
     }
   })
@@ -79,10 +86,13 @@ export default function (state = initState, action) {
       return updateCryptoAccount(state, action.payload, true, false)
     case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
-    case 'CHECK_WALLET_CONNECTION_FULFILLED':
     case 'VERIFY_ACCOUNT_FULFILLED':
     case 'CLEAR_ACCOUNT_PRIVATE_KEY':
       return updateCryptoAccount(state, action.payload)
+    // CHECK_WALLET_CONNECTION_FULFILLED should not add new account to redux 
+    // if such account does not exist
+    case 'CHECK_WALLET_CONNECTION_FULFILLED':
+      return updateCryptoAccount(state, action.payload, false, true, false)
     case 'SYNC_WITH_NETWORK_PENDING':
       return updateCryptoAccount(state, action.meta)
     case 'GET_TRANSFER_FULFILLED':
