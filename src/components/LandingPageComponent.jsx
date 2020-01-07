@@ -369,32 +369,20 @@ export function UserRecentTransactions (props) {
 }
 
 class LandingPageComponent extends Component {
-  state = {
-    walletSelection: ''
-  }
-
   renderWalletSection = props => {
     const { classes, push } = this.props
-    const { walletSelection } = this.state
     return (
       <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
-        <Container maxWidth='lg'>
-          <Box mb={2}>
-            <Typography variant='h2'>Transfer From</Typography>
+        <Container className={classes.walletSectionContainer}>
+          <Box mb={4}>
+            <Typography align='center' variant='h2'>
+              Start an Email Transfer from
+            </Typography>
           </Box>
-          <WalletSelectionButtons
-            purpose='send'
-            walletSelection={walletSelection}
-            handleClick={walletType => this.setState({ walletSelection: walletType })}
-          />
+          <WalletSelectionButtons purpose='send' />
           <Grid container direction='row' alignItems='center' justify='center'>
             <Grid item>
-              <Button
-                variant='contained'
-                color='primary'
-                onClick={() => push(`${path.transfer}?walletSelection=${walletSelection}`)}
-                disabled={!walletSelection}
-              >
+              <Button variant='contained' color='primary' onClick={() => push(path.transfer)}>
                 Start Transfer
               </Button>
             </Grid>
@@ -424,6 +412,9 @@ class LandingPageComponent extends Component {
 const styles = theme => ({
   coloredBackgrond: {
     backgroundColor: '#FAFBFE'
+  },
+  walletSectionContainer: {
+    maxWidth: '1000px'
   }
 })
 

@@ -8,8 +8,8 @@ import { spacing } from '../styles/base'
 import { walletSelections, walletDisabledByCrypto } from '../wallet'
 
 const basicWalletStyle = {
-  paddingTop: '32px',
-  paddingBottom: '32px',
+  paddingTop: '10px',
+  paddingBottom: '10px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -24,9 +24,10 @@ const useStyles = makeStyles({
   },
   walletCard: {
     ...basicWalletStyle,
-    border: '1px solid #E9E9E9',
+    border: '1px solid transparent',
     boxShadow: 'none',
-    marginBottom: '10px'
+    marginBottom: '10px',
+    backgroundColor:'transparent'
   },
   walletCardSelected: {
     ...basicWalletStyle,
@@ -66,7 +67,7 @@ export function WalletButton (props) {
       }}
     >
       <img className={classes.walletLogo} src={wallet.logo} alt='wallet-logo' />
-      <Typography variant='body1' align='center'>
+      <Typography variant='body2' align='center'>
         {wallet.title}
       </Typography>
       {disabled && <Typography variant='caption'>{disabledReason}</Typography>}
@@ -82,7 +83,7 @@ export default function WalletSelectionButtons (props) {
       container
       direction='row'
       alignItems='center'
-      spacing={2}
+      spacing={1}
       className={classes.walletSelectionContainer}
     >
       {walletSelections
@@ -98,7 +99,7 @@ export default function WalletSelectionButtons (props) {
         })
         .map((w, i) => {
           return (
-            <Grid item sm={3} xs={12} key={i}>
+            <Grid item sm={3} md={2} xs={12} key={i}>
               <WalletButton
                 id={w.walletType}
                 walletType={w.walletType}
