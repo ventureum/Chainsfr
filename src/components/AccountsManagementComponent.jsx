@@ -5,6 +5,7 @@ import { Typography, Button, Grid } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import { btnTexts } from '../styles/typography'
 import { uiColors } from '../styles/color'
+import Box from '@material-ui/core/Box'
 import CloseIcon from '@material-ui/icons/Close'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Dialog from '@material-ui/core/Dialog'
@@ -26,6 +27,7 @@ import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import { accountStatus } from '../types/account.flow'
 import { getWalletTitle } from '../wallet'
 import AddAccountModal from '../containers/AddAccountModalContainer'
+import EmptyStateImage from '../images/empty_state_01.png'
 
 class AccountsManagementComponent extends Component {
   state = {
@@ -105,9 +107,14 @@ class AccountsManagementComponent extends Component {
     return (
       <Grid container direction='column'>
         {!actionsPending.getCryptoAccounts && cryptoAccounts.length === 0 ? (
-          <Typography variant='body1' align='center'>
-            It seems you don't have any accounts saved
-          </Typography>
+          <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
+            <Box mb={2}>
+              <img src={EmptyStateImage} alt='Empty State Image' />
+            </Box>
+            <Typography variant='subtitle2' color='textSecondary'>
+              It seems you don't have any accounts saved
+            </Typography>
+          </Box>
         ) : actionsPending.getCryptoAccounts ? (
           <CircularProgress style={{ marginTop: '10px', alignSelf: 'center' }} />
         ) : (
