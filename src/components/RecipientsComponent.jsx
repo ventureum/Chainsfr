@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Tooltip from '@material-ui/core/Tooltip'
+import EmptyStateImage from '../images/empty_state_01.png'
 
 class RecipientsComponent extends Component {
   state = {
@@ -62,9 +63,14 @@ class RecipientsComponent extends Component {
     return (
       <Grid container direction='column'>
         {!actionsPending.getRecipients && recipients.length === 0 ? (
-          <Typography variant='body1' align='center'>
-            It seems you don't have any recipients saved
-          </Typography>
+          <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
+            <Box mb={2}>
+              <img src={EmptyStateImage} alt='Empty State Image' />
+            </Box>
+            <Typography variant='subtitle2' color='textSecondary'>
+              It seems you don't have any recipients saved
+            </Typography>
+          </Box>
         ) : (
           recipients.map((recipient, i) => (
             <Grid
@@ -109,7 +115,7 @@ class RecipientsComponent extends Component {
     )
   }
 
-  render() {
+  render () {
     const { classes, addRecipient } = this.props
 
     return (
