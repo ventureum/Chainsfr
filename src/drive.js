@@ -456,6 +456,11 @@ async function saveWallet (walletDataList: any) {
     name: WALLET_FILE_NAME,
     content: walletDataList
   })
+
+  await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
+    name: 'Readme.txt',
+    content: ''
+  })
 }
 
 /*
