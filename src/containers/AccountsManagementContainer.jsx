@@ -2,7 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import AccountsManagementComponent from '../components/AccountsManagementComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { addCryptoAccount, removeCryptoAccount } from '../actions/accountActions'
+import {
+  addCryptoAccount,
+  removeCryptoAccount,
+  modifyCryptoAccountName
+} from '../actions/accountActions'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
 
@@ -15,12 +19,19 @@ class AccountsManagementContainer extends Component {
   }
 
   render () {
-    const { addCryptoAccount, actionsPending, cryptoAccounts, removeCryptoAccount } = this.props
+    const {
+      addCryptoAccount,
+      actionsPending,
+      cryptoAccounts,
+      removeCryptoAccount,
+      modifyCryptoAccountName
+    } = this.props
     return (
       <AccountsManagementComponent
         cryptoAccounts={cryptoAccounts}
         addCryptoAccount={addCryptoAccount}
         actionsPending={actionsPending}
+        modifyCryptoAccountName={modifyCryptoAccountName}
         removeCryptoAccount={removeCryptoAccount}
         handleTransferFrom={this.handleTransferFrom}
       />
@@ -50,6 +61,8 @@ const mapDispatchToProps = dispatch => {
   return {
     addCryptoAccount: accountData => dispatch(addCryptoAccount(accountData)),
     removeCryptoAccount: accountData => dispatch(removeCryptoAccount(accountData)),
+    modifyCryptoAccountName: (accountData, newName) =>
+      dispatch(modifyCryptoAccountName(accountData, newName)),
     push: path => dispatch(push(path))
   }
 }

@@ -325,6 +325,33 @@ async function removeCryptoAccount (
   }
 }
 
+async function modifyCryptoAccountName (
+  accountData: AccountData,
+  newName: string
+): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
+  const { cryptoType, walletType, hdWalletVariables, address } = accountData
+  const { idToken } = store.getState().userReducer.profile
+
+  let toBeModified = {
+    cryptoType: cryptoType,
+    walletType: walletType,
+    xpub: cryptoType === 'bitcoin' ? hdWalletVariables.xpub : undefined,
+    address: cryptoType !== 'bitcoin' ? address : undefined,
+    name: newName
+  }
+
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'MODIFY_CRYPTO_ACCOUNT_NAME',
+      idToken: idToken,
+      account: toBeModified
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Modified crypto account name failed: ${err.response.data}`)
+  }
+}
+
 async function clearCloudWalletCryptoAccounts (): Promise<{
   cryptoAccounts: Array<BackEndCryptoAccountType>
 }> {
@@ -382,6 +409,7 @@ export default {
   addCryptoAccount,
   getCryptoAccounts,
   removeCryptoAccount,
+  modifyCryptoAccountName,
   clearCloudWalletCryptoAccounts,
   getBtcMultisigPublicKey,
   sendBtcMultiSigTransaction

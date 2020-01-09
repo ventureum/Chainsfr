@@ -238,6 +238,45 @@ async function _removeCryptoAccount (accountData: AccountData): Promise<Array<Ac
   return cryptoAccounts
 }
 
+function modifyCryptoAccountName (accountData: AccountData, newName: string) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'MODIFY_CRYPTO_ACCOUNT_NAME',
+      payload: _modifyCryptoAccountName(accountData, newName)
+    })
+      .then(() => {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Account name modified successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'success', autoHideDuration: 3000 }
+          })
+        )
+      })
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
+  }
+}
+
+async function _modifyCryptoAccountName (
+  accountData: AccountData,
+  newName: string
+): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.modifyCryptoAccountName(accountData, newName)).cryptoAccounts
+  // transform to front-end accountData type
+  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+    createAccount(cryptoAccount).getAccountData()
+  )
+  return cryptoAccounts
+}
+
 function _clearAccountPrivateKey (accountData: AccountData) {
   let _account = createAccount(accountData)
   _account.clearPrivateKey()
@@ -259,6 +298,7 @@ export {
   markAccountDirty,
   getCryptoAccounts,
   addCryptoAccount,
+  modifyCryptoAccountName,
   removeCryptoAccount,
   clearAccountPrivateKey
 }
