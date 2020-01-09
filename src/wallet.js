@@ -1,5 +1,6 @@
 // @flow
-import MetamaskLogo from './images/metamask-button.png'
+import MetamaskExtensionLogo from './images/metamask-chrome.svg'
+import MetamaskMobileLogo from './images/metamask-mobile.svg'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import CoinbaseWalletLogo from './images/coinbase-wallet.png'
@@ -91,7 +92,7 @@ export const walletSelections = [
     walletType: 'metamask',
     title: 'Metamask',
     desc: 'MetaMask Extension',
-    logo: MetamaskLogo,
+    logo: MetamaskExtensionLogo,
     ...getWalletStatus(),
     sendable: true,
     receivable: true,
@@ -111,7 +112,7 @@ export const walletSelections = [
     walletType: 'metamaskWalletConnect',
     title: 'MetaMask Mobile',
     desc: 'MetaMask Mobile',
-    logo: MetamaskLogo,
+    logo: MetamaskMobileLogo,
     disabled: false,
     sendable: true,
     receivable: true,
