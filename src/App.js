@@ -27,6 +27,9 @@ import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
 import { getCryptoAccounts } from './actions/accountActions'
+import { refreshAccessToken } from './actions/userActions'
+import moment from 'moment'
+
 import { Offline, Online } from 'react-detect-offline'
 
 const userIsAuthenticated = connectedRouterRedirect({
@@ -154,7 +157,25 @@ class App extends Component {
     console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
   }
 
+  checkLoginStatus = () => {
+    const profile = store.getState().userReducer.profile
+    if (profile.isAuthenticated) {
+      // check access token status
+      const { tokenObj } = profile
+      // refresh if access token expires in 30 mins
+      if (tokenObj.expires_at / 1000 <= moment().unix() + 18000) {
+        store.dispatch(refreshAccessToken())
+      }
+    }
+  }
+
   componentDidMount () {
+    this.checkLoginStatus()
+    // check every 10 mins
+    setInterval(() => {
+      this.checkLoginStatus()
+    }, 1000 * 60 * 10)
+
     // refresh price immediately
     store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
     // refresh price every 60 seconds
