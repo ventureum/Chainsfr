@@ -262,12 +262,11 @@ class LoginComponent extends Component {
                   <Typography
                     variant='h3'
                     align='center'
-                    gutterBottom
                     className={classes.loginTitle}
                   >
                     {isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}
                   </Typography>
-                  <Typography align='center' gutterBottom className={classes.loginContent}>
+                  <Typography align='center' className={classes.loginContent}>
                     Send cryptocurrency by email
                   </Typography>
                 </Grid>
@@ -362,9 +361,13 @@ const styles = theme => ({
     marginLeft: 30,
     marginRight: 30,
     marginBottom: 60,
-    padding: 60
+    paddingLeft: 60,
+    paddingRight: 60,
+    paddingTop: 60,
+    paddingBottom: 20
   },
   paperButtons: {
+    marginTop: 30,
     marginBottom: 30
   },
   paperBtnLink: {
@@ -374,8 +377,7 @@ const styles = theme => ({
     color: '#4285F4'
   },
   paperFooter: {
-    paddingTop: 20,
-    borderTop: 'solid 1px #e9e9e9'
+    marginTop: 60
   },
   btnContainer: {
     display: 'flex',
@@ -416,13 +418,15 @@ const styles = theme => ({
   loginTitle: {
     fontFamily: 'Poppins',
     fontWeight: 700,
-    fontSize: 42,
+    fontSize: 32,
+    lineHeight: '48px',
     color: '#1E0E62'
   },
   loginContent: {
     fontFamily: 'Poppins',
     fontWeight: 400,
     fontSize: 18,
+    lineHeight: '26px',
     color: '#1E0E62'
   },
   buttonProgress: {
