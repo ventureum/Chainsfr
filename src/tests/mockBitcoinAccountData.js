@@ -18,7 +18,7 @@ const mockCloudBitcoinAccountData = {
   balanceInStandardUnit: '0',
   connected: false,
   cryptoType: 'bitcoin',
-  displayName: 'Bitcoin Cloud Wallet (Drive)',
+  displayName: 'Bitcoin Cloud Wallet (Chainsfr Wallet)',
   encryptedPrivateKey: undefined,
   hdWalletVariables: {
     addresses: [],
@@ -49,7 +49,7 @@ const mockCloudSyncedAccountData = {
   walletType: 'drive',
   address: '2NA5CaRyYKAwnBGZpbwJu6DXvU9r7WzyfzM',
   name: 'Bitcoin Cloud Wallet',
-  displayName: 'Bitcoin Cloud Wallet (Drive)',
+  displayName: 'Bitcoin Cloud Wallet (Chainsfr Wallet)',
   balance: balance.toString(),
   balanceInStandardUnit: '0.001',
   hdWalletVariables: {
