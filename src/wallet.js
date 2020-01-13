@@ -1,6 +1,7 @@
 // @flow
 import MetamaskExtensionLogo from './images/metamask-chrome.svg'
 import MetamaskMobileLogo from './images/metamask-mobile.svg'
+import MetamaskLogo from './images/metamask.svg'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import CoinbaseWalletLogo from './images/coinbase-wallet.png'
@@ -76,7 +77,8 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: true
   },
   {
     walletType: 'coinbaseWalletLink',
@@ -86,7 +88,19 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: true
+  },
+  {
+    walletType: 'metamaskOne',
+    title: 'Metamask',
+    desc: 'MetaMask One',
+    logo: MetamaskLogo,
+    ...getWalletStatus(),
+    sendable: true,
+    receivable: false,
+    hide: false,
+    displayInHome: true
   },
   {
     walletType: 'metamask',
@@ -96,7 +110,8 @@ export const walletSelections = [
     ...getWalletStatus(),
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: false
   },
   {
     walletType: 'ledger',
@@ -106,7 +121,8 @@ export const walletSelections = [
     ...getWalletStatus(),
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: true
   },
   {
     walletType: 'metamaskWalletConnect',
@@ -116,7 +132,8 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: false
   },
   {
     walletType: 'referralWallet',
@@ -126,7 +143,8 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: false,
-    hide: true
+    hide: true,
+    displayInHome: false
   },
   {
     walletType: 'escrow',
@@ -136,7 +154,8 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: true,
-    hide: true
+    hide: true,
+    displayInHome: false
   },
   {
     walletType: 'trustWalletConnect',
@@ -146,7 +165,8 @@ export const walletSelections = [
     disabled: false,
     sendable: true,
     receivable: true,
-    hide: false
+    hide: false,
+    displayInHome: true
   }
   /*
   {

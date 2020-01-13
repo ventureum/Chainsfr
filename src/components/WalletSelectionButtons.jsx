@@ -27,7 +27,7 @@ const useStyles = makeStyles({
     border: '1px solid transparent',
     boxShadow: 'none',
     marginBottom: '10px',
-    backgroundColor:'transparent'
+    backgroundColor: 'transparent'
   },
   walletCardSelected: {
     ...basicWalletStyle,
@@ -83,13 +83,14 @@ export default function WalletSelectionButtons (props) {
       container
       direction='row'
       alignItems='center'
+      justify='center'
       spacing={1}
       className={classes.walletSelectionContainer}
     >
       {walletSelections
         .filter(w => {
           if (purpose === 'send') {
-            return w.sendable && !w.hide
+            return w.sendable && !w.hide && w.displayInHome
           } else if (purpose === 'receive') {
             return w.receivable && !w.hide
           } else if (purpose === 'addAccount') {
@@ -105,8 +106,7 @@ export default function WalletSelectionButtons (props) {
                 walletType={w.walletType}
                 selected={w.walletType === walletSelection}
                 disabled={
-                  w.disabled ||
-                  (cryptoType && walletDisabledByCrypto(w.walletType, cryptoType))
+                  w.disabled || (cryptoType && walletDisabledByCrypto(w.walletType, cryptoType))
                 }
                 handleClick={handleClick}
                 disabledReason={w.disabledReason || ' '}

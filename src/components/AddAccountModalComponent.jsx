@@ -101,7 +101,7 @@ class AddAccountModalComponent extends Component<Props, State> {
       <Grid container spacing={3} direction='row' align='center'>
         {walletSelections
           .filter(w => {
-            return w.walletType !== 'drive' && !w.hide
+            return w.walletType !== 'drive' && !w.hide && w.walletType !== 'metamaskOne'
           })
           .map((w, i) => {
             return (
