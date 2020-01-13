@@ -22,6 +22,7 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
+import TextField from '@material-ui/core/TextField'
 import Skeleton from '@material-ui/lab/Skeleton'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import { accountStatus } from '../types/account.flow'
@@ -34,13 +35,16 @@ class AccountsManagementComponent extends Component {
     addAccountModal: false,
     chosenAccount: {},
     anchorEl: null,
-    deleteConfirmModal: false
+    deleteConfirmModal: false,
+    changeNameModal: false,
+    newAccountName: ''
   }
 
   toggleAddAccountModal = () => {
     this.setState(prevState => {
       return {
-        addAccountModal: !prevState.addAccountModal
+        addAccountModal: !prevState.addAccountModal,
+        anchorEl: null
       }
     })
   }
@@ -48,9 +52,23 @@ class AccountsManagementComponent extends Component {
   toggleDeleteConfirmModal = () => {
     this.setState(prevState => {
       return {
-        deleteConfirmModal: !prevState.deleteConfirmModal
+        deleteConfirmModal: !prevState.deleteConfirmModal,
+        anchorEl: null
       }
     })
+  }
+
+  toggleChangeNameModal = () => {
+    this.setState(prevState => {
+      return {
+        changeNameModal: !prevState.changeNameModal,
+        anchorEl: null
+      }
+    })
+  }
+
+  handleNewAccountNameChange = accountName => {
+    this.setState({ newAccountName: accountName })
   }
 
   renderDeleteConfirmModal = () => {
@@ -81,12 +99,58 @@ class AccountsManagementComponent extends Component {
             variant='contained'
             onClick={() => {
               removeCryptoAccount(chosenAccount)
-              this.closeMoreMenu()
               this.toggleDeleteConfirmModal()
             }}
             className={classes.deleteBtn}
           >
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
+  renderChangeNameModal = () => {
+    const { chosenAccount, changeNameModal, newAccountName } = this.state
+    const { modifyCryptoAccountName, classes } = this.props
+    return (
+      <Dialog
+        open={changeNameModal}
+        onClose={() => this.toggleChangeNameModal()}
+        maxWidth='md'
+        classes={{ paper: classes.confirmDialogPaper }}
+      >
+        <DialogTitle disableTypography>
+          <Typography variant='h2'>Change Account Name</Typography>
+          <IconButton onClick={() => this.toggleChangeNameModal()} className={classes.closeButton}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent style={{ width: '560px' }}>
+          <TextField
+            fullWidth
+            id='newName'
+            label='New Account Name'
+            placeholder='Account Name'
+            variant='outlined'
+            helperText={'Please enter a new account name'}
+            onChange={event => {
+              this.handleNewAccountNameChange(event.target.value)
+            }}
+            value={newAccountName || ''}
+          />
+        </DialogContent>
+        <DialogActions style={{ marginBottom: '10px' }}>
+          <Button onClick={() => this.toggleChangeNameModal()}>Cancel</Button>
+          <Button
+            onClick={() => {
+              modifyCryptoAccountName(chosenAccount, newAccountName)
+              this.toggleChangeNameModal()
+            }}
+            variant='contained'
+            color='primary'
+          >
+            Change
           </Button>
         </DialogActions>
       </Dialog>
@@ -103,7 +167,7 @@ class AccountsManagementComponent extends Component {
 
   renderCryptoAccountsList = () => {
     const { classes, cryptoAccounts, actionsPending } = this.props
-    const { anchorEl, deleteConfirmModal } = this.state
+    const { anchorEl, deleteConfirmModal, changeNameModal } = this.state
     return (
       <Grid container direction='column'>
         {!actionsPending.getCryptoAccounts && cryptoAccounts.length === 0 ? (
@@ -172,6 +236,7 @@ class AccountsManagementComponent extends Component {
         )}
         {anchorEl && this.renderMoreMenu()}
         {deleteConfirmModal && this.renderDeleteConfirmModal()}
+        {changeNameModal && this.renderChangeNameModal()}
       </Grid>
     )
   }
@@ -204,6 +269,13 @@ class AccountsManagementComponent extends Component {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            this.toggleChangeNameModal()
+          }}
+        >
+          Chang account name
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             this.toggleDeleteConfirmModal()
           }}
         >
@@ -226,7 +298,6 @@ class AccountsManagementComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Button
-                    className={classes.addRecipientBtn}
                     variant='contained'
                     color='primary'
                     onClick={() => {

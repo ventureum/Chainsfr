@@ -37,7 +37,7 @@ const mockEthereumAccontData = {
   ethBalance: '0',
   connected: false,
   cryptoType: 'ethereum',
-  displayName: 'Ethereum Cloud Wallet (Drive)',
+  displayName: 'Ethereum Cloud Wallet (Chainsfr Wallet)',
   encryptedPrivateKey: undefined,
   id:
     '{"cryptoType":"ethereum","walletType":"drive","address":"0x9B689d8e1E903B77C7643DA02045d7925748C3F5"}',
@@ -57,7 +57,7 @@ const mockEthereumSyncedAccontData = {
   ethBalance: '1000000000000000000',
   connected: false,
   cryptoType: 'ethereum',
-  displayName: 'Ethereum Cloud Wallet (Drive)',
+  displayName: 'Ethereum Cloud Wallet (Chainsfr Wallet)',
   encryptedPrivateKey: undefined,
   id:
     '{"cryptoType":"ethereum","walletType":"drive","address":"0x9B689d8e1E903B77C7643DA02045d7925748C3F5"}',

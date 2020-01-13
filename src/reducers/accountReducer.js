@@ -57,7 +57,12 @@ function updateCryptoAccount (
         // Solving key collision using the newCryptoAccounts
         accounts.push({ ...account, ...newCryptoAccountMap[id].account })
       } else {
-        accounts.push({ ...newCryptoAccountMap[id].account, ...account })
+        accounts.push({
+          ...newCryptoAccountMap[id].account,
+          ...account,
+          // name could be updated after synced
+          name: newCryptoAccountMap[id].account.name
+        })
       }
     } else if (!remove) {
       // account not found in newCryptoAccounts
@@ -83,13 +88,14 @@ export default function (state = initState, action) {
     case 'GET_CRYPTO_ACCOUNTS_FULFILLED':
     case 'REMOVE_CRYPTO_ACCOUNT_FULFILLED':
     case 'ADD_CRYPTO_ACCOUNT_FULFILLED':
+    case 'MODIFY_CRYPTO_ACCOUNT_NAME_FULFILLED':
       return updateCryptoAccount(state, action.payload, true, false)
     case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
     case 'VERIFY_ACCOUNT_FULFILLED':
     case 'CLEAR_ACCOUNT_PRIVATE_KEY':
       return updateCryptoAccount(state, action.payload)
-    // CHECK_WALLET_CONNECTION_FULFILLED should not add new account to redux 
+    // CHECK_WALLET_CONNECTION_FULFILLED should not add new account to redux
     // if such account does not exist
     case 'CHECK_WALLET_CONNECTION_FULFILLED':
       return updateCryptoAccount(state, action.payload, false, true, false)
