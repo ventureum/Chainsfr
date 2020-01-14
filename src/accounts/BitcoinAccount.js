@@ -164,18 +164,8 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       ]
     } else if (walletType === 'ledger') {
       // 1. account discovery
-      const externalAddressData = await this._discoverAddress(
-        xpub,
-        0,
-        0,
-        hdWalletVariables.nextAddressIndex
-      )
-      const internalAddressData = await this._discoverAddress(
-        xpub,
-        0,
-        1,
-        hdWalletVariables.nextChangeIndex
-      )
+      const externalAddressData = await this._discoverAddress(xpub, 0, 0, 0)
+      const internalAddressData = await this._discoverAddress(xpub, 0, 1, 0)
 
       // 2. update addresses
       const firstSync = hdWalletVariables.addresses.length === 1
@@ -186,19 +176,11 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       hdWalletVariables.nextChangeIndex = internalAddressData.nextIndex
       hdWalletVariables.endChangeIndex = internalAddressData.endIndex
 
-      addressPool = [
-        ...externalAddressData.addresses.slice(
-          externalAddressData.endIndex - externalAddressData.nextIndex - (firstSync ? 20 : 0)
-        ),
-        ...internalAddressData.addresses.slice(
-          internalAddressData.endIndex - internalAddressData.nextIndex - (firstSync ? 20 : 0)
-        )
+      hdWalletVariables.addresses = [
+        ...externalAddressData.addresses,
+        ...internalAddressData.addresses
       ]
 
-      // append discovered addresses to the old address pool
-      firstSync
-        ? (hdWalletVariables.addresses = addressPool)
-        : hdWalletVariables.addresses.push(...addressPool)
       this.accountData.address = this._getDerivedAddress(
         xpub,
         0,
@@ -206,33 +188,31 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       )
     }
 
-    // retrieve utxos and calcualte balance for each address
-    let utxoData = await Promise.all(
-      hdWalletVariables.addresses.map(async addressData => {
-        let response = await axios.get(
-          `${url.LEDGER_API_URL}/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
-        )
-        const { txs } = response.data
-        const { address } = addressData
+    if (walletType !== 'ledger') {
+      // since we do not do discoverAddress, utxos are not yet fetched
+      hdWalletVariables.addresses = await Promise.all(
+        hdWalletVariables.addresses.map(async addressData => {
+          let response = await axios.get(
+            `${url.LEDGER_API_URL}/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
+          )
+          const { txs } = response.data
+          const { address } = addressData
 
-        // retrieve utxos
-        let utxos = this._getUtxosFromTxs(txs, address)
+          // retrieve utxos
+          let utxos = this._getUtxosFromTxs(txs, address)
 
-        // calculate balance
-        let balance = utxos.reduce((accu, utxo) => {
-          return new BN(utxo.value).add(accu)
-        }, new BN(0))
+          // calculate balance
+          let balance = utxos.reduce((accu, utxo) => {
+            return new BN(utxo.value).add(accu)
+          }, new BN(0))
 
-        return { utxos, balance }
-      })
-    )
-    // update utxos
-    hdWalletVariables.addresses.forEach((addressData, i) => {
-      addressData.utxos = utxoData[i].utxos
-    })
+          return { ...addressData, utxos, balance }
+        })
+      )
+    }
 
     // sum up balance from all addresses
-    let totalBalance = utxoData.reduce(
+    let totalBalance = hdWalletVariables.addresses.reduce(
       (accu: any, { balance }) => accu.add(new BN(balance)),
       new BN(0)
     )
@@ -304,25 +284,57 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     let addresses: Array<BitcoinAddress> = []
     let currentIdx = offset
     let lastUsedIdx = offset - 1
+
+    const BATCH_SIZE = 200
     while (gap < 20) {
-      const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx}`
-      const address = this._getDerivedAddress(xpub, change, currentIdx)
-
-      const response = (
-        await axios.get(
-          `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+      // batch get 50 addresses
+      let addrBatch = []
+      let txListPromise = []
+      for (let i = 0; i < BATCH_SIZE; i++) {
+        const addressPath = `${BASE_BTC_PATH}/${accountIndex}'/${change}/${currentIdx + i}`
+        const address = this._getDerivedAddress(xpub, change, currentIdx + i)
+        addrBatch.push({ address, addressPath })
+        txListPromise.push(
+          axios.get(
+            `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+          )
         )
-      ).data
-
-      if (response.txs.length === 0) {
-        gap++
-      } else {
-        lastUsedIdx = currentIdx
-        gap = 0
       }
-      addresses.push({ address: address, path: addressPath, utxos: [] })
-      currentIdx++
+
+      let txList = (await Promise.all(txListPromise)).map(item => item.data.txs)
+
+      for (let j = 0; j < txList.length; j++) {
+        if (txList[j].length === 0) {
+          gap++
+        } else {
+          lastUsedIdx = currentIdx + j
+          gap = 0
+        }
+
+        // retrieve utxos
+        let utxos =
+          txList[j].length > 0 ? this._getUtxosFromTxs(txList[j], addrBatch[j].address) : []
+
+        // calculate balance
+        let balance = utxos.reduce((accu, utxo) => {
+          return new BN(utxo.value).add(accu)
+        }, new BN(0))
+
+        addresses.push({
+          address: addrBatch[j].address,
+          path: addrBatch[j].addressPath,
+          utxos: utxos,
+          balance: balance
+        })
+
+        if (gap >= 20) {
+          break
+        } else {
+          currentIdx++
+        }
+      }
     }
+
     return {
       nextIndex: lastUsedIdx + 1,
       addresses,
