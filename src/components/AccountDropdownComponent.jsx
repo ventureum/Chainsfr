@@ -17,6 +17,7 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import type { AccountData } from '../types/account.flow'
+import { getWalletLogo, getWalletTitle } from '../wallet'
 
 // Material Icons
 import AddIcon from '@material-ui/icons/AddRounded'
@@ -68,15 +69,15 @@ class AccountDropdownComponent extends Component<Props, State> {
 
     return (
       <Box display='flex' justifyContent='space-between' flexGrow={1}>
-        <Box display='flex' flexDirection='row'>
+        <Box display='flex' flexDirection='row'  alignItems='center'>
           <Box mr={1} display='inline'>
-            {/* crypto icon */}
-            <Avatar src={getCryptoLogo(item.cryptoType)}></Avatar>
+            {/* wallet icon */}
+            <Avatar style={{borderRadius: '2px'}} src={getWalletLogo(item.walletType)}></Avatar>
           </Box>
           <Box>
-            {/* name and address */}
-            <Typography variant='body2'>{item.displayName}</Typography>
-            <Typography variant='caption'>{item.address}</Typography>
+            {/* name and wallet title*/}
+            <Typography variant='body2'>{item.name}</Typography>
+            <Typography variant='caption'>{getWalletTitle(item.walletType)}</Typography>
           </Box>
         </Box>
         {/* balance */}
@@ -97,7 +98,7 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   render () {
-    const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel } = this.props
+    const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel, classes } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
       skeletonCryptoAccounts = [
@@ -116,15 +117,15 @@ class AccountDropdownComponent extends Component<Props, State> {
           <Select
             renderValue={value => {
               return (
-                <Box display='flex' flexDirection='row'>
+                <Box display='flex' flexDirection='row' alignItems='center'>
                   <Box mr={1} display='inline'>
-                    {/* crypto icon */}
-                    <Avatar src={getCryptoLogo(value.cryptoType)}></Avatar>
+                    {/* wallet icon */}
+                    <Avatar style={{borderRadius: '2px'}} src={getWalletLogo(value.walletType)}></Avatar>
                   </Box>
                   <Box>
-                    {/* name and address */}
-                    <Typography variant='body2'>{value.displayName}</Typography>
-                    <Typography variant='caption'>{value.address}</Typography>
+                    {/* name and wallet title*/}
+                    <Typography variant='body2'>{value.name}</Typography>
+                    <Typography variant='caption'>{getWalletTitle(value.walletType)}</Typography>
                   </Box>
                 </Box>
               )
@@ -165,12 +166,24 @@ class AccountDropdownComponent extends Component<Props, State> {
               <LinearProgress />
             </Box>
           )}
+          {account && account.status === accountStatus.synced &&
+            <Box ml={1}>
+              <Typography variant='caption'>
+                Address {account.address}
+              </Typography>
+            </Box>
+          }
         </FormControl>
       </Grid>
     )
   }
 }
 
-const styles = theme => ({})
+const styles = theme => ({
+  smallAvatar: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+  }
+})
 
 export default withStyles(styles)(AccountDropdownComponent)

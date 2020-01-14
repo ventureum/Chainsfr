@@ -285,7 +285,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     let currentIdx = offset
     let lastUsedIdx = offset - 1
 
-    const BATCH_SIZE = 200
+    const BATCH_SIZE = 50
     while (gap < 20) {
       // batch get 50 addresses
       let addrBatch = []
