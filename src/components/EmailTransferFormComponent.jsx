@@ -176,8 +176,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
           </FormControl>
         </Grid>
         <Grid item>
-          <Grid container direction='row' justify='center' alignItems='flex-start' spacing={3}>
-            <Grid item xs>
+          <Grid container direction='row' justify='center' alignItems='stretch'>
+            <Grid item xs={5}>
               <TextField
                 margin='normal'
                 fullWidth
@@ -201,10 +201,12 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 }}
               />
             </Grid>
-            <Grid item align='center'>
-              <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
+            <Grid item xs={2} align='center'>
+              <Box pt={2}>
+                <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
+              </Box>
             </Grid>
-            <Grid item xs>
+            <Grid item xs={5}>
               <TextField
                 margin='normal'
                 fullWidth
@@ -219,7 +221,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                     ? `Balance: ${accountSelection.balanceInStandardUnit} ${getCryptoSymbol(
                         accountSelection.cryptoType
                       )}`
-                    : '')
+                    : 'Balance: N/A')
                 }
                 disabled={!accountSelection}
                 onChange={handleTransferFormChange('transferAmount')}
