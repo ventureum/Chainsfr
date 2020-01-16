@@ -2,7 +2,6 @@
  *  Handle UI and form states
  */
 
-import update from 'immutability-helper'
 
 /*
   accountId: {
@@ -25,6 +24,7 @@ const initialState = {
     password: '',
     destination: '',
     sender: '',
+    senderName: '',
     sendMessage: '',
     formError: {
       sender: null,
@@ -33,7 +33,8 @@ const initialState = {
       transferAmount: null,
       password: null,
       sendMessage: null
-    }
+    },
+    validated: false
   }
 }
 
@@ -44,8 +45,6 @@ export default function (state = initialState, action) {
         ...state,
         transferForm: action.payload
       }
-    case 'GENERATE_SECURITY_ANSWER':
-      return update(state, { transferForm: { password: { $set: action.payload } } })
     case 'CLEAR_TRANSFER_FORM':
     case 'BACK_TO_HOME':
       return initialState

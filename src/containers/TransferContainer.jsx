@@ -6,7 +6,8 @@ import { clearTransferForm } from '../actions/formActions'
 type Props = {
   step: number,
   history: Object,
-  clearTransferForm: Function
+  clearTransferForm: Function,
+  transferForm: Object
 }
 
 class TransferContainer extends Component<Props> {
@@ -15,7 +16,7 @@ class TransferContainer extends Component<Props> {
   }
 
   render () {
-    return <TransferComponent step={this.props.step} history={this.props.history} />
+    return <TransferComponent history={this.props.history} transferForm={this.props.transferForm} />
   }
 }
 
@@ -26,11 +27,8 @@ const mapDispatchToProps = dispatch => {
 }
 const mapStateToProps = state => {
   return {
-    step: state.navigationReducer.send
+    transferForm: state.formReducer.transferForm
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TransferContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(TransferContainer)

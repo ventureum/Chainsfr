@@ -1,5 +1,4 @@
 // @flow
-import utils from '../utils'
 
 function updateTransferForm (form: {
   accountSelection: string,
@@ -20,14 +19,6 @@ function updateTransferForm (form: {
   }
 }
 
-function generateSecurityAnswer () {
-  return {
-    type: 'GENERATE_SECURITY_ANSWER',
-    // 6 bytes, 48 bit, 4 words (12 bit per word)
-    payload: utils.generatePassphrase(6).join(' ')
-  }
-}
-
 function clearSecurityAnswer () {
   return {
     type: 'GENERATE_SECURITY_ANSWER',
@@ -41,4 +32,4 @@ function clearTransferForm () {
   }
 }
 
-export { updateTransferForm, generateSecurityAnswer, clearSecurityAnswer, clearTransferForm }
+export { updateTransferForm, clearSecurityAnswer, clearTransferForm }

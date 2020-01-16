@@ -2,11 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import EmailTransferForm from '../components/EmailTransferFormComponent'
 import DirectTransferForm from '../components/DirectTransferFormComponent'
-import {
-  updateTransferForm,
-  generateSecurityAnswer,
-  clearSecurityAnswer
-} from '../actions/formActions'
+import { updateTransferForm, clearSecurityAnswer } from '../actions/formActions'
 import { goToStep, backToHome } from '../actions/navigationActions'
 import update from 'immutability-helper'
 import validator from 'validator'
@@ -17,10 +13,10 @@ import { getRecipients, addRecipient } from '../actions/userActions'
 import utils from '../utils'
 import { getCryptoDecimals } from '../tokens'
 import { AddRecipientDialog } from '../components/RecipientActionComponents'
+import { push } from 'connected-react-router'
 
 type Props = {
   updateTransferForm: Function,
-  generateSecurityAnswer: Function,
   clearSecurityAnswer: Function,
   goToStep: Function,
   transferForm: Object,
@@ -57,13 +53,13 @@ class FormContainer extends Component<Props, State> {
         update(transferForm, {
           sender: { $set: profile.profileObj.email },
           senderName: { $set: profile.profileObj.name },
-          destination: { $set: destinationPrefilled },
-          receiverName: { $set: receiverNamePrefilled },
+          destination: { $set: destinationPrefilled || transferForm.destination },
+          receiverName: { $set: receiverNamePrefilled || transferForm.receiverName },
           accountId: {
             $set: {
-              walletType: walletSelectionPrefilled,
-              cryptoType: cryptoTypePrefilled,
-              address: addressPrefilled
+              walletType: walletSelectionPrefilled || transferForm.accountId.walletType,
+              cryptoType: cryptoTypePrefilled || transferForm.accountId.cryptoType,
+              address: addressPrefilled || transferForm.accountId.address
             }
           }
         })
@@ -108,17 +104,20 @@ class FormContainer extends Component<Props, State> {
     }
   }
 
-  validateForm = () => {
-    const { transferForm } = this.props
+  validateForm = transferForm => {
     const { formError } = transferForm
 
     // form must be filled without errors
     return (
-      transferForm.senderName &&
-      transferForm.sender &&
-      transferForm.destination &&
-      transferForm.transferAmount &&
-      transferForm.password &&
+      !!transferForm.accountId.cryptoType &&
+      !!transferForm.accountId.walletType &&
+      (!!transferForm.accountId.address || !!transferForm.accountId.xpub) &&
+      !!transferForm.senderName &&
+      !!transferForm.sender &&
+      !!transferForm.destination &&
+      !!transferForm.receiverName &&
+      !!transferForm.transferAmount &&
+      !!transferForm.password &&
       !formError.senderName &&
       !formError.sender &&
       !formError.destination &&
@@ -321,7 +320,12 @@ class FormContainer extends Component<Props, State> {
       }
     }
 
+    _transferForm.validated = this.validateForm(_transferForm)
     this.props.updateTransferForm(_transferForm)
+  }
+
+  generateSecurityAnswer = () => {
+    return utils.generatePassphrase(6).join(' ')
   }
 
   render () {
@@ -372,6 +376,7 @@ class FormContainer extends Component<Props, State> {
             crytoType: cryptoTypePrefilled,
             address: addressPrefilled
           }}
+          generateSecurityAnswer={this.generateSecurityAnswer}
         />
         {this.state.openAddRecipientDialog && (
           <AddRecipientDialog
@@ -393,13 +398,13 @@ const addRecipientSelector = createLoadingSelector(['ADD_RECIPIENT'])
 const mapDispatchToProps = dispatch => {
   return {
     updateTransferForm: form => dispatch(updateTransferForm(form)),
-    generateSecurityAnswer: () => dispatch(generateSecurityAnswer()),
     clearSecurityAnswer: () => dispatch(clearSecurityAnswer()),
     goToStep: n => dispatch(goToStep('send', n)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     getRecipients: () => dispatch(getRecipients()),
     addRecipient: recipient => dispatch(addRecipient(recipient)),
-    backToHome: () => dispatch(backToHome())
+    backToHome: () => dispatch(backToHome()),
+    push: path => dispatch(push(path))
   }
 }
 

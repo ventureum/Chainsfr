@@ -14,6 +14,7 @@ import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
 import WalletErrors from '../wallets/walletErrors'
 import { getWalletTitle } from '../wallet'
+import path from '../Paths.js'
 
 type Props = {
   transferForm: Object,
@@ -22,7 +23,7 @@ type Props = {
   checkWalletConnection: Function,
   clearError: Function,
   errors: Object,
-  goToStep: Function
+  push: Function
 }
 
 type State = {
@@ -47,7 +48,9 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <Typography variant='body1'>Connect your wallet via {getWalletTitle(walletType)}</Typography>
+          <Typography variant='body1'>
+            Connect your wallet via {getWalletTitle(walletType)}
+          </Typography>
         </Grid>
         <Grid item>
           <Button
@@ -214,7 +217,6 @@ export default class WalletAuthorizationComponent extends Component<Props, State
         if (actionsPending.checkWalletConnection) {
           instruction = 'Creating connection...'
         } else if (actionsPending.verifyAccount) {
-
           instruction = `Please scan the QR code with the ${getWalletTitle(walletType)}...`
         }
         walletSteps = this.renderWalletConnectSteps(walletType)
@@ -317,7 +319,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
   }
 
   render () {
-    const { accountSelection, actionsPending } = this.props
+    const { accountSelection, actionsPending, push } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
@@ -344,7 +346,7 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                 </Grid>
                 <Grid item style={{ marginTop: '30px' }}>
                   <Button
-                    onClick={() => this.props.goToStep(-1)}
+                    onClick={() => push(`${path.transfer}?step=1`)}
                     color='primary'
                     disabled={
                       actionsPending.submitTx ||
