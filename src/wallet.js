@@ -204,3 +204,10 @@ export function getWalletTitle (walletType: string): string {
   })
   return w.title
 }
+
+export function getWalletLogo (walletType: string): Object {
+  const w: Object = walletSelections.find(wallet => {
+    return walletType === wallet.walletType
+  })
+  return w.logo
+}

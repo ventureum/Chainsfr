@@ -182,57 +182,59 @@ class AccountsManagementComponent extends Component {
         ) : actionsPending.getCryptoAccounts ? (
           <CircularProgress style={{ marginTop: '10px', alignSelf: 'center' }} />
         ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Account Name</TableCell>
-                <TableCell align='right'>Provider</TableCell>
-                <TableCell align='right'>Amount</TableCell>
-                <TableCell align='right'>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {cryptoAccounts.map((accountData, i) => {
-                return (
-                  <TableRow key={i}>
-                    <TableCell component='th' scope='row'>
-                      <Grid container spacing={1}>
-                        <Grid item>
-                          <Avatar src={getCryptoLogo(accountData.cryptoType)}></Avatar>
+          <div style={{ width: '100%', overflowX: 'auto' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Account Name</TableCell>
+                  <TableCell align='right'>Provider</TableCell>
+                  <TableCell align='right'>Amount</TableCell>
+                  <TableCell align='right'>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {cryptoAccounts.map((accountData, i) => {
+                  return (
+                    <TableRow key={i}>
+                      <TableCell component='th' scope='row'>
+                        <Grid container spacing={1}>
+                          <Grid item>
+                            <Avatar src={getCryptoLogo(accountData.cryptoType)}></Avatar>
+                          </Grid>
+                          <Grid item xs>
+                            <Typography variant='body2'>{accountData.name}</Typography>
+                            <Typography variant='caption'>
+                              {accountData.cryptoType === 'bitcoin'
+                                ? `${accountData.hdWalletVariables.xpub.slice(
+                                    0,
+                                    16
+                                  )}...${accountData.hdWalletVariables.xpub.slice(-24)}`
+                                : accountData.address}
+                            </Typography>
+                          </Grid>
                         </Grid>
-                        <Grid item xs>
-                          <Typography variant='body2'>{accountData.name}</Typography>
-                          <Typography variant='caption'>
-                            {accountData.cryptoType === 'bitcoin'
-                              ? `${accountData.hdWalletVariables.xpub.slice(
-                                  0,
-                                  16
-                                )}...${accountData.hdWalletVariables.xpub.slice(-24)}`
-                              : accountData.address}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                    <TableCell align='right'>{getWalletTitle(accountData.walletType)}</TableCell>
-                    <TableCell align='right'>
-                      {accountData.status === accountStatus.syncing ? (
-                        <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
-                      ) : (
-                        `${getCryptoSymbol(accountData.cryptoType)} ${
-                          accountData.balanceInStandardUnit
-                        }`
-                      )}
-                    </TableCell>
-                    <TableCell align='right'>
-                      <IconButton onClick={this.openMoreMenu(accountData)}>
-                        <MoreIcon className={classes.iconBtn} id='moreBtn' />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+                      </TableCell>
+                      <TableCell align='right'>{getWalletTitle(accountData.walletType)}</TableCell>
+                      <TableCell align='right'>
+                        {accountData.status === accountStatus.syncing ? (
+                          <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
+                        ) : (
+                          `${getCryptoSymbol(accountData.cryptoType)} ${
+                            accountData.balanceInStandardUnit
+                          }`
+                        )}
+                      </TableCell>
+                      <TableCell align='right'>
+                        <IconButton onClick={this.openMoreMenu(accountData)}>
+                          <MoreIcon className={classes.iconBtn} id='moreBtn' />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
         )}
         {anchorEl && this.renderMoreMenu()}
         {deleteConfirmModal && this.renderDeleteConfirmModal()}
@@ -309,7 +311,9 @@ class AccountsManagementComponent extends Component {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item>{this.renderCryptoAccountsList()}</Grid>
+            <Grid item style={{ width: '100%' }}>
+              {this.renderCryptoAccountsList()}
+            </Grid>
           </Grid>
         </Grid>
         {addAccountModal && (
@@ -328,7 +332,12 @@ const styles = theme => ({
     width: '100%',
     maxWidth: '1200px',
     margin: '60px 0px 60px 0px',
-    padding: '0px 50px 0px 50px'
+    [theme.breakpoints.up('sm')]: {
+      padding: '0px 50px 0px 50px'
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: '0px 10px 0px 10px'
+    }
   },
   iconBtn: {
     color: '#777777',

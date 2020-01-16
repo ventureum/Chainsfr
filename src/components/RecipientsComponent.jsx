@@ -143,7 +143,12 @@ const styles = theme => ({
     width: '100%',
     maxWidth: '1200px',
     margin: '60px 0px 60px 0px',
-    padding: '0px 50px 0px 50px'
+    [theme.breakpoints.up('xs')] : {
+      padding: '0px 50px 0px 50px'
+    },
+    [theme.breakpoints.down('xs')] : {
+      padding: '0px 10px 0px 10px'
+    }
   },
   recipientItem: {
     padding: '20px'

@@ -9,11 +9,30 @@ import { accountStatus } from '../types/account.flow'
 import { enqueueSnackbar } from './notificationActions.js'
 import API from '../apis.js'
 import WalletErrors from '../wallets/walletErrors'
+import accountSyncWorker from '../accountSync.worker.js'
+
 
 async function _syncWithNetwork (accountData: AccountData) {
+  function sendMessage (message) {
+    return new Promise(function (resolve, reject) {
+      const worker = new accountSyncWorker()
+      worker.postMessage(message)
+      worker.onmessage = function (event) {
+        if (event.data.error) {
+          reject(event.data.error);
+        } else {
+          resolve(event.data);
+        }
+      }
+    })
+  }
   let account = createAccount(accountData)
-  await account.syncWithNetwork()
-  return account.getAccountData()
+  if (account.cryptoType === 'bitcoin') {
+    return sendMessage(accountData)
+  } else {
+    await account.syncWithNetwork()
+    return account.getAccountData()
+  }
 }
 
 function syncWithNetwork (accountData: AccountData) {
