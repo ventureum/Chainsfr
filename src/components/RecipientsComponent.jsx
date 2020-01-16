@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, Button, Grid, Divider } from '@material-ui/core'
+import { Typography, Button, Grid } from '@material-ui/core'
 import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import Box from '@material-ui/core/Box'
 import SendIcon from '@material-ui/icons/SendRounded'
@@ -65,7 +65,7 @@ class RecipientsComponent extends Component {
         {!actionsPending.getRecipients && recipients.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
             <Box mb={2}>
-              <img src={EmptyStateImage} alt='Empty State Image' />
+              <img src={EmptyStateImage} alt='Empty State' />
             </Box>
             <Typography variant='subtitle2' color='textSecondary'>
               It seems you don't have any recipients saved

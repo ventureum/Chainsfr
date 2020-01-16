@@ -173,7 +173,7 @@ class AccountsManagementComponent extends Component {
         {!actionsPending.getCryptoAccounts && cryptoAccounts.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
             <Box mb={2}>
-              <img src={EmptyStateImage} alt='Empty State Image' />
+              <img src={EmptyStateImage} alt='Empty State' />
             </Box>
             <Typography variant='subtitle2' color='textSecondary'>
               It seems you don't have any accounts saved
