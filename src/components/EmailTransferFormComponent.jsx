@@ -29,7 +29,7 @@ import AddIcon from '@material-ui/icons/AddRounded'
 
 type Props = {
   generateSecurityAnswer: Function,
-  goToStep: Function,
+  push: Function,
   backToHome: Function,
   handleTransferFormChange: Function,
   validateForm: Function,
@@ -75,7 +75,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
       addRecipient,
       generateSecurityAnswer,
       walletSelectionPrefilled,
-      accountSelection
+      accountSelection,
+      push
     } = this.props
     const {
       transferAmount,
@@ -261,7 +262,9 @@ class EmailTransferFormComponent extends Component<Props, State> {
                     <IconButton
                       color='primary'
                       onClick={() => {
-                        generateSecurityAnswer()
+                        handleTransferFormChange('password')({
+                          target: { value: generateSecurityAnswer() }
+                        })
                       }}
                     >
                       <RefreshIcon />
@@ -312,8 +315,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 id='continue'
                 variant='contained'
                 color='primary'
-                onClick={() => this.props.goToStep(1)}
-                disabled={!validateForm() || actionsPending.getTxFee}
+                onClick={() => push(`${path.transfer}?step=1`)}
+                disabled={!validateForm(transferForm) || actionsPending.getTxFee}
               >
                 Continue
               </Button>

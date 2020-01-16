@@ -13,44 +13,55 @@ import { Redirect } from 'react-router'
 type Props = {
   classes: Object,
   step: number,
-  history: Object
+  history: Object,
+  transferForm: Object
 }
 
 class TransferComponent extends React.Component<Props> {
-  render() {
-    const { classes, step, history } = this.props
+  render () {
+    const { classes, history, transferForm } = this.props
     const urlParams = queryString.parse(history.location.search)
+    let step = urlParams.step
 
+    let renderStep
+
+    if (!step || step === 0) {
+      renderStep = (
+        <Grid item className={classes.formContainer}>
+          <TransferForm
+            walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+            addressPrefilled={urlParams && urlParams.address}
+            cryptoTypePrefilled={urlParams && urlParams.cryptoType}
+            destinationPrefilled={urlParams && (urlParams.destination || '')}
+            receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
+            form='email_transfer'
+          />
+        </Grid>
+      )
+    } else if ((step === '1' || step === '2') && !transferForm.validated) {
+      renderStep = <Redirect to={paths.transfer} />
+    } else if (step === '1') {
+      renderStep = (
+        <Grid item className={classes.subContainer}>
+          <Review />
+        </Grid>
+      )
+    } else if (step === '2') {
+      renderStep = (
+        <Grid item className={classes.walletAuthorizationContainer}>
+          <WalletAuthorization />
+        </Grid>
+      )
+    } else if (step === '3') {
+      renderStep = <Redirect push to={paths.receipt} />
+    }
     return (
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
           <Grid container direction='column' alignItems='stretch'>
             <Grid item>
               <Grid container direction='column' alignItems='center'>
-                {step === 0 && (
-                  <Grid item className={classes.formContainer}>
-                    <TransferForm
-                      walletSelectionPrefilled={urlParams && urlParams.walletSelection}
-                      addressPrefilled={urlParams && urlParams.address}
-                      cryptoTypePrefilled={urlParams && urlParams.cryptoType}
-                      destinationPrefilled={urlParams && (urlParams.destination || '')}
-                      receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
-                      form='email_transfer'
-                    />
-                  </Grid>
-                )}
-                {step === 1 && (
-                  <Grid item className={classes.subContainer}>
-                    <Review />
-                  </Grid>
-                )}
-
-                {step === 2 && (
-                  <Grid item className={classes.walletAuthorizationContainer}>
-                    <WalletAuthorization />
-                  </Grid>
-                )}
-                {step === 3 && <Redirect push to={paths.receipt} />}
+                {renderStep}
               </Grid>
             </Grid>
           </Grid>

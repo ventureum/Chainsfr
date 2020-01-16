@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import NavBarComponent from '../components/NavBarComponent'
 import { onLogout } from '../actions/userActions'
+import queryString from 'query-string'
 import { backToHome } from '../actions/navigationActions'
 import path from '../Paths.js'
 
@@ -14,14 +15,9 @@ class NavBarContainer extends Component {
   }
 
   render () {
-    let { onLogout, profile, location, steps, cloudWalletConnected } = this.props
-    let step = 0
-    if (location.pathname === path.receive) {
-      step = steps.receive
-    }
-    if (location.pathname === path.transfer) {
-      step = steps.send
-    }
+    let { onLogout, profile, location, cloudWalletConnected } = this.props
+    const urlParams = queryString.parse(location.search)
+    let step = parseInt(urlParams.step)
     return (
       <NavBarComponent
         onLogout={onLogout}
@@ -45,8 +41,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     profile: state.userReducer.profile,
-    cloudWalletConnected: state.userReducer.cloudWalletConnected,
-    steps: state.navigationReducer
+    cloudWalletConnected: state.userReducer.cloudWalletConnected
   }
 }
 

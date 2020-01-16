@@ -4,13 +4,12 @@ import { connect } from 'react-redux'
 import Review from '../components/ReviewComponent'
 import { submitTx } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { goToStep } from '../actions/navigationActions'
 import utils from '../utils'
+import { push } from 'connected-react-router'
 
 type Props = {
   submitTx: Function,
   getTxFee: Function,
-  goToStep: Function,
   transferForm: Object,
   wallet: Object,
   txFee: Object,
@@ -47,7 +46,7 @@ const errorSelector = createErrorSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIE
 const mapDispatchToProps = dispatch => {
   return {
     submitTx: txRequest => dispatch(submitTx(txRequest)),
-    goToStep: n => dispatch(goToStep('send', n))
+    push: path => dispatch(push(path))
   }
 }
 

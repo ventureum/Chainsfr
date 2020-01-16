@@ -7,9 +7,10 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { verifyAccount, checkWalletConnection } from '../actions/walletActions'
 import { decryptCloudWalletAccount, markAccountDirty } from '../actions/accountActions.js'
 import { submitTx } from '../actions/transferActions'
-import { goToStep } from '../actions/navigationActions'
 import { clearError } from '../actions/userActions'
 import utils from '../utils'
+import { push } from 'connected-react-router'
+import path from '../Paths.js'
 
 type Props = {
   transferForm: Object,
@@ -20,7 +21,7 @@ type Props = {
   userProfile: Object,
   txFee: Object,
   accountSelection: Object,
-  goToStep: Function,
+  push: Function,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
@@ -42,11 +43,11 @@ class WalletAuthorizationContainer extends Component<Props> {
       userProfile,
       txFee,
       actionsPending,
-      goToStep,
       verifyAccount,
       markAccountDirty,
       accountSelection,
-      errors
+      errors,
+      push
     } = this.props
     const {
       transferAmount,
@@ -90,28 +91,22 @@ class WalletAuthorizationContainer extends Component<Props> {
         txFee: txFee
       })
     } else if (prevProps.actionsPending.submitTx && !actionsPending.submitTx && !errors.submitTx) {
-      goToStep(1)
+      push(`${path.transfer}?step=3`)
     }
   }
 
   render () {
-    const {
-      transferForm,
-      actionsPending,
-      clearError,
-      accountSelection,
-      goToStep,
-      errors
-    } = this.props
+    const { transferForm, actionsPending, clearError, accountSelection, errors, push } = this.props
+
     return (
       <WalletAuthorizationComponent
-        goToStep={goToStep}
         accountSelection={accountSelection}
         transferForm={transferForm}
         actionsPending={actionsPending}
         checkWalletConnection={this.checkWalletConnection}
         clearError={clearError}
         errors={errors}
+        push={push}
       />
     )
   }
@@ -129,13 +124,13 @@ const mapDispatchToProps = dispatch => {
   return {
     verifyAccount: (accountData, options) => dispatch(verifyAccount(accountData, options)),
     submitTx: txRequest => dispatch(submitTx(txRequest)),
-    goToStep: n => dispatch(goToStep('send', n)),
     checkWalletConnection: (accountData, options) =>
       dispatch(checkWalletConnection(accountData, options)),
     decryptCloudWalletAccount: (accountData, password) =>
       dispatch(decryptCloudWalletAccount(accountData, password)),
     clearError: () => dispatch(clearError()),
-    markAccountDirty: accountData => dispatch(markAccountDirty(accountData))
+    markAccountDirty: accountData => dispatch(markAccountDirty(accountData)),
+    push: path => dispatch(push(path))
   }
 }
 

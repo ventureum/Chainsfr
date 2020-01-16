@@ -6,10 +6,11 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
+import path from '../Paths.js'
 
 type Props = {
   submitTx: Function,
-  goToStep: Function,
+  push: Function,
   classes: Object,
   transferForm: Object,
   wallet: Object,
@@ -25,7 +26,7 @@ type Props = {
 
 class ReviewComponent extends Component<Props> {
   render () {
-    const { classes, transferForm, actionsPending, txFee, currencyAmount } = this.props
+    const { classes, transferForm, actionsPending, txFee, currencyAmount, push } = this.props
     const {
       transferAmount,
       sender,
@@ -142,7 +143,7 @@ class ReviewComponent extends Component<Props> {
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button color='primary' size='large' onClick={() => this.props.goToStep(-1)}>
+              <Button color='primary' size='large' onClick={() => push(`${path.transfer}`)}>
                 Back to previous
               </Button>
             </Grid>
@@ -153,7 +154,7 @@ class ReviewComponent extends Component<Props> {
                   variant='contained'
                   color='primary'
                   size='large'
-                  onClick={() => this.props.goToStep(1)}
+                  onClick={() => push(`${path.transfer}?step=2`)}
                 >
                   Continue
                 </Button>
