@@ -9,7 +9,6 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import validator from 'validator'
-import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CloseIcon from '@material-ui/icons/Close'
@@ -21,7 +20,6 @@ type Props = {
   handleClose: Function,
   handleSubmit: Function,
   loading: boolean,
-  classes: Object,
   recipient: Object
 }
 
@@ -54,7 +52,7 @@ class EditRecipientDialog extends Component<Props, State> {
   }
 
   render () {
-    let { loading, open, classes, handleSubmit, recipient, handleClose } = this.props
+    let { loading, open, handleSubmit, recipient, handleClose } = this.props
     const { name, email, validEmail, validName } = this.state
     return (
       <Dialog
@@ -72,7 +70,7 @@ class EditRecipientDialog extends Component<Props, State> {
                 handleClose()
               }}
             >
-              <CloseIcon fontSize='small' color='secondary'/>
+              <CloseIcon fontSize='small' color='secondary' />
             </IconButton>
           </Box>
         </DialogTitle>

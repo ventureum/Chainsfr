@@ -26,6 +26,7 @@ class GoogleLoginButton extends Component {
       await this.gapiLoad()
       console.log('gapi loaded')
       let googleAuth = await window.gapi.auth2.getAuthInstance()
+      let userInstance
       if (!googleAuth || !googleAuth.isSignedIn.get()) {
         const client = await window.gapi.auth2.init({
           clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
@@ -37,24 +38,25 @@ class GoogleLoginButton extends Component {
         // This is what differs from react-google-login
         let options = new window.gapi.auth2.SigninOptionsBuilder()
         options.setPrompt('select_account')
-        const res = await client.signIn(options)
-
-        const basicProfile = res.getBasicProfile()
-        const authResponse = res.getAuthResponse()
-        res.googleId = basicProfile.getId()
-        res.tokenObj = authResponse
-        res.idToken = authResponse.id_token
-        res.accessToken = authResponse.access_token
-        res.profileObj = {
-          googleId: basicProfile.getId(),
-          imageUrl: basicProfile.getImageUrl(),
-          email: basicProfile.getEmail(),
-          name: basicProfile.getName(),
-          givenName: basicProfile.getGivenName(),
-          familyName: basicProfile.getFamilyName()
-        }
-        this.props.onSuccess(res)
+        userInstance = await client.signIn(options)
+      } else {
+        userInstance = await googleAuth.currentUser.get()
       }
+      const basicProfile = userInstance.getBasicProfile()
+      const authResponse = userInstance.getAuthResponse()
+      userInstance.googleId = basicProfile.getId()
+      userInstance.tokenObj = authResponse
+      userInstance.idToken = authResponse.id_token
+      userInstance.accessToken = authResponse.access_token
+      userInstance.profileObj = {
+        googleId: basicProfile.getId(),
+        imageUrl: basicProfile.getImageUrl(),
+        email: basicProfile.getEmail(),
+        name: basicProfile.getName(),
+        givenName: basicProfile.getGivenName(),
+        familyName: basicProfile.getFamilyName()
+      }
+      this.props.onSuccess(userInstance)
     } catch (e) {
       this.props.onFailure(e)
     }

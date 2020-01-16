@@ -4,7 +4,6 @@ import NavBarComponent from '../components/NavBarComponent'
 import { onLogout } from '../actions/userActions'
 import { backToHome } from '../actions/navigationActions'
 import path from '../Paths.js'
-import moment from 'moment'
 
 class NavBarContainer extends Component {
   backToHome = () => {
