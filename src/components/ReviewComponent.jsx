@@ -1,5 +1,7 @@
 // @flow
 import React, { Component } from 'react'
+import Avatar from '@material-ui/core/Avatar'
+import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
@@ -7,6 +9,7 @@ import Typography from '@material-ui/core/Typography'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
 import path from '../Paths.js'
+import { getWalletLogo, getWalletTitle } from '../wallet'
 
 type Props = {
   submitTx: Function,
@@ -26,7 +29,15 @@ type Props = {
 
 class ReviewComponent extends Component<Props> {
   render () {
-    const { classes, transferForm, actionsPending, txFee, currencyAmount, push } = this.props
+    const {
+      classes,
+      transferForm,
+      actionsPending,
+      txFee,
+      currencyAmount,
+      push,
+      userProfile
+    } = this.props
     const {
       transferAmount,
       sender,
@@ -43,29 +54,52 @@ class ReviewComponent extends Component<Props> {
         <Grid item>
           <Grid container direction='column' spacing={2}>
             <Grid item>
-              <Typography variant='h3'>Review and Confirm</Typography>
+              <Typography variant='h3'>Review Details</Typography>
             </Grid>
             <Grid item>
               <Grid container direction='row' align='center' spacing={1}>
                 <Grid item xs={6}>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Typography variant='caption'>From</Typography>
-                    <Typography variant='body2' id='senderName'>
-                      {senderName}
+                  <Box display='flex' flexDirection='column'>
+                    <Typography variant='caption' align='left'>
+                      Recipient
                     </Typography>
-                    <Typography variant='caption' id='sender'>
-                      {sender}
-                    </Typography>
-                  </Grid>
+                    <Box display='flex' flexDirection='row' alignItems='center' mt={1}>
+                      <Box mr={1} display='inline'>
+                        {/* wallet icon */}
+                        <Avatar src={userProfile.imageUrl}></Avatar>
+                      </Box>
+                      <Box display='flex' flexDirection='column' alignItems='flex-start'>
+                        <Typography variant='body2' id='receiverName'>
+                          {receiverName}
+                        </Typography>
+                        <Typography variant='caption'>{destination}</Typography>
+                      </Box>
+                    </Box>
+                  </Box>
                 </Grid>
                 <Grid item xs={6}>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Typography variant='caption'>To</Typography>
-                    <Typography variant='body2' id='receiverName'>
-                      {receiverName}
+                  <Box display='flex' flexDirection='column'>
+                    <Typography variant='caption' align='left'>
+                      From Account
                     </Typography>
-                    <Typography variant='caption'>{destination}</Typography>
-                  </Grid>
+                    <Box display='flex' flexDirection='row' alignItems='center' mt={1}>
+                      <Box mr={1} display='inline'>
+                        {/* wallet icon */}
+                        <Avatar
+                          style={{ borderRadius: '2px' }}
+                          src={getWalletLogo(accountId.walletType)}
+                        ></Avatar>
+                      </Box>
+                      <Box display='flex' flexDirection='column' alignItems='flex-start'>
+                        <Typography variant='body2' id='accountDisplayName'>
+                          {accountId.displayName}
+                        </Typography>
+                        <Typography variant='caption'>
+                          {getWalletTitle(accountId.walletType)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>

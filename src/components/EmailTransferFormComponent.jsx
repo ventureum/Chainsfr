@@ -91,46 +91,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
 
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
-        <Grid item>
-          <TextField
-            fullWidth
-            id='sender_name'
-            label='Your Name'
-            placeholder='John Doe'
-            margin='normal'
-            variant='outlined'
-            error={!!formError.senderName}
-            helperText={formError.senderName}
-            onChange={handleTransferFormChange('senderName')}
-            value={senderName || ''}
-          />
-        </Grid>
-        <Grid item>
-          <TextField
-            fullWidth
-            id='sender'
-            label='Your Email'
-            placeholder='john@gmail.com'
-            margin='normal'
-            variant='outlined'
-            error={!!formError.sender}
-            helperText={
-              formError.sender ||
-              'A tracking number will be sent to this email. It will also be shown to the recipient'
-            }
-            onChange={handleTransferFormChange('sender')}
-            value={sender || ''}
-            disabled
-          />
-        </Grid>
-        <Grid item>
-          <AccountDropdownContainer
-            onChange={handleTransferFormChange('accountId')}
-            filterCriteria={accountData =>
-              !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
-            }
-            accountId={accountSelection}
-          />
+        <Grid item style={{ marginBottom: 30 }}>
+          <Typography variant='h3'>Set up Transfer</Typography>
         </Grid>
         <Grid item>
           <FormControl variant='outlined' fullWidth margin='normal'>
@@ -177,43 +139,22 @@ class EmailTransferFormComponent extends Component<Props, State> {
           </FormControl>
         </Grid>
         <Grid item>
+          <AccountDropdownContainer
+            onChange={handleTransferFormChange('accountId')}
+            filterCriteria={accountData =>
+              !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
+            }
+            accountId={accountSelection}
+          />
+        </Grid>
+        <Grid item>
           <Grid container direction='row' justify='center' alignItems='stretch'>
-            <Grid item xs={5}>
-              <TextField
-                margin='normal'
-                fullWidth
-                id='currencyAmount'
-                variant='outlined'
-                label='Fiat'
-                error={!!formError.transferCurrencyAmount}
-                helperText={formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`}
-                type='number'
-                disabled={!accountSelection}
-                onChange={handleTransferFormChange('transferCurrencyAmount')}
-                value={transferCurrencyAmount}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Typography variant='body2' color='textSecondary'>
-                        {currency}
-                      </Typography>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={2} align='center'>
-              <Box pt={2}>
-                <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
-              </Box>
-            </Grid>
             <Grid item xs={5}>
               <TextField
                 margin='normal'
                 fullWidth
                 id='cryptoAmount'
                 variant='outlined'
-                label='Amount (Cryptocurrency)'
                 error={!!formError.transferAmount}
                 type='number'
                 helperText={
@@ -222,7 +163,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                     ? `Balance: ${accountSelection.balanceInStandardUnit} ${getCryptoSymbol(
                         accountSelection.cryptoType
                       )}`
-                    : 'Balance: N/A')
+                    : 'Balance: 0.00')
                 }
                 disabled={!accountSelection}
                 onChange={handleTransferFormChange('transferAmount')}
@@ -231,7 +172,53 @@ class EmailTransferFormComponent extends Component<Props, State> {
                   startAdornment: (
                     <InputAdornment position='start'>
                       <Typography variant='body2' color='textSecondary'>
-                        {getCryptoSymbol(accountSelection && accountSelection.cryptoType)}
+                        Amount
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <Typography variant='body2' color='textSecondary'>
+                        {(accountSelection && getCryptoSymbol(accountSelection.cryptoType)) ||
+                          'BTC'}
+                      </Typography>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs align='center'>
+              <Box pt={2}>
+                <Icon className={clsx(classes.icon, 'fa fa-exchange-alt')} />
+              </Box>
+            </Grid>
+            <Grid item xs={5}>
+              <TextField
+                margin='normal'
+                fullWidth
+                id='currencyAmount'
+                variant='outlined'
+                error={!!formError.transferCurrencyAmount}
+                helperText={formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`}
+                type='number'
+                onWheel={event => {
+                  event.preventDefault()
+                }}
+                disabled={!accountSelection}
+                onChange={handleTransferFormChange('transferCurrencyAmount')}
+                value={transferCurrencyAmount}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Typography variant='body2' color='textSecondary'>
+                        Amount
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <Typography variant='body2' color='textSecondary'>
+                        {currency}
                       </Typography>
                     </InputAdornment>
                   )
@@ -250,8 +237,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
             variant='outlined'
             error={!!formError.password}
             helperText={
-              formError.password ||
-              'We recommend you to use auto-generated security password for better security'
+              formError.password || 'We recommend you to use auto-generated security answer.'
             }
             onChange={handleTransferFormChange('password')}
             value={password || ''}
@@ -259,7 +245,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
               endAdornment: accountSelection && (
                 <InputAdornment position='end'>
                   <Tooltip title='Generate Security Answer' position='left'>
-                    <IconButton
+                    <Button
+                      className={classes.generateBtn}
                       color='primary'
                       onClick={() => {
                         handleTransferFormChange('password')({
@@ -267,8 +254,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
                         })
                       }}
                     >
-                      <RefreshIcon />
-                    </IconButton>
+                      Generate
+                    </Button>
                   </Tooltip>
                 </InputAdornment>
               )
@@ -362,6 +349,12 @@ const styles = theme => ({
   },
   addNewRecipientBtnText: {
     fontSize: '14px'
+  },
+  generateBtn: {
+    background: `rgba(57, 51, 134, 0.1)`,
+    borderRadis: '4px',
+    fontSize: '12px',
+    padding: '6px 10px 6px 10px'
   }
 })
 
