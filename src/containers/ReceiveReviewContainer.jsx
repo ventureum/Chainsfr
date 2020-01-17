@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 import ReceiveReview from '../components/ReceiveReviewComponent'
 import { acceptTransfer, getTxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { goToStep } from '../actions/navigationActions'
 import { syncWithNetwork } from '../actions/accountActions'
 import moment from 'moment'
 import utils from '../utils'
+import { push } from 'connected-react-router'
+import path from '../Paths.js'
 
 class ReceiveReviewContainer extends Component {
   componentDidMount () {
@@ -24,6 +25,12 @@ class ReceiveReviewContainer extends Component {
         fromAccount: this.props.escrowAccount,
         transferAmount: this.props.transfer.transferAmount
       })
+    } else if (
+      prevProps.actionsPending.acceptTransfer &&
+      !this.props.actionsPending.acceptTransfer &&
+      !this.props.error
+    ) {
+      this.props.push(`${path.receive}?step=2&id=${this.props.id}`)
     }
   }
 
@@ -86,8 +93,8 @@ const mapDispatchToProps = dispatch => {
   return {
     acceptTransfer: txRequest => dispatch(acceptTransfer(txRequest)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
-    goToStep: n => dispatch(goToStep('receive', n)),
-    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
+    push: path => dispatch(push(path))
   }
 }
 

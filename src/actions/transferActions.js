@@ -622,13 +622,9 @@ function acceptTransfer (txRequest: {
   receiveMessage: ?string,
   walletId: string
 }) {
-  return (dispatch: Function, getState: Function) => {
-    return dispatch({
-      type: 'ACCEPT_TRANSFER',
-      payload: _acceptTransfer(txRequest)
-    }).then(() => {
-      dispatch(goToStep('receive', 1))
-    })
+  return {
+    type: 'ACCEPT_TRANSFER',
+    payload: _acceptTransfer(txRequest)
   }
 }
 

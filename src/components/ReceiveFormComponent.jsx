@@ -288,7 +288,7 @@ class ReceiveFormComponent extends Component {
   }
 
   render () {
-    const { classes, accountSelection, transfer, error, actionsPending } = this.props
+    const { classes, accountSelection, transfer, error, actionsPending, push, id } = this.props
 
     let isInvalidTransfer = false
 
@@ -362,7 +362,7 @@ class ReceiveFormComponent extends Component {
                   size='large'
                   onClick={() => {
                     this.clearError()
-                    this.props.goToStep(-1)
+                    push(Paths.home)
                   }}
                   disabled={actionsPending.verifyEscrowAccountPassword}
                 >
