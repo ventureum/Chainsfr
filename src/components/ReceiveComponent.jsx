@@ -6,11 +6,36 @@ import ReceiveForm from '../containers/ReceiveFormContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
 import { Redirect } from 'react-router'
 import paths from '../Paths'
+import queryString from 'query-string'
 
 class ReceiveComponent extends React.Component {
-  render () {
-    const { classes, step, history } = this.props
+  componentDidMount () {
+    let { location } = this.props.history
+    const urlParams = queryString.parse(location.search)
+    this.props.getTransfer(urlParams.id)
+  }
 
+  render () {
+    const { classes, history, escrowAccount, transfer, accountSelection, receipt } = this.props
+    const urlParams = queryString.parse(history.location.search)
+    const id = urlParams.id
+    let step = urlParams.step
+
+    if (!id) {
+      return <Redirect to={paths.home} />
+    }
+    let renderStep
+    if (step === '0' || !step) {
+      renderStep = <ReceiveForm id={id} />
+    } else if (step === '1') {
+      if (!escrowAccount || (!transfer && !receipt) || !accountSelection) {
+        renderStep = <Redirect to={`${paths.receive}?id=${id}`} />
+      } else {
+        renderStep = <ReceiveReview id={id} />
+      }
+    } else if (step === '2') {
+      renderStep = <Redirect push to={paths.receipt} />
+    }
     return (
       <Grid container direction='column' alignItems='center'>
         <Grid item className={classes.sectionContainer}>
@@ -18,9 +43,7 @@ class ReceiveComponent extends React.Component {
             <Grid item>
               <Grid container direction='column' alignItems='center'>
                 <Grid item className={classes.subComponent}>
-                  {step === 0 && <ReceiveForm location={history.location} />}
-                  {step === 1 && <ReceiveReview />}
-                  {step === 2 && <Redirect push to={paths.receipt} />}
+                  {renderStep}
                 </Grid>
               </Grid>
             </Grid>

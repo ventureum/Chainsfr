@@ -3,22 +3,17 @@ import { connect } from 'react-redux'
 import ReceiveFormComponent from '../components/ReceiveFormComponent'
 import { verifyEscrowAccountPassword } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { goToStep } from '../actions/navigationActions'
 import { updateTransferForm } from '../actions/formActions'
 import { getTransfer, clearVerifyEscrowAccountPasswordError } from '../actions/transferActions'
 import moment from 'moment'
 import queryString from 'query-string'
 import utils from '../utils'
+import { push } from 'connected-react-router'
+import path from '../Paths.js'
 
 class ReceiveFormContainer extends Component {
-  componentDidMount () {
-    let { location } = this.props
-    const value = queryString.parse(location.search)
-    this.props.getTransfer(value.id)
-  }
-
   componentDidUpdate (prevProps) {
-    const { goToStep, actionsPending, error } = this.props
+    const { actionsPending, error, push, id } = this.props
     const prevActionPending = prevProps.actionsPending
     if (
       prevActionPending.verifyEscrowAccountPassword &&
@@ -27,9 +22,10 @@ class ReceiveFormContainer extends Component {
     ) {
       // verified password successfully
       // go to next step
-      goToStep(1)
+      push(`${path.receive}?step=1&id=${id}`)
     }
   }
+
   render () {
     const { transfer, cryptoPrice, currency } = this.props
     let sendTime, receiveTime, cancelTime
@@ -71,7 +67,7 @@ const mapDispatchToProps = dispatch => {
     verifyEscrowAccountPassword: transferInfo =>
       dispatch(verifyEscrowAccountPassword(transferInfo)),
     clearVerifyEscrowAccountPasswordError: () => dispatch(clearVerifyEscrowAccountPasswordError()),
-    goToStep: n => dispatch(goToStep('receive', n))
+    push: path => dispatch(push(path))
   }
 }
 

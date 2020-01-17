@@ -8,6 +8,7 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
+import paths from '../Paths.js'
 
 class ReceiveReviewComponent extends Component {
   handleReviewNext = () => {
@@ -34,7 +35,9 @@ class ReceiveReviewComponent extends Component {
       sendTime,
       receiveAmount,
       currencyAmount,
-      proceedable
+      proceedable,
+      id,
+      push
     } = this.props
     const { transferAmount, senderName, sender, destination, receiverName, cryptoType } = transfer
 
@@ -195,7 +198,7 @@ class ReceiveReviewComponent extends Component {
               <Button
                 color='primary'
                 size='large'
-                onClick={() => this.props.goToStep(-1)}
+                onClick={() => push(`${paths.receive}?id=${id}&step=0`)}
                 id='cancel'
                 disabled={!proceedable}
               >

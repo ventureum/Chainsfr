@@ -17,7 +17,7 @@ class NavBarContainer extends Component {
   render () {
     let { onLogout, profile, location, cloudWalletConnected } = this.props
     const urlParams = queryString.parse(location.search)
-    let step = parseInt(urlParams.step)
+    let step = parseInt(urlParams.step) || 0
     return (
       <NavBarComponent
         onLogout={onLogout}
