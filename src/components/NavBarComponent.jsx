@@ -105,29 +105,32 @@ class NavBarComponent extends Component {
     return (
       <Box height={1} display='flex'>
         <List style={{ display: 'flex', flexGrow: 1, flexDirection: 'column' }}>
-          <ListItem alignItems='center'>
-            {profile && profile.profileObj && profile.profileObj.imageUrl ? (
-              // add margin auto to center avatar horizontally
-              <Avatar
-                alt=''
-                src={profile.profileObj.imageUrl}
-                className={classes.avatar}
-                style={{ marginLeft: 'auto', marginRight: 'auto' }}
-              />
-            ) : (
+          {profile && profile.profileObj && profile.profileObj.imageUrl ? (
+            <>
+              <ListItem alignItems='center'>
+                <Avatar
+                  alt=''
+                  src={profile.profileObj.imageUrl}
+                  className={classes.avatar}
+                  style={{ marginLeft: 'auto', marginRight: 'auto' }}
+                />
+              </ListItem>
+              <ListItem alignItems='center'>
+                <Typography variant='body2' align='center' style={{ width: '100%' }}>
+                  {profile.profileObj.name}
+                </Typography>
+              </ListItem>
+              <ListItem alignItems='center'>
+                <Typography variant='body2' align='center' style={{ width: '100%' }}>
+                  {profile.profileObj.email}
+                </Typography>
+              </ListItem>{' '}
+            </>
+          ) : (
+            <ListItem alignItems='center'>
               <AccountCircle className={classes.userIcon} id='accountCircle' />
-            )}
-          </ListItem>
-          <ListItem alignItems='center'>
-            <Typography variant='body2' align='center' style={{ width: '100%' }}>
-              {profile.profileObj.name}
-            </Typography>
-          </ListItem>
-          <ListItem alignItems='center'>
-            <Typography variant='body2' align='center' style={{ width: '100%' }}>
-              {profile.profileObj.email}
-            </Typography>
-          </ListItem>
+            </ListItem>
+          )}
           <Divider variant='middle' />
           <ListItem>
             <Button
@@ -193,20 +196,22 @@ class NavBarComponent extends Component {
 
     return (
       <>
-        <Drawer
-          variant='temporary'
-          anchor={'left'}
-          open={this.state.mobileOpen}
-          onClose={this.handleDrawerToggle}
-          classes={{
-            paper: classes.drawerPaper
-          }}
-          ModalProps={{
-            keepMounted: true // Better open performance on mobile.
-          }}
-        >
-          {this.renderDrawer()}
-        </Drawer>
+        <Hidden only={['md', 'lg', 'xl']}>
+          <Drawer
+            variant='temporary'
+            anchor={'left'}
+            open={this.state.mobileOpen}
+            onClose={this.handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper
+            }}
+            ModalProps={{
+              keepMounted: true // Better open performance on mobile.
+            }}
+          >
+            {this.renderDrawer()}
+          </Drawer>
+        </Hidden>
         <AppBar position='static' color='primary' className={classes.appBar}>
           <Toolbar className={classes.toolbar}>
             <Grid container justify='center' alignItems='center'>
