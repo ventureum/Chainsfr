@@ -1,6 +1,5 @@
 // @flow
 import axios from 'axios'
-import Web3 from 'web3'
 import { bufferToInt } from 'ethereumjs-util'
 import BN from 'bn.js'
 
@@ -84,6 +83,7 @@ const networkIdMap = {
 }
 
 async function getGasCost (txObj: any): Promise<TxFee> {
+  const Web3 = require('web3')
   const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let price = await _web3.eth.getGasPrice()
   let gas = (await _web3.eth.estimateGas(txObj)).toString()

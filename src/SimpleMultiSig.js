@@ -1,5 +1,4 @@
 // @flow
-import Web3 from 'web3'
 import { getCrypto } from './tokens'
 import url from './url'
 import uuidv1 from 'uuid/v1'
@@ -11,7 +10,7 @@ import SimpleMultiSigContractArtifacts from './contracts/SimpleMultiSig.json'
 import env from './typedEnv'
 import WalletUtils from './wallets/utils'
 
-export default class SimpleMultiSig {
+class SimpleMultiSig {
   id: ?string
   extraData: any
   contractInstance: Object
@@ -26,7 +25,8 @@ export default class SimpleMultiSig {
       this.id = this.createWalletId()
     }
 
-    // setup contract instance
+    // setup contract instance\
+    const Web3 = require('web3')
     this.web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
     const NETWORK_ID = WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
@@ -103,3 +103,5 @@ export default class SimpleMultiSig {
     }
   }
 }
+
+export default SimpleMultiSig
