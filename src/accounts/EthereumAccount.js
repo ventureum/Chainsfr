@@ -1,8 +1,6 @@
 // @flow
 import type { IAccount, AccountData } from '../types/account.flow.js'
 import { accountStatus } from '../types/account.flow.js'
-
-import Web3 from 'web3'
 import utils from '../utils'
 import url from '../url'
 import ERC20 from '../ERC20'
@@ -81,11 +79,13 @@ export default class EthereumAccount implements IAccount<AccountData> {
     if (!privateKey) throw new Error('Incorrect password')
     this.accountData.privateKey = privateKey
 
+    const Web3 = require('web3')
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     this.accountData.address = _web3.eth.accounts.privateKeyToAccount(privateKey).address
   }
 
   syncWithNetwork = async () => {
+    const Web3 = require('web3')
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
     let { cryptoType } = this.accountData

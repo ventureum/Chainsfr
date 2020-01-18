@@ -1,5 +1,6 @@
 /* eslint-disable */
 var path = require('path')
+const WorkerPlugin = require('worker-plugin')
 
 module.exports = {
   // The Webpack config to use when compiling your react app for development or production.
@@ -7,11 +8,10 @@ module.exports = {
     // ...add your webpack config
     // suppress grpc warnings
     config.module.exprContextCritical = false
-    config.module.rules.push({
-      test: /\.worker\.js$/,
-      use: { loader: 'worker-loader' },
-      exclude: /node_modules/,
-    })
+    if (!config.plugins) {
+      config.plugins = [];
+    }
+    config.plugins.push(new WorkerPlugin())
     config.output = {
       ...config.output,
       path: path.join(__dirname, 'build'),

@@ -9,13 +9,11 @@ import { accountStatus } from '../types/account.flow'
 import { enqueueSnackbar } from './notificationActions.js'
 import API from '../apis.js'
 import WalletErrors from '../wallets/walletErrors'
-import accountSyncWorker from '../accountSync.worker.js'
-
 
 async function _syncWithNetwork (accountData: AccountData) {
   function sendMessage (message) {
     return new Promise(function (resolve, reject) {
-      const worker = new accountSyncWorker()
+      const worker = new Worker('./accountSync.worker.js', { type: 'module' });
       worker.postMessage(message)
       worker.onmessage = function (event) {
         if (event.data.error) {
@@ -26,10 +24,11 @@ async function _syncWithNetwork (accountData: AccountData) {
       }
     })
   }
-  let account = createAccount(accountData)
-  if (account.cryptoType === 'bitcoin') {
-    return sendMessage(accountData)
+  
+  if (accountData.cryptoType === 'bitcoin') {
+    return sendMessage({action: 'sync', payload: accountData})
   } else {
+    let account = createAccount(accountData)
     await account.syncWithNetwork()
     return account.getAccountData()
   }
