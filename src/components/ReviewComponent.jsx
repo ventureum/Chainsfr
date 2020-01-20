@@ -24,7 +24,8 @@ type Props = {
   actionsPending: {
     submitTx: boolean,
     getTxFee: boolean
-  }
+  },
+  error: string
 }
 
 class ReviewComponent extends Component<Props> {
@@ -36,7 +37,8 @@ class ReviewComponent extends Component<Props> {
       txFee,
       currencyAmount,
       push,
-      userProfile
+      userProfile,
+      error
     } = this.props
     const {
       transferAmount,
@@ -134,7 +136,7 @@ class ReviewComponent extends Component<Props> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                      {txFee && txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.txFee} )
@@ -188,6 +190,7 @@ class ReviewComponent extends Component<Props> {
                   variant='contained'
                   color='primary'
                   size='large'
+                  disabled={!error}
                   onClick={() => push(`${path.transfer}?step=2`)}
                 >
                   Continue

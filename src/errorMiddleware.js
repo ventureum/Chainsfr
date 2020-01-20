@@ -1,4 +1,5 @@
 import isPromise from 'is-promise'
+import { enqueueSnackbar } from './actions/notificationActions'
 
 export default function errorMiddleware (store) {
   return next => action => {
@@ -11,7 +12,13 @@ export default function errorMiddleware (store) {
 
       return next(action).catch(error => {
         console.error(error.message)
-        throw error
+        store.dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'error', autoHideDuration: 3000 }
+          })
+        )
       })
     } else {
       // process as usual, do not handle errors

@@ -41,7 +41,8 @@ type Props = {
   recipients: Array<Object>,
   addRecipient: Function,
   walletSelectionPrefilled: string,
-  accountSelection: Object
+  accountSelection: Object,
+  error: Object
 }
 
 type State = {
@@ -76,7 +77,8 @@ class EmailTransferFormComponent extends Component<Props, State> {
       generateSecurityAnswer,
       walletSelectionPrefilled,
       accountSelection,
-      push
+      push,
+      error
     } = this.props
     const {
       transferAmount,
@@ -291,7 +293,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 variant='contained'
                 color='primary'
                 onClick={() => push(`${path.transfer}?step=1`)}
-                disabled={!validateForm(transferForm) || actionsPending.getTxFee}
+                disabled={!validateForm(transferForm) || actionsPending.getTxFee || error}
               >
                 Continue
               </Button>
