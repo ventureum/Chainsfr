@@ -24,6 +24,7 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
+import walletErrors from '../wallets/walletErrors'
 
 type Props = {
   walletType: string,
@@ -36,8 +37,7 @@ type Props = {
   onConnect: Function,
   newCryptoAccount: Object,
   checkWalletConnection: Function,
-  checkWalletConnectionError: string,
-  newCryptoAccountFromWalletError: string,
+  errors: Object,
   onSubmit: Function
 }
 
@@ -58,22 +58,17 @@ class AddAccountModalComponent extends Component<Props, State> {
 
   componentDidUpdate (prevProps) {
     const { walletType, cryptoType } = this.state
-    const {
-      onConnect,
-      actionsPending,
-      checkWalletConnectionError,
-      newCryptoAccountFromWalletError
-    } = this.props
+    const { onConnect, actionsPending, errors } = this.props
     if (
       prevProps.actionsPending.checkWalletConnection &&
       !actionsPending.checkWalletConnection &&
-      !checkWalletConnectionError
+      !errors.checkWalletConnection
     ) {
       onConnect('default', cryptoType, walletType)
     } else if (
       prevProps.actionsPending.newCryptoAccountFromWallet &&
       !actionsPending.newCryptoAccountFromWallet &&
-      !newCryptoAccountFromWalletError
+      !errors.newCryptoAccountFromWallet
     ) {
       this.setState({ step: 2 })
     }
@@ -207,31 +202,62 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderWalletConnect = () => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, errors } = this.props
     const { walletType, cryptoType } = this.state
     let connectText, buttonText, buttonIcon
-
+    let errorInstruction
     switch (walletType) {
       case 'metamask':
         connectText = 'Connect your wallet via browser extendsion'
         buttonText = 'Connect to MetaMask'
         buttonIcon = <OpenInBrowser />
+        if (errors.checkWalletConnection === walletErrors.metamask.extendsionNotFound) {
+          errorInstruction = 'MetaMask extension is not available'
+        } else if (errors.newCryptoAccountFromWallet === walletErrors.metamask.incorrectNetwork) {
+          errorInstruction = 'Incorrect MetaMask network'
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.metamask.authorizationDenied
+        ) {
+          errorInstruction = 'MetaMask authorization denied'
+        }
         break
       case 'ledger':
         connectText = 'Plug-in and connect to your ledger divice'
         buttonText = 'Connect to Ledger'
         buttonIcon = <UsbIcon />
+        if (errors.checkWalletConnection === walletErrors.ledger.deviceNotConnected) {
+          errorInstruction = 'Ledger device is not connected'
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.ledger.ledgerAppCommunicationFailed
+        ) {
+          errorInstruction = `Ledger ${cryptoType} app is not available`
+        }
         break
       case 'trustWalletConnect':
       case 'metamaskWalletConnect':
         connectText = 'Connect your wallet via Wallet Connect'
         buttonText = 'Scan QR Code'
         buttonIcon = <CropFreeIcon />
+        if (errors.checkWalletConnection) {
+          errorInstruction = 'WalletConnect loading failed'
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.metamaskWalletConnect.modalClosed
+        ) {
+          errorInstruction = `User denied account authorization`
+        }
         break
       case 'coinbaseWalletLink':
         connectText = 'Connect your wallet via WalletLink'
         buttonText = 'Scan QR Code'
         buttonIcon = <CropFreeIcon />
+        if (errors.checkWalletConnection) {
+          errorInstruction = 'WalletLink loading failed'
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.coinbaseWalletLink.authorizationDenied
+        ) {
+          errorInstruction = `User denied account authorization`
+        }
+
         break
       default:
         throw new Error('Invalid wallet type')
@@ -253,6 +279,21 @@ class AddAccountModalComponent extends Component<Props, State> {
             {buttonText}
           </Button>
         </Grid>
+        {errorInstruction && (
+          <Grid item>
+            <Box
+              style={{
+                backgroundColor: 'rgba(57, 51, 134, 0.05)',
+                borderRadius: '4px',
+                padding: '20px'
+              }}
+            >
+              <Typography variant='body2' color='error'>
+                {errorInstruction}
+              </Typography>
+            </Box>
+          </Grid>
+        )}
       </Grid>
     )
   }
