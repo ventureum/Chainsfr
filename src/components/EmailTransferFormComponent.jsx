@@ -157,6 +157,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 variant='outlined'
                 error={!!formError.transferAmount}
                 type='number'
+                placeholder='Amount'
                 helperText={
                   formError.transferAmount ||
                   (accountSelection
@@ -169,13 +170,6 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 onChange={handleTransferFormChange('transferAmount')}
                 value={transferAmount}
                 InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Typography variant='body2' color='textSecondary'>
-                        Amount
-                      </Typography>
-                    </InputAdornment>
-                  ),
                   endAdornment: (
                     <InputAdornment position='end'>
                       <Typography variant='body2' color='textSecondary'>
@@ -204,17 +198,11 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 onWheel={event => {
                   event.preventDefault()
                 }}
+                placeholder='Amount'
                 disabled={!accountSelection}
                 onChange={handleTransferFormChange('transferCurrencyAmount')}
                 value={transferCurrencyAmount}
                 InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Typography variant='body2' color='textSecondary'>
-                        Amount
-                      </Typography>
-                    </InputAdornment>
-                  ),
                   endAdornment: (
                     <InputAdornment position='end'>
                       <Typography variant='body2' color='textSecondary'>

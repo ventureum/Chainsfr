@@ -10,12 +10,13 @@ import {
   newCryptoAccountFromWallet
 } from '../actions/walletActions'
 import { addCryptoAccount } from '../actions/accountActions.js'
+import { clearError } from '../actions/userActions'
 
 type Props = {
   actionsPending: Object,
   verifyAccount: Function,
-  checkWalletConnectionError: string,
-  newCryptoAccountFromWalletError: string,
+  clearError: Function,
+  errors: Object,
   checkWalletConnection: Function,
   open: boolean,
   handleClose: Function,
@@ -35,16 +36,19 @@ class AddAccountModalContainer extends Component<Props> {
     handleClose()
   }
 
+  componentWillUnmount () {
+    this.props.clearError()
+  }
+
   render () {
     const {
       actionsPending,
       open,
       handleClose,
       newCryptoAccountFromWallet,
-      checkWalletConnectionError,
       checkWalletConnection,
       newCryptoAccount,
-      newCryptoAccountFromWalletError
+      errors
     } = this.props
     return (
       <AddAccountModalComponent
@@ -54,9 +58,8 @@ class AddAccountModalContainer extends Component<Props> {
         handleClose={handleClose}
         onSubmit={this.onSubmit}
         onConnect={newCryptoAccountFromWallet}
-        checkWalletConnectionError={checkWalletConnectionError}
         newCryptoAccount={newCryptoAccount}
-        newCryptoAccountFromWalletError={newCryptoAccountFromWalletError}
+        errors={errors}
       />
     )
   }
@@ -77,7 +80,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(checkWalletConnection(accountData, options)),
     newCryptoAccountFromWallet: (name, cryptoType, walletType, options) =>
       dispatch(newCryptoAccountFromWallet(name, cryptoType, walletType, options)),
-    addCryptoAccount: accountData => dispatch(addCryptoAccount(accountData))
+    addCryptoAccount: accountData => dispatch(addCryptoAccount(accountData)),
+    clearError: () => dispatch(clearError())
   }
 }
 
@@ -87,7 +91,10 @@ const mapStateToProps = state => {
       checkWalletConnection: checkWalletConnectionSelector(state),
       newCryptoAccountFromWallet: newCryptoAccountFromWalletSelector(state)
     },
-    checkWalletConnectionError: checkWalletConnectionErrorSelector(state),
+    errors: {
+      checkWalletConnection: checkWalletConnectionErrorSelector(state),
+      newCryptoAccountFromWallet: newCryptoAccountFromWalletErrorSelector(state)
+    },
     newCryptoAccount: state.accountReducer.newCryptoAccountFromWallet,
     newCryptoAccountFromWalletError: newCryptoAccountFromWalletErrorSelector(state)
   }

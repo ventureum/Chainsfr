@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
 import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect'
+import useMediaQuery from '@material-ui/core/useMediaQuery'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
 import TransferContainer from './containers/TransferContainer'
@@ -77,12 +78,13 @@ const componentStyle = {
 }
 
 const StyledCookieConsent = () => {
+  const matches = useMediaQuery('(max-width:620px)')
   return (
     <CookieConsent
-      style={{ justifyContent: 'flex-start' }}
-      contentStyle={{ flex: 'none' }}
+      style={{ justifyContent: 'flex-start', alignItems: 'center' }}
+      contentStyle={{ flex: 'none', maxWidth: matches ? 300 : undefined }}
       buttonText='Accept'
-      buttonStyle={{ background: '#4285F4', color: 'white' }}
+      buttonStyle={{ background: '#4285F4', color: 'white', marginRight: 120 }}
     >
       This website uses cookies to enhance the user experience.
     </CookieConsent>

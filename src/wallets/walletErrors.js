@@ -1,7 +1,7 @@
 export default {
   metamask: {
     incorrectNetwork: 'Incorrect MetaMask network',
-    extendsionNotFound: 'MetaMask not found',
+    extendsionNotFound: 'Check wallet connection failed',
     incorrectAccount: 'MetaMask extendsion holds different account',
     noOptions: 'Options must not be null for metamask wallet',
     authorizationDenied: 'MetaMask wallet authorization denied by user'
@@ -32,6 +32,7 @@ export default {
   },
   coinbaseWalletLink: {
     incorrectAccount: 'Coinbase WalletLink holds different account',
-    noOptions: 'Options must not be null for coinbase WalletLink wallet'
+    noOptions: 'Options must not be null for coinbase WalletLink wallet',
+    authorizationDenied: 'User denied account authorization'
   }
 }
