@@ -8,6 +8,7 @@ import EthereumAccount from '../accounts/EthereumAccount.js'
 import _WalletConnect from '@walletconnect/browser'
 import WalletConnectQRCodeModal from '@walletconnect/qrcode-modal'
 import WalletUtils from './utils.js'
+import ERC20 from '../ERC20'
 
 const DEFAULT_ACCOUNT = 0
 
@@ -187,6 +188,22 @@ export default class WalletConnect implements IWallet<AccountData> {
       cryptoType: accountData.cryptoType,
       directTransfer: !!options && options.directTransfer
     })
+  }
+
+  setTokenAllowance = async (amount: BasicTokenUnit): Promise<TxHash> => {
+    const accountData = this.getAccount().getAccountData()
+    let txObj = ERC20.getSetAllowanceTxObj(accountData.address, amount, accountData.cryptoType)
+    // estimate tx cost
+    const txFee = await WalletUtils.getGasCost(txObj)
+    // add txFee to txObj
+    txObj = {
+      ...txObj,
+      gas: txFee.gas,
+      gasPrice: txFee.price
+    }
+    
+    // boardcast tx
+    return window.walletConnector.sendTransaction(txObj)
   }
 
   _CreateWalletConnectSession = async (): Promise<any> => {

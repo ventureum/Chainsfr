@@ -70,6 +70,11 @@ export default function (state = initialState, action) {
               : [...state.transferHistory.history, ...action.payload.transferData]
         }
       }
+    case 'SET_TOKEN_ALLOWANCE_FULFILLED':
+      return {
+        ...state,
+        setTokenAllowanceTxHash: action.payload
+      }
     default:
       // need this for default case
       return state

@@ -8,6 +8,7 @@ import EthereumAccount from '../accounts/EthereumAccount.js'
 import BitcoinAccount from '../accounts/BitcoinAccount.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import Web3 from 'web3'
+import ERC20 from '../ERC20'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 
@@ -324,6 +325,25 @@ export default class DriveWallet implements IWallet<AccountData> {
         directTransfer: !!options && options.directTransfer
       })
     }
+  }
+
+  setTokenAllowance = async (amount: BasicTokenUnit): Promise<TxHash> => {
+    const accountData = this.getAccount().getAccountData()
+    let txObj = ERC20.getSetAllowanceTxObj(accountData.address, amount, accountData.cryptoType)
+    // estimate tx cost
+    const txFee = await WalletUtils.getGasCost(txObj)
+    // add txFee to txObj
+    txObj = {
+      ...txObj,
+      gas: txFee.gas,
+      gasPrice: txFee.price
+    }
+    // init web3
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+    // add private key
+    _web3.eth.accounts.wallet.add(accountData.privateKey)
+    // boardcast tx
+    return WalletUtils.web3SendTransactions(_web3.eth.sendTransaction, txObj)
   }
 
   _xPrivSigner = (

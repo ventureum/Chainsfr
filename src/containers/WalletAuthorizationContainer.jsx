@@ -11,6 +11,9 @@ import { clearError } from '../actions/userActions'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
+import { getCryptoDecimals } from '../tokens'
+import BN from 'bn.js'
+import { setTokenAllowance } from '../actions/transferActions'
 
 type Props = {
   transferForm: Object,
@@ -20,19 +23,43 @@ type Props = {
   currency: String,
   userProfile: Object,
   txFee: Object,
+  setTokenAllowanceTxHash: string,
   accountSelection: Object,
   push: Function,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
   markAccountDirty: Function,
+  setTokenAllowance: Function,
   errors: Object
 }
 
-class WalletAuthorizationContainer extends Component<Props> {
+type State = {
+  tokenAllowanceAmount: ?string
+}
+
+class WalletAuthorizationContainer extends Component<Props, State> {
+  state = {
+    tokenAllowanceAmount: '0'
+  }
+
   checkWalletConnection = additionalInfo => {
     const { accountSelection } = this.props
     this.props.checkWalletConnection(accountSelection, additionalInfo)
+  }
+
+  setTokenAllowanceAmount = amount => {
+    this.setState({ tokenAllowanceAmount: amount })
+  }
+
+  insufficientAllowance = () => {
+    const { accountSelection, transferForm } = this.props
+    const { transferAmount } = transferForm
+    const transferAmountBasicTokenUnit = utils
+      .toBasicTokenUnit(transferAmount, getCryptoDecimals(accountSelection.cryptoType))
+      .toString()
+    
+    return new BN(transferAmountBasicTokenUnit).gt(new BN(accountSelection.multiSigAllowance))
   }
 
   componentDidUpdate (prevProps) {
@@ -46,6 +73,7 @@ class WalletAuthorizationContainer extends Component<Props> {
       verifyAccount,
       markAccountDirty,
       accountSelection,
+      setTokenAllowance,
       errors,
       push
     } = this.props
@@ -59,18 +87,8 @@ class WalletAuthorizationContainer extends Component<Props> {
       password,
       sendMessage
     } = transferForm
-    if (
-      prevProps.actionsPending.checkWalletConnection &&
-      !actionsPending.checkWalletConnection &&
-      !errors.checkWalletConnection
-    ) {
-      verifyAccount(accountSelection)
-    } else if (
-      !errors.verifyAccount &&
-      prevProps.actionsPending.verifyAccount &&
-      !actionsPending.verifyAccount &&
-      accountSelection.connected
-    ) {
+
+    const submit = () => {
       // mart account dirty
       markAccountDirty(accountSelection)
       // submit tx
@@ -90,13 +108,50 @@ class WalletAuthorizationContainer extends Component<Props> {
         sendMessage: sendMessage,
         txFee: txFee
       })
+    }
+
+    if (
+      prevProps.actionsPending.checkWalletConnection &&
+      !actionsPending.checkWalletConnection &&
+      !errors.checkWalletConnection
+    ) {
+      verifyAccount(accountSelection)
+    } else if (
+      !errors.verifyAccount &&
+      prevProps.actionsPending.verifyAccount &&
+      !actionsPending.verifyAccount &&
+      accountSelection.connected
+    ) {
+      if (this.insufficientAllowance()) {
+        // need to approve token allowance first
+        setTokenAllowance(accountSelection, this.state.tokenAllowanceAmount)
+      } else {
+        submit()
+      }
+    } else if (
+      prevProps.actionsPending.setTokenAllowanceWaitForConfirmation &&
+      !actionsPending.setTokenAllowanceWaitForConfirmation &&
+      !errors.setTokenAllowanceWaitForConfirmation &&
+      !errors.setTokenAllowance
+    ) {
+      // finished setting allowance
+      // now we can submit tx
+      submit()
     } else if (prevProps.actionsPending.submitTx && !actionsPending.submitTx && !errors.submitTx) {
       push(`${path.transfer}?step=3`)
     }
   }
 
   render () {
-    const { transferForm, actionsPending, clearError, accountSelection, errors, push } = this.props
+    const {
+      transferForm,
+      setTokenAllowanceTxHash,
+      actionsPending,
+      clearError,
+      accountSelection,
+      errors,
+      push
+    } = this.props
 
     return (
       <WalletAuthorizationComponent
@@ -104,6 +159,9 @@ class WalletAuthorizationContainer extends Component<Props> {
         transferForm={transferForm}
         actionsPending={actionsPending}
         checkWalletConnection={this.checkWalletConnection}
+        setTokenAllowanceAmount={this.setTokenAllowanceAmount}
+        setTokenAllowanceTxHash={setTokenAllowanceTxHash}
+        insufficientAllowance={this.insufficientAllowance()}
         clearError={clearError}
         errors={errors}
         push={push}
@@ -115,10 +173,18 @@ class WalletAuthorizationContainer extends Component<Props> {
 const submitTxSelector = createLoadingSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIEVED'])
 const verifyAccountSelector = createLoadingSelector(['VERIFY_ACCOUNT'])
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_WALLET_CONNECTION'])
+const setTokenAllowanceSelector = createLoadingSelector([
+  'SET_TOKEN_ALLOWANCE'
+])
+const setTokenAllowanceWaitForConfirmationSelector = createLoadingSelector(['SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'])
 
 const submitTxErrorSelector = createErrorSelector(['SUBMIT_TX'])
 const checkWalletConnectionErrorSelector = createErrorSelector(['CHECK_WALLET_CONNECTION'])
 const verifyAccountErrorSelector = createErrorSelector(['VERIFY_ACCOUNT'])
+const setTokenAllowanceErrorSelector = createErrorSelector([
+  'SET_TOKEN_ALLOWANCE'
+])
+const setTokenAllowanceWaitForConfirmationErrorSelector = createErrorSelector(['SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -129,6 +195,7 @@ const mapDispatchToProps = dispatch => {
     decryptCloudWalletAccount: (accountData, password) =>
       dispatch(decryptCloudWalletAccount(accountData, password)),
     clearError: () => dispatch(clearError()),
+    setTokenAllowance: (amount, accountData) => dispatch(setTokenAllowance(amount, accountData)),
     markAccountDirty: accountData => dispatch(markAccountDirty(accountData)),
     push: path => dispatch(push(path))
   }
@@ -139,6 +206,7 @@ const mapStateToProps = state => {
     userProfile: state.userReducer.profile.profileObj,
     currency: state.cryptoPriceReducer.currency,
     txFee: state.transferReducer.txFee,
+    setTokenAllowanceTxHash: state.transferReducer.setTokenAllowanceTxHash,
     transferForm: state.formReducer.transferForm,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account => {
       return utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
@@ -146,12 +214,16 @@ const mapStateToProps = state => {
     actionsPending: {
       submitTx: submitTxSelector(state),
       verifyAccount: verifyAccountSelector(state),
-      checkWalletConnection: checkWalletConnectionSelector(state)
+      checkWalletConnection: checkWalletConnectionSelector(state),
+      setTokenAllowance: setTokenAllowanceSelector(state),
+      setTokenAllowanceWaitForConfirmation: setTokenAllowanceWaitForConfirmationSelector(state)
     },
     errors: {
       submitTx: submitTxErrorSelector(state),
       verifyAccount: verifyAccountErrorSelector(state),
-      checkWalletConnection: checkWalletConnectionErrorSelector(state)
+      checkWalletConnection: checkWalletConnectionErrorSelector(state),
+      setTokenAllowance: setTokenAllowanceErrorSelector(state),
+      setTokenAllowanceWaitForConfirmation: setTokenAllowanceWaitForConfirmationErrorSelector(state)
     }
   }
 }

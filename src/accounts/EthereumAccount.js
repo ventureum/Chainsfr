@@ -6,6 +6,9 @@ import url from '../url'
 import ERC20 from '../ERC20'
 import { getCryptoDecimals } from '../tokens'
 import { getWalletTitle } from '../wallet'
+import SimpleMultiSigContractArtifacts from '../contracts/SimpleMultiSig.json'
+import WalletUtils from '../wallets/utils'
+import env from '../typedEnv'
 
 export default class EthereumAccount implements IAccount<AccountData> {
   accountData: AccountData
@@ -93,10 +96,18 @@ export default class EthereumAccount implements IAccount<AccountData> {
     // set eth balance
     this.accountData.ethBalance = await _web3.eth.getBalance(this.accountData.address)
 
-    // set token balance
+    // set token balance and multisig wallet allowance
     if (['dai'].includes(cryptoType)) {
       this.accountData.balance = (
         await ERC20.getBalance(this.accountData.address, cryptoType)
+      ).toString()
+
+      // set allowance
+      const NETWORK_ID = WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
+      const contractAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address
+
+      this.accountData.multiSigAllowance = (
+        await ERC20.getAllowance(this.accountData.address, contractAddr, cryptoType)
       ).toString()
     } else {
       // copy eth balance

@@ -6,6 +6,7 @@ import type { BasicTokenUnit, Address } from '../types/token.flow'
 
 import EthereumAccount from '../accounts/EthereumAccount.js'
 import Web3 from 'web3'
+import ERC20 from '../ERC20'
 import WalletLink from 'walletlink'
 import WalletUtils from './utils.js'
 import env from '../typedEnv'
@@ -204,5 +205,12 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
       cryptoType: accountData.cryptoType,
       directTransfer: !!options && options.directTransfer
     })
+  }
+
+  setTokenAllowance = async (amount: BasicTokenUnit): Promise<TxHash> => {
+    const accountData = this.getAccount().getAccountData()
+    const txObj = ERC20.getSetAllowanceTxObj(accountData.address, amount, accountData.cryptoType)
+    // boardcast tx
+    return WalletUtils.web3SendTransactions(window._web3.eth.sendTransaction, txObj)
   }
 }

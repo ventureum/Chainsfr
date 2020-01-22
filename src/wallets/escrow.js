@@ -288,6 +288,11 @@ export default class EscrowWallet implements IWallet<AccountData> {
     throw new Error('Invalid cryptoType')
   }
 
+  setTokenAllowance = async (amount: BasicTokenUnit): Promise<TxHash> => {
+    // NOT IMPLEMENTED
+    return '0x'
+  }
+
   _psbtSigner = async (
     inputs: Utxos,
     to: string,
