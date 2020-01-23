@@ -190,7 +190,6 @@ class ReviewComponent extends Component<Props> {
                   variant='contained'
                   color='primary'
                   size='large'
-                  disabled={!error}
                   onClick={() => push(`${path.transfer}?step=2`)}
                 >
                   Continue
