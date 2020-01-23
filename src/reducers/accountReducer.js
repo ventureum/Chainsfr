@@ -28,7 +28,7 @@ function updateCryptoAccount (
 
   const accountToId = account => {
     const { walletType, cryptoType, address } = account
-    return cryptoType === 'bitcoin'
+    return cryptoType === 'bitcoin' && account.hdWalletVariables.xpub
       ? JSON.stringify({ walletType, cryptoType, xpub: account.hdWalletVariables.xpub })
       : JSON.stringify({ walletType, cryptoType, address })
   }

@@ -257,7 +257,22 @@ class AddAccountModalComponent extends Component<Props, State> {
         ) {
           errorInstruction = `User denied account authorization`
         }
-
+        break
+      case 'coinbaseOAuthWallet':
+        connectText = `Fetch Coinbase ${getCryptoTitle(cryptoType)} accounts`
+        buttonText = 'Authorize Chainsfr'
+        buttonIcon = <OpenInBrowser />
+        if (errors.checkWalletConnection) {
+          errorInstruction = 'Failed to get authorization from Coinbase'
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.accountNotFound
+        ) {
+          errorInstruction = `Please select the ${cryptoType} account in the Coinbase pop window`
+        } else if (
+          errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.noAddress
+        ) {
+          errorInstruction = `No ${cryptoType} address is available from Coinbase`
+        }
         break
       default:
         throw new Error('Invalid wallet type')
@@ -315,10 +330,15 @@ class AddAccountModalComponent extends Component<Props, State> {
                   <Typography variant='body2'>
                     Wallet address: {newCryptoAccount.address}
                   </Typography>
-                ) : (
+                ) : newCryptoAccount.hdWalletVariables &&
+                  newCryptoAccount.hdWalletVariables.xpub ? (
                   <Typography variant='caption'>
                     Account xpub: {newCryptoAccount.hdWalletVariables.xpub.slice(0, 16)}...
                     {newCryptoAccount.hdWalletVariables.xpub.slice(-24)}
+                  </Typography>
+                ) : (
+                  <Typography variant='body2'>
+                    Account address: {newCryptoAccount.address}
                   </Typography>
                 )}
               </Grid>

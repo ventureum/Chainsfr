@@ -42,7 +42,9 @@ class SendToAnotherAccountModal extends Component {
                       Chainsfr Wallet
                     </Typography>
                     <Typography variant='caption' id='senderName'>
-                      {cryptoType === 'bitcoin'
+                      {cryptoType === 'bitcoin' &&
+                      accountSelection.hdWalletVariables &&
+                      accountSelection.hdWalletVariables.xpub
                         ? `${accountSelection.hdWalletVariables.xpub.slice(
                             0,
                             12

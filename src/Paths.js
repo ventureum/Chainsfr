@@ -8,7 +8,8 @@ const paths = {
   recipients: '/recipients',
   referral: '/referral',
   accounts: '/accounts',
-  receipt: '/receipt'
+  receipt: '/receipt',
+  OAuthRedirect:'/OAuthRedirect'
 }
 
 export default paths

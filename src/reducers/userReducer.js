@@ -10,7 +10,8 @@ const initState = {
     newUser: null
   },
   recipients: [],
-  cloudWalletConnected: false
+  cloudWalletConnected: false,
+  coinbaseAccessObject: null
 }
 
 export default function (state = initState, action) {
@@ -54,6 +55,8 @@ export default function (state = initState, action) {
             : []
         }
       })
+    case 'SET_COINBASE_ACCESS_OBJECT':
+      return { ...state, coinbaseAccessObject: action.payload }
     default:
       // need this for default case
       return state
