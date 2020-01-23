@@ -82,11 +82,14 @@ const networkIdMap = {
   kovan: 42
 }
 
-async function getGasCost (txObj: any): Promise<TxFee> {
+async function getGasCost (txObj: any, gas: ?string): Promise<TxFee> {
   const Web3 = require('web3')
   const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
   let price = await _web3.eth.getGasPrice()
-  let gas = (await _web3.eth.estimateGas(txObj)).toString()
+  if (!gas) {
+    // if preset gas not provided, estimate gas using web3
+    gas = (await _web3.eth.estimateGas(txObj)).toString()
+  }
   let costInBasicUnit = new BN(price).mul(new BN(gas)).toString()
   let costInStandardUnit = utils.toHumanReadableUnit(costInBasicUnit, 18, 8).toString()
 
@@ -115,7 +118,20 @@ async function getTxFee ({
     // send to multiSig Wallet
     txObj = new SimpleMultiSig().getSendToEscrowTxObj(mockFrom, mockTo, value, cryptoType)
   }
-  return getGasCost(txObj)
+
+  var gasCost
+  try {
+    gasCost = await getGasCost(txObj)
+  } catch (e) {
+    if (e.message && e.message.includes('gas required exceeds allowance')) {
+      // 133134 covers contract interaction (createErc20Wallet) cost
+      gasCost = await getGasCost(txObj, '133134')
+    } else {
+      throw e
+    }
+  }
+
+  return gasCost
 }
 
 function collectUtxos (

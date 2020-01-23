@@ -19,6 +19,7 @@ import { createAccount } from '../accounts/AccountFactory'
 import { clearAccountPrivateKey } from './accountActions'
 import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
+import pWaitFor from 'p-wait-for'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -733,6 +734,53 @@ async function _getTxFeeForTransfer (transferData) {
   }
 }
 
+async function _setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
+  let _wallet = createWallet(fromAccount)
+  const amountBasicTokenUnit = utils
+    .toBasicTokenUnit(tokenAllowanceAmount, getCryptoDecimals(fromAccount.cryptoType))
+    .toString()
+  const txHash: TxHash = await _wallet.setTokenAllowance(amountBasicTokenUnit)
+  return txHash
+}
+
+async function _setTokenAllowanceWaitForConfirmation (txHash: TxHash) {
+  if (!txHash) return
+  const checkConfirmation = async () => {
+    const Web3 = require('web3')
+    const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+    const receipt = await web3.eth.getTransactionReceipt(txHash)
+    if (receipt && receipt.status === false) {
+      throw new Error('Transaction was unsuccessful')
+    }
+    return !!receipt
+  }
+
+  // intierval: 10s, timeout 10 minutes
+  await pWaitFor(checkConfirmation, 10000, 600000)
+}
+
+function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'SET_TOKEN_ALLOWANCE',
+      payload: _setTokenAllowance(fromAccount, tokenAllowanceAmount)
+    }).then(({ value }) =>
+      dispatch({
+        type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
+        payload: _setTokenAllowanceWaitForConfirmation(value)
+      })
+    ).then(() => 
+        // we need to update tx fee since we likely had an
+        // 'gas required exceeds allowance (10000000)' revert error while getting
+        // tx fee previously
+        dispatch({
+          type: 'GET_TX_COST',
+          payload: _getTxFee({fromAccount, transferAmount: getState().formReducer.transferForm.transferAmount})
+        })
+    )
+  }
+}
+
 export {
   submitTx,
   acceptTransfer,
@@ -743,5 +791,6 @@ export {
   getTransferPassword,
   clearVerifyEscrowAccountPasswordError,
   transferStates,
-  directTransfer
+  directTransfer,
+  setTokenAllowance
 }

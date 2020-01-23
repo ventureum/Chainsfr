@@ -13,6 +13,7 @@ import EthApp from '@ledgerhq/hw-app-eth'
 import BtcApp from '@ledgerhq/hw-app-btc'
 import { address, networks } from 'bitcoinjs-lib'
 import Web3 from 'web3'
+import ERC20 from '../ERC20'
 
 import url from '../url'
 import env from '../typedEnv'
@@ -342,6 +343,26 @@ export default class LedgerWallet implements IWallet<AccountData> {
         directTransfer: !!options && options.directTransfer
       })
     }
+  }
+
+  setTokenAllowance = async (amount: BasicTokenUnit): Promise<TxHash> => {
+    const accountData = this.getAccount().getAccountData()
+    let txObj = ERC20.getSetAllowanceTxObj(accountData.address, amount, accountData.cryptoType)
+    // estimate tx cost
+    const txFee = await WalletUtils.getGasCost(txObj)
+    // add txFee to txObj
+    txObj = {
+      ...txObj,
+      gas: txFee.gas,
+      gasPrice: txFee.price
+    }
+    // init web3
+    const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+    // boardcast tx
+    return WalletUtils.web3SendTransactions(
+      _web3.eth.sendSignedTransaction,
+      (await this._signSendTransaction(txObj)).rawTransaction
+    )
   }
 
   _sleep = (time: number): Promise<any> => {

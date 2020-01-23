@@ -339,7 +339,8 @@ class FormContainer extends Component<Props, State> {
       addressPrefilled,
       accountSelection,
       form,
-      transferForm
+      transferForm,
+      error
     } = this.props
     let balanceCurrencyAmount = '0'
 
@@ -359,6 +360,7 @@ class FormContainer extends Component<Props, State> {
           accountSelection={accountSelection}
           balanceCurrencyAmount={balanceCurrencyAmount}
           transferForm={transferForm}
+          error={error}
         />
       )
     }
@@ -377,6 +379,7 @@ class FormContainer extends Component<Props, State> {
             address: addressPrefilled
           }}
           generateSecurityAnswer={this.generateSecurityAnswer}
+          error={error}
         />
         {this.state.openAddRecipientDialog && (
           <AddRecipientDialog

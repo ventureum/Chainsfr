@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react'
 
+import { withStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import CropFreeIcon from '@material-ui/icons/CropFree'
@@ -12,27 +13,73 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import UsbIcon from '@material-ui/icons/Usb'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import Tooltip from '@material-ui/core/Tooltip'
 import WalletErrors from '../wallets/walletErrors'
+import ReplayIcon from '@material-ui/icons/Replay'
 import { getWalletTitle } from '../wallet'
 import path from '../Paths.js'
+import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import MuiLink from '@material-ui/core/Link'
+import utils from '../utils'
+import url from '../url'
+import BN from 'bn.js'
 
 type Props = {
+  classes: Object,
   transferForm: Object,
   actionsPending: Object,
   accountSelection: Object,
+  setTokenAllowanceTxHash: string,
   checkWalletConnection: Function,
+  setTokenAllowanceAmount: Function,
+  insufficientAllowance: boolean,
   clearError: Function,
   errors: Object,
   push: Function
 }
 
 type State = {
-  password: string
+  password: string,
+  tokenAllowanceAmount: string,
+  minTokenAllowanceAmount: string,
+  tokenAllowanceError: ?string
 }
 
-export default class WalletAuthorizationComponent extends Component<Props, State> {
+class WalletAuthorizationComponent extends Component<Props, State> {
   state = {
-    password: ''
+    password: '',
+    tokenAllowanceAmount: '0',
+    minTokenAllowanceAmount: '0',
+    tokenAllowanceError: null
+  }
+
+  componentDidMount () {
+    const { transferForm } = this.props
+    if (transferForm) {
+      const { transferAmount } = transferForm
+      if (transferAmount) {
+        const modifiedTransferAmount = parseFloat(transferAmount).toString()
+        this.setState({
+          tokenAllowanceAmount: modifiedTransferAmount,
+          minTokenAllowanceAmount: modifiedTransferAmount
+        })
+        // update container state
+        this.props.setTokenAllowanceAmount(modifiedTransferAmount)
+      }
+    }
+  }
+
+  handleSetTokenAllowanceAmount = (amount: string) => {
+    const { minTokenAllowanceAmount, tokenAllowanceError } = this.state
+    this.setState({ tokenAllowanceAmount: amount })
+    this.props.setTokenAllowanceAmount(amount)
+
+    if (new BN(amount).lt(new BN(minTokenAllowanceAmount))) {
+      this.setState({tokenAllowanceError: 'Cannot be less than the transfer amount'})
+    } else if (tokenAllowanceError) {
+      this.setState({tokenAllowanceError: null})
+    }
   }
 
   handleChange = (prop: any) => (event: any) => {
@@ -188,9 +235,86 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     )
   }
 
+  renderSetTokenAllowanceSection = () => {
+    const { classes, accountSelection, actionsPending } = this.props
+    const { tokenAllowanceAmount, tokenAllowanceError } = this.state
+
+    const disabled =  actionsPending.submitTx ||
+                      actionsPending.verifyAccount ||
+                      actionsPending.checkWalletConnection ||
+                      actionsPending.setTokenAllowance
+                    
+    return (
+      <>
+        <Box
+          mb={4}
+          style={{
+            backgroundColor: 'rgba(57, 51, 134, 0.05)',
+            borderRadius: '4px',
+            padding: '20px'
+          }}
+        >
+          <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
+            Please approve a transaction limit before being able to continue. Learn more about the approve process
+            <MuiLink
+              target='_blank'
+              rel='noopener'
+              href={'https://help.chainsfr.com/en/articles/3651983-erc20-approve'}
+            >
+              {' here.'}
+            </MuiLink>
+          </Typography>
+        </Box>
+        <Typography variant='body2'>
+          {accountSelection && getCryptoSymbol(accountSelection.cryptoType)} Approve Transfer Limit
+        </Typography>
+        <TextField
+          margin='normal'
+          fullWidth
+          id='cryptoAmount'
+          variant='outlined'
+          type='number'
+          onChange={event => this.handleSetTokenAllowanceAmount(event.target.value)}
+          value={tokenAllowanceAmount}
+          disabled={disabled}
+          error={tokenAllowanceError}
+          helperText={tokenAllowanceError}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position='end'>
+                <Tooltip title='Generate Security Answer' position='left'>
+                  <Button
+                    className={classes.setTokenAllowanceBtn}
+                    color='primary'
+                    disabled={disabled}
+                    onClick={() =>
+                      this.handleSetTokenAllowanceAmount(this.state.minTokenAllowanceAmount)
+                    }
+                  >
+                    <ReplayIcon className={classes.setTokenAllowanceBtnIcon} />
+                    Reset
+                  </Button>
+                </Tooltip>
+              </InputAdornment>
+            )
+          }}
+        />
+      </>
+    )
+  }
+
   renderWalletAuthorizationSteps = () => {
-    const { actionsPending, accountSelection, errors } = this.props
-    const { walletType, cryptoType } = accountSelection
+    const {
+      actionsPending,
+      accountSelection,
+      errors,
+      insufficientAllowance,
+      setTokenAllowanceTxHash
+    } = this.props
+    const { walletType, cryptoType, multiSigAllowance } = accountSelection
+    const multiSigAllowanceStandardTokenUnit = utils
+      .toHumanReadableUnit(multiSigAllowance, getCryptoDecimals(accountSelection.cryptoType))
+      .toString()
     let instruction = ''
     let walletSteps
     let errorInstruction
@@ -267,10 +391,31 @@ export default class WalletAuthorizationComponent extends Component<Props, State
         return null
     }
     if (actionsPending.submitTx) instruction = 'Transfer processing...'
+    if (actionsPending.setTokenAllowance || actionsPending.setTokenAllowanceWaitForConfirmation) {
+      instruction = (
+        <>
+          Approving your account, waiting for the transaction to confirm
+          <br />
+          {setTokenAllowanceTxHash && (
+            <>
+              You can track the transaction
+              <MuiLink
+                target='_blank'
+                rel='noopener'
+                href={url.getExplorerTx(cryptoType, setTokenAllowanceTxHash)}
+              >
+                {' here'}
+              </MuiLink>
+            </>
+          )}
+        </>
+      )
+    }
 
     return (
       <Grid container spacing={2} direction='column'>
-        {!accountSelection.connected && <Grid item>{walletSteps}</Grid>}
+        {insufficientAllowance && <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>}
+        {!accountSelection.connected && <Grid item>{walletSteps}</Grid> }
         {accountSelection.connected && (
           <Grid item>
             <Typography variant='body2'>Wallet connected</Typography>
@@ -297,10 +442,11 @@ export default class WalletAuthorizationComponent extends Component<Props, State
             </Box>
           </Grid>
         )}
-
         {(actionsPending.submitTx ||
           actionsPending.checkWalletConnection ||
-          actionsPending.verifyAccount) && (
+          actionsPending.verifyAccount ||
+          actionsPending.setTokenAllowance ||
+          actionsPending.setTokenAllowanceWaitForConfirmation) && (
           <Grid item>
             <Box
               style={{
@@ -309,11 +455,20 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                 padding: '20px'
               }}
             >
-              <Typography variant='body2'>{instruction}</Typography>
+              <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
+                {instruction}
+              </Typography>
               <LinearProgress style={{ marginTop: '10px' }} />
             </Box>
           </Grid>
         )}
+        {!insufficientAllowance &&
+          <Grid item>
+            <Typography variant='body2'>
+                {`Your remaining authorized ${getCryptoSymbol(accountSelection.cryptoType)} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
+            </Typography>
+          </Grid>
+        }
       </Grid>
     )
   }
@@ -351,7 +506,8 @@ export default class WalletAuthorizationComponent extends Component<Props, State
                     disabled={
                       actionsPending.submitTx ||
                       actionsPending.verifyAccount ||
-                      actionsPending.checkWalletConnection
+                      actionsPending.checkWalletConnection ||
+                      actionsPending.setTokenAllowance
                     }
                   >
                     Back to Previous
@@ -369,3 +525,18 @@ export default class WalletAuthorizationComponent extends Component<Props, State
     )
   }
 }
+
+const styles = theme => ({
+  setTokenAllowanceBtn: {
+    borderRadis: '4px',
+    fontSize: '14px',
+    padding: '6px 10px 6px 10px',
+    margin: '0px 2px 0px 2px'
+  },
+  setTokenAllowanceBtnIcon: {
+    height: '15px',
+    width: '15px'
+  }
+})
+
+export default withStyles(styles)(WalletAuthorizationComponent)

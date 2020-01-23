@@ -93,6 +93,10 @@ export type EthereumAccountData = {
   sendable: Boolean,
   status: string,
 
+  // erc20 token allowance for the 
+  // multisig escrow wallet
+  multiSigWalletAllowance: string,
+
   privateKey?: string,
   encryptedPrivateKey?: string,
   lastSynced: number // unix timestamp
