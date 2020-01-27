@@ -19,7 +19,7 @@ import WalletErrors from '../wallets/walletErrors'
 import ReplayIcon from '@material-ui/icons/Replay'
 import { getWalletTitle } from '../wallet'
 import path from '../Paths.js'
-import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import { getCryptoSymbol, getCryptoDecimals, isERC20 } from '../tokens'
 import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
@@ -472,7 +472,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             </Box>
           </Grid>
         )}
-        {!insufficientAllowance && (
+        {!insufficientAllowance && isERC20(accountSelection.cryptoType) && (
           <Grid item>
             <Typography variant='body2'>
               {`Your remaining authorized ${getCryptoSymbol(
