@@ -363,6 +363,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = `Ledger ${cryptoType} app is not available`
         } else if (errors.verifyAccount === WalletErrors.ledger.incorrectAccount) {
           errorInstruction = 'Wrong Ledger account, please connect the correct Ledger device'
+        } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
+          errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
         }
         break
       case 'drive':
@@ -415,7 +417,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     return (
       <Grid container spacing={2} direction='column'>
         {insufficientAllowance && <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>}
-        {!accountSelection.connected && <Grid item>{walletSteps}</Grid> }
+        {!accountSelection.connected && <Grid item>{walletSteps}</Grid>}
         {accountSelection.connected && (
           <Grid item>
             <Typography variant='body2'>Wallet connected</Typography>
@@ -427,7 +429,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           </Grid>
         )}
 
-        {(errors.checkWalletConnection || errors.verifyAccount) && (
+        {(errors.checkWalletConnection ||
+          errors.verifyAccount ||
+          errors.setTokenAllowance ||
+          errors.setTokenAllowanceWaitForConfirmation) && (
           <Grid item>
             <Box
               style={{
@@ -462,13 +467,15 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             </Box>
           </Grid>
         )}
-        {!insufficientAllowance &&
+        {!insufficientAllowance && (
           <Grid item>
             <Typography variant='body2'>
-                {`Your remaining authorized ${getCryptoSymbol(accountSelection.cryptoType)} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
+              {`Your remaining authorized ${getCryptoSymbol(
+                accountSelection.cryptoType
+              )} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
             </Typography>
           </Grid>
-        }
+        )}
       </Grid>
     )
   }
