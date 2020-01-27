@@ -80,3 +80,10 @@ export function getCryptoLogo (cryptoType) {
   })
   return c.logo
 }
+
+export function isERC20 (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return !!c.address
+}

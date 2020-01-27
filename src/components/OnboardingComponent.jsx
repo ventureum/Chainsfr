@@ -7,6 +7,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import { getWalletTitle } from '../wallet'
 
 const CREATE_WALLET_PROGRESS = {
   CREATE: 'Creating Drive Wallet...',
@@ -79,8 +80,8 @@ class OnboardingComponent extends Component {
             </Grid>
             <Grid item>
               <Typography variant='h4' align='left'>
-                We are going to create a Drive wallet for you. Please set an independent password to
-                protect your Drive wallet and your future transfers.
+                We are going to create a {getWalletTitle('drive')} for you. Please set an independent password to
+                protect your wallet and your future transfers.
               </Typography>
             </Grid>
             <Grid item style={{ width: '100%' }}>

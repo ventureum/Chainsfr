@@ -11,7 +11,7 @@ import { clearError } from '../actions/userActions'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
-import { getCryptoDecimals } from '../tokens'
+import { getCryptoDecimals, isERC20 } from '../tokens'
 import BN from 'bn.js'
 import { setTokenAllowance } from '../actions/transferActions'
 
@@ -54,6 +54,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
 
   insufficientAllowance = () => {
     const { accountSelection, transferForm } = this.props
+    if (!isERC20(accountSelection.cryptoType)) return false
     const { transferAmount } = transferForm
     const transferAmountBasicTokenUnit = utils
       .toBasicTokenUnit(transferAmount, getCryptoDecimals(accountSelection.cryptoType))

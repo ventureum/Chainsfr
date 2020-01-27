@@ -19,7 +19,7 @@ import WalletErrors from '../wallets/walletErrors'
 import ReplayIcon from '@material-ui/icons/Replay'
 import { getWalletTitle } from '../wallet'
 import path from '../Paths.js'
-import { getCryptoSymbol, getCryptoDecimals } from '../tokens'
+import { getCryptoSymbol, getCryptoDecimals, isERC20 } from '../tokens'
 import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
@@ -91,7 +91,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderWalletConnectSteps = (walletType: string) => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
@@ -101,6 +101,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -115,7 +116,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderDriveConnectSteps = () => {
-    const { checkWalletConnection, errors } = this.props
+    const { checkWalletConnection, actionsPending, errors } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' spacing={2}>
@@ -147,6 +148,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection({ password })
             }}
@@ -161,7 +163,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderLedgerConnectSteps = () => {
-    const { checkWalletConnection, accountSelection } = this.props
+    const { checkWalletConnection, accountSelection, actionsPending } = this.props
     return (
       <Grid container spacing={2} direction='column'>
         {!accountSelection.connected && (
@@ -172,6 +174,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
               </Grid>
               <Grid item>
                 <Button
+                  disabled={actionsPending.submitTx}
                   onClick={() => {
                     checkWalletConnection()
                   }}
@@ -189,7 +192,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderMetamaskConnectSteps = () => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
 
     return (
       <Grid container direction='column'>
@@ -198,6 +201,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -212,7 +216,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderCoinbaseWalletLinkConnectSteps = () => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
@@ -223,6 +227,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <Grid item>
           <Button
             color='primary'
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -363,6 +368,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = `Ledger ${cryptoType} app is not available`
         } else if (errors.verifyAccount === WalletErrors.ledger.incorrectAccount) {
           errorInstruction = 'Wrong Ledger account, please connect the correct Ledger device'
+        } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
+          errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
         }
         break
       case 'drive':
@@ -415,7 +422,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     return (
       <Grid container spacing={2} direction='column'>
         {insufficientAllowance && <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>}
-        {!accountSelection.connected && <Grid item>{walletSteps}</Grid> }
+        {!accountSelection.connected && <Grid item>{walletSteps}</Grid>}
         {accountSelection.connected && (
           <Grid item>
             <Typography variant='body2'>Wallet connected</Typography>
@@ -427,7 +434,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           </Grid>
         )}
 
-        {(errors.checkWalletConnection || errors.verifyAccount) && (
+        {(errors.checkWalletConnection ||
+          errors.verifyAccount ||
+          errors.setTokenAllowance ||
+          errors.setTokenAllowanceWaitForConfirmation) && (
           <Grid item>
             <Box
               style={{
@@ -462,13 +472,15 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             </Box>
           </Grid>
         )}
-        {!insufficientAllowance &&
+        {!insufficientAllowance && isERC20(accountSelection.cryptoType) && (
           <Grid item>
             <Typography variant='body2'>
-                {`Your remaining authorized ${getCryptoSymbol(accountSelection.cryptoType)} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
+              {`Your remaining authorized ${getCryptoSymbol(
+                accountSelection.cryptoType
+              )} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
             </Typography>
           </Grid>
-        }
+        )}
       </Grid>
     )
   }

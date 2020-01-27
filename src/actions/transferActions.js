@@ -755,15 +755,18 @@ async function _setTokenAllowanceWaitForConfirmation (txHash: TxHash) {
     return !!receipt
   }
 
-  // intierval: 10s, timeout 10 minutes
-  await pWaitFor(checkConfirmation, 10000, 600000)
+  // intierval: 5s, timeout: inf
+  await pWaitFor(checkConfirmation, {interval: 5000})
 }
 
 function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'SET_TOKEN_ALLOWANCE',
-      payload: _setTokenAllowance(fromAccount, tokenAllowanceAmount)
+      payload: _setTokenAllowance(fromAccount, tokenAllowanceAmount),
+      meta: {
+        localErrorHandling: true
+      }
     }).then(({ value }) =>
       dispatch({
         type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
@@ -777,7 +780,7 @@ function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: Stan
           type: 'GET_TX_COST',
           payload: _getTxFee({fromAccount, transferAmount: getState().formReducer.transferForm.transferAmount})
         })
-    )
+    ).catch(e => console.warn(e))
   }
 }
 

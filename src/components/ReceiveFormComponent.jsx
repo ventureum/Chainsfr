@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -280,7 +281,7 @@ class ReceiveFormComponent extends Component {
         </Grid>
         <Grid item>
           <Button component={Link} to={Paths.receipt}>
-            Fuck
+            View Receipt
           </Button>
         </Grid>
       </Grid>
