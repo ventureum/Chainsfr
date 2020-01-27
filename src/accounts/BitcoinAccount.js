@@ -41,7 +41,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       balanceInStandardUnit: accountData.balanceInStandardUnit || '0',
 
       hdWalletVariables: accountData.hdWalletVariables || {
-        xpub: accountData.xpub || '0x0',
+        xpub: accountData.xpub || null,
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         addresses: [],
@@ -67,11 +67,17 @@ export default class BitcoinAccount implements IAccount<AccountData> {
 
     // set id
     if (!_accountData.id) {
-      _accountData.id = JSON.stringify({
-        cryptoType: accountData.cryptoType,
-        walletType: accountData.walletType,
-        xpub: accountData.xpub
-      })
+      accountData.xpub
+        ? (_accountData.id = JSON.stringify({
+            cryptoType: accountData.cryptoType,
+            walletType: accountData.walletType,
+            xpub: accountData.xpub
+          }))
+        : (_accountData.id = JSON.stringify({
+            cryptoType: accountData.cryptoType,
+            walletType: accountData.walletType,
+            address: accountData.address
+          }))
     }
 
     this.accountData = _accountData
@@ -157,6 +163,17 @@ export default class BitcoinAccount implements IAccount<AccountData> {
         {
           // the address of an escrow wallet account is not derived from its xpub
           // it is a P2SH(P2WSH(P2MS)) address with Chainsfr's public key.
+          address: this.accountData.address,
+          path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
+          utxos: []
+        }
+      ]
+    } else if (walletType === 'coinbaseOAuthWallet') {
+      hdWalletVariables.nextAddressIndex = 0
+      hdWalletVariables.nextChangeIndex = 0
+      hdWalletVariables.addresses = [
+        {
+          // coinbaseOAuthWallet accounts does not do discover
           address: this.accountData.address,
           path: env.REACT_APP_BTC_PATH + `/0'/0/0`, // default first account
           utxos: []

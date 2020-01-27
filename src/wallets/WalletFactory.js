@@ -7,6 +7,7 @@ import EscrowWallet from './escrow.js'
 import MetamaskWalletConnect from './metamaskWalletConnect'
 import TrustWalletConnect from './trustWalletConnect'
 import CoinbaseWalletLink from './coinbaseWalletLink'
+import CoinbaseOAuthWallet from './coinbaseOAuthWallet'
 
 export function createWallet (accountData: AccountData) {
   switch (accountData.walletType) {
@@ -24,6 +25,8 @@ export function createWallet (accountData: AccountData) {
       return new TrustWalletConnect(accountData)
     case 'coinbaseWalletLink':
       return new CoinbaseWalletLink(accountData)
+    case 'coinbaseOAuthWallet':
+      return new CoinbaseOAuthWallet(accountData)
     default:
       throw new Error(`Invalid wallet type: ${accountData.walletType}`)
   }

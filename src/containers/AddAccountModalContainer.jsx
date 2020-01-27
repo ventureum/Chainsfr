@@ -26,10 +26,6 @@ type Props = {
 }
 
 class AddAccountModalContainer extends Component<Props> {
-  checkWalletConnection = () => {
-    this.props.checkWalletConnection()
-  }
-
   onSubmit = accountData => {
     const { addCryptoAccount, handleClose } = this.props
     addCryptoAccount(accountData)

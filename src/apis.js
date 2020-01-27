@@ -4,10 +4,19 @@ import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
 import type { AccountData, BackEndCryptoAccountType } from './types/account.flow.js'
+import type { CoinBaseAccessObject } from './wallets/CoinbaseClient'
 import { store } from './configureStore.js'
+import paths from './Paths'
 
 const chainsferApi = axios.create({
   baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+const coinbaseAccessTokenApi = axios.create({
+  baseURL: env.REACT_APP_COINBASE_ACCESS_TOKEN_ENDPOINT,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -262,7 +271,7 @@ async function addCryptoAccount (
 
   const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
   let newAccount = {}
-  if (cryptoType === 'bitcoin') {
+  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
     newAccount.xpub = accountData.hdWalletVariables.xpub
   } else {
     newAccount.address = accountData.address
@@ -306,13 +315,18 @@ async function removeCryptoAccount (
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { cryptoType, walletType, hdWalletVariables, address } = accountData
   const { idToken } = store.getState().userReducer.profile
-
-  let toBeRemoved = {
+  let toBeRemoved = {}
+  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
+    toBeRemoved.xpub = accountData.hdWalletVariables.xpub
+  } else {
+    toBeRemoved.address = accountData.address
+  }
+  toBeRemoved = {
     cryptoType: cryptoType,
     walletType: walletType,
-    xpub: cryptoType === 'bitcoin' ? hdWalletVariables.xpub : undefined,
-    address: cryptoType !== 'bitcoin' ? address : undefined
+    ...toBeRemoved
   }
+
   try {
     let rv = await chainsferApi.post('/user', {
       action: 'REMOVE_CRYPTO_ACCOUNT',
@@ -331,13 +345,17 @@ async function modifyCryptoAccountName (
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { cryptoType, walletType, hdWalletVariables, address } = accountData
   const { idToken } = store.getState().userReducer.profile
-
-  let toBeModified = {
+  let toBeModified = {}
+  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
+    toBeModified.xpub = accountData.hdWalletVariables.xpub
+  } else {
+    toBeModified.address = accountData.address
+  }
+  toBeModified = {
     cryptoType: cryptoType,
     walletType: walletType,
-    xpub: cryptoType === 'bitcoin' ? hdWalletVariables.xpub : undefined,
-    address: cryptoType !== 'bitcoin' ? address : undefined,
-    name: newName
+    name: newName,
+    ...toBeModified
   }
 
   try {
@@ -390,6 +408,18 @@ async function sendBtcMultiSigTransaction (psbt: string): Promise<{ txHash: stri
   }
 }
 
+async function getCoinbaseAccessObject (code: string): Promise<CoinBaseAccessObject> {
+  try {
+    let rv = await coinbaseAccessTokenApi.post('/', {
+      code: code,
+      redireactUrl: `https://${window.location.hostname}${paths.OAuthRedirect}`
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Get Coinbase access token failed: ${err.response.data}`)
+  }
+}
+
 export default {
   transfer,
   accept,
@@ -412,5 +442,6 @@ export default {
   modifyCryptoAccountName,
   clearCloudWalletCryptoAccounts,
   getBtcMultisigPublicKey,
-  sendBtcMultiSigTransaction
+  sendBtcMultiSigTransaction,
+  getCoinbaseAccessObject
 }

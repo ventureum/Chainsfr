@@ -167,6 +167,13 @@ function removeRecipient (recipient: Recipient) {
   }
 }
 
+function setCoinbaseAccessObject ( accessObject: Object) {
+  return {
+    type: 'SET_COINBASE_ACCESS_OBJECT',
+    payload: accessObject
+  }
+}
+
 export {
   clearError,
   register,
@@ -177,5 +184,6 @@ export {
   getRecipients,
   addRecipient,
   removeRecipient,
-  editRecipient
+  editRecipient,
+  setCoinbaseAccessObject
 }

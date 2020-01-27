@@ -4,7 +4,8 @@ import MetamaskMobileLogo from './images/metamask-mobile.svg'
 import MetamaskLogo from './images/metamask.svg'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
-import CoinbaseWalletLogo from './images/coinbase-wallet.png'
+import CoinbaseWalletLinkLogo from './images/coinbase-walletLink.png'
+import CoinbaseWalletLogo from  './images/coinbase.png'
 import TrustWalletLogo from './images/trust-wallet.png'
 import { detect } from 'detect-browser'
 import { isMobile } from 'react-device-detect'
@@ -39,7 +40,11 @@ export const walletCryptoSupports = {
     { cryptoType: 'ethereum', disabled: false },
     { cryptoType: 'dai', disabled: false }
   ],
-  referralWallet: [{ cryptoType: 'ethereum', disabled: false }]
+  referralWallet: [{ cryptoType: 'ethereum', disabled: false }],
+  coinbaseOAuthWallet: [
+    { cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'bitcoin', disabled: false }
+  ]
 }
 
 export function getWalletStatus (walletType: ?string) {
@@ -84,7 +89,7 @@ export const walletSelections = [
     walletType: 'coinbaseWalletLink',
     title: 'Coinbase Wallet',
     desc: 'Coinbase Wallet',
-    logo: CoinbaseWalletLogo,
+    logo: CoinbaseWalletLinkLogo,
     disabled: false,
     sendable: true,
     receivable: true,
@@ -167,6 +172,17 @@ export const walletSelections = [
     receivable: true,
     hide: false,
     displayInHome: true
+  },
+  {
+    walletType: 'coinbaseOAuthWallet',
+    title: 'Coinbase',
+    desc: 'Coinbase',
+    logo: CoinbaseWalletLogo,
+    disabled: false,
+    sendable: false,
+    receivable: true,
+    hide: false,
+    displayInHome: false
   }
   /*
   {

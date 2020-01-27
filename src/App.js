@@ -14,6 +14,7 @@ import RecipientsContainer from './containers/RecipientsContainer'
 import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
 import OfflineComponent from './components/OfflineComponent'
+import OAuthRedirectComponent from './components/OAuthRedirectComponent'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
 import paths from './Paths'
@@ -239,6 +240,10 @@ class App extends Component {
                 <DefaultLayout
                   path={`${paths.receipt}`}
                   component={userIsAuthenticated(ReceiptContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.OAuthRedirect}`}
+                  component={userIsAuthenticated(OAuthRedirectComponent)}
                 />
               </Switch>
             </ConnectedRouter>

@@ -34,5 +34,9 @@ export default {
     incorrectAccount: 'Coinbase WalletLink holds different account',
     noOptions: 'Options must not be null for coinbase WalletLink wallet',
     authorizationDenied: 'User denied account authorization'
+  },
+  coinbaseOAuthWallet: {
+    accountNotFound: 'Coinbase wallet not found',
+    noAddress: 'Unable to obtain wallet address'
   }
 }

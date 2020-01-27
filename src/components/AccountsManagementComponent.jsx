@@ -204,7 +204,9 @@ class AccountsManagementComponent extends Component {
                           <Grid item xs>
                             <Typography variant='body2'>{accountData.name}</Typography>
                             <Typography variant='caption'>
-                              {accountData.cryptoType === 'bitcoin'
+                              {accountData.cryptoType === 'bitcoin' &&
+                              accountData.hdWalletVariables &&
+                              accountData.hdWalletVariables.xpub
                                 ? `${accountData.hdWalletVariables.xpub.slice(
                                     0,
                                     16
