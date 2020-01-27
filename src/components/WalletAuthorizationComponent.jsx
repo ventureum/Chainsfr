@@ -91,7 +91,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderWalletConnectSteps = (walletType: string) => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
@@ -101,6 +101,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -115,7 +116,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderDriveConnectSteps = () => {
-    const { checkWalletConnection, errors } = this.props
+    const { checkWalletConnection, actionsPending, errors } = this.props
     const { password } = this.state
     return (
       <Grid container direction='column' spacing={2}>
@@ -147,6 +148,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection({ password })
             }}
@@ -161,7 +163,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderLedgerConnectSteps = () => {
-    const { checkWalletConnection, accountSelection } = this.props
+    const { checkWalletConnection, accountSelection, actionsPending } = this.props
     return (
       <Grid container spacing={2} direction='column'>
         {!accountSelection.connected && (
@@ -172,6 +174,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
               </Grid>
               <Grid item>
                 <Button
+                  disabled={actionsPending.submitTx}
                   onClick={() => {
                     checkWalletConnection()
                   }}
@@ -189,7 +192,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderMetamaskConnectSteps = () => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
 
     return (
       <Grid container direction='column'>
@@ -198,6 +201,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <Button
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -212,7 +216,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderCoinbaseWalletLinkConnectSteps = () => {
-    const { checkWalletConnection } = this.props
+    const { checkWalletConnection, actionsPending } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
@@ -223,6 +227,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <Grid item>
           <Button
             color='primary'
+            disabled={actionsPending.submitTx}
             onClick={() => {
               checkWalletConnection()
             }}
