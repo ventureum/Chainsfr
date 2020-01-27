@@ -24,7 +24,27 @@ import Box from '@material-ui/core/Box'
 import ChainsfrLogo from '../images/chainsfr_logo.svg'
 import Stepper from './Stepper'
 
-class NavBarComponent extends Component {
+
+const NAV_BTNS = [
+  {
+    name: 'Home',
+    path: path.home
+  },
+  {
+    name: 'Recipients',
+    path: path.recipients
+  },
+  {
+    name: 'Accounts',
+    path: path.accounts
+  },
+  {
+    name: 'Chainsfr Wallet',
+    path: path.wallet
+  }
+]
+
+class NavBarComponent extends Component<Props> {
   state = {
     anchorEl: null,
     mobileOpen: false
@@ -101,7 +121,7 @@ class NavBarComponent extends Component {
   }
 
   renderDrawer = () => {
-    const { classes, profile } = this.props
+    const { classes, profile, location } = this.props
     return (
       <Box height={1} display='flex'>
         <List style={{ display: 'flex', flexGrow: 1, flexDirection: 'column' }}>
@@ -132,46 +152,20 @@ class NavBarComponent extends Component {
             </ListItem>
           )}
           <Divider variant='middle' />
-          <ListItem>
-            <Button
-              className={classes.NaviBtn}
-              component={Link}
-              to={path.home}
-              onClick={this.handleDrawerToggle}
-            >
-              Home
-            </Button>
-          </ListItem>
-          <ListItem>
-            <Button
-              className={classes.NaviBtn}
-              component={Link}
-              to={path.recipients}
-              onClick={this.handleDrawerToggle}
-            >
-              Recipients
-            </Button>
-          </ListItem>
-          <ListItem>
-            <Button
-              className={classes.NaviBtn}
-              component={Link}
-              to={path.accounts}
-              onClick={this.handleDrawerToggle}
-            >
-              Accounts
-            </Button>
-          </ListItem>
-          <ListItem>
-            <Button
-              className={classes.NaviBtn}
-              component={Link}
-              to={path.wallet}
-              onClick={this.handleDrawerToggle}
-            >
-              Chainsfr Wallet
-            </Button>
-          </ListItem>
+          {NAV_BTNS.map(btn => (
+            <ListItem>
+              <Box width='95%' borderRadius='4px' className={location.pathname === btn.path && classes.NaviBtnListItemMobileActive}> 
+              <Button
+                className={location.pathname === btn.path ? classes.NaviBtnMobileActive : classes.NaviBtn}
+                component={Link}
+                to={btn.path}
+                onClick={this.handleDrawerToggle}
+              >
+                {btn.name}
+              </Button>
+              </Box>
+            </ListItem>
+          ))}
           <ListItem style={{ marginTop: 'auto' }}>
             <Button onClick={this.handleClose('logout')} id='logout' className={classes.logoutBtn}>
               <ExitIcon className={classes.logoutIcon} id='exitIcon' />
@@ -267,34 +261,13 @@ class NavBarComponent extends Component {
                       ) : (
                         <Grid item>
                           <Grid container alignItems='center'>
+                          {NAV_BTNS.map(btn => (
                             <Grid item xs={12} sm='auto'>
-                              <Button className={classes.NaviBtn} component={Link} to={path.home}>
-                                Home
+                              <Button className={location.pathname === btn.path ? classes.NaviBtnActive : classes.NaviBtn} component={Link} to={btn.path}>
+                                {btn.name}
                               </Button>
                             </Grid>
-                            <Grid item xs={12} sm='auto'>
-                              <Button
-                                className={classes.NaviBtn}
-                                component={Link}
-                                to={path.recipients}
-                              >
-                                Recipients
-                              </Button>
-                            </Grid>
-                            <Grid item xs={12} sm='auto'>
-                              <Button
-                                className={classes.NaviBtn}
-                                component={Link}
-                                to={path.accounts}
-                              >
-                                Accounts
-                              </Button>
-                            </Grid>
-                            <Grid item xs={12} sm='auto'>
-                              <Button className={classes.NaviBtn} component={Link} to={path.wallet}>
-                                Chainsfr Wallet
-                              </Button>
-                            </Grid>
+                          ))}
                             <Grid item xs={12} sm='auto'>
                               {this.renderProfileButton()}
                             </Grid>
@@ -356,6 +329,21 @@ const styles = theme => ({
     fontWeight: '500',
     textTransform: 'none',
     fontSize: '14px'
+  },
+  NaviBtnActive: {
+    fontWeight: '500',
+    textTransform: 'none',
+    fontSize: '14px',
+    position: 'relative',
+    borderBottom: `2px solid ${uiColors.primary}`,
+    borderRadius: '0px'
+  },
+  NaviBtnMobileActive: {
+    color: 'white'
+  },
+   NaviBtnListItemMobileActive: {
+    background: uiColors.primary,
+    color: 'white'
   },
   menuItemUserName: {
     color: '#3a4b6c',
