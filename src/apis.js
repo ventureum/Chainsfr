@@ -264,31 +264,35 @@ async function referralCreate () {
   return rv.data
 }
 
-async function addCryptoAccount (
-  accountData: AccountData
+async function addCryptoAccounts (
+  accounts: Array<AccountData>
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { idToken } = store.getState().userReducer.profile
 
-  const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
-  let newAccount = {}
-  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
-    newAccount.xpub = accountData.hdWalletVariables.xpub
-  } else {
-    newAccount.address = accountData.address
-  }
-  newAccount = {
-    ...newAccount,
-    walletType: walletType,
-    cryptoType: cryptoType,
-    name: name,
-    verified: verified || false,
-    receivable: receivable || false,
-    sendable: sendable || false
-  }
+  let tobeAdded = accounts.map((accountData: AccountData) => {
+    const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
+    let newAccount = {}
+    if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
+      newAccount.xpub = accountData.hdWalletVariables.xpub
+    } else {
+      newAccount.address = accountData.address
+    }
+    newAccount = {
+      ...newAccount,
+      walletType: walletType,
+      cryptoType: cryptoType,
+      name: name,
+      verified: verified || false,
+      receivable: receivable || false,
+      sendable: sendable || false
+    }
+    return newAccount
+  })
+
   try {
     let rv = await chainsferApi.post('/user', {
-      action: 'ADD_CRYPTO_ACCOUNT',
-      account: newAccount,
+      action: 'ADD_CRYPTO_ACCOUNTS',
+      payloadAccounts: tobeAdded,
       idToken: idToken
     })
     return rv.data
@@ -310,28 +314,33 @@ async function getCryptoAccounts (): Promise<{ cryptoAccounts: Array<BackEndCryp
   }
 }
 
-async function removeCryptoAccount (
-  accountData: AccountData
+async function removeCryptoAccounts (
+  accounts: Array<AccountData>
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
-  const { cryptoType, walletType, hdWalletVariables, address } = accountData
   const { idToken } = store.getState().userReducer.profile
-  let toBeRemoved = {}
-  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
-    toBeRemoved.xpub = accountData.hdWalletVariables.xpub
-  } else {
-    toBeRemoved.address = accountData.address
-  }
-  toBeRemoved = {
-    cryptoType: cryptoType,
-    walletType: walletType,
-    ...toBeRemoved
-  }
+
+  let tobeRemove = accounts.map((accountData: AccountData) => {
+    const { cryptoType, walletType, hdWalletVariables, address } = accountData
+    let targetAccount = {}
+
+    if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
+      targetAccount.xpub = accountData.hdWalletVariables.xpub
+    } else {
+      targetAccount.address = accountData.address
+    }
+    targetAccount = {
+      cryptoType: cryptoType,
+      walletType: walletType,
+      ...targetAccount
+    }
+    return targetAccount
+  })
 
   try {
     let rv = await chainsferApi.post('/user', {
-      action: 'REMOVE_CRYPTO_ACCOUNT',
+      action: 'REMOVE_CRYPTO_ACCOUNTS',
       idToken: idToken,
-      account: toBeRemoved
+      payloadAccounts: tobeRemove
     })
     return rv.data
   } catch (err) {
@@ -339,30 +348,34 @@ async function removeCryptoAccount (
   }
 }
 
-async function modifyCryptoAccountName (
-  accountData: AccountData,
+async function modifyCryptoAccountsName (
+  accounts: Array<AccountData>,
   newName: string
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
-  const { cryptoType, walletType, hdWalletVariables, address } = accountData
   const { idToken } = store.getState().userReducer.profile
-  let toBeModified = {}
-  if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
-    toBeModified.xpub = accountData.hdWalletVariables.xpub
-  } else {
-    toBeModified.address = accountData.address
-  }
-  toBeModified = {
-    cryptoType: cryptoType,
-    walletType: walletType,
-    name: newName,
-    ...toBeModified
-  }
+
+  let toBeModified = accounts.map((accountData: AccountData) => {
+    const { cryptoType, walletType, hdWalletVariables, address } = accountData
+    let targetAccount = {}
+    if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
+      targetAccount.xpub = accountData.hdWalletVariables.xpub
+    } else {
+      targetAccount.address = accountData.address
+    }
+    targetAccount = {
+      cryptoType: cryptoType,
+      walletType: walletType,
+      name: newName,
+      ...targetAccount
+    }
+    return targetAccount
+  })
 
   try {
     let rv = await chainsferApi.post('/user', {
-      action: 'MODIFY_CRYPTO_ACCOUNT_NAME',
+      action: 'MODIFY_CRYPTO_ACCOUNT_NAMES',
       idToken: idToken,
-      account: toBeModified
+      payloadAccounts: toBeModified
     })
     return rv.data
   } catch (err) {
@@ -436,10 +449,10 @@ export default {
   referralBalance,
   referralSend,
   referralCreate,
-  addCryptoAccount,
+  addCryptoAccounts,
   getCryptoAccounts,
-  removeCryptoAccount,
-  modifyCryptoAccountName,
+  removeCryptoAccounts,
+  modifyCryptoAccountsName,
   clearCloudWalletCryptoAccounts,
   getBtcMultisigPublicKey,
   sendBtcMultiSigTransaction,

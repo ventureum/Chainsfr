@@ -5,6 +5,7 @@ import LibraLogo from './images/libra.png'
 
 export const cryptoSelections = [
   {
+    platformType:'bitcoin',
     cryptoType: 'bitcoin',
     title: 'Bitcoin',
     symbol: 'BTC',
@@ -13,6 +14,7 @@ export const cryptoSelections = [
     txFeesCryptoType: 'bitcoin'
   },
   {
+    platformType:'ethereum',
     cryptoType: 'ethereum',
     title: 'Ethereum',
     symbol: 'ETH',
@@ -21,6 +23,7 @@ export const cryptoSelections = [
     txFeesCryptoType: 'ethereum'
   },
   {
+    platformType:'ethereum',
     cryptoType: 'dai',
     title: 'Dai',
     symbol: 'DAI',
@@ -30,6 +33,7 @@ export const cryptoSelections = [
     txFeesCryptoType: 'ethereum'
   },
   {
+    platformType:'libra',
     cryptoType: 'libra',
     title: 'Libra',
     symbol: 'Libra',
@@ -86,4 +90,11 @@ export function isERC20 (cryptoType) {
     return cryptoType === crypto.cryptoType
   })
   return !!c.address
+}
+
+export function getCryptoPlatformType (cryptoType){
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.platformType
 }

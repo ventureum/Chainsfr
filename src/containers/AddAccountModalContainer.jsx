@@ -9,7 +9,7 @@ import {
   checkWalletConnection,
   newCryptoAccountFromWallet
 } from '../actions/walletActions'
-import { addCryptoAccount } from '../actions/accountActions.js'
+import { addCryptoAccounts } from '../actions/accountActions.js'
 import { clearError } from '../actions/userActions'
 
 type Props = {
@@ -22,14 +22,14 @@ type Props = {
   handleClose: Function,
   newCryptoAccount: Object,
   newCryptoAccountFromWallet: Function,
-  addCryptoAccount: Function,
+  addCryptoAccounts: Function,
   online: boolean
 }
 
 class AddAccountModalContainer extends Component<Props> {
   onSubmit = accountData => {
-    const { addCryptoAccount, handleClose } = this.props
-    addCryptoAccount(accountData)
+    const { addCryptoAccounts, handleClose } = this.props
+    addCryptoAccounts(accountData)
     handleClose()
   }
 
@@ -79,7 +79,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(checkWalletConnection(accountData, options)),
     newCryptoAccountFromWallet: (name, cryptoType, walletType, options) =>
       dispatch(newCryptoAccountFromWallet(name, cryptoType, walletType, options)),
-    addCryptoAccount: accountData => dispatch(addCryptoAccount(accountData)),
+    addCryptoAccounts: accountData => dispatch(addCryptoAccounts(accountData)),
     clearError: () => dispatch(clearError())
   }
 }

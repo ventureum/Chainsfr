@@ -234,7 +234,7 @@ class FormContainer extends Component<Props, State> {
 
     if (
       !(name === 'destination' && event.target.value === 'AddRecipient') &&
-      !(name === 'accountSelection' && event.target.value === 'addCryptoAccount')
+      !(name === 'accountSelection' && event.target.value === 'addCryptoAccounts')
     ) {
       _transferForm = update(transferForm, {
         [name]: { $set: event.target.value },

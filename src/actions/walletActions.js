@@ -50,7 +50,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
           walletFileData[accountData.address] = accountData
         }
         try {
-          await API.addCryptoAccount(account.getAccountData())
+          await API.addCryptoAccounts(account.getAccountData())
         } catch (err) {
           console.warn('Add new Cloud wallet account to backend failed')
         }
