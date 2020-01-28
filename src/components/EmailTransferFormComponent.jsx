@@ -144,6 +144,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <AccountDropdownContainer
+            purpose={'send'}
             onChange={handleTransferFormChange('accountId')}
             filterCriteria={accountData =>
               !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled

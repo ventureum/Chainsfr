@@ -35,6 +35,7 @@ class DirectTransferFormComponent extends Component {
         </Grid>
         <Grid item>
           <AccountDropdown
+            purpose={'send'}
             onChange={handleTransferFormChange('destination')}
             filterCriteria={accountData => accountData.walletType !== 'drive'}
             accountId={destination}

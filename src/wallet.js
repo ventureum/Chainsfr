@@ -48,7 +48,18 @@ export const walletCryptoSupports = {
 }
 
 export function getWalletStatus (walletType: ?string) {
-  if (isMobile && ['metamask', 'ledger'].includes(walletType)) {
+  if (
+    isMobile &&
+    [
+      'metamask',
+      'metamaskOne',
+      'metamaskWalletConnect',
+      'trustWalletConnect',
+      'coinbaseOAuthWallet',
+      'ledger',
+      'coinbaseWalletLink'
+    ].includes(walletType)
+  ) {
     return {
       disabled: true,
       disabledReason: 'Not supported in mobile device'
