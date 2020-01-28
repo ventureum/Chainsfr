@@ -17,14 +17,15 @@ type Props = {
   handleClose: Function,
   handleSubmit: Function,
   loading: boolean,
-  recipient: Object
+  recipient: Object,
+  online: boolean
 }
 
 class RemoveRecipientDialog extends Component<Props> {
   state = this.props.recipient
 
   render () {
-    let { loading, open, handleSubmit, recipient, handleClose } = this.props
+    let { loading, open, handleSubmit, recipient, handleClose, online } = this.props
     return (
       <Dialog
         open={open}
@@ -67,7 +68,7 @@ class RemoveRecipientDialog extends Component<Props> {
             </Button>
           </Box>
           <Button
-            disabled={loading}
+            disabled={loading || !online}
             onClick={() => {
               handleSubmit(this.state)
             }}

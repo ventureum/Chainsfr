@@ -73,7 +73,7 @@ class AccountsManagementComponent extends Component {
 
   renderDeleteConfirmModal = () => {
     const { chosenAccount, deleteConfirmModal } = this.state
-    const { removeCryptoAccount, classes } = this.props
+    const { removeCryptoAccount, classes, online } = this.props
     return (
       <Dialog
         open={deleteConfirmModal}
@@ -97,6 +97,7 @@ class AccountsManagementComponent extends Component {
           <Button onClick={() => this.toggleDeleteConfirmModal()}>Cancel</Button>
           <Button
             variant='contained'
+            disabled={!online}
             onClick={() => {
               removeCryptoAccount(chosenAccount)
               this.toggleDeleteConfirmModal()
@@ -112,7 +113,7 @@ class AccountsManagementComponent extends Component {
 
   renderChangeNameModal = () => {
     const { chosenAccount, changeNameModal, newAccountName } = this.state
-    const { modifyCryptoAccountName, classes } = this.props
+    const { modifyCryptoAccountName, classes, online } = this.props
     return (
       <Dialog
         open={changeNameModal}
@@ -143,6 +144,7 @@ class AccountsManagementComponent extends Component {
         <DialogActions style={{ marginBottom: '10px' }}>
           <Button onClick={() => this.toggleChangeNameModal()}>Cancel</Button>
           <Button
+            disabled={!online}
             onClick={() => {
               modifyCryptoAccountName(chosenAccount, newAccountName)
               this.toggleChangeNameModal()
@@ -289,7 +291,7 @@ class AccountsManagementComponent extends Component {
     )
   }
   render () {
-    const { classes } = this.props
+    const { classes, online } = this.props
     const { addAccountModal } = this.state
     return (
       <Grid container justify='center'>
@@ -304,6 +306,7 @@ class AccountsManagementComponent extends Component {
                   <Button
                     variant='contained'
                     color='primary'
+                    disabled={!online}
                     onClick={() => {
                       this.toggleAddAccountModal()
                     }}
@@ -322,6 +325,7 @@ class AccountsManagementComponent extends Component {
           <AddAccountModal
             open={addAccountModal}
             handleClose={this.toggleAddAccountModal}
+            online={online}
           ></AddAccountModal>
         )}
       </Grid>

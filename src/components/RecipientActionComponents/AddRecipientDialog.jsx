@@ -19,7 +19,8 @@ type Props = {
   open: boolean,
   handleClose: Function,
   handleSubmit: Function,
-  loading: boolean
+  loading: boolean,
+  online: boolean
 }
 
 type State = {
@@ -54,7 +55,7 @@ class AddRecipientDialog extends Component<Props, State> {
   }
 
   render () {
-    let { loading, open, handleSubmit, handleClose } = this.props
+    let { loading, open, handleSubmit, handleClose, online } = this.props
     const { name, email, validEmail, validName } = this.state
     return (
       <Dialog
@@ -121,7 +122,7 @@ class AddRecipientDialog extends Component<Props, State> {
           </Box>
           <Button
             variant='contained'
-            disabled={loading || !name || !email || !validEmail}
+            disabled={loading || !name || !email || !validEmail || !online}
             onClick={() => {
               handleSubmit(this.state)
             }}

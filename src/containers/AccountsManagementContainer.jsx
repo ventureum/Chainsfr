@@ -24,7 +24,8 @@ class AccountsManagementContainer extends Component {
       actionsPending,
       cryptoAccounts,
       removeCryptoAccount,
-      modifyCryptoAccountName
+      modifyCryptoAccountName,
+      online
     } = this.props
     return (
       <AccountsManagementComponent
@@ -34,6 +35,7 @@ class AccountsManagementContainer extends Component {
         modifyCryptoAccountName={modifyCryptoAccountName}
         removeCryptoAccount={removeCryptoAccount}
         handleTransferFrom={this.handleTransferFrom}
+        online={online}
       />
     )
   }

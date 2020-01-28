@@ -38,7 +38,8 @@ type Props = {
   newCryptoAccount: Object,
   checkWalletConnection: Function,
   errors: Object,
-  onSubmit: Function
+  onSubmit: Function,
+  online: boolean
 }
 
 type State = {
@@ -202,7 +203,7 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderWalletConnect = () => {
-    const { checkWalletConnection, errors } = this.props
+    const { checkWalletConnection, errors, online } = this.props
     const { walletType, cryptoType } = this.state
     let connectText, buttonText, buttonIcon
     let errorInstruction
@@ -288,7 +289,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             onClick={() => {
               checkWalletConnection({ walletType: walletType, cryptoType: cryptoType })
             }}
-            disabled={this.locked()}
+            disabled={this.locked() || !online}
           >
             {buttonIcon}
             {buttonText}
