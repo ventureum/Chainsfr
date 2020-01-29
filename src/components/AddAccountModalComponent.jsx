@@ -17,7 +17,7 @@ import IconButton from '@material-ui/core/IconButton'
 import UsbIcon from '@material-ui/icons/Usb'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import { WalletButton } from './WalletSelectionButtons.jsx'
-import { walletSelections, walletCryptoSupports } from '../wallet'
+import { walletSelections, walletCryptoSupports, getWalletConfig } from '../wallet'
 import { getCryptoTitle } from '../tokens'
 import Radio from '@material-ui/core/Radio'
 import List from '@material-ui/core/List'
@@ -102,7 +102,12 @@ class AddAccountModalComponent extends Component<Props, State> {
           .map((w, i) => {
             return (
               <Grid item xs={4} key={i}>
-                <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
+                <WalletButton
+                  walletType={w.walletType}
+                  handleClick={this.handleWalletSelect}
+                  disabled={!getWalletConfig(w.walletType).addable}
+                  disabledReason={getWalletConfig(w.walletType).disabledReason}
+                />
               </Grid>
             )
           })}

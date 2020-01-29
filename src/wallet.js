@@ -47,7 +47,26 @@ export const walletCryptoSupports = {
   ]
 }
 
-export function getWalletStatus (walletType: ?string) {
+function isBrowserCompatible ({status, walletType}: {status: Object, walletType: string}) {
+  if (browser && browser.name === 'chrome') {
+    let v = browser.version.split('.')[0]
+    if (parseInt(v) < 73) {
+      status.sendable = false
+      status.receivable = false
+      status.addable = false
+      status.disabledReason = 'Chrome version 73 or above needed'
+    }
+  } else if (browser && browser.name !== 'chrome') {
+    status.sendable = false
+    status.receivable = false
+    status.addable = false
+    status.disabledReason = 'Chrome browser needed'
+  }
+
+  return {status, walletType}
+}
+
+function isSendable ({status, walletType}: {status: Object, walletType: string}) {
   if (
     isMobile &&
     [
@@ -60,28 +79,49 @@ export function getWalletStatus (walletType: ?string) {
       'coinbaseWalletLink'
     ].includes(walletType)
   ) {
-    return {
-      disabled: true,
-      disabledReason: 'Not supported in mobile device'
-    }
-  } else if (browser && browser.name === 'chrome') {
-    let v = browser.version.split('.')[0]
-    if (parseInt(v) < 73) {
-      return {
-        disabled: true,
-        disabledReason: 'Chrome version 73 or above needed'
-      }
-    }
-  } else if (browser && browser.name !== 'chrome') {
-    return {
-      disabled: true,
-      disabledReason: 'Chrome browser needed'
-    }
+    status.sendable = false
+    status.disabledReason = status.disabledReason || 'Not supported in mobile device'
   }
-  return {
-    disabled: false,
-    disabledReason: ''
+
+  return {status, walletType}
+}
+
+function isReceivable ({status, walletType}: {status: Object, walletType: string}) {
+  // enable receive for all regular wallets by default
+  if (
+    [
+     'escrow',
+      'referralWallet'
+    ].includes(walletType)
+  ) {
+    status.receivable = false
   }
+
+  return {status, walletType}
+}
+
+function isAddable ({status, walletType}: {status: Object, walletType: string}) {
+  // in mobile, only coinbaseOauthWallet is enabled
+  if (
+    isMobile && walletType !== 'coinbaseOAuthWallet'
+  ) {
+    status.addable = false
+    status.disabledReason = status.disabledReason || 'Not supported in mobile device'
+  }
+
+  return {status, walletType}
+}
+
+export function getWalletStatus (walletType: string) {
+  const compose = (...args) => (value) => args.reduceRight((acc, fn) => fn(acc), value)
+  const status = {
+    sendable: true,
+    receivable: true,
+    addable: true
+  }
+
+  // compose from right to left
+  return compose(isAddable, isReceivable, isSendable, isBrowserCompatible)({status, walletType}).status
 }
 
 export const walletSelections = [
@@ -90,9 +130,8 @@ export const walletSelections = [
     title: 'Chainsfr Wallet',
     desc: 'Use Chainsfr Wallet',
     logo: DriveWalletLogo,
+    ...getWalletStatus('drive'),
     disabled: false,
-    sendable: true,
-    receivable: true,
     hide: false,
     displayInHome: true
   },
@@ -101,9 +140,8 @@ export const walletSelections = [
     title: 'Coinbase Wallet',
     desc: 'Coinbase Wallet',
     logo: CoinbaseWalletLinkLogo,
+    ...getWalletStatus('coinbaseWalletLink'),
     disabled: false,
-    sendable: true,
-    receivable: true,
     hide: false,
     displayInHome: true
   },
@@ -112,9 +150,7 @@ export const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask One',
     logo: MetamaskLogo,
-    ...getWalletStatus(),
-    sendable: true,
-    receivable: false,
+    ...getWalletStatus('metamaskOne'),
     hide: false,
     displayInHome: true
   },
@@ -123,9 +159,7 @@ export const walletSelections = [
     title: 'Metamask',
     desc: 'MetaMask Extension',
     logo: MetamaskExtensionLogo,
-    ...getWalletStatus(),
-    sendable: true,
-    receivable: true,
+    ...getWalletStatus('metamask'),
     hide: false,
     displayInHome: false
   },
@@ -134,9 +168,7 @@ export const walletSelections = [
     title: 'Ledger',
     desc: 'Ledger Hardware Wallet',
     logo: LedgerWalletLogo,
-    ...getWalletStatus(),
-    sendable: true,
-    receivable: true,
+    ...getWalletStatus('ledger'),
     hide: false,
     displayInHome: true
   },
@@ -145,9 +177,8 @@ export const walletSelections = [
     title: 'MetaMask Mobile',
     desc: 'MetaMask Mobile',
     logo: MetamaskMobileLogo,
+    ...getWalletStatus('metamaskWalletConnect'),
     disabled: false,
-    sendable: true,
-    receivable: true,
     hide: false,
     displayInHome: false
   },
@@ -156,9 +187,8 @@ export const walletSelections = [
     title: 'Referral Wallet',
     desc: 'Referral Wallet',
     logo: DriveWalletLogo,
+    ...getWalletStatus('referralWallet'),
     disabled: false,
-    sendable: true,
-    receivable: false,
     hide: true,
     displayInHome: false
   },
@@ -167,9 +197,8 @@ export const walletSelections = [
     title: 'Escrow Wallet',
     desc: 'Escrow Wallet',
     logo: DriveWalletLogo,
+    ...getWalletStatus('escrow'),
     disabled: false,
-    sendable: true,
-    receivable: true,
     hide: true,
     displayInHome: false
   },
@@ -178,9 +207,8 @@ export const walletSelections = [
     title: 'Trust Wallet',
     desc: 'Trust Wallet',
     logo: TrustWalletLogo,
+    ...getWalletStatus('trustWalletConnect'),
     disabled: false,
-    sendable: true,
-    receivable: true,
     hide: false,
     displayInHome: true
   },
@@ -189,9 +217,8 @@ export const walletSelections = [
     title: 'Coinbase',
     desc: 'Coinbase',
     logo: CoinbaseWalletLogo,
+    ...getWalletStatus('coinbaseOAuthWallet'),
     disabled: false,
-    sendable: false,
-    receivable: true,
     hide: false,
     displayInHome: false
   }
@@ -237,4 +264,11 @@ export function getWalletLogo (walletType: string): Object {
     return walletType === wallet.walletType
   })
   return w.logo
+}
+
+export function getWalletConfig (walletType: string): Object {
+  const w: Object = walletSelections.find(wallet => {
+    return walletType === wallet.walletType
+  })
+  return w
 }
