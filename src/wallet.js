@@ -146,6 +146,8 @@ export const walletSelections = [
     displayInHome: true
   },
   {
+    // original metamask icon
+    // only displyed on landing page
     walletType: 'metamaskOne',
     title: 'Metamask',
     desc: 'MetaMask One',
