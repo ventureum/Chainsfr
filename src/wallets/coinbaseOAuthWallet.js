@@ -121,9 +121,13 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
   }
 
   checkWalletConnection = async (additionalInfo: ?Object): Promise<boolean> => {
-    const { cryptoType } = this.getAccount().accountData
-    const coinbaseAccessObject = await CoinbaseClient.getAccessObject(cryptoType)
-    return !!coinbaseAccessObject
+    // wallet is not sendable
+    // no need to check wallet connection
+    //
+    // during account adding process
+    // newCryptoAccountFromWallet action is invoked and oauth procedure will start
+    // afterward
+    return true
   }
 
   verifyAccount = async (additionalInfo: ?Object): Promise<boolean> => {

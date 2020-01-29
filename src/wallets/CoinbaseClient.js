@@ -4,8 +4,6 @@ import axios from 'axios'
 import { store } from '../configureStore'
 import { setCoinbaseAccessObject } from '../actions/userActions'
 import API from '../apis'
-import { getCryptoSymbol } from '../tokens'
-import moment from 'moment'
 import paths from '../Paths'
 import walletErrors from './walletErrors'
 
@@ -66,26 +64,20 @@ export async function getCyrptoAddress (cryptoType) {
 }
 
 export async function getAccessObject (cryptoType) {
-  let accessObject = store.getState().userReducer.coinbaseAccessObject
-  // if accessObject does not exist or expires in 30 mins
-  if (
-    !accessObject ||
-    accessObject.created_at + accessObject.expires_in <= moment().unix() + 1800 ||
-    accessObject.cryptoType !== cryptoType
-  ) {
-    accessObject = await new Promise((resolve, reject) => {
-      const callback = async event => {
-        if (event.data && event.data.type === 'coinbase_auth') {
-          const urlParams = queryString.parse(event.data.params)
-          const rv = await API.getCoinbaseAccessObject(urlParams.code)
-          resolve(rv)
-        }
+  // storing the access object causing users unable to switch cryptoType
+  // pop up oauth window everytime while adding a new account
+  const accessObject = await new Promise((resolve, reject) => {
+    const callback = async event => {
+      if (event.data && event.data.type === 'coinbase_auth') {
+        const urlParams = queryString.parse(event.data.params)
+        const rv = await API.getCoinbaseAccessObject(urlParams.code)
+        resolve(rv)
       }
-      openSignInWindow(callback)
-    })
-    if (accessObject.error) throw new Error(accessObject.error_description)
-    store.dispatch(setCoinbaseAccessObject({ cryptoType: cryptoType, ...accessObject }))
-  }
+    }
+    openSignInWindow(callback)
+  })
+  if (accessObject.error) throw new Error(accessObject.error_description)
+  store.dispatch(setCoinbaseAccessObject({ cryptoType: cryptoType, ...accessObject }))
 
   return accessObject
 }
