@@ -6,11 +6,15 @@ import { withSnackbar } from 'notistack'
 import { removeSnackbar } from '../actions/notificationActions'
 
 class NotifierComponent extends Component {
-  displayed = [];
+  displayed = []
 
-  storeDisplayed = (id) => {
+  storeDisplayed = id => {
     this.displayed = [...this.displayed, id]
-  };
+  }
+
+  removeDisplayed = id => {
+    this.displayed = [...this.displayed.filter(key => id !== key)]
+  }
 
   shouldComponentUpdate ({ notifications: newSnacks = [] }) {
     const { notifications: currentSnacks } = this.props
@@ -20,6 +24,7 @@ class NotifierComponent extends Component {
       if (newSnack.dismissed) {
         this.props.closeSnackbar(newSnack.key)
         this.props.removeSnackbar(newSnack.key)
+        this.removeDisplayed(newSnack.key)
       }
 
       if (notExists) continue
@@ -44,6 +49,7 @@ class NotifierComponent extends Component {
           }
           // Dispatch action to remove snackbar from redux store
           this.props.removeSnackbar(key)
+          this.removeDisplayed(key)
         }
       })
       // Keep track of snackbars that we've displayed
@@ -64,7 +70,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ removeSnackbar }, dispatch)
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withSnackbar(NotifierComponent))
+export default connect(mapStateToProps, mapDispatchToProps)(withSnackbar(NotifierComponent))

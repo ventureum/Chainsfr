@@ -17,7 +17,7 @@ import IconButton from '@material-ui/core/IconButton'
 import UsbIcon from '@material-ui/icons/Usb'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import { WalletButton } from './WalletSelectionButtons.jsx'
-import { walletSelections, walletCryptoSupports } from '../wallet'
+import { walletSelections, walletCryptoSupports, getWalletConfig } from '../wallet'
 import { getCryptoTitle } from '../tokens'
 import Radio from '@material-ui/core/Radio'
 import List from '@material-ui/core/List'
@@ -25,6 +25,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import walletErrors from '../wallets/walletErrors'
+import withMobileDialog from '@material-ui/core/withMobileDialog'
 
 type Props = {
   walletType: string,
@@ -38,7 +39,9 @@ type Props = {
   newCryptoAccount: Object,
   checkWalletConnection: Function,
   errors: Object,
-  onSubmit: Function
+  onSubmit: Function,
+  online: boolean,
+  fullScreen: boolean
 }
 
 type State = {
@@ -100,8 +103,13 @@ class AddAccountModalComponent extends Component<Props, State> {
           })
           .map((w, i) => {
             return (
-              <Grid item xs={4} key={i}>
-                <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
+              <Grid item xs={6} md={4} key={i}>
+                <WalletButton
+                  walletType={w.walletType}
+                  handleClick={this.handleWalletSelect}
+                  disabled={!getWalletConfig(w.walletType).addable}
+                  disabledReason={getWalletConfig(w.walletType).disabledReason}
+                />
               </Grid>
             )
           })}
@@ -202,7 +210,7 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderWalletConnect = () => {
-    const { checkWalletConnection, errors } = this.props
+    const { checkWalletConnection, errors, online } = this.props
     const { walletType, cryptoType } = this.state
     let connectText, buttonText, buttonIcon
     let errorInstruction
@@ -288,7 +296,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             onClick={() => {
               checkWalletConnection({ walletType: walletType, cryptoType: cryptoType })
             }}
-            disabled={this.locked()}
+            disabled={this.locked() || !online}
           >
             {buttonIcon}
             {buttonText}
@@ -377,15 +385,17 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   render () {
-    const { open, handleClose, onSubmit, newCryptoAccount, classes } = this.props
+    const { open, handleClose, onSubmit, newCryptoAccount, fullScreen, classes } = this.props
     const { step, name } = this.state
     return (
       <Dialog
         open={open}
+        fullScreen={fullScreen}
         onClose={() => {
           if (!this.locked) handleClose()
         }}
         maxWidth='md'
+        fullWidth
       >
         <DialogTitle disableTypography>
           <Typography variant='h2'>Connect to Account</Typography>
@@ -397,7 +407,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent style={{ height: '400px', width: '680px' }}>
+        <DialogContent style={{height: '400px'}}>
           {this.renderSteps()}
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center', marginBottom: '10px' }}>
@@ -434,4 +444,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(AddAccountModalComponent)
+export default withStyles(styles)(withMobileDialog()(AddAccountModalComponent))

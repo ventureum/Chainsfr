@@ -120,7 +120,7 @@ class WalletComponent extends Component {
   }
 
   render () {
-    const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
+    const { actionsPending, transferHistory, loadMoreTransferHistory, online } = this.props
     const { sendToAnotherAccountModal } = this.state
     return (
       <div>
@@ -136,6 +136,7 @@ class WalletComponent extends Component {
               this.handleModalClose()
             }}
             open={sendToAnotherAccountModal}
+            online={online}
           />
         )}
       </div>

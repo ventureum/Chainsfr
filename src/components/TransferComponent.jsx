@@ -14,12 +14,13 @@ type Props = {
   classes: Object,
   step: number,
   history: Object,
-  transferForm: Object
+  transferForm: Object,
+  online: boolean
 }
 
 class TransferComponent extends React.Component<Props> {
   render () {
-    const { classes, history, transferForm } = this.props
+    const { classes, history, transferForm, online } = this.props
     const urlParams = queryString.parse(history.location.search)
     let step = urlParams.step
 
@@ -35,6 +36,7 @@ class TransferComponent extends React.Component<Props> {
             destinationPrefilled={urlParams && (urlParams.destination || '')}
             receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
             form='email_transfer'
+            online={online}
           />
         </Grid>
       )
@@ -43,13 +45,13 @@ class TransferComponent extends React.Component<Props> {
     } else if (step === '1') {
       renderStep = (
         <Grid item className={classes.subContainer}>
-          <Review />
+          <Review online={online} />
         </Grid>
       )
     } else if (step === '2') {
       renderStep = (
         <Grid item className={classes.walletAuthorizationContainer}>
-          <WalletAuthorization />
+          <WalletAuthorization online={online} />
         </Grid>
       )
     } else if (step === '3') {

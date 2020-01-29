@@ -13,7 +13,6 @@ import WalletContainer from './containers/WalletContainer'
 import RecipientsContainer from './containers/RecipientsContainer'
 import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
-import OfflineComponent from './components/OfflineComponent'
 import OAuthRedirectComponent from './components/OAuthRedirectComponent'
 import Footer from './static/Footer'
 import NaviBar from './containers/NavBarContainer'
@@ -30,9 +29,10 @@ import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
 import { getCryptoAccounts } from './actions/accountActions'
 import { refreshAccessToken } from './actions/userActions'
+import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import moment from 'moment'
 
-import { Offline, Online } from 'react-detect-offline'
+import { Detector } from 'react-detect-offline'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -97,18 +97,11 @@ const LoginLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-        <>
-          <Offline>
-            <OfflineComponent />
-          </Offline>
-          <Online>
             <div style={loginLayoutStyle}>
               <StyledCookieConsent />
               <Component {...matchProps} />
               <NotifierComponent />
             </div>
-          </Online>
-        </>
       )}
     />
   )
@@ -119,22 +112,32 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-        <>
-          <Offline>
-            <OfflineComponent />
-          </Offline>
-          <Online>
-            <div style={defaultLayoutStyle}>
-              <StyledCookieConsent />
-              <NaviBar {...matchProps} />
-              <div style={componentStyle}>
-                <Component {...matchProps} />
+        <Detector
+          render={({ online }) => {
+            if (!online) {
+              store.dispatch(
+                enqueueSnackbar({
+                  message: 'No Internet connection',
+                  key: 'offline',
+                  options: { variant: 'error', persist: true }
+                })
+              )
+            } else {
+              store.dispatch(closeSnackbar('offline'))
+            }
+            return (
+              <div style={defaultLayoutStyle}>
+                <StyledCookieConsent />
+                <NaviBar {...matchProps} online={online} />
+                <div style={componentStyle}>
+                  <Component {...matchProps} online={online} />
+                </div>
+                <NotifierComponent />
+                <Footer />
               </div>
-              <NotifierComponent />
-              <Footer />
-            </div>
-          </Online>
-        </>
+            )
+          }}
+        />
       )}
     />
   )

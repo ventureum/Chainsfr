@@ -23,6 +23,8 @@ import MuiLink from '@material-ui/core/Link'
 import url from '../url'
 import WalletSelectionButtons from './WalletSelectionButtons'
 import EmptyStateImage from '../images/empty_state_01.png'
+import { WalletButton } from './WalletSelectionButtons.jsx'
+import { walletSelections } from '../wallet'
 
 const toUserReadableState = {
   SENDER: {
@@ -379,7 +381,24 @@ class LandingPageComponent extends Component {
               Start an Email Transfer from
             </Typography>
           </Box>
-          <WalletSelectionButtons purpose='send' />
+          <Grid container direction='row' alignItems='center' justify='center'>
+            {walletSelections
+              .filter(w => {
+                return (
+                  w.walletType !== 'drive' &&
+                  !w.hide &&
+                  w.walletType !== 'metamask' &&
+                  w.walletType !== 'metamaskWalletConnect'
+                )
+              })
+              .map((w, i) => {
+                return (
+                  <Grid item xs={4} sm={2} md={2} key={i}>
+                    <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
+                  </Grid>
+                )
+              })}
+          </Grid>
           <Grid container direction='row' alignItems='center' justify='center'>
             <Grid item>
               <Button variant='contained' color='primary' onClick={() => push(path.transfer)}>

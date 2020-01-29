@@ -31,7 +31,8 @@ type Props = {
   clearError: Function,
   markAccountDirty: Function,
   setTokenAllowance: Function,
-  errors: Object
+  errors: Object,
+  online: boolean
 }
 
 type State = {
@@ -151,7 +152,8 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       clearError,
       accountSelection,
       errors,
-      push
+      push,
+      online
     } = this.props
 
     return (
@@ -166,6 +168,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
         clearError={clearError}
         errors={errors}
         push={push}
+        online={online}
       />
     )
   }

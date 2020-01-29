@@ -42,6 +42,7 @@ type Props = {
   addRecipient: Function,
   walletSelectionPrefilled: string,
   accountSelection: Object,
+  online: boolean,
   error: Object
 }
 
@@ -78,6 +79,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
       walletSelectionPrefilled,
       accountSelection,
       push,
+      online,
       error
     } = this.props
     const {
@@ -142,6 +144,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
         </Grid>
         <Grid item>
           <AccountDropdownContainer
+            purpose={'send'}
             onChange={handleTransferFormChange('accountId')}
             filterCriteria={accountData =>
               !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
@@ -293,7 +296,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 variant='contained'
                 color='primary'
                 onClick={() => push(`${path.transfer}?step=1`)}
-                disabled={!validateForm(transferForm) || actionsPending.getTxFee || error}
+                disabled={!validateForm(transferForm) || actionsPending.getTxFee || error || !online}
               >
                 Continue
               </Button>

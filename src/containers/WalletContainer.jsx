@@ -23,7 +23,8 @@ class WalletContainer extends Component {
       currency,
       actionsPending,
       cloudWalletAccounts,
-      push
+      push,
+      online
     } = this.props
 
     const toCurrencyAmount = (cryptoAmount, cryptoType) =>
@@ -44,6 +45,7 @@ class WalletContainer extends Component {
         actionsPending={actionsPending}
         loadMoreTransferHistory={this.loadMoreTransferHistory}
         push={push}
+        online={online}
       />
     )
   }

@@ -276,7 +276,7 @@ class SendToAnotherAccountModal extends Component {
   }
 
   renderDialogActions = () => {
-    const { password, step, back, next, errors } = this.props
+    const { password, step, back, next, errors, online } = this.props
     let buttons
     switch (step) {
       case 0:
@@ -292,6 +292,7 @@ class SendToAnotherAccountModal extends Component {
             <Button
               variant='contained'
               color='primary'
+              disabled={!online}
               onClick={() => {
                 next()
               }}
@@ -320,7 +321,10 @@ class SendToAnotherAccountModal extends Component {
               }}
               style={{ marginLeft: '40px' }}
               disabled={
-                password.length === 0 || !!errors.checkWalletConnection || !!errors.directTransfer
+                password.length === 0 ||
+                !!errors.checkWalletConnection ||
+                !!errors.directTransfer ||
+                !online
               }
             >
               Confirm and Transfer

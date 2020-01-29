@@ -22,7 +22,8 @@ type Props = {
   handleClose: Function,
   newCryptoAccount: Object,
   newCryptoAccountFromWallet: Function,
-  addCryptoAccount: Function
+  addCryptoAccount: Function,
+  online: boolean
 }
 
 class AddAccountModalContainer extends Component<Props> {
@@ -44,7 +45,8 @@ class AddAccountModalContainer extends Component<Props> {
       newCryptoAccountFromWallet,
       checkWalletConnection,
       newCryptoAccount,
-      errors
+      errors,
+      online
     } = this.props
     return (
       <AddAccountModalComponent
@@ -56,6 +58,7 @@ class AddAccountModalContainer extends Component<Props> {
         onConnect={newCryptoAccountFromWallet}
         newCryptoAccount={newCryptoAccount}
         errors={errors}
+        online={online}
       />
     )
   }

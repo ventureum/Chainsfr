@@ -15,9 +15,9 @@ import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
-import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
+import { getCryptoSymbol } from '../tokens.js'
 import type { AccountData } from '../types/account.flow'
-import { getWalletLogo, getWalletTitle } from '../wallet'
+import { getWalletLogo, getWalletTitle, getWalletConfig } from '../wallet'
 
 // Material Icons
 import AddIcon from '@material-ui/icons/AddRounded'
@@ -26,6 +26,7 @@ type Props = {
   classes: Object,
   account: ?AccountData,
   cryptoAccounts: Array<Object>,
+  purpose: string,
   pending: boolean,
   error: Object,
   onChange: Function,
@@ -98,7 +99,7 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   render () {
-    const { account, cryptoAccounts, onChange, addAccount, pending, error, inputLabel, classes } = this.props
+    const { account, cryptoAccounts, purpose, onChange, addAccount, pending, error, inputLabel } = this.props
     let skeletonCryptoAccounts = []
     if (pending) {
       skeletonCryptoAccounts = [
@@ -120,7 +121,10 @@ class AccountDropdownComponent extends Component<Props, State> {
                 <Box display='flex' flexDirection='row' alignItems='center'>
                   <Box mr={1} display='inline'>
                     {/* wallet icon */}
-                    <Avatar style={{borderRadius: '2px'}} src={getWalletLogo(value.walletType)}></Avatar>
+                    <Avatar
+                      style={{ borderRadius: '2px' }}
+                      src={getWalletLogo(value.walletType)}
+                    ></Avatar>
                   </Box>
                   <Box>
                     {/* name and wallet title*/}
@@ -145,7 +149,11 @@ class AccountDropdownComponent extends Component<Props, State> {
             })}
             {cryptoAccounts.map((accountData, index) => {
               return (
-                <MenuItem key={index} value={accountData}>
+                <MenuItem
+                  key={index}
+                  value={accountData}
+                  disabled={purpose === 'send' && !getWalletConfig(accountData.walletType).sendable}
+                >
                   {this.renderAccountItem(accountData)}
                 </MenuItem>
               )
@@ -166,13 +174,11 @@ class AccountDropdownComponent extends Component<Props, State> {
               <LinearProgress />
             </Box>
           )}
-          {account && account.status === accountStatus.synced &&
+          {account && account.status === accountStatus.synced && (
             <Box ml={1}>
-              <Typography variant='caption'>
-                Address {account.address}
-              </Typography>
+              <Typography variant='caption'>Address {account.address}</Typography>
             </Box>
-          }
+          )}
         </FormControl>
       </Grid>
     )

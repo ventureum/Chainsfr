@@ -7,7 +7,8 @@ type Props = {
   step: number,
   history: Object,
   clearTransferForm: Function,
-  transferForm: Object
+  transferForm: Object,
+  online: boolean
 }
 
 class TransferContainer extends Component<Props> {
@@ -16,7 +17,7 @@ class TransferContainer extends Component<Props> {
   }
 
   render () {
-    return <TransferComponent history={this.props.history} transferForm={this.props.transferForm} />
+    return <TransferComponent history={this.props.history} transferForm={this.props.transferForm} online={this.props.online}/>
   }
 }
 

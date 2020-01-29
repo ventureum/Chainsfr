@@ -13,6 +13,7 @@ type Props = {
     cryptoType: string,
     address: string
   },
+  purpose: string,
   inputLabel: ?string,
   cryptoPrice: { [string]: Number },
   currency: string,
@@ -61,7 +62,8 @@ class AccountDropdownContainer extends Component<Props, State> {
       currency,
       error,
       accountId,
-      inputLabel
+      inputLabel,
+      purpose
     } = this.props
     const { openAddAccountModal } = this.state
     let { filterCriteria } = this.props
@@ -79,6 +81,7 @@ class AccountDropdownContainer extends Component<Props, State> {
               ? cryptoAccounts.find(_account => utils.accountsEqual(_account, accountId))
               : null
           }
+          purpose={purpose}
           cryptoAccounts={cryptoAccounts.filter(filterCriteria)}
           onChange={this.onChange}
           toCurrencyAmount={(balanceInStandardUnit, cryptoType) =>

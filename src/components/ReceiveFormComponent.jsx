@@ -306,6 +306,7 @@ class ReceiveFormComponent extends Component {
           <>
             <Grid item style={{ marginTop: '65px' }}>
               <AccountDropdownContainer
+                purpose={'receive'}
                 onChange={this.onAccountChange}
                 filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
                 accountId={accountSelection}

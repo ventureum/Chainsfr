@@ -76,7 +76,7 @@ class RecipientsContainer extends Component {
   }
 
   render () {
-    let { actionsPending, addRecipient, removeRecipient, editRecipient, ...others } = this.props
+    let { actionsPending, addRecipient, removeRecipient, editRecipient, online, ...others } = this.props
     const {
       chosenRecipient,
       openAddRecipientDialog,
@@ -103,6 +103,7 @@ class RecipientsContainer extends Component {
             handleClose={() => this.toggleAddRecipientDialog(null)}
             handleSubmit={addRecipient}
             loading={actionsPending.addRecipient}
+            online={online}
           />
         )}
         {openEditRecipientDialog && (
@@ -112,6 +113,7 @@ class RecipientsContainer extends Component {
             handleSubmit={editRecipient}
             loading={actionsPending.editRecipient}
             recipient={chosenRecipient}
+            online={online}
           />
         )}
         {openRemoveRecipientDialog && (
@@ -121,6 +123,7 @@ class RecipientsContainer extends Component {
             handleSubmit={removeRecipient}
             loading={actionsPending.removeRecipient}
             recipient={chosenRecipient}
+            online={online}
           />
         )}
       </>

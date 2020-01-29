@@ -99,7 +99,8 @@ class SendToAnotherAccountModalContainer extends Component {
       actionsPending,
       errors,
       clearError,
-      receipt
+      receipt,
+      online
     } = this.props
 
     const { step, password } = this.state
@@ -131,6 +132,7 @@ class SendToAnotherAccountModalContainer extends Component {
         back={this.back}
         receipt={receipt}
         sendTime={sendTime}
+        online={online}
       />
     )
   }

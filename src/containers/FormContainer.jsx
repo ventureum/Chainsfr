@@ -342,6 +342,7 @@ class FormContainer extends Component<Props, State> {
       transferForm,
       error
     } = this.props
+
     let balanceCurrencyAmount = '0'
 
     if (accountSelection) {
