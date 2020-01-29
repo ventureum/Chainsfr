@@ -39,11 +39,7 @@ const useStyles = makeStyles({
   },
   walletCardDisabled: {
     ...basicWalletStyle,
-    border: '1px solid #D2D2D2',
-    borderRadius: '8px',
-    backgroundColor: '#F8F8F8',
-    transition: 'all .3s ease',
-    boxShadow: 'none',
+    opacity: 0.5,
     marginBottom: '10px'
   },
   walletSelectionContainer: {
