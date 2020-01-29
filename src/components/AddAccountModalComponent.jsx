@@ -25,6 +25,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import walletErrors from '../wallets/walletErrors'
+import withMobileDialog from '@material-ui/core/withMobileDialog'
 
 type Props = {
   walletType: string,
@@ -39,7 +40,8 @@ type Props = {
   checkWalletConnection: Function,
   errors: Object,
   onSubmit: Function,
-  online: boolean
+  online: boolean,
+  fullScreen: boolean
 }
 
 type State = {
@@ -101,7 +103,7 @@ class AddAccountModalComponent extends Component<Props, State> {
           })
           .map((w, i) => {
             return (
-              <Grid item xs={4} key={i}>
+              <Grid item xs={6} md={4} key={i}>
                 <WalletButton
                   walletType={w.walletType}
                   handleClick={this.handleWalletSelect}
@@ -383,15 +385,17 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   render () {
-    const { open, handleClose, onSubmit, newCryptoAccount, classes } = this.props
+    const { open, handleClose, onSubmit, newCryptoAccount, fullScreen, classes } = this.props
     const { step, name } = this.state
     return (
       <Dialog
         open={open}
+        fullScreen={fullScreen}
         onClose={() => {
           if (!this.locked) handleClose()
         }}
         maxWidth='md'
+        fullWidth
       >
         <DialogTitle disableTypography>
           <Typography variant='h2'>Connect to Account</Typography>
@@ -403,7 +407,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent style={{ height: '400px', width: '680px' }}>
+        <DialogContent style={{height: '400px'}}>
           {this.renderSteps()}
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center', marginBottom: '10px' }}>
@@ -440,4 +444,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(AddAccountModalComponent)
+export default withStyles(styles)(withMobileDialog()(AddAccountModalComponent))
