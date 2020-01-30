@@ -43,6 +43,7 @@ export const walletCryptoSupports = {
   referralWallet: [{ cryptoType: 'ethereum', disabled: false }],
   coinbaseOAuthWallet: [
     { cryptoType: 'ethereum', disabled: false },
+    { cryptoType: 'dai', disabled: false },
     { cryptoType: 'bitcoin', disabled: false }
   ]
 }

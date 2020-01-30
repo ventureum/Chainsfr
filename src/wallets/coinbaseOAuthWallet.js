@@ -44,7 +44,7 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
     cryptoType: string,
     options?: Object
   ): Promise<EthereumAccount> => {
-    const { address } = await CoinbaseClient.getCyrptoAddress('ethereum')
+    const { address } = await CoinbaseClient.getCyrptoAddress(cryptoType)
     const accountData = {
       cryptoType: cryptoType,
       walletType: this.WALLET_TYPE,
