@@ -34,6 +34,7 @@ import { accountStatus } from '../types/account.flow'
 import { getWalletTitle, getWalletLogo } from '../wallet'
 import AddAccountModal from '../containers/AddAccountModalContainer'
 import EmptyStateImage from '../images/empty_state_01.png'
+import AddressQRCodeDialog from './AddressQRCodeDialog'
 
 class AccountsManagementComponent extends Component {
   state = {
@@ -41,6 +42,7 @@ class AccountsManagementComponent extends Component {
     chosenAccount: {},
     deleteConfirmModal: false,
     changeNameModal: false,
+    addressQRCodeDialog: false,
     newAccountName: '',
     expandedRow: {}
   }
@@ -80,6 +82,15 @@ class AccountsManagementComponent extends Component {
         changeNameModal: !prevState.changeNameModal,
         chosenAccount: account,
         newAccountName:''
+      }
+    })
+  }
+
+  toggleAddressQRCodeDialog = account => {
+    this.setState(prevState => {
+      return {
+        addressQRCodeDialog: !prevState.addressQRCodeDialog,
+        chosenAccount: account
       }
     })
   }
@@ -196,6 +207,7 @@ class AccountsManagementComponent extends Component {
         this.toggleDeleteConfirmModal(account)
         break
       case 'address':
+        this.toggleAddressQRCodeDialog(account)
         break
       case 'send':
         this.props.handleTransferFrom(account)
@@ -511,7 +523,14 @@ class AccountsManagementComponent extends Component {
 
   render () {
     const { classes, categorizedAccounts, actionsPending, online } = this.props
-    const { addAccountModal, deleteConfirmModal, changeNameModal, windowWidth } = this.state
+    const {
+      addAccountModal,
+      deleteConfirmModal,
+      changeNameModal,
+      windowWidth,
+      addressQRCodeDialog,
+      chosenAccount
+    } = this.state
 
     const wide = windowWidth >= 800
     return (
@@ -568,6 +587,15 @@ class AccountsManagementComponent extends Component {
         )}
         {deleteConfirmModal && this.renderDeleteConfirmModal()}
         {changeNameModal && this.renderChangeNameModal()}
+        {addressQRCodeDialog && (
+          <AddressQRCodeDialog
+            open={addressQRCodeDialog}
+            handleClose={() => {
+              this.toggleAddressQRCodeDialog()
+            }}
+            account={chosenAccount}
+          />
+        )}
       </Grid>
     )
   }
