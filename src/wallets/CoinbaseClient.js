@@ -4,15 +4,13 @@ import axios from 'axios'
 import { store } from '../configureStore'
 import { setCoinbaseAccessObject } from '../actions/userActions'
 import API from '../apis'
-import { getCryptoSymbol } from '../tokens'
-import moment from 'moment'
 import paths from '../Paths'
 import walletErrors from './walletErrors'
-
+import { getCryptoSymbol } from '../tokens'
 const NAME = 'Coinbase_Login'
 const AUTH_ENDPOINT = 'https://www.coinbase.com/oauth/authorize'
 const API_ENDPOINT = 'https://api.coinbase.com/v2'
-const SCOPE = 'wallet:accounts:read,wallet:addresses:read'
+const SCOPE = 'wallet:accounts:read,wallet:addresses:read,wallet:user:email'
 const RESPONSE_TYPE = 'code'
 const authUrl =
   `${AUTH_ENDPOINT}?` +
@@ -35,6 +33,17 @@ export type CoinBaseAccessObject = {
 export async function getCyrptoAddress (cryptoType) {
   let accessObject = await getAccessObject(cryptoType)
 
+  // get user email
+  const userResponse = (
+    await axios.get(`${API_ENDPOINT}/user`, {
+      headers: {
+        Authorization: `Bearer ${accessObject.access_token}`
+      }
+    })
+  ).data
+
+  const { email } = userResponse.data
+
   let accountListResponse = (
     await axios.get(`${API_ENDPOINT}/accounts`, {
       headers: {
@@ -49,6 +58,18 @@ export async function getCyrptoAddress (cryptoType) {
       throw new Error(errors.accountNotFound)
     }
 
+    // old struct: currency type of string
+    let currency = targetCryptoAccount.currency
+
+    if (currency instanceof Object) {
+      // new data struct
+      currency = currency.code
+    }
+
+    if (currency !== getCryptoSymbol(cryptoType)) {
+      throw new Error(walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched)
+    }
+
     const accountAddressResponse = (
       await axios.get(`${API_ENDPOINT}/accounts/${targetCryptoAccount.id}/addresses`, {
         headers: {
@@ -61,31 +82,25 @@ export async function getCyrptoAddress (cryptoType) {
       throw new Error(errors.noAddress)
     }
     // return the first addresss
-    return { address: accountAddressResponse.data[0].address }
+    return { address: accountAddressResponse.data[0].address, email }
   }
 }
 
 export async function getAccessObject (cryptoType) {
-  let accessObject = store.getState().userReducer.coinbaseAccessObject
-  // if accessObject does not exist or expires in 30 mins
-  if (
-    !accessObject ||
-    accessObject.created_at + accessObject.expires_in <= moment().unix() + 1800 ||
-    accessObject.cryptoType !== cryptoType
-  ) {
-    accessObject = await new Promise((resolve, reject) => {
-      const callback = async event => {
-        if (event.data && event.data.type === 'coinbase_auth') {
-          const urlParams = queryString.parse(event.data.params)
-          const rv = await API.getCoinbaseAccessObject(urlParams.code)
-          resolve(rv)
-        }
+  // storing the access object causing users unable to switch cryptoType
+  // pop up oauth window everytime while adding a new account
+  const accessObject = await new Promise((resolve, reject) => {
+    const callback = async event => {
+      if (event.data && event.data.type === 'coinbase_auth') {
+        const urlParams = queryString.parse(event.data.params)
+        const rv = await API.getCoinbaseAccessObject(urlParams.code)
+        resolve(rv)
       }
-      openSignInWindow(callback)
-    })
-    if (accessObject.error) throw new Error(accessObject.error_description)
-    store.dispatch(setCoinbaseAccessObject({ cryptoType: cryptoType, ...accessObject }))
-  }
+    }
+    openSignInWindow(callback)
+  })
+  if (accessObject.error) throw new Error(accessObject.error_description)
+  store.dispatch(setCoinbaseAccessObject({ cryptoType: cryptoType, ...accessObject }))
 
   return accessObject
 }

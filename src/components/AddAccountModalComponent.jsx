@@ -280,6 +280,8 @@ class AddAccountModalComponent extends Component<Props, State> {
           errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.noAddress
         ) {
           errorInstruction = `No ${cryptoType} address is available from Coinbase`
+        } else if (errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched) {
+          errorInstruction = errors.newCryptoAccountFromWallet
         }
         break
       default:

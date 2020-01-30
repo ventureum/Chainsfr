@@ -35,6 +35,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       // address in hardware wallet is the next receiving address
       address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
+      email: accountData.email,
       displayName: `${accountData.name} (${getWalletTitle(accountData.walletType)})`,
 
       balance: accountData.balance || '0',
@@ -137,7 +138,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
   syncWithNetwork = async () => {
     let { walletType, hdWalletVariables } = this.accountData
     let { xpub } = hdWalletVariables
-    let addressPool = []
 
     if (walletType === 'drive') {
       // only use the first derived address
@@ -185,8 +185,6 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       const internalAddressData = await this._discoverAddress(xpub, 0, 1, 0)
 
       // 2. update addresses
-      const firstSync = hdWalletVariables.addresses.length === 1
-
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
       hdWalletVariables.endAddressIndex = externalAddressData.endIndex
 

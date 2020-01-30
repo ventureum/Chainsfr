@@ -44,13 +44,14 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
     cryptoType: string,
     options?: Object
   ): Promise<EthereumAccount> => {
-    const { address } = await CoinbaseClient.getCyrptoAddress('ethereum')
+    const { address, email } = await CoinbaseClient.getCyrptoAddress(cryptoType)
     const accountData = {
       cryptoType: cryptoType,
       walletType: this.WALLET_TYPE,
 
       address: address,
       name: name, // the name of this account set by the user.
+      email: email,
 
       // token balance for erc20 tokens/
       balance: '0',
@@ -72,11 +73,12 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
   }
 
   _newBitcoinAccount = async (name: string): Promise<BitcoinAccount> => {
-    const { address } = await CoinbaseClient.getCyrptoAddress('bitcoin')
+    const { address, email } = await CoinbaseClient.getCyrptoAddress('bitcoin')
     let accountData = {
       cryptoType: 'bitcoin',
       walletType: this.WALLET_TYPE,
       name: name,
+      email: email,
       balance: '0',
       balanceInStandardUnit: '0',
       address: address,
@@ -121,9 +123,13 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
   }
 
   checkWalletConnection = async (additionalInfo: ?Object): Promise<boolean> => {
-    const { cryptoType } = this.getAccount().accountData
-    const coinbaseAccessObject = await CoinbaseClient.getAccessObject(cryptoType)
-    return !!coinbaseAccessObject
+    // wallet is not sendable
+    // no need to check wallet connection
+    //
+    // during account adding process
+    // newCryptoAccountFromWallet action is invoked and oauth procedure will start
+    // afterward
+    return true
   }
 
   verifyAccount = async (additionalInfo: ?Object): Promise<boolean> => {
