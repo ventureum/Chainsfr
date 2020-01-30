@@ -6,6 +6,7 @@ export type BackEndCryptoAccountType = {
   address: ?string, // not used for btc account
   xpub: ?string, // not used for eth account
   name: string, // the name of this account set by the user.
+  email: ?string, // coinbase oauth user eamil
   verified: boolean,
   receivable: boolean,
   sendable: boolean,
@@ -50,6 +51,7 @@ export type BitcoinAccountData = {
   // address in hardware wallet is the next receiving address
   address: Address,
   name: String, // the name of this account set by the user.
+  email: ?string, // coinbase oauth user eamil
   displayName: String, // `${name} (${walletType})`
 
   // token balance for erc20 tokens/
@@ -78,6 +80,7 @@ export type EthereumAccountData = {
 
   address: Address,
   name: String, // the name of this account set by the user.
+  email: ?string, // coinbase oauth user eamil
   displayName: String, // `${name} (${walletType})`
 
   // token balance for erc20 tokens/

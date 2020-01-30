@@ -10,7 +10,7 @@ import { getCryptoSymbol } from '../tokens'
 const NAME = 'Coinbase_Login'
 const AUTH_ENDPOINT = 'https://www.coinbase.com/oauth/authorize'
 const API_ENDPOINT = 'https://api.coinbase.com/v2'
-const SCOPE = 'wallet:accounts:read,wallet:addresses:read'
+const SCOPE = 'wallet:accounts:read,wallet:addresses:read,wallet:user:email'
 const RESPONSE_TYPE = 'code'
 const authUrl =
   `${AUTH_ENDPOINT}?` +
@@ -32,6 +32,17 @@ export type CoinBaseAccessObject = {
 
 export async function getCyrptoAddress (cryptoType) {
   let accessObject = await getAccessObject(cryptoType)
+
+  // get user email
+  const userResponse = (
+    await axios.get(`${API_ENDPOINT}/user`, {
+      headers: {
+        Authorization: `Bearer ${accessObject.access_token}`
+      }
+    })
+  ).data
+
+  const { email } = userResponse.data
 
   let accountListResponse = (
     await axios.get(`${API_ENDPOINT}/accounts`, {
@@ -71,7 +82,7 @@ export async function getCyrptoAddress (cryptoType) {
       throw new Error(errors.noAddress)
     }
     // return the first addresss
-    return { address: accountAddressResponse.data[0].address }
+    return { address: accountAddressResponse.data[0].address, email }
   }
 }
 
