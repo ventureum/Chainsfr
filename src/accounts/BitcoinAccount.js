@@ -20,6 +20,8 @@ const DEFAULT_ACCOUNT = 0
 const NETWORK =
   env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
 
+const PLATFORM_TYPE = 'bitcoin'
+
 export default class BitcoinAccount implements IAccount<AccountData> {
   accountData: AccountData
 
@@ -32,6 +34,8 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       id: accountData.id,
       cryptoType: accountData.cryptoType,
       walletType: accountData.walletType,
+      platformType: PLATFORM_TYPE,
+
       // address in hardware wallet is the next receiving address
       address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.

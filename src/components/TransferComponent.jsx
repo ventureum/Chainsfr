@@ -33,8 +33,10 @@ class TransferComponent extends React.Component<Props> {
             walletSelectionPrefilled={urlParams && urlParams.walletSelection}
             addressPrefilled={urlParams && urlParams.address}
             cryptoTypePrefilled={urlParams && urlParams.cryptoType}
+            platformTypePrefilled={urlParams && urlParams.platformType}
             destinationPrefilled={urlParams && (urlParams.destination || '')}
             receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
+            xpubPrefilled={urlParams && urlParams.xpubPrefilled}
             form='email_transfer'
             online={online}
           />

@@ -16,13 +16,7 @@ import { getCryptoPlatformType } from '../tokens'
 class AccountsManagementContainer extends Component {
   handleTransferFrom = (account: CategorizedAccount) => {
     const { push } = this.props
-<<<<<<< Updated upstream
-    push(
-      `${path.transfer}` +
-        `?walletSelection=${account.walletType}` +
-        `&address=${account.address}&platformType=${account.platformType}`
-    )
-=======
+
     const accountData = account.assets[0]
     if (account.platformType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
       push(
@@ -37,7 +31,6 @@ class AccountsManagementContainer extends Component {
           `&address=${accountData.address}&platformType=${account.platformType}`
       )
     }
->>>>>>> Stashed changes
   }
 
   getCategorizedAccounts = (cryptoAccounts): Array<CategorizedAccount> => {

@@ -48,6 +48,8 @@ export type BitcoinAccountData = {
   id: string,
   cryptoType: string,
   walletType: string,
+  platformType: PlatformType,
+
   // address in hardware wallet is the next receiving address
   address: Address,
   name: String, // the name of this account set by the user.
@@ -77,6 +79,7 @@ export type EthereumAccountData = {
   id: string,
   cryptoType: string,
   walletType: string,
+  platformType: PlatformType,
 
   address: Address,
   name: String, // the name of this account set by the user.
