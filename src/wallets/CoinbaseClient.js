@@ -6,7 +6,7 @@ import { setCoinbaseAccessObject } from '../actions/userActions'
 import API from '../apis'
 import paths from '../Paths'
 import walletErrors from './walletErrors'
-
+import { getCryptoSymbol } from '../tokens'
 const NAME = 'Coinbase_Login'
 const AUTH_ENDPOINT = 'https://www.coinbase.com/oauth/authorize'
 const API_ENDPOINT = 'https://api.coinbase.com/v2'
@@ -45,6 +45,18 @@ export async function getCyrptoAddress (cryptoType) {
     const targetCryptoAccount = accountListResponse.data[0]
     if (!targetCryptoAccount) {
       throw new Error(errors.accountNotFound)
+    }
+
+    // old struct: currency type of string
+    let currency = targetCryptoAccount.currency
+
+    if (currency instanceof Object) {
+      // new data struct
+      currency = currency.code
+    }
+
+    if (currency !== getCryptoSymbol(cryptoType)) {
+      throw new Error(walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched)
     }
 
     const accountAddressResponse = (

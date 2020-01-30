@@ -38,6 +38,7 @@ export default {
   },
   coinbaseOAuthWallet: {
     accountNotFound: 'Coinbase wallet not found',
-    noAddress: 'Unable to obtain wallet address'
+    noAddress: 'Unable to obtain wallet address',
+    cryptoTypeNotMatched: 'Wrong cryptocurrency type selected'
   }
 }
