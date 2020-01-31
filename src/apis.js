@@ -323,10 +323,10 @@ async function removeCryptoAccounts (
     const { cryptoType, walletType, hdWalletVariables, address } = accountData
     let targetAccount = {}
 
-    if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
-      targetAccount.xpub = accountData.hdWalletVariables.xpub
+    if (cryptoType === 'bitcoin' && hdWalletVariables.xpub) {
+      targetAccount.xpub = hdWalletVariables.xpub
     } else {
-      targetAccount.address = accountData.address
+      targetAccount.address = address
     }
     targetAccount = {
       cryptoType: cryptoType,
@@ -357,10 +357,10 @@ async function modifyCryptoAccountsName (
   let toBeModified = accounts.map((accountData: AccountData) => {
     const { cryptoType, walletType, hdWalletVariables, address } = accountData
     let targetAccount = {}
-    if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
-      targetAccount.xpub = accountData.hdWalletVariables.xpub
+    if (cryptoType === 'bitcoin' && hdWalletVariables.xpub) {
+      targetAccount.xpub = hdWalletVariables.xpub
     } else {
-      targetAccount.address = accountData.address
+      targetAccount.address = address
     }
     targetAccount = {
       cryptoType: cryptoType,

@@ -211,6 +211,7 @@ class AccountsManagementComponent extends Component {
         break
       case 'send':
         this.props.handleTransferFrom(account)
+        break
       default:
         return
     }

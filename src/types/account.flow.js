@@ -1,4 +1,5 @@
 export type Address = string
+export type PlatformType = 'bitcoin' | 'ethereum'
 
 export type BackEndCryptoAccountType = {
   crytoType: string,
@@ -109,8 +110,6 @@ export type EthereumAccountData = {
 }
 
 export type AccountData = EthereumAccountData | BitcoinAccountData
-
-export type PlatformType = 'bitcoin' | 'ethereum'
 
 // This is intended to be used by account management component
 // to group accounts that have the same address and same walletType

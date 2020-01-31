@@ -10,8 +10,6 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Icon from '@material-ui/core/Icon'
-import IconButton from '@material-ui/core/IconButton'
-import RefreshIcon from '@material-ui/icons/Refresh'
 import { getCryptoSymbol } from '../tokens'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -26,7 +24,6 @@ import path from '../Paths.js'
 // Material Icons
 import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import AddIcon from '@material-ui/icons/AddRounded'
-import { accountStatus } from '../types/account.flow'
 
 type Props = {
   generateSecurityAnswer: Function,
@@ -94,8 +91,6 @@ class EmailTransferFormComponent extends Component<Props, State> {
       transferCurrencyAmount,
       destination,
       password,
-      sender,
-      senderName,
       sendMessage,
       formError
     } = transferForm
