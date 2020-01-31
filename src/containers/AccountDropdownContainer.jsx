@@ -33,7 +33,7 @@ class AccountDropdownContainer extends Component<Props, State> {
   state = { openAddAccountModal: false }
 
   onChange = event => {
-    if (event.target.value === 'addCryptoAccount') return
+    if (event.target.value === 'addCryptoAccounts') return
     // notify changes
     this.props.onChange(event)
   }
@@ -47,7 +47,7 @@ class AccountDropdownContainer extends Component<Props, State> {
   componentDidUpdate (prevProps) {
     const { cryptoAccounts, actionsPending, error } = this.props
 
-    if (prevProps.actionsPending.addCryptoAccount && !actionsPending.addCryptoAccount && !error) {
+    if (prevProps.actionsPending.addCryptoAccounts && !actionsPending.addCryptoAccounts && !error) {
       // just added an account
       // use the newly added account (last item in the cryptoAccounts array)
       this.onChange({ target: { value: cryptoAccounts[cryptoAccounts.length - 1] } })
@@ -98,7 +98,7 @@ class AccountDropdownContainer extends Component<Props, State> {
   }
 }
 
-const addCryptoAccountSelector = createLoadingSelector(['ADD_CRYPTO_ACCOUNT'])
+const addCryptoAccountsSelector = createLoadingSelector(['ADD_CRYPTO_ACCOUNTS'])
 const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
 const errorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS'])
 
@@ -109,7 +109,7 @@ const mapStateToProps = state => {
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       getCryptoAccounts: getCryptoAccountsSelector(state),
-      addCryptoAccount: addCryptoAccountSelector(state)
+      addCryptoAccounts: addCryptoAccountsSelector(state)
     },
     error: errorSelector(state)
   }

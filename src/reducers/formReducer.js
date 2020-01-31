@@ -7,7 +7,8 @@
   accountId: {
     cryptoType: string,
     walletType: string,
-    address: string
+    address: ?string,
+    xpub: ?string
   },
   destination: string | Object<{
     walletType: string,

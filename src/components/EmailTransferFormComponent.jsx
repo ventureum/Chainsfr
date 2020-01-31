@@ -26,6 +26,7 @@ import path from '../Paths.js'
 // Material Icons
 import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import AddIcon from '@material-ui/icons/AddRounded'
+import { accountStatus } from '../types/account.flow'
 
 type Props = {
   generateSecurityAnswer: Function,
@@ -41,6 +42,9 @@ type Props = {
   recipients: Array<Object>,
   addRecipient: Function,
   walletSelectionPrefilled: string,
+  platformTypePrefilled: string,
+  addressPrefilled: string,
+  xpubPrefilled: string,
   accountSelection: Object,
   online: boolean,
   error: Object
@@ -77,7 +81,10 @@ class EmailTransferFormComponent extends Component<Props, State> {
       addRecipient,
       generateSecurityAnswer,
       walletSelectionPrefilled,
+      platformTypePrefilled,
       accountSelection,
+      addressPrefilled,
+      xpubPrefilled,
       push,
       online,
       error
@@ -92,7 +99,6 @@ class EmailTransferFormComponent extends Component<Props, State> {
       sendMessage,
       formError
     } = transferForm
-
     return (
       <Grid container direction='column' justify='center' alignItems='stretch'>
         <Grid item style={{ marginBottom: 30 }}>
@@ -147,7 +153,12 @@ class EmailTransferFormComponent extends Component<Props, State> {
             purpose={'send'}
             onChange={handleTransferFormChange('accountId')}
             filterCriteria={accountData =>
-              !walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled
+              !walletSelectionPrefilled ||
+              (accountData.walletType === walletSelectionPrefilled &&
+                accountData.platformType === platformTypePrefilled &&
+                (accountData.address === addressPrefilled ||
+                  (accountData.hdWalletVariables &&
+                    accountData.hdWalletVariables.xpub === xpubPrefilled)))
             }
             accountId={accountSelection}
           />

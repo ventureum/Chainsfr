@@ -45,7 +45,8 @@ class FormContainer extends Component<Props, State> {
       receiverNamePrefilled,
       walletSelectionPrefilled,
       cryptoTypePrefilled,
-      addressPrefilled
+      addressPrefilled,
+      xpubPrefilled
     } = this.props
     if (profile.isAuthenticated) {
       // prefill form
@@ -59,7 +60,8 @@ class FormContainer extends Component<Props, State> {
             $set: {
               walletType: walletSelectionPrefilled || transferForm.accountId.walletType,
               cryptoType: cryptoTypePrefilled || transferForm.accountId.cryptoType,
-              address: addressPrefilled || transferForm.accountId.address
+              address: addressPrefilled || transferForm.accountId.address,
+              xpub: xpubPrefilled || transferForm.accountId.xpub
             }
           }
         })
@@ -234,7 +236,7 @@ class FormContainer extends Component<Props, State> {
 
     if (
       !(name === 'destination' && event.target.value === 'AddRecipient') &&
-      !(name === 'accountSelection' && event.target.value === 'addCryptoAccount')
+      !(name === 'accountSelection' && event.target.value === 'addCryptoAccounts')
     ) {
       _transferForm = update(transferForm, {
         [name]: { $set: event.target.value },

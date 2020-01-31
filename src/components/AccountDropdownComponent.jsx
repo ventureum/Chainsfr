@@ -159,7 +159,7 @@ class AccountDropdownComponent extends Component<Props, State> {
               )
             })}
             {cryptoAccounts.length !== 0 && <Divider />}
-            <MenuItem value='addCryptoAccount'>
+            <MenuItem value='addCryptoAccounts'>
               <Button onClick={() => addAccount()} color='primary' fullWidth>
                 <AddIcon fontSize='small' />
                 Add Account

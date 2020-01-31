@@ -48,6 +48,8 @@ export type BitcoinAccountData = {
   id: string,
   cryptoType: string,
   walletType: string,
+  platformType: PlatformType,
+
   // address in hardware wallet is the next receiving address
   address: Address,
   name: String, // the name of this account set by the user.
@@ -77,6 +79,7 @@ export type EthereumAccountData = {
   id: string,
   cryptoType: string,
   walletType: string,
+  platformType: PlatformType,
 
   address: Address,
   name: String, // the name of this account set by the user.
@@ -96,7 +99,7 @@ export type EthereumAccountData = {
   sendable: Boolean,
   status: string,
 
-  // erc20 token allowance for the 
+  // erc20 token allowance for the
   // multisig escrow wallet
   multiSigWalletAllowance: string,
 
@@ -106,6 +109,24 @@ export type EthereumAccountData = {
 }
 
 export type AccountData = EthereumAccountData | BitcoinAccountData
+
+export type PlatformType = 'bitcoin' | 'ethereum'
+
+// This is intended to be used by account management component
+// to group accounts that have the same address and same walletType
+export type CategorizedAccount = {
+  totalMarketValue: string,
+  fiatCurrency: strign,
+
+  assets: Array<accountData>,
+
+  platformType: PlatformType,
+  walletType: string,
+  address: Address,
+  status: accountStatus,
+  name: string,
+  id: string //  JSON.stringify({ address, walletType })
+}
 
 export interface IAccount<AccountData> {
   accountData: AccountData;

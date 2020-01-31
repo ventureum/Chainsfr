@@ -13,20 +13,20 @@ import WalletErrors from '../wallets/walletErrors'
 async function _syncWithNetwork (accountData: AccountData) {
   function sendMessage (message) {
     return new Promise(function (resolve, reject) {
-      const worker = new Worker('./accountSync.worker.js', { type: 'module' });
+      const worker = new Worker('./accountSync.worker.js', { type: 'module' })
       worker.postMessage(message)
       worker.onmessage = function (event) {
         if (event.data.error) {
-          reject(event.data.error);
+          reject(event.data.error)
         } else {
-          resolve(event.data);
+          resolve(event.data)
         }
       }
     })
   }
-  
+
   if (accountData.cryptoType === 'bitcoin') {
-    return sendMessage({action: 'sync', payload: accountData})
+    return sendMessage({ action: 'sync', payload: accountData })
   } else {
     let account = createAccount(accountData)
     await account.syncWithNetwork()
@@ -150,8 +150,8 @@ function syncHelper (dispatch, accounts) {
   })
 }
 
-async function _addCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.addCryptoAccount(accountData)).cryptoAccounts
+async function _addCryptoAccounts (accountData: Array<AccountData>): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.addCryptoAccounts(accountData)).cryptoAccounts
   // transform to front-end accountData type
   cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
     createAccount(cryptoAccount).getAccountData()
@@ -159,18 +159,25 @@ async function _addCryptoAccount (accountData: AccountData): Promise<Array<Accou
   return cryptoAccounts
 }
 
-function addCryptoAccount (accountData: AccountData) {
+function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
   return (dispatch: Function, getState: Function) => {
+    if (!Array.isArray(accountData)) {
+      accountData = [accountData]
+    }
     return dispatch({
-      type: 'ADD_CRYPTO_ACCOUNT',
-      payload: _addCryptoAccount(accountData)
+      type: 'ADD_CRYPTO_ACCOUNTS',
+      payload: _addCryptoAccounts(accountData)
     })
-      .then(data =>
-        syncHelper(dispatch, [
-          // only sync one account
-          data.value.find(account => utils.accountsEqual(accountData, account))
-        ])
-      )
+      .then(data => {
+        let dict = {}
+        accountData.forEach((account: AccountData) => {
+          dict[account.id] = account
+        })
+        syncHelper(
+          dispatch,
+          data.value.filter(account => dict[account.id] !== undefined)
+        )
+      })
       .then(() => {
         dispatch(
           enqueueSnackbar({
@@ -198,7 +205,9 @@ function getCryptoAccounts () {
       type: 'GET_CRYPTO_ACCOUNTS',
       payload: _getCryptoAccounts()
     })
-      .then(data => syncHelper(dispatch, data.value))
+      .then(data => {
+        return syncHelper(dispatch, data.value)
+      })
       .catch(error => {
         dispatch(
           enqueueSnackbar({
@@ -220,11 +229,14 @@ async function _getCryptoAccounts (accountData: AccountData): Promise<Array<Acco
   return cryptoAccounts
 }
 
-function removeCryptoAccount (accountData: AccountData) {
+function removeCryptoAccounts (accountData: AccountData | Array<AccountData>) {
   return (dispatch: Function, getState: Function) => {
+    if (!Array.isArray(accountData)) {
+      accountData = [accountData]
+    }
     return dispatch({
-      type: 'REMOVE_CRYPTO_ACCOUNT',
-      payload: _removeCryptoAccount(accountData)
+      type: 'REMOVE_CRYPTO_ACCOUNTS',
+      payload: _removeCryptoAccounts(accountData)
     })
       .then(() => {
         dispatch(
@@ -247,8 +259,8 @@ function removeCryptoAccount (accountData: AccountData) {
   }
 }
 
-async function _removeCryptoAccount (accountData: AccountData): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.removeCryptoAccount(accountData)).cryptoAccounts
+async function _removeCryptoAccounts (accountData: Array<AccountData>): Promise<Array<AccountData>> {
+  let cryptoAccounts = (await API.removeCryptoAccounts(accountData)).cryptoAccounts
   // transform to front-end accountData type
   cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
     createAccount(cryptoAccount).getAccountData()
@@ -256,11 +268,14 @@ async function _removeCryptoAccount (accountData: AccountData): Promise<Array<Ac
   return cryptoAccounts
 }
 
-function modifyCryptoAccountName (accountData: AccountData, newName: string) {
+function modifyCryptoAccountsName (accountData: AccountData | Array<AccountData>, newName: string) {
   return (dispatch: Function, getState: Function) => {
+    if (!Array.isArray(accountData)) {
+      accountData = [accountData]
+    }
     return dispatch({
-      type: 'MODIFY_CRYPTO_ACCOUNT_NAME',
-      payload: _modifyCryptoAccountName(accountData, newName)
+      type: 'MODIFY_CRYPTO_ACCOUNTS_NAME',
+      payload: _modifyCryptoAccountsName(accountData, newName)
     })
       .then(() => {
         dispatch(
@@ -283,11 +298,11 @@ function modifyCryptoAccountName (accountData: AccountData, newName: string) {
   }
 }
 
-async function _modifyCryptoAccountName (
-  accountData: AccountData,
+async function _modifyCryptoAccountsName (
+  accountData: Array<AccountData>,
   newName: string
 ): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.modifyCryptoAccountName(accountData, newName)).cryptoAccounts
+  let cryptoAccounts = (await API.modifyCryptoAccountsName(accountData, newName)).cryptoAccounts
   // transform to front-end accountData type
   cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
     createAccount(cryptoAccount).getAccountData()
@@ -315,8 +330,8 @@ export {
   verifyEscrowAccountPassword,
   markAccountDirty,
   getCryptoAccounts,
-  addCryptoAccount,
-  modifyCryptoAccountName,
-  removeCryptoAccount,
+  addCryptoAccounts,
+  modifyCryptoAccountsName,
+  removeCryptoAccounts,
   clearAccountPrivateKey
 }

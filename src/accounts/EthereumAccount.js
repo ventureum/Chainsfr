@@ -10,6 +10,8 @@ import SimpleMultiSigContractArtifacts from '../contracts/SimpleMultiSig.json'
 import WalletUtils from '../wallets/utils'
 import env from '../typedEnv'
 
+const PLATFORM_TYPE = 'ethereum'
+
 export default class EthereumAccount implements IAccount<AccountData> {
   accountData: AccountData
 
@@ -21,6 +23,8 @@ export default class EthereumAccount implements IAccount<AccountData> {
       id: accountData.id,
       cryptoType: accountData.cryptoType,
       walletType: accountData.walletType,
+      platformType: PLATFORM_TYPE,
+
       // address in hardware wallet is the next receiving address
       address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
