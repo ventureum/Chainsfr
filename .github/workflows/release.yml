@@ -35,3 +35,26 @@ jobs:
     - run: npm run build:prod && mv ./build ./build_prod
     - run: aws s3 sync ./build_staging s3://testnet.chainsfr.com --delete
     - run: aws s3 sync ./build_prod s3://app.chainsfr.com --delete
+    
+    - name: Notify slack success
+      if: success()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        # Updates existing message from the first step
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel_id: CESRN89MF
+        status: SUCCESS
+        color: good
+    - name: Notify slack failure
+      if: failure()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        # Updates existing message from the first step
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel_id: CESRN89MF
+        status: FAILED
+        color: danger

@@ -39,4 +39,27 @@ jobs:
     - run: npm run build:test && mv ./build ./build_test
     - run: aws s3 sync ./build_test s3://test.chainsfr.com --delete
       if: github.event_name == 'push'
+    
+    - name: Notify slack success
+      if: success() && github.event_name == 'push'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        # Updates existing message from the first step
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel_id: CESRN89MF
+        status: SUCCESS
+        color: good
+    - name: Notify slack failure
+      if: failure() && github.event_name == 'push'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        # Updates existing message from the first step
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel_id: CESRN89MF
+        status: FAILED
+        color: danger
  
