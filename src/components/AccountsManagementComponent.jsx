@@ -343,7 +343,7 @@ class AccountsManagementComponent extends Component {
                     )}
                   </TableCell>
                   <TableCell align='left' className={rowCellClassName}>
-                    $ {account.totalMarketValue}
+                    $ {this.toCurrencyLocaleString(account.totalMarketValue)}
                   </TableCell>
                   <TableCell align='left' className={rowCellClassName}>
                     {expanded ? (
