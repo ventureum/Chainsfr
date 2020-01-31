@@ -270,7 +270,7 @@ async function addCryptoAccounts (
   const { idToken } = store.getState().userReducer.profile
 
   let tobeAdded = accounts.map((accountData: AccountData) => {
-    const { cryptoType, name, verified, receivable, sendable, walletType } = accountData
+    const { cryptoType, name, email, verified, receivable, sendable, walletType } = accountData
     let newAccount = {}
     if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
       newAccount.xpub = accountData.hdWalletVariables.xpub
@@ -282,6 +282,7 @@ async function addCryptoAccounts (
       walletType: walletType,
       cryptoType: cryptoType,
       name: name,
+      email: email,
       verified: verified || false,
       receivable: receivable || false,
       sendable: sendable || false
