@@ -60,8 +60,8 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { walletType, cryptoType } = this.state
-    const { onConnect, actionsPending, errors } = this.props
+    const { walletType, cryptoType, name } = this.state
+    const { onConnect, newCryptoAccount, actionsPending, errors } = this.props
     if (
       prevProps.actionsPending.checkWalletConnection &&
       !actionsPending.checkWalletConnection &&
@@ -74,6 +74,16 @@ class AddAccountModalComponent extends Component<Props, State> {
       !errors.newCryptoAccountFromWallet
     ) {
       this.setState({ step: 2 })
+    }
+
+    if (
+      newCryptoAccount &&
+      newCryptoAccount.walletType === 'coinbaseOAuthWallet' &&
+      newCryptoAccount.email &&
+      name.length === 0
+    ) {
+      // for coinbaseOAuthWallet, fill name with email address if email is provided
+      this.setState({ name: newCryptoAccount.email })
     }
   }
 
@@ -326,6 +336,7 @@ class AddAccountModalComponent extends Component<Props, State> {
   renderNameNewAccount = () => {
     const { newCryptoAccount, actionsPending } = this.props
     const { name, walletType } = this.state
+
     if (newCryptoAccount && !actionsPending.newCryptoAccountFromWallet) {
       return (
         <Grid container spacing={2}>
@@ -362,6 +373,7 @@ class AddAccountModalComponent extends Component<Props, State> {
                   onChange={event => {
                     this.handleAccountNameChange(event.target.value)
                   }}
+                  disabled={newCryptoAccount.email} // force using email as name
                   value={name}
                 />
               </Grid>
@@ -424,7 +436,8 @@ class AddAccountModalComponent extends Component<Props, State> {
           <Button
             variant='contained'
             color='primary'
-            disabled={step !== 2}
+            // name cannot be empty
+            disabled={step !== 2 && name.length > 0}
             onClick={() => {
               onSubmit({ ...newCryptoAccount, name: name })
             }}
