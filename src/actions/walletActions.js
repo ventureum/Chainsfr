@@ -19,6 +19,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   // the following creation process should never fail (which blocks the onboarding process),
   // warn silently for any errors
   try {
+    let newAccountList = []
     for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
       if (!disabled) {
         let account
@@ -49,13 +50,11 @@ async function _createCloudWallet (password: string, progress: ?Function) {
         } else {
           walletFileData[accountData.address] = accountData
         }
-        try {
-          await API.addCryptoAccounts(account.getAccountData())
-        } catch (err) {
-          console.warn('Add new Cloud wallet account to backend failed')
-        }
+
+        newAccountList.push(account.getAccountData())
       }
     }
+    await API.addCryptoAccounts(newAccountList)
   } catch (error) {
     console.warn(error)
   }
@@ -179,7 +178,7 @@ async function _newCryptoAccountFromWallet (
     throw new Error('Account already exists')
   }
 
-  if (cryptoType ==='bitcoin'){
+  if (cryptoType === 'bitcoin') {
     await _account.syncWithNetwork()
   }
 
@@ -198,7 +197,7 @@ function newCryptoAccountFromWallet (
       type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
       payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, cryptoAccounts, options)
     }).catch(err => {
-      if ((err.message === 'Account already exists'))
+      if (err.message === 'Account already exists')
         dispatch(
           enqueueSnackbar({
             message: err.message,
