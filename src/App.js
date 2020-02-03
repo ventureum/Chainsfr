@@ -27,10 +27,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
-import { getCryptoAccounts } from './actions/accountActions'
 import { refreshAccessToken } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
-import moment from 'moment'
 
 import { Detector } from 'react-detect-offline'
 
@@ -97,11 +95,11 @@ const LoginLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-            <div style={loginLayoutStyle}>
-              <StyledCookieConsent />
-              <Component {...matchProps} />
-              <NotifierComponent />
-            </div>
+        <div style={loginLayoutStyle}>
+          <StyledCookieConsent />
+          <Component {...matchProps} />
+          <NotifierComponent />
+        </div>
       )}
     />
   )
@@ -163,34 +161,26 @@ class App extends Component {
     console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
   }
 
-  checkLoginStatus = () => {
+  refreshLoginSession = () => {
     const profile = store.getState().userReducer.profile
     if (profile.isAuthenticated) {
-      // check access token status
-      const { tokenObj } = profile
-      // refresh if access token expires in 30 mins
-      if (tokenObj.expires_at / 1000 <= moment().unix() + 18000) {
-        store.dispatch(refreshAccessToken())
-      }
+      store.dispatch(refreshAccessToken())
+      // if timer exist, cancel it
+      if (window.tokenRefreshTimer) clearTimeout(window.tokenRefreshTimer)
+      // refresh in 50 mins
+      window.tokenRefreshTimer = setTimeout(() => {
+        this.refreshLoginSession()
+      }, 1000 * 60 * 50)
     }
   }
 
   componentDidMount () {
-    this.checkLoginStatus()
-    // check every 10 mins
-    setInterval(() => {
-      this.checkLoginStatus()
-    }, 1000 * 60 * 10)
+    this.refreshLoginSession()
 
     // refresh price immediately
     store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
     // refresh price every 60 seconds
     setInterval(() => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai'])), 60000)
-
-    // fetch accounts after logging in
-    if (store.getState().userReducer.profile.isAuthenticated) {
-      store.dispatch(getCryptoAccounts())
-    }
   }
 
   render () {

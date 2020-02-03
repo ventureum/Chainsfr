@@ -37,13 +37,10 @@ class ReviewComponent extends Component<Props> {
       txFee,
       currencyAmount,
       push,
-      userProfile,
-      error
+      userProfile
     } = this.props
     const {
       transferAmount,
-      sender,
-      senderName,
       destination,
       receiverName,
       password,
@@ -136,7 +133,8 @@ class ReviewComponent extends Component<Props> {
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
                     <Typography variant='body2'>
-                      {txFee && txFee.costInStandardUnit} {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
+                      {txFee && txFee.costInStandardUnit}{' '}
+                      {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                     </Typography>
                     <Typography style={{ marginLeft: '10px' }} variant='caption'>
                       ( ≈ {currencyAmount.txFee} )

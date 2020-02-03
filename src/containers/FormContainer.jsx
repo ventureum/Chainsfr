@@ -342,7 +342,8 @@ class FormContainer extends Component<Props, State> {
       accountSelection,
       form,
       transferForm,
-      error
+      error,
+      online
     } = this.props
 
     let balanceCurrencyAmount = '0'
@@ -390,6 +391,7 @@ class FormContainer extends Component<Props, State> {
             handleClose={() => this.toggleAddRecipientDialog()}
             handleSubmit={addRecipient}
             loading={actionsPending.addRecipient}
+            online={online}
           />
         )}
       </>

@@ -3,13 +3,23 @@ import { gapiLoad } from '../drive'
 import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
 import { enqueueSnackbar } from './notificationActions.js'
+import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
 
 function onLogin (loginData: any) {
-  return {
-    type: 'LOGIN',
-    payload: loginData
+  return (dispatch: Function, getState: Function) => {
+    dispatch({
+      type: 'LOGIN',
+      payload: loginData
+    })
+    if (window.tokenRefreshTimer) clearTimeout(window.tokenRefreshTimer)
+    // refresh in 50 mins
+    window.tokenRefreshTimer = setTimeout(() => {
+      this.refreshLoginSession()
+    }, 1000 * 60 * 50)
+    // fetch accounts after logging in
+    dispatch(getCryptoAccounts())
   }
 }
 
@@ -22,12 +32,16 @@ function refreshAccessToken () {
     return dispatch({
       type: 'REFRESH_ACCESS_TOKEN',
       payload: _refreshAccessToken()
-    }).catch(error => {
-      console.warn('Refresh login session failed')
-      console.warn(error)
-      // logout user
-      dispatch(onLogout())
     })
+      .catch(error => {
+        console.warn('Refresh login session failed')
+        console.warn(error)
+        // logout user
+        dispatch(onLogout())
+      })
+      .then(() => {
+        dispatch(getCryptoAccounts())
+      })
   }
 }
 
@@ -167,7 +181,7 @@ function removeRecipient (recipient: Recipient) {
   }
 }
 
-function setCoinbaseAccessObject ( accessObject: Object) {
+function setCoinbaseAccessObject (accessObject: Object) {
   return {
     type: 'SET_COINBASE_ACCESS_OBJECT',
     payload: accessObject

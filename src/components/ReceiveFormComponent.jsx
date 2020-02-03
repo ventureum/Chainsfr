@@ -289,7 +289,7 @@ class ReceiveFormComponent extends Component {
   }
 
   render () {
-    const { classes, accountSelection, transfer, error, actionsPending, push, id } = this.props
+    const { classes, accountSelection, transfer, error, actionsPending, push } = this.props
 
     let isInvalidTransfer = false
 
