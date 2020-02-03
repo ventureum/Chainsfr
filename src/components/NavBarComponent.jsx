@@ -309,7 +309,7 @@ const styles = theme => ({
     width: '32px',
     height: '32px',
     border: 'solid 1px',
-    borderColor: uiColors.border,
+    borderColor: 'transparent',
     marginRight: '10px',
     marginLeft: '10px'
   },
