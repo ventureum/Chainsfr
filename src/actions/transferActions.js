@@ -70,7 +70,7 @@ async function _directTransfer (txRequest: {
     .toString()
   const _wallet = createWallet(fromAccount)
 
-  let txHash = await _wallet.sendTransaction({
+  let { txHash }= await _wallet.sendTransaction({
     to: destinationAddress,
     value: value,
     txFee: txFee,
