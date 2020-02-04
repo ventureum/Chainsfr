@@ -19,6 +19,7 @@ type Props = {
   currency: string,
   onChange: Function,
   filterCriteria: Function,
+  online: Boolean,
   // redux function & states
   cryptoAccounts: Array<Object>,
   actionsPending: Object,
@@ -63,7 +64,8 @@ class AccountDropdownContainer extends Component<Props, State> {
       error,
       accountId,
       inputLabel,
-      purpose
+      purpose,
+      online
     } = this.props
     const { openAddAccountModal } = this.state
     let { filterCriteria } = this.props
@@ -92,7 +94,13 @@ class AccountDropdownContainer extends Component<Props, State> {
           error={error}
           inputLabel={inputLabel ? inputLabel : 'Select Account'}
         />
-        <AddAccountModal open={openAddAccountModal} handleClose={this.toggleAddAccountModal} />
+        {openAddAccountModal && (
+          <AddAccountModal
+            open={openAddAccountModal}
+            handleClose={this.toggleAddAccountModal}
+            online={online}
+          />
+        )}
       </>
     )
   }

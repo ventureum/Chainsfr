@@ -127,7 +127,7 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
     // no need to check wallet connection
     //
     // during account adding process
-    // newCryptoAccountFromWallet action is invoked and oauth procedure will start
+    // newCryptoAccountsFromWallet action is invoked and oauth procedure will start
     // afterward
     return true
   }

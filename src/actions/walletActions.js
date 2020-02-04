@@ -163,39 +163,43 @@ function checkWalletConnection (accountData: AccountData, additionalInfo: Object
   }
 }
 
-async function _newCryptoAccountFromWallet (
+async function _newCryptoAccountsFromWallet (
   name: string,
-  cryptoType: string,
+  cryptoTypes: Array<string>,
   walletType: string,
   cryptoAccounts: Array<AccountData>,
   options: Object
 ) {
-  let _wallet = createWallet({ walletType: walletType })
-  let _account = await _wallet.newAccount(name, cryptoType, options)
-  let _newAccountData = _account.getAccountData()
+  let newAccounts = await Promise.all(
+    cryptoTypes.map(async cryptoType => {
+      let _wallet = createWallet({ walletType: walletType })
+      let _account = await _wallet.newAccount(name, cryptoType, options)
+      let _newAccountData = _account.getAccountData()
 
-  if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
-    throw new Error('Account already exists')
-  }
+      if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
+        throw new Error('Account already exists')
+      }
 
-  if (cryptoType === 'bitcoin') {
-    await _account.syncWithNetwork()
-  }
-
-  return _account.getAccountData()
+      if (cryptoType === 'bitcoin') {
+        await _account.syncWithNetwork()
+      }
+      return _account.getAccountData()
+    })
+  )
+  return newAccounts
 }
 
-function newCryptoAccountFromWallet (
+function newCryptoAccountsFromWallet (
   name: string,
-  cryptoType: string,
+  cryptoTypes: Array<string>,
   walletType: string,
   options: Object
 ) {
   return (dispatch: Function, getState: Function) => {
     const cryptoAccounts = getState().accountReducer.cryptoAccounts
     return dispatch({
-      type: 'NEW_CRYPTO_ACCOUNT_FROM_WALLET',
-      payload: _newCryptoAccountFromWallet(name, cryptoType, walletType, cryptoAccounts, options)
+      type: 'NEW_CRYPTO_ACCOUNTS_FROM_WALLET',
+      payload: _newCryptoAccountsFromWallet(name, cryptoTypes, walletType, cryptoAccounts, options)
     }).catch(err => {
       if (err.message === 'Account already exists')
         dispatch(
@@ -214,5 +218,5 @@ export {
   createCloudWallet,
   verifyAccount,
   checkWalletConnection,
-  newCryptoAccountFromWallet
+  newCryptoAccountsFromWallet
 }

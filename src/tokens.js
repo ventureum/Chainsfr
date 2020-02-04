@@ -98,3 +98,10 @@ export function getCryptoPlatformType (cryptoType){
   })
   return c.platformType
 }
+
+export function getPlatformCryptos (platformType) {
+  const listOfCryptos = cryptoSelections.filter( c =>{
+    return c.platformType === platformType
+  })
+  return listOfCryptos
+}

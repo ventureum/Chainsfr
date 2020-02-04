@@ -17,26 +17,25 @@ import IconButton from '@material-ui/core/IconButton'
 import UsbIcon from '@material-ui/icons/Usb'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import { WalletButton } from './WalletSelectionButtons.jsx'
-import { walletSelections, walletCryptoSupports, getWalletConfig } from '../wallet'
-import { getCryptoTitle } from '../tokens'
+import { walletSelections, getWalletConfig, getWalletSupportedPlatforms } from '../wallet'
+import { getCryptoTitle, getPlatformCryptos, getCryptoLogo, getCryptoSymbol } from '../tokens'
 import Radio from '@material-ui/core/Radio'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import walletErrors from '../wallets/walletErrors'
 import withMobileDialog from '@material-ui/core/withMobileDialog'
+import { Avatar } from '@material-ui/core'
 
 type Props = {
   walletType: string,
-  cryptoType: string,
   classes: Object,
   name: string,
   open: boolean,
   actionsPending: Object,
   handleClose: Function,
   onConnect: Function,
-  newCryptoAccount: Object,
+  newCryptoAccounts: Object,
   checkWalletConnection: Function,
   errors: Object,
   onSubmit: Function,
@@ -47,7 +46,7 @@ type Props = {
 type State = {
   step: number,
   walletType: string,
-  cryptoType: string,
+  platformType: string,
   name: string
 }
 
@@ -55,35 +54,40 @@ class AddAccountModalComponent extends Component<Props, State> {
   state = {
     step: 0,
     walletType: '',
-    cryptoType: '',
+    platformType: '',
     name: ''
   }
 
   componentDidUpdate (prevProps) {
-    const { walletType, cryptoType, name } = this.state
-    const { onConnect, newCryptoAccount, actionsPending, errors } = this.props
+    const { walletType, platformType, name } = this.state
+    const { onConnect, newCryptoAccounts, actionsPending, errors } = this.props
     if (
       prevProps.actionsPending.checkWalletConnection &&
       !actionsPending.checkWalletConnection &&
       !errors.checkWalletConnection
     ) {
-      onConnect('default', cryptoType, walletType)
+      const cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
+      onConnect('default', cryptoTypes, walletType)
     } else if (
-      prevProps.actionsPending.newCryptoAccountFromWallet &&
-      !actionsPending.newCryptoAccountFromWallet &&
-      !errors.newCryptoAccountFromWallet
+      prevProps.actionsPending.newCryptoAccountsFromWallet &&
+      !actionsPending.newCryptoAccountsFromWallet &&
+      !errors.newCryptoAccountsFromWallet
     ) {
       this.setState({ step: 2 })
     }
 
     if (
-      newCryptoAccount &&
-      newCryptoAccount.walletType === 'coinbaseOAuthWallet' &&
-      newCryptoAccount.email &&
+      newCryptoAccounts.length > 0 &&
+      newCryptoAccounts[0].walletType === 'coinbaseOAuthWallet' &&
+      newCryptoAccounts[0].email &&
       name.length === 0
     ) {
       // for coinbaseOAuthWallet, fill name with email address if email is provided
-      this.setState({ name: newCryptoAccount.email })
+      this.setState({ name: newCryptoAccounts[0].email })
+    }
+
+    if (walletType && !platformType && getWalletSupportedPlatforms(walletType).length === 1) {
+      this.handlePlatformSelect(getWalletSupportedPlatforms(walletType)[0])
     }
   }
 
@@ -91,8 +95,8 @@ class AddAccountModalComponent extends Component<Props, State> {
     this.setState({ step: 1, walletType })
   }
 
-  handleCryptoSelect = cryptoType => {
-    this.setState({ cryptoType })
+  handlePlatformSelect = platformType => {
+    this.setState({ platformType })
   }
 
   handleAccountNameChange = accountName => {
@@ -101,7 +105,7 @@ class AddAccountModalComponent extends Component<Props, State> {
 
   locked = () => {
     const { actionsPending } = this.props
-    return actionsPending.checkWalletConnection || actionsPending.newCryptoAccountFromWallet
+    return actionsPending.checkWalletConnection || actionsPending.newCryptoAccountsFromWallet
   }
 
   renderWalletSelections = () => {
@@ -113,12 +117,13 @@ class AddAccountModalComponent extends Component<Props, State> {
           })
           .map((w, i) => {
             return (
-              <Grid item xs={6} md={4} key={i}>
+              <Grid item xs={12} sm={6} md={4} key={i}>
                 <WalletButton
                   walletType={w.walletType}
                   handleClick={this.handleWalletSelect}
                   disabled={!getWalletConfig(w.walletType).addable}
                   disabledReason={getWalletConfig(w.walletType).disabledReason}
+                  containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
                 />
               </Grid>
             )
@@ -127,49 +132,85 @@ class AddAccountModalComponent extends Component<Props, State> {
     )
   }
 
-  renderCryptoSelections = () => {
-    const { actionsPending } = this.props
-    const { walletType, cryptoType } = this.state
+  renderPlatformSelection = () => {
+    const { classes, actionsPending } = this.props
+    const { walletType, platformType } = this.state
     if (walletType === '') {
       return null
     }
 
+    const listOfPlatform = getWalletSupportedPlatforms(walletType)
     return (
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <WalletButton walletType={walletType} />
+      <Grid container spacing={3}>
+        <Grid item sm={4} xs={12}>
+          <WalletButton
+            walletType={walletType}
+            containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
+          />
         </Grid>
         <Grid item xs>
-          <Grid container spacing={1} direction='column'>
-            <Grid item>
-              <Typography>Select coin type</Typography>
-            </Grid>
-            <Grid item>
-              <List>
-                {walletCryptoSupports[walletType].map((c, i) => {
-                  return (
-                    <ListItem
-                      key={i}
-                      button
-                      onClick={() => {
-                        this.handleCryptoSelect(c.cryptoType)
-                      }}
-                      disabled={this.locked()}
-                    >
-                      <Radio checked={cryptoType === c.cryptoType} />
-                      <ListItemText primary={getCryptoTitle(c.cryptoType)} />
-                    </ListItem>
-                  )
-                })}
-              </List>
-            </Grid>
-            {cryptoType !== '' &&
+          <Grid container direction='column'>
+            {listOfPlatform.length > 1 && (
+              <>
+                <Grid item>
+                  <Typography className={classes.subtitle}>Select blockchain network</Typography>
+                </Grid>
+                <Grid item>
+                  <List>
+                    {listOfPlatform.map((p, i) => {
+                      return (
+                        <ListItem
+                          key={`${i} platform`}
+                          button
+                          onClick={() => {
+                            this.handlePlatformSelect(p)
+                          }}
+                          disabled={this.locked()}
+                        >
+                          <Radio checked={platformType === p} />
+                          <Typography variant='body2'>{getCryptoTitle(p)} </Typography>
+                        </ListItem>
+                      )
+                    })}
+                  </List>
+                </Grid>
+              </>
+            )}
+            {platformType !== '' && (
+              <>
+                <Grid item>
+                  <Typography className={classes.subtitle}>Supported coin types</Typography>
+                </Grid>
+                <Grid item style={{ marginLeft: 10, marginTop: 10 }}>
+                  <Grid container spacing={1}>
+                    {getPlatformCryptos(platformType).map((crypto, i) => {
+                      return (
+                        <Grid item xs={2} key={`${i} crypto`}>
+                          <Box
+                            display='flex'
+                            flexDirection='column'
+                            alignItems='center'
+                            width='100%'
+                          >
+                            <Avatar src={getCryptoLogo(crypto.cryptoType)} />
+                            <Typography variant='h6'>
+                              {getCryptoSymbol(crypto.cryptoType)}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      )
+                    })}
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            {platformType !== '' &&
               !actionsPending.checkWalletConnection &&
-              !actionsPending.newCryptoAccountFromWallet && (
+              !actionsPending.newCryptoAccountsFromWallet && (
                 <Grid item>{this.renderWalletConnect()}</Grid>
               )}
             {(actionsPending.checkWalletConnection ||
-              actionsPending.newCryptoAccountFromWallet) && (
+              actionsPending.newCryptoAccountsFromWallet) && (
               <Grid item>{this.renderCheckWalletConnectionInstruction()}</Grid>
             )}
           </Grid>
@@ -180,7 +221,7 @@ class AddAccountModalComponent extends Component<Props, State> {
 
   renderCheckWalletConnectionInstruction = () => {
     const { actionsPending } = this.props
-    const { walletType, cryptoType } = this.state
+    const { walletType, platformType } = this.state
     let instruction = ''
     switch (walletType) {
       case 'metamask':
@@ -191,7 +232,7 @@ class AddAccountModalComponent extends Component<Props, State> {
         }
         break
       case 'ledger':
-        if (actionsPending.newCryptoAccountFromWallet && cryptoType === 'bitcoin') {
+        if (actionsPending.newCryptoAccountsFromWallet && platformType === 'bitcoin') {
           instruction = 'Please wait while we sync your Bitcoin account with the network...'
         } else if (actionsPending.checkWalletConnection) {
           instruction = 'Please connect your Ledger Device and connect it through popup window...'
@@ -220,8 +261,8 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderWalletConnect = () => {
-    const { checkWalletConnection, errors, online } = this.props
-    const { walletType, cryptoType } = this.state
+    const { checkWalletConnection, errors, online, classes } = this.props
+    const { walletType, platformType } = this.state
     let connectText, buttonText, buttonIcon
     let errorInstruction
     switch (walletType) {
@@ -231,10 +272,10 @@ class AddAccountModalComponent extends Component<Props, State> {
         buttonIcon = <OpenInBrowser />
         if (errors.checkWalletConnection === walletErrors.metamask.extendsionNotFound) {
           errorInstruction = 'MetaMask extension is not available'
-        } else if (errors.newCryptoAccountFromWallet === walletErrors.metamask.incorrectNetwork) {
+        } else if (errors.newCryptoAccountsFromWallet === walletErrors.metamask.incorrectNetwork) {
           errorInstruction = 'Incorrect MetaMask network'
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.metamask.authorizationDenied
+          errors.newCryptoAccountsFromWallet === walletErrors.metamask.authorizationDenied
         ) {
           errorInstruction = 'MetaMask authorization denied'
         }
@@ -246,9 +287,9 @@ class AddAccountModalComponent extends Component<Props, State> {
         if (errors.checkWalletConnection === walletErrors.ledger.deviceNotConnected) {
           errorInstruction = 'Ledger device is not connected'
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.ledger.ledgerAppCommunicationFailed
+          errors.newCryptoAccountsFromWallet === walletErrors.ledger.ledgerAppCommunicationFailed
         ) {
-          errorInstruction = `Ledger ${cryptoType} app is not available`
+          errorInstruction = `Ledger ${platformType} app is not available`
         }
         break
       case 'trustWalletConnect':
@@ -259,7 +300,7 @@ class AddAccountModalComponent extends Component<Props, State> {
         if (errors.checkWalletConnection) {
           errorInstruction = 'WalletConnect loading failed'
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.metamaskWalletConnect.modalClosed
+          errors.newCryptoAccountsFromWallet === walletErrors.metamaskWalletConnect.modalClosed
         ) {
           errorInstruction = `User denied account authorization`
         }
@@ -271,27 +312,30 @@ class AddAccountModalComponent extends Component<Props, State> {
         if (errors.checkWalletConnection) {
           errorInstruction = 'WalletLink loading failed'
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.coinbaseWalletLink.authorizationDenied
+          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseWalletLink.authorizationDenied
         ) {
           errorInstruction = `User denied account authorization`
         }
         break
       case 'coinbaseOAuthWallet':
-        connectText = `Fetch Coinbase ${getCryptoTitle(cryptoType)} accounts`
+        connectText = `Fetch Coinbase ${getCryptoTitle(platformType)} accounts`
         buttonText = 'Authorize Chainsfr'
         buttonIcon = <OpenInBrowser />
         if (errors.checkWalletConnection) {
           errorInstruction = 'Failed to get authorization from Coinbase'
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.accountNotFound
+          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseOAuthWallet.accountNotFound
         ) {
-          errorInstruction = `Please select the ${cryptoType} account in the Coinbase pop window`
+          errorInstruction = `Please select the proper account in the Coinbase pop window`
         } else if (
-          errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.noAddress
+          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseOAuthWallet.noAddress
         ) {
-          errorInstruction = `No ${cryptoType} address is available from Coinbase`
-        } else if (errors.newCryptoAccountFromWallet === walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched) {
-          errorInstruction = errors.newCryptoAccountFromWallet
+          errorInstruction = `No address is available from Coinbase`
+        } else if (
+          errors.newCryptoAccountsFromWallet ===
+          walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched
+        ) {
+          errorInstruction = errors.newCryptoAccountsFromWallet
         }
         break
       default:
@@ -300,13 +344,13 @@ class AddAccountModalComponent extends Component<Props, State> {
     return (
       <Grid container spacing={1} direction='column'>
         <Grid item>
-          <Typography variant='body2'>{connectText}</Typography>
+          <Typography className={classes.subtitle}>{connectText}</Typography>
         </Grid>
         <Grid item>
           <Button
             color='primary'
             onClick={() => {
-              checkWalletConnection({ walletType: walletType, cryptoType: cryptoType })
+              checkWalletConnection({ walletType: walletType, platformType: platformType })
             }}
             disabled={this.locked() || !online}
           >
@@ -334,34 +378,30 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   renderNameNewAccount = () => {
-    const { newCryptoAccount, actionsPending } = this.props
+    const { newCryptoAccounts, actionsPending, classes } = this.props
     const { name, walletType } = this.state
 
-    if (newCryptoAccount && !actionsPending.newCryptoAccountFromWallet) {
+    if (newCryptoAccounts.length > 0 && !actionsPending.newCryptoAccountsFromWallet) {
+      const firstNewCryptoAccount = newCryptoAccounts[0]
       return (
         <Grid container spacing={2}>
           <Grid item xs={4}>
-            <WalletButton walletType={walletType} />
+            <WalletButton
+              walletType={walletType}
+              containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
+            />
           </Grid>
           <Grid item xs>
             <Grid container spacing={3} direction='column'>
               <Grid item>
-                <Typography>Wallet Connected</Typography>
-                {newCryptoAccount.cryptoType !== 'bitcoin' ? (
-                  <Typography variant='body2'>
-                    Wallet address: {newCryptoAccount.address}
-                  </Typography>
-                ) : newCryptoAccount.hdWalletVariables &&
-                  newCryptoAccount.hdWalletVariables.xpub ? (
-                  <Typography variant='caption'>
-                    Account xpub: {newCryptoAccount.hdWalletVariables.xpub.slice(0, 16)}...
-                    {newCryptoAccount.hdWalletVariables.xpub.slice(-24)}
-                  </Typography>
-                ) : (
-                  <Typography variant='body2'>
-                    Account address: {newCryptoAccount.address}
-                  </Typography>
-                )}
+                <Typography className={classes.subtitle}>Wallet Connected</Typography>
+                <Typography variant='caption'>
+                  {firstNewCryptoAccount.hdWalletVariables &&
+                  firstNewCryptoAccount.hdWalletVariables.xpub
+                    ? `Account xpub: ${firstNewCryptoAccount.hdWalletVariables.xpub.slice(0, 16)}...
+                    ${firstNewCryptoAccount.hdWalletVariables.xpub.slice(-24)}`
+                    : `Wallet address: ${firstNewCryptoAccount.address}`}
+                </Typography>
               </Grid>
               <Grid item>
                 <TextField
@@ -373,7 +413,7 @@ class AddAccountModalComponent extends Component<Props, State> {
                   onChange={event => {
                     this.handleAccountNameChange(event.target.value)
                   }}
-                  disabled={newCryptoAccount.email} // force using email as name
+                  disabled={firstNewCryptoAccount.email} // force using email as name
                   value={name}
                 />
               </Grid>
@@ -390,7 +430,7 @@ class AddAccountModalComponent extends Component<Props, State> {
       case 0:
         return this.renderWalletSelections()
       case 1:
-        return this.renderCryptoSelections()
+        return this.renderPlatformSelection()
       case 2:
         return this.renderNameNewAccount()
       default:
@@ -399,7 +439,7 @@ class AddAccountModalComponent extends Component<Props, State> {
   }
 
   render () {
-    const { open, handleClose, onSubmit, newCryptoAccount, fullScreen, classes } = this.props
+    const { open, handleClose, onSubmit, newCryptoAccounts, fullScreen, classes } = this.props
     const { step, name } = this.state
     return (
       <Dialog
@@ -408,11 +448,11 @@ class AddAccountModalComponent extends Component<Props, State> {
         onClose={() => {
           if (!this.locked) handleClose()
         }}
-        maxWidth='md'
+        classes={{ paperScrollPaper: classes.dialogRoot }}
         fullWidth
       >
-        <DialogTitle disableTypography>
-          <Typography variant='h2'>Connect to Account</Typography>
+        <DialogTitle disableTypography className={classes.titleRoot}>
+          <Typography variant='h3'>Connect to Account</Typography>
           <IconButton
             onClick={handleClose}
             className={classes.closeButton}
@@ -421,10 +461,8 @@ class AddAccountModalComponent extends Component<Props, State> {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent style={{height: '400px'}}>
-          {this.renderSteps()}
-        </DialogContent>
-        <DialogActions style={{ justifyContent: 'center', marginBottom: '10px' }}>
+        <DialogContent className={classes.contentRoot}>{this.renderSteps()}</DialogContent>
+        <DialogActions style={{ justifyContent: 'center' }}>
           <Button
             onClick={() => {
               handleClose()
@@ -439,7 +477,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             // name cannot be empty
             disabled={step !== 2 && name.length > 0}
             onClick={() => {
-              onSubmit({ ...newCryptoAccount, name: name })
+              onSubmit(newCryptoAccounts, name)
             }}
           >
             Save
@@ -456,6 +494,21 @@ const styles = theme => ({
     right: theme.spacing(1),
     top: theme.spacing(1),
     color: theme.palette.grey[500]
+  },
+  dialogRoot: {
+    maxWidth: '640px'
+  },
+  titleRoot: {
+    paddingTop: '30px'
+  },
+  contentRoot: {
+    paddingTop: '0px',
+    paddingBottom: '20px',
+    minHeight: '370px'
+  },
+  subtitle: {
+    fontSize: '14px',
+    fontWeight: 600
   }
 })
 
