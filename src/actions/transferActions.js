@@ -580,6 +580,22 @@ async function _getTransferHistory (offset: number = 0) {
       }
     })
 
+  transferData = await Promise.all(
+    transferData.map(async transfer => {
+      if (!transfer.error) {
+        if (!transfer.senderAvatar) {
+          const senderProfile = await API.getUserProfileByEmail(transfer.sender)
+          transfer.senderAvatar = senderProfile.imageUrl
+        }
+        if (!transfer.receiverAvatar) {
+          const receiverProfile = await API.getUserProfileByEmail(transfer.destination)
+          transfer.receiverAvatar = receiverProfile.imageUrl
+        }
+      }
+      return transfer
+    })
+  )
+
   return { hasMore, transferData, offset }
 }
 
@@ -734,7 +750,10 @@ async function _getTxFeeForTransfer (transferData) {
   }
 }
 
-async function _setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
+async function _setTokenAllowance (
+  fromAccount: AccountData,
+  tokenAllowanceAmount: StandardTokenUnit
+) {
   let _wallet = createWallet(fromAccount)
   const amountBasicTokenUnit = utils
     .toBasicTokenUnit(tokenAllowanceAmount, getCryptoDecimals(fromAccount.cryptoType))
@@ -756,7 +775,7 @@ async function _setTokenAllowanceWaitForConfirmation (txHash: TxHash) {
   }
 
   // intierval: 5s, timeout: inf
-  await pWaitFor(checkConfirmation, {interval: 5000})
+  await pWaitFor(checkConfirmation, { interval: 5000 })
 }
 
 function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
@@ -767,20 +786,26 @@ function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: Stan
       meta: {
         localErrorHandling: true
       }
-    }).then(({ value }) =>
-      dispatch({
-        type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
-        payload: _setTokenAllowanceWaitForConfirmation(value)
-      })
-    ).then(() => 
+    })
+      .then(({ value }) =>
+        dispatch({
+          type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
+          payload: _setTokenAllowanceWaitForConfirmation(value)
+        })
+      )
+      .then(() =>
         // we need to update tx fee since we likely had an
         // 'gas required exceeds allowance (10000000)' revert error while getting
         // tx fee previously
         dispatch({
           type: 'GET_TX_COST',
-          payload: _getTxFee({fromAccount, transferAmount: getState().formReducer.transferForm.transferAmount})
+          payload: _getTxFee({
+            fromAccount,
+            transferAmount: getState().formReducer.transferForm.transferAmount
+          })
         })
-    ).catch(e => console.warn(e))
+      )
+      .catch(e => console.warn(e))
   }
 }
 
