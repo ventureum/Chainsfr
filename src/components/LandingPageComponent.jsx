@@ -42,6 +42,11 @@ const toUserReadableState = {
     SEND_CONFIRMED_RECEIVE_PENDING: 'Receiving',
     SEND_CONFIRMED_RECEIVE_FAILURE: 'Receive Failed',
     SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Completed'
+  },
+  DIRECT_TRANSFER: {
+    SEND_PENDING: 'Sending',
+    SEND_FAILURE: 'Send Failed',
+    SEND_CONFIRMED: 'Completed'
   }
 }
 
