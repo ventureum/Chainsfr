@@ -44,8 +44,10 @@ async function _getTxFee (txRequest: {
 
 function directTransfer (txRequest: {
   fromAccount: AccountData,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
-  destinationAddress: Address,
+  transferFiatAmountSpot: string,
+  fiatType: string,
   txFee: TxFee
 }) {
   return (dispatch: Function, getState: Function) => {
@@ -58,11 +60,20 @@ function directTransfer (txRequest: {
 
 async function _directTransfer (txRequest: {
   fromAccount: AccountData,
+  destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
-  destinationAddress: Address,
+  transferFiatAmountSpot: string,
+  fiatType: string,
   txFee: TxFee
 }) {
-  let { fromAccount, transferAmount, destinationAddress, txFee } = txRequest
+  let {
+    fromAccount,
+    destinationAccount,
+    transferAmount,
+    transferFiatAmountSpot,
+    fiatType,
+    txFee
+  } = txRequest
 
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
@@ -70,16 +81,42 @@ async function _directTransfer (txRequest: {
     .toString()
   const _wallet = createWallet(fromAccount)
 
-  let txHash = await _wallet.sendTransaction({
-    to: destinationAddress,
+  const rv = await _wallet.sendTransaction({
+    to: destinationAccount.address,
     value: value,
     txFee: txFee,
     options: { directTransfer: true }
   })
-  return {
-    txHash: txHash,
-    timestamp: moment().unix()
-  }
+
+  var { txHash } = rv
+  if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
+
+  const response = await API.directTransfer({
+    senderAccount: JSON.stringify({
+      cryptoType: fromAccount.cryptoType,
+      walletType: fromAccount.walletType,
+      address: fromAccount.address,
+      name: fromAccount.name
+    }),
+    destinationAccount: JSON.stringify({
+      cryptoType: destinationAccount.cryptoType,
+      walletType: destinationAccount.walletType,
+      address: destinationAccount.address,
+      name: destinationAccount.name
+    }),
+    cryptoType: fromAccount.cryptoType,
+    transferAmount,
+    transferFiatAmountSpot,
+    fiatType,
+    sendTxHash: txHash
+  })
+
+  await saveHistoryFile({
+    transferId: response.transferId,
+    sendTimestamp: response.sendTimestamp,
+  })
+
+  return response
 }
 
 async function _submitTx (txRequest: {
@@ -407,6 +444,11 @@ function getTransferState (transferData: Object): string {
       break
     }
     case 'Confirmed': {
+      if (transferData.senderToReceiver) {
+        // special case, direct transfer
+        state = transferStates.SEND_CONFIRMED
+        break
+      }
       switch (receiveTxState) {
         // SEND_CONFIRMED_RECEIVE_PENDING
         case 'Pending':
@@ -491,7 +533,7 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   return { transferData, escrowAccount }
 }
 
-async function _getTransferHistory (offset: number = 0) {
+async function _getTransferHistory (offset: number = 0, transferMethod: string ='ALL') {
   const ITEM_PER_FETCH = 10
   // https://github.com/facebook/flow/issues/6064
   // $FlowFixMe
@@ -538,6 +580,12 @@ async function _getTransferHistory (offset: number = 0) {
       receivingIds: receivingIds
     })
   )
+    .filter(
+      item =>
+        (transferMethod === 'DIRECT_TRANSFER' && item.senderToReceiver) ||
+        (transferMethod === 'EMAIL_TRANSFER' && !item.senderToReceiver) ||
+        transferMethod === 'ALL'
+    )
     .sort((a, b) => {
       // we have to re-sort since API.getBatchTransfers does not persist order
       // sort transfers by timestamp in descending order
@@ -563,8 +611,12 @@ async function _getTransferHistory (offset: number = 0) {
           transferIdsSet.has(item.transferId) &&
           transfersDict[item.transferId]
         ) {
-          password = Base64.decode(transfersDict[item.transferId].password)
-          transferType = 'SENDER'
+          if (item.senderToReceiver) {
+            transferType = 'DIRECT_TRANSFER'
+          } else {
+            password = Base64.decode(transfersDict[item.transferId].password)
+            transferType = 'SENDER'
+          }
         } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
           transferType = 'RECEIVER'
         } else {
@@ -662,10 +714,10 @@ function getTransfer (transferId: ?string, receivingId: ?string) {
   }
 }
 
-function getTransferHistory (offset: number) {
+function getTransferHistory (offset: number, transferMethod: string) {
   return {
     type: 'GET_TRANSFER_HISTORY',
-    payload: _getTransferHistory(offset)
+    payload: _getTransferHistory(offset, transferMethod)
   }
 }
 

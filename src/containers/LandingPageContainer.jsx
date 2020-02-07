@@ -58,7 +58,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransferHistory: offset => dispatch(getTransferHistory(offset)),
+    getTransferHistory: offset => dispatch(getTransferHistory(offset, 'EMAIL_TRANSFER')),
     push: path => dispatch(push(path))
   }
 }

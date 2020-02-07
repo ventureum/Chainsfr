@@ -54,7 +54,9 @@ class SendToAnotherAccountModalContainer extends Component {
       errors,
       markAccountDirty,
       accountSelection,
-      directTransfer
+      directTransfer,
+      currency,
+      cryptoPrice
     } = this.props
     const { transferAmount, destination } = transferForm
     if (
@@ -73,8 +75,13 @@ class SendToAnotherAccountModalContainer extends Component {
       // submit tx
       directTransfer({
         fromAccount: accountSelection,
+        destinationAccount: destination,
         transferAmount: transferAmount,
-        destinationAddress: destination.address,
+        transferFiatAmountSpot: utils.toCurrencyAmount(
+          transferAmount,
+          cryptoPrice[accountSelection.cryptoType]
+        ),
+        fiatType: currency,
         txFee: txFee
       })
     } else if (

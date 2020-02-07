@@ -22,6 +22,24 @@ const coinbaseAccessTokenApi = axios.create({
   }
 })
 
+// account to account transfers
+async function directTransfer (request: {|
+  senderAccount: string,
+  destinationAccount: string,
+  transferAmount: string,
+  transferFiatAmountSpot: string,
+  fiatType: string,
+  cryptoType: string,
+  sendTxHash: TxHash,
+|}) {
+  let apiResponse = await chainsferApi.post('/transfer', {
+    clientId: 'test-client',
+    action: 'DIRECT_TRANSFER',
+    ...request
+  })
+  return apiResponse.data
+}
+
 async function transfer (request: {|
   senderName: string,
   senderAvatar: string,
@@ -112,6 +130,14 @@ function normalizeTransferData (transferData) {
     transferData.cancelTxHash = stage.txHash
   }
 
+  // direct transfer
+  if (transferData['senderToReceiver']) {
+    const stage = transferData['senderToReceiver']
+    transferData.sendTimestamp = stage.txTimestamp
+    transferData.sendTxState = stage.txState
+    transferData.sendTxHash = stage.txHash
+  }
+
   return transferData
 }
 
@@ -124,7 +150,10 @@ async function getTransfer (request: { transferId: ?string, receivingId: ?string
   })
 
   let responseData = normalizeTransferData(rv.data)
-  responseData.data = JSON.parse(Base64.decode(responseData.data))
+
+  // data is not availble to direct transfers
+  // need check if data exists first
+  responseData.data = responseData.data ? JSON.parse(Base64.decode(responseData.data)) : undefined
   return responseData
 }
 
@@ -143,7 +172,7 @@ async function getBatchTransfers (request: {
   responseData = responseData.map(item => {
     if (!item.error) {
       item = normalizeTransferData(item)
-      item.data = JSON.parse(Base64.decode(item.data))
+      item.data = item.data ? JSON.parse(Base64.decode(item.data)) : undefined
       return item
     } else {
       console.warn('Transfer detail not found.')
@@ -268,7 +297,6 @@ async function addCryptoAccounts (
   accounts: Array<AccountData>
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { idToken } = store.getState().userReducer.profile
-
   let tobeAdded = accounts.map((accountData: AccountData) => {
     const { cryptoType, name, email, verified, receivable, sendable, walletType } = accountData
     let newAccount = {}
@@ -435,6 +463,7 @@ async function getCoinbaseAccessObject (code: string): Promise<CoinBaseAccessObj
 }
 
 export default {
+  directTransfer,
   transfer,
   accept,
   cancel,
