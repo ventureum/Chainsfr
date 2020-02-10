@@ -154,21 +154,17 @@ class ReviewComponent extends Component<Props> {
                 </Grid>
               </Grid>
             </Grid>
-            {sendMessage && sendMessage.length > 0 && (
-              <>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <Grid container direction='column' alignItems='flex-start'>
                 <Grid item>
-                  <Divider />
+                  <Typography variant='caption'>Message</Typography>
+                  <Typography variant='body2'>{sendMessage || '(Not provided)'}</Typography>
                 </Grid>
-                <Grid item>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Grid item>
-                      <Typography variant='caption'>Message</Typography>
-                      <Typography variant='body2'>{sendMessage}</Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </>
-            )}
+              </Grid>
+            </Grid>
             <Grid item>
               <Divider />
             </Grid>
