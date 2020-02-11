@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 
-import { withStyles, makeStyles } from '@material-ui/core/styles'
+import { withStyles, makeStyles, useTheme } from '@material-ui/core/styles'
 import { Link } from 'react-router-dom'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
-import ListItemText from '@material-ui/core/ListItemText'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
@@ -21,6 +20,8 @@ import Divider from '@material-ui/core/Divider'
 import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
+import UserAvatar from './MicroComponents/UserAvatar'
+import useMediaQuery from '@material-ui/core/useMediaQuery'
 import EmptyStateImage from '../images/empty_state_01.png'
 import { WalletButton } from './WalletSelectionButtons.jsx'
 import { walletSelections } from '../wallet'
@@ -55,6 +56,7 @@ const baseRecentTransferItemTransferStatus = {
   color: 'white',
   padding: '5px',
   width: '86px',
+  height: '14px',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -64,7 +66,9 @@ const baseRecentTransferItemTransferStatus = {
 const useStyles = makeStyles({
   expansionPanelRoot: {
     boxShadow: 'none',
-    marginTop: '0px'
+    marginTop: '0px',
+    paddingTop: 5,
+    paddingBottom: 5
   },
   expansionPanelExpanded: {
     marginTop: 'auto'
@@ -102,22 +106,35 @@ const useStyles = makeStyles({
     fontSize: '12px',
     fontWeight: '500',
     marginTop: '10px'
+  },
+  trasnferDirection: {
+    borderRadius: '100px',
+    color: '#777777',
+    height: '14px',
+    padding: '5px 10px 5px 10px',
+    backgroundColor: '#E9E9E9'
+  },
+  coloredBackgrond: {
+    backgroundColor: '#FAFBFE'
   }
 })
 
 export function UserRecentTransactions (props) {
   const classes = useStyles()
   const { actionsPending, transferHistory, loadMoreTransferHistory } = props
+  const theme = useTheme()
+  const wide = useMediaQuery(theme.breakpoints.up('sm'))
 
   function renderRecentTransferItem (transfer, i) {
     if (transfer.error) {
       return (
         <ExpansionPanel
           key={i + 1}
-          className={i % 2 !== 0 ? undefined : classes.coloredBackgrond}
+          className={i % 2 === 0 ? undefined : classes.coloredBackgrond}
           classes={{
             root: classes.expansionPanelRoot,
-            expanded: classes.expansionPanelExpanded
+            expanded: classes.expansionPanelExpanded,
+            content: classes.expansionPanelSummaryContent
           }}
         >
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -130,15 +147,12 @@ export function UserRecentTransactions (props) {
     }
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
-      secondaryDesc =
-        'received on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY')
     } else if (transfer.state === transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED) {
-      secondaryDesc =
-        'cancelled on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY')
     } else {
       // pending receive
-      secondaryDesc =
-        'sent on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm:ss')
+      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY')
     }
 
     let stateClassName = 'recentTransferItemTransferStatusTextBased' // default
@@ -165,11 +179,10 @@ export function UserRecentTransactions (props) {
     }
 
     const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
-
     return (
       <ExpansionPanel
         key={i + 1}
-        className={i % 2 !== 0 ? undefined : classes.coloredBackgrond}
+        className={i % 2 === 0 ? undefined : classes.coloredBackgrond}
         classes={{
           root: classes.expansionPanelRoot,
           expanded: classes.expansionPanelExpanded
@@ -177,34 +190,82 @@ export function UserRecentTransactions (props) {
       >
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Grid container direction='row' alignItems='center'>
-            <Grid xs={8} item>
-              <ListItemText
-                primary={
-                  transfer.transferType === 'SENDER'
-                    ? `To ${transfer.receiverName}`
-                    : `From ${transfer.senderName}`
-                }
-                secondary={secondaryDesc}
-              />
-            </Grid>
-            <Grid xs={4} item>
-              <Grid container direction='row' justify='space-between' alignItems='center'>
-                <Grid item>
-                  <Box className={classes[stateClassName]}>
-                    <Typography variant='button' align='center'>
-                      {toUserReadableState[transfer.transferType][transfer.state]}
+            <Grid xs={7} md={7} item>
+              <Grid container alignItems='center' spacing={1}>
+                <Grid item xs={12} md={2}>
+                  <Box>
+                    <Typography
+                      variant='button'
+                      align='center'
+                      className={classes.trasnferDirection}
+                    >
+                      {transfer.transferType === 'SENDER' ? 'To' : 'From'}
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item>
-                  <Typography align='right' variant='body2'>
-                    {transfer.transferType === 'SENDER' ? '-' : '+'}
-                    {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
-                  </Typography>
-                  <Typography align='right' variant='caption'>
-                    {transfer.transferType === 'SENDER' ? '-' : '+'}
-                    {transfer.transferCurrencyAmount}
-                  </Typography>
+                <Grid item xs={12} md>
+                  <Box display='flex' flexDirection='row' alignItems='center'>
+                    {transfer.transferType === 'SENDER' ? (
+                      <>
+                        <UserAvatar
+                          name={transfer.receiverName}
+                          src={transfer.receiverAvatar}
+                          style={{ width: 32 }}
+                        />
+                        <Box ml={1}>
+                          <Typography variant='body2'>{transfer.receiverName}</Typography>
+                        </Box>
+                      </>
+                    ) : (
+                      <>
+                        <UserAvatar
+                          name={transfer.senderName}
+                          src={transfer.senderAvatar}
+                          style={{ width: 32 }}
+                        />
+                        <Box ml={1}>
+                          <Typography variant='body2'>{transfer.senderName}</Typography>
+                          <Typography variant='caption'>{secondaryDesc}</Typography>
+                        </Box>
+                      </>
+                    )}
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid xs={5} md={4} item>
+              <Grid
+                container
+                direction='row'
+                justify='space-between'
+                alignItems='center'
+                spacing={1}
+              >
+                <Grid item xs={12} sm='auto'>
+                  <Box display='flex' justifyContent='flex-end'>
+                    <Box className={classes[stateClassName]}>
+                      <Typography variant='button' align='center'>
+                        {toUserReadableState[transfer.transferType][transfer.state]}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm='auto'>
+                  <Box
+                    display='flex'
+                    flexDirection='column'
+                    alignItems='flex-end'
+                    justifyContent='flex-end'
+                  >
+                    <Typography variant='body2'>
+                      {transfer.transferType === 'SENDER' ? '-' : '+'}
+                      {transfer.transferAmount} {getCryptoSymbol(transfer.cryptoType)}
+                    </Typography>
+                    <Typography align='right' variant='caption'>
+                      {transfer.transferType === 'SENDER' ? '-' : '+'}
+                      {transfer.transferCurrencyAmount}
+                    </Typography>
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>
@@ -221,8 +282,8 @@ export function UserRecentTransactions (props) {
             <Grid item>
               <Typography variant='caption'>
                 {transfer.transferType === 'SENDER'
-                  ? `To ${transfer.destination}`
-                  : `From ${transfer.sender}`}
+                  ? `To: ${transfer.destination}`
+                  : `From: ${transfer.sender}`}
               </Typography>
             </Grid>
             {transfer.password && (
@@ -302,75 +363,75 @@ export function UserRecentTransactions (props) {
   }
 
   return (
-    <Grid
-      container
-      alignItems='center'
-      justify='center'
-      className={classes.transactionHistorySection}
-    >
-      <Container maxWidth='lg'>
-        <Grid container direction='column' justify='center' alignItems='stretch'>
-          <Grid item>
-            <Grid container direction='row'>
-              <Grid item>
-                <Typography variant='h2'>Recent Transactions</Typography>
-              </Grid>
+    <Container maxWidth='lg'>
+      <Grid container direction='column' justify='center' alignItems='stretch'>
+        <Grid item>
+          <Grid container direction='row'>
+            <Grid item>
+              <Typography variant='h2'>Recent Transactions</Typography>
             </Grid>
           </Grid>
-          <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
-            <InfiniteScroll
-              loader={
-                actionsPending.getTransferHistory && (
-                  <Grid container direction='row' justify='center' key={0} alignItems='center'>
-                    <CircularProgress color='primary' style={{ marginTop: '30px' }} />
-                  </Grid>
-                )
+        </Grid>
+        <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
+          <InfiniteScroll
+            loader={
+              actionsPending.getTransferHistory && (
+                <Grid container direction='row' justify='center' key={0} alignItems='center'>
+                  <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                </Grid>
+              )
+            }
+            threshold={300}
+            pageStart={0}
+            loadMore={() => {
+              if (!actionsPending.getTransferHistory) {
+                loadMoreTransferHistory(transferHistory.history.length)
               }
-              threshold={300}
-              pageStart={0}
-              loadMore={() => {
-                if (!actionsPending.getTransferHistory) {
-                  loadMoreTransferHistory(transferHistory.history.length)
-                }
-              }}
-              useWindow={false}
-              hasMore={transferHistory.hasMore}
-              initialLoad={false}
-            >
-              <Grid item className={classes.txHistoryTitleContainer}>
-                <Grid container direction='row' alignItems='center'>
-                  <Grid item xs={8}>
-                    <Typography variant='h6'>Transaction</Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Grid container alignItems='center' justify='space-between'>
-                      <Grid item>
+            }}
+            useWindow={false}
+            hasMore={transferHistory.hasMore}
+            initialLoad={false}
+          >
+            <Grid item className={classes.txHistoryTitleContainer}>
+              <Grid container direction='row' alignItems='center'>
+                <Grid item xs={6} md={7}>
+                  <Typography variant='h6'>Transaction</Typography>
+                </Grid>
+                <Grid item xs={6} md={4}>
+                  <Box
+                    display='flex'
+                    flexDirection='row'
+                    alignItems='center'
+                    justifyContent={wide ? 'space-between' : 'flex-end'}
+                  >
+                    {wide ? (
+                      <>
                         <Typography variant='h6'>Status</Typography>
-                      </Grid>
-                      <Grid item>
                         <Typography variant='h6'>Amount</Typography>
-                      </Grid>
-                    </Grid>
-                  </Grid>
+                      </>
+                    ) : (
+                      <Typography variant='h6'>Status/Amount</Typography>
+                    )}
+                  </Box>
                 </Grid>
               </Grid>
-              <Divider />
-              {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
-                <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
-                  <Box mb={2}>
-                    <img src={EmptyStateImage} alt='Empty State' />
-                  </Box>
-                  <Typography variant='subtitle2' color='textSecondary'>
-                    It seems you don't have any transactions yet
-                  </Typography>
+            </Grid>
+            <Divider />
+            {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
+              <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
+                <Box mb={2}>
+                  <img src={EmptyStateImage} alt='Empty State' />
                 </Box>
-              )}
-              {transferHistory.history.map((transfer, i) => renderRecentTransferItem(transfer, i))}
-            </InfiniteScroll>
-          </Grid>
+                <Typography variant='subtitle2' color='textSecondary'>
+                  It seems you don't have any transactions yet
+                </Typography>
+              </Box>
+            )}
+            {transferHistory.history.map((transfer, i) => renderRecentTransferItem(transfer, i))}
+          </InfiniteScroll>
         </Grid>
-      </Container>
-    </Grid>
+      </Grid>
+    </Container>
   )
 }
 
@@ -433,9 +494,6 @@ class LandingPageComponent extends Component {
 }
 
 const styles = theme => ({
-  coloredBackgrond: {
-    backgroundColor: '#FAFBFE'
-  },
   walletSectionContainer: {
     maxWidth: '1000px'
   }

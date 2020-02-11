@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
+import type { UserProfile } from './types/user.flow.js'
 import type { AccountData, BackEndCryptoAccountType } from './types/account.flow.js'
 import type { CoinBaseAccessObject } from './wallets/CoinbaseClient'
 import { store } from './configureStore.js'
@@ -234,12 +235,16 @@ async function removeRecipient (request: { idToken: string, recipient: Recipient
   }
 }
 
-async function register (request: { idToken: string }) {
+async function register (idToken: string, userProfile: UserProfile) {
+  const { email, ...otherInfo } = userProfile
+  if (!idToken || !email) throw new Error('Invalid user to register')
   try {
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',
       action: 'REGISTER',
-      idToken: request.idToken
+      idToken: idToken,
+      email: email,
+      profile: otherInfo
     })
     return rv.data
   } catch (e) {
@@ -462,6 +467,18 @@ async function getCoinbaseAccessObject (code: string): Promise<CoinBaseAccessObj
   }
 }
 
+async function getUserProfileByEmail (email: string): Promise<UserProfile> {
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'GET_USER',
+      email: email
+    })
+    return rv.data
+  } catch (e) {
+    return {}
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -486,5 +503,6 @@ export default {
   clearCloudWalletCryptoAccounts,
   getBtcMultisigPublicKey,
   sendBtcMultiSigTransaction,
-  getCoinbaseAccessObject
+  getCoinbaseAccessObject,
+  getUserProfileByEmail
 }

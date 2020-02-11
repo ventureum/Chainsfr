@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import WalletAuthorizationComponent from '../components/WalletAuthorizationComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { verifyAccount, checkWalletConnection } from '../actions/walletActions'
-import { decryptCloudWalletAccount, markAccountDirty } from '../actions/accountActions.js'
+import { decryptCloudWalletAccount } from '../actions/accountActions.js'
 import { submitTx } from '../actions/transferActions'
 import { clearError } from '../actions/userActions'
 import utils from '../utils'
@@ -29,7 +29,6 @@ type Props = {
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
-  markAccountDirty: Function,
   setTokenAllowance: Function,
   errors: Object,
   online: boolean
@@ -60,7 +59,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
     const transferAmountBasicTokenUnit = utils
       .toBasicTokenUnit(transferAmount, getCryptoDecimals(accountSelection.cryptoType))
       .toString()
-    
+
     return new BN(transferAmountBasicTokenUnit).gt(new BN(accountSelection.multiSigAllowance))
   }
 
@@ -73,7 +72,6 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       txFee,
       actionsPending,
       verifyAccount,
-      markAccountDirty,
       accountSelection,
       setTokenAllowance,
       errors,
@@ -91,8 +89,6 @@ class WalletAuthorizationContainer extends Component<Props, State> {
     } = transferForm
 
     const submit = () => {
-      // mart account dirty
-      markAccountDirty(accountSelection)
       // submit tx
       submitTx({
         fromAccount: accountSelection,
@@ -177,18 +173,18 @@ class WalletAuthorizationContainer extends Component<Props, State> {
 const submitTxSelector = createLoadingSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIEVED'])
 const verifyAccountSelector = createLoadingSelector(['VERIFY_ACCOUNT'])
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_WALLET_CONNECTION'])
-const setTokenAllowanceSelector = createLoadingSelector([
-  'SET_TOKEN_ALLOWANCE'
+const setTokenAllowanceSelector = createLoadingSelector(['SET_TOKEN_ALLOWANCE'])
+const setTokenAllowanceWaitForConfirmationSelector = createLoadingSelector([
+  'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'
 ])
-const setTokenAllowanceWaitForConfirmationSelector = createLoadingSelector(['SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'])
 
 const submitTxErrorSelector = createErrorSelector(['SUBMIT_TX'])
 const checkWalletConnectionErrorSelector = createErrorSelector(['CHECK_WALLET_CONNECTION'])
 const verifyAccountErrorSelector = createErrorSelector(['VERIFY_ACCOUNT'])
-const setTokenAllowanceErrorSelector = createErrorSelector([
-  'SET_TOKEN_ALLOWANCE'
+const setTokenAllowanceErrorSelector = createErrorSelector(['SET_TOKEN_ALLOWANCE'])
+const setTokenAllowanceWaitForConfirmationErrorSelector = createErrorSelector([
+  'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'
 ])
-const setTokenAllowanceWaitForConfirmationErrorSelector = createErrorSelector(['SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'])
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -200,7 +196,6 @@ const mapDispatchToProps = dispatch => {
       dispatch(decryptCloudWalletAccount(accountData, password)),
     clearError: () => dispatch(clearError()),
     setTokenAllowance: (amount, accountData) => dispatch(setTokenAllowance(amount, accountData)),
-    markAccountDirty: accountData => dispatch(markAccountDirty(accountData)),
     push: path => dispatch(push(path))
   }
 }

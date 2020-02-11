@@ -2,6 +2,7 @@
 import { gapiLoad } from '../drive'
 import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
+import type { UserProfile } from '../types/user.flow.js'
 import { enqueueSnackbar } from './notificationActions.js'
 import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
@@ -18,8 +19,6 @@ function onLogin (loginData: any) {
     window.tokenRefreshTimer = setTimeout(() => {
       this.refreshLoginSession()
     }, 1000 * 60 * 50)
-    // fetch accounts after logging in
-    dispatch(getCryptoAccounts())
   }
 }
 
@@ -73,10 +72,10 @@ async function _refreshAccessToken () {
   return googleUser
 }
 
-function register (idToken: string) {
+function register (idToken: string, userProfile: UserProfile) {
   return {
     type: 'REGISTER',
-    payload: API.register({ idToken })
+    payload: API.register(idToken, userProfile)
   }
 }
 

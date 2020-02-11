@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react'
+import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -11,11 +12,13 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { getCryptoSymbol } from '../tokens'
+import { getWalletLogo, getWalletTitle } from '../wallet'
+import { getCryptoSymbol, getCryptoPlatformType, getCryptoTitle } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import Divider from '@material-ui/core/Divider'
 import Box from '@material-ui/core/Box'
+import UserAvatar from './MicroComponents/UserAvatar'
 import MuiLink from '@material-ui/core/Link'
 import Skeleton from '@material-ui/lab/Skeleton'
 import url from '../url'
@@ -32,17 +35,28 @@ type Props = {
 }
 
 type State = {
-  copied: boolean
+  copied: boolean,
+  showAddress: boolean
 }
 
 class ReceiptComponent extends Component<Props, State> {
   state = {
-    copied: false
+    copied: false,
+    showAddress: false
+  }
+
+  toggleAddress = () => {
+    this.setState(prevState => {
+      return {
+        ...prevState,
+        showAddress: !prevState.showAddress
+      }
+    })
   }
 
   renderReceipt () {
     const { classes, transfer, sendTime, receiveTime, cancelTime, backToHome } = this.props
-    const { copied } = this.state
+    const { copied, showAddress } = this.state
     const {
       transferId,
       receivingId,
@@ -72,6 +86,11 @@ class ReceiptComponent extends Component<Props, State> {
     let title
     let titleIcon
     let messageBoxContent
+    let platFormType = ''
+    if (cryptoType) {
+      platFormType = getCryptoPlatformType(cryptoType)
+      platFormType = platFormType.charAt(0).toUpperCase() + platFormType.substring(1)
+    }
 
     switch (state) {
       case transferStates.SEND_PENDING:
@@ -79,8 +98,9 @@ class ReceiptComponent extends Component<Props, State> {
         title = 'Transfer Arranged'
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         messageBoxContent =
-          'The blockchain is processing your transfer. A notification email will be' +
-          ' sent to you once the transfer is ready to be accepted.'
+          `${platFormType} network is processing your transaction. ` +
+          `${receiverName} will receive an email notification to ` +
+          `accept your transfer shortly`
         break
       case transferStates.SEND_FAILURE:
         // only accessible to sender
@@ -210,135 +230,216 @@ class ReceiptComponent extends Component<Props, State> {
         }
         break
       default:
-        throw new Error('Unknown transfer state')
+        throw new Error(`Unknown transfer state: ${state}`)
     }
     if (state)
       return (
-        <Grid container direction='column' spacing={4}>
-          <Grid item>
-            <Grid container direction='column' justify='center' align='center'>
-              {titleIcon}
-              <Typography variant='h3'> {title} </Typography>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <Grid container direction='column' spacing={2}>
-              {messageBoxContent && (
-                <Grid item>
-                  <Box className={classes.reminder}>
-                    <Typography variant='body2' align='left'>
-                      {messageBoxContent}
+        <Box display='flex' flexDirection='column' alignItems='stretch'>
+          <Box display='flex' flexDirection='column' alignItems='center'>
+            {titleIcon}
+            <Typography variant='h3'> {title} </Typography>
+          </Box>
+
+          {messageBoxContent && (
+            <Box mt={4} padding={2} className={classes.reminder}>
+              <Typography variant='body2' align='left'>
+                {messageBoxContent}
+              </Typography>
+            </Box>
+          )}
+
+          <Box pt={6}>
+            <Grid container style={{ width: '100%' }} direction='column' spacing={2}>
+              <Grid item>
+                <Box display='flex' flexDirection='row' alignItems='flex-start' width='100%'>
+                  <Box mr={2} width='50px' mt={1}>
+                    <Typography
+                      variant='button'
+                      align='center'
+                      className={classes.trasnferDirection}
+                    >
+                      To
                     </Typography>
                   </Box>
-                </Grid>
-              )}
-              <Grid item>
-                <Grid container direction='row' align='center' spacing={1}>
-                  <Grid item xs={6}>
-                    <Grid container direction='column' alignItems='flex-start'>
-                      <Typography variant='caption'>From</Typography>
-                      <Typography variant='body2' id='senderName'>
-                        {senderName}
-                      </Typography>
-                      <Typography variant='caption' id='sender'>
-                        {sender}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Grid container direction='column' alignItems='flex-start'>
-                      <Typography variant='caption'>To</Typography>
-                      <Typography variant='body2' id='receiverName'>
-                        {receiverName}
-                      </Typography>
-                      <Typography variant='caption'>{destination}</Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
+
+                  <Box display='flex' flexDirection='column' alignItems='flex-start' width='100%'>
+                    <Box display='flex' flexDirection='row' alignItems='center'>
+                      <Box mr={1}>
+                        <UserAvatar
+                          name={transfer.receiverName}
+                          src={transfer.receiverAvatar}
+                          style={{ width: 32 }}
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant='body2' id='receiverName'>
+                          {receiverName}
+                        </Typography>
+                        <Typography variant='caption' id='destination'>
+                          {destination}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {transferType === 'RECEIVER' && receiverAccount && (
+                      <>
+                        <Box pt={1} pb={1} width='100%'>
+                          <Divider />
+                        </Box>
+                        <Box display='flex' flexDirection='row' alignItems='center' mb={2}>
+                          <Box mr={1}>
+                            <Avatar
+                              style={{ borderRadius: '2px', width: '32px' }}
+                              src={getWalletLogo(receiverAccount.walletType)}
+                            ></Avatar>
+                          </Box>
+                          <Box>
+                            <Typography variant='body2' id='senderName'>
+                              {receiverAccount.name}
+                            </Typography>
+                            <Typography variant='caption' id='sender'>
+                              {`${getWalletTitle(receiverAccount.walletType)}, ${getCryptoTitle(
+                                receiverAccount.platformType
+                              )}`}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Button
+                          className={classes.addressBtn}
+                          color='primary'
+                          onClick={() => {
+                            this.toggleAddress()
+                          }}
+                        >
+                          Show Address
+                        </Button>
+                        {showAddress && (
+                          <Box mt={1}>
+                            <Typography variant='caption'>{receiverAccount.address}</Typography>
+                          </Box>
+                        )}
+                      </>
+                    )}
+                  </Box>
+                </Box>
               </Grid>
-              {transferType === 'SENDER' && senderAccount && (
-                <>
-                  <Grid item>
-                    <Divider />
-                  </Grid>
-                  <Grid item>
-                    <Grid container direction='column' alignItems='flex-start'>
-                      <Grid item>
-                        <Typography variant='caption'>From Account</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Grid container direction='column' alignItems='flex-start'>
-                          <Typography variant='body2'>{senderAccount.displayName}</Typography>
-                          <Typography variant='caption'>{senderAccount.address}</Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </>
-              )}
-              {transferType === 'RECEIVER' && receiverAccount && (
-                <>
-                  <Grid item>
-                    <Divider />
-                  </Grid>
-                  <Grid item>
-                    <Grid container direction='column' alignItems='flex-start'>
-                      <Grid item>
-                        <Typography variant='caption'>Deposit to Account</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Grid container direction='column' alignItems='flex-start'>
-                          <Typography variant='body2'>{receiverAccount.displayName}</Typography>
-                          <Typography variant='caption'>{receiverAccount.address}</Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </>
-              )}
               <Grid item>
                 <Divider />
               </Grid>
               <Grid item>
-                <Grid container direction='row' alignItems='center' spacing={1}>
-                  <Grid item xs>
+                <Box display='flex' flexDirection='row' alignItems='flex-start' width='100%'>
+                  <Box mr={2} width='50px' mt={1}>
+                    <Typography
+                      variant='button'
+                      align='center'
+                      className={classes.trasnferDirection}
+                    >
+                      From
+                    </Typography>
+                  </Box>
+                  <Box display='flex' flexDirection='column' alignItems='flex-start' width='100%'>
+                    <Box display='flex' flexDirection='row' alignItems='center'>
+                      <Box mr={1}>
+                        <UserAvatar
+                          name={transfer.senderName}
+                          src={transfer.senderAvatar}
+                          style={{ width: 32 }}
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant='body2' id='senderName'>
+                          {senderName}
+                        </Typography>
+                        <Typography variant='caption' id='sender'>
+                          {sender}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {transferType === 'SENDER' && senderAccount && (
+                      <>
+                        <Box pt={1} pb={1} width='100%'>
+                          <Divider />
+                        </Box>
+                        <Box display='flex' flexDirection='row' alignItems='center' mb={2}>
+                          <Box mr={1}>
+                            <Avatar
+                              style={{ borderRadius: '2px', width: '32px' }}
+                              src={getWalletLogo(senderAccount.walletType)}
+                            ></Avatar>
+                          </Box>
+                          <Box>
+                            <Typography variant='body2' id='senderName'>
+                              {senderAccount.name}
+                            </Typography>
+                            <Typography variant='caption' id='sender'>
+                              {`${getWalletTitle(senderAccount.walletType)}, ${getCryptoTitle(
+                                senderAccount.platformType
+                              )}`}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Button
+                          className={classes.addressBtn}
+                          color='primary'
+                          onClick={() => {
+                            this.toggleAddress()
+                          }}
+                        >
+                          Show Address
+                        </Button>
+                        {showAddress && (
+                          <Box mt={1}>
+                            <Typography variant='caption'>{senderAccount.address}</Typography>
+                          </Box>
+                        )}
+                      </>
+                    )}
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item>
+                <Divider />
+              </Grid>
+              <Grid item>
+                <Grid container direction='column' alignItems='flex-start'>
+                  <Grid item>
+                    <Typography variant='caption'>Amount</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Grid container direction='row' alignItems='center'>
+                      <Typography variant='body2'>
+                        {transferAmount} {getCryptoSymbol(cryptoType)}
+                      </Typography>
+                      <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                        ( ≈ {transferFiatAmountSpot} {fiatType} )
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {txFee && txFeeCurrencyAmount && (
+                <>
+                  <Grid item>
+                    <Divider />
+                  </Grid>
+                  <Grid item>
                     <Grid container direction='column' alignItems='flex-start'>
                       <Grid item>
-                        <Typography variant='caption'>Amount</Typography>
+                        <Typography variant='caption'>Network Fee</Typography>
                       </Grid>
                       <Grid item>
                         <Grid container direction='row' alignItems='center'>
                           <Typography variant='body2'>
-                            {transferAmount} {getCryptoSymbol(cryptoType)}
+                            {txFee.costInStandardUnit} {getCryptoSymbol(cryptoType)}
                           </Typography>
                           <Typography style={{ marginLeft: '10px' }} variant='caption'>
-                            ( ≈ {transferFiatAmountSpot} {fiatType} )
+                            ( ≈ {txFeeCurrencyAmount} )
                           </Typography>
                         </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
-                  {txFee && txFeeCurrencyAmount && (
-                    <Grid item xs>
-                      <Grid container direction='column' alignItems='flex-start'>
-                        <Grid item>
-                          <Typography variant='caption'>Network Fee</Typography>
-                        </Grid>
-                        <Grid item>
-                          <Grid container direction='row' alignItems='center'>
-                            <Typography variant='body2'>
-                              {txFee.costInStandardUnit} {getCryptoSymbol(cryptoType)}
-                            </Typography>
-                            <Typography style={{ marginLeft: '10px' }} variant='caption'>
-                              ( ≈ {txFeeCurrencyAmount} )
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  )}
-                </Grid>
-              </Grid>
+                </>
+              )}
               {transferType === 'SENDER' && (
                 <>
                   <Grid item>
@@ -455,8 +556,9 @@ class ReceiptComponent extends Component<Props, State> {
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item>
+          </Box>
+
+          <Box mt={7}>
             <Grid container direction='row' justify='center'>
               <Grid item>
                 <Button
@@ -473,28 +575,19 @@ class ReceiptComponent extends Component<Props, State> {
                 </Button>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )
   }
 
   render () {
     const { classes, transfer } = this.props
-
     return (
-      <Grid container direction='column' alignItems='center'>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column' alignItems='stretch'>
-            <Grid item>
-              <Grid container direction='column' alignItems='center'>
-                <Grid item className={classes.subContainer}>
-                  {transfer && this.renderReceipt()}
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Box display='flex' flexDirection='column' alignItems='center' pt={3} pb={12}>
+        <Box className={classes.sectionContainer} padding={2}>
+          {transfer && this.renderReceipt()}
+        </Box>
+      </Box>
     )
   }
 }
@@ -518,9 +611,6 @@ const styles = theme => ({
     marginBottom: '14px',
     marginTop: '15px'
   },
-  btnSection: {
-    marginTop: '60px'
-  },
   iconBtn: {
     padding: '0',
     marginLeft: '16px',
@@ -533,13 +623,26 @@ const styles = theme => ({
   },
   sectionContainer: {
     width: '100%',
-    maxWidth: '1080px'
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '320px'
+    },
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '480px'
+    }
   },
-  subContainer: {
-    width: '100%',
-    maxWidth: '550px',
-    margin: '0px 0px 16px 0px',
-    padding: '30px'
+  trasnferDirection: {
+    borderRadius: '100px',
+    color: '#777777',
+    height: '14px',
+    fontSize: '12px',
+    padding: '5px 10px 5px 10px',
+    backgroundColor: '#E9E9E9'
+  },
+  addressBtn: {
+    background: `rgba(57, 51, 134, 0.1)`,
+    borderRadis: '4px',
+    fontSize: '12px',
+    padding: '6px 10px 6px 10px'
   }
 })
 

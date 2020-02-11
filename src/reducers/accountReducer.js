@@ -94,6 +94,7 @@ export default function (state = initState, action) {
     case 'SYNC_WITH_NETWORK_FULFILLED':
     case 'VERIFY_ACCOUNT_FULFILLED':
     case 'CLEAR_ACCOUNT_PRIVATE_KEY':
+    case 'POST_TX_ACCOUNT_CLEAN_UP':
       return updateCryptoAccount(state, action.payload)
     // CHECK_WALLET_CONNECTION_FULFILLED should not add new account to redux
     // if such account does not exist

@@ -51,7 +51,7 @@ class LoginContainer extends Component {
     // store loginData into redux
     this.props.onLogin(loginData)
     // register user
-    this.props.register(loginData.idToken)
+    this.props.register(loginData.idToken, loginData.profileObj)
   }
 
   render () {
@@ -141,7 +141,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: loginData => dispatch(onLogin(loginData)),
-    register: idToken => dispatch(register(idToken)),
+    register: (idToken, userProfile) => dispatch(register(idToken, userProfile)),
     getCryptoAccounts: idToken => dispatch(getCryptoAccounts()),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),

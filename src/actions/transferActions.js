@@ -16,7 +16,7 @@ import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
-import { clearAccountPrivateKey } from './accountActions'
+import { postTxAccountCleanUp } from './accountActions'
 import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
@@ -54,7 +54,9 @@ function directTransfer (txRequest: {
     return dispatch({
       type: 'DIRECT_TRANSFER',
       payload: _directTransfer(txRequest)
-    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
+    }).then(() => {
+      dispatch(postTxAccountCleanUp(txRequest.fromAccount))
+    })
   }
 }
 
@@ -632,6 +634,22 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
       }
     })
 
+  transferData = await Promise.all(
+    transferData.map(async transfer => {
+      if (!transfer.error) {
+        if (!transfer.senderAvatar) {
+          const senderProfile = await API.getUserProfileByEmail(transfer.sender)
+          transfer.senderAvatar = senderProfile.imageUrl
+        }
+        if (!transfer.receiverAvatar) {
+          const receiverProfile = await API.getUserProfileByEmail(transfer.destination)
+          transfer.receiverAvatar = receiverProfile.imageUrl
+        }
+      }
+      return transfer
+    })
+  )
+
   return { hasMore, transferData, offset }
 }
 
@@ -662,7 +680,9 @@ function submitTx (txRequest: {
     return dispatch({
       type: 'SUBMIT_TX',
       payload: _submitTx(txRequest)
-    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
+    }).then(() => {
+      dispatch(postTxAccountCleanUp(txRequest.fromAccount))
+    })
   }
 }
 
@@ -786,7 +806,10 @@ async function _getTxFeeForTransfer (transferData) {
   }
 }
 
-async function _setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
+async function _setTokenAllowance (
+  fromAccount: AccountData,
+  tokenAllowanceAmount: StandardTokenUnit
+) {
   let _wallet = createWallet(fromAccount)
   const amountBasicTokenUnit = utils
     .toBasicTokenUnit(tokenAllowanceAmount, getCryptoDecimals(fromAccount.cryptoType))
@@ -808,7 +831,7 @@ async function _setTokenAllowanceWaitForConfirmation (txHash: TxHash) {
   }
 
   // intierval: 5s, timeout: inf
-  await pWaitFor(checkConfirmation, {interval: 5000})
+  await pWaitFor(checkConfirmation, { interval: 5000 })
 }
 
 function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: StandardTokenUnit) {
@@ -819,20 +842,26 @@ function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: Stan
       meta: {
         localErrorHandling: true
       }
-    }).then(({ value }) =>
-      dispatch({
-        type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
-        payload: _setTokenAllowanceWaitForConfirmation(value)
-      })
-    ).then(() => 
+    })
+      .then(({ value }) =>
+        dispatch({
+          type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION',
+          payload: _setTokenAllowanceWaitForConfirmation(value)
+        })
+      )
+      .then(() =>
         // we need to update tx fee since we likely had an
         // 'gas required exceeds allowance (10000000)' revert error while getting
         // tx fee previously
         dispatch({
           type: 'GET_TX_COST',
-          payload: _getTxFee({fromAccount, transferAmount: getState().formReducer.transferForm.transferAmount})
+          payload: _getTxFee({
+            fromAccount,
+            transferAmount: getState().formReducer.transferForm.transferAmount
+          })
         })
-    ).catch(e => console.warn(e))
+      )
+      .catch(e => console.warn(e))
   }
 }
 
