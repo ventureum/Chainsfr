@@ -16,7 +16,7 @@ import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
 import { createAccount } from '../accounts/AccountFactory'
-import { clearAccountPrivateKey } from './accountActions'
+import { postTxAccountCleanUp } from './accountActions'
 import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
@@ -52,7 +52,9 @@ function directTransfer (txRequest: {
     return dispatch({
       type: 'DIRECT_TRANSFER',
       payload: _directTransfer(txRequest)
-    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
+    }).then(() => {
+      dispatch(postTxAccountCleanUp(txRequest.fromAccount))
+    })
   }
 }
 
@@ -626,7 +628,9 @@ function submitTx (txRequest: {
     return dispatch({
       type: 'SUBMIT_TX',
       payload: _submitTx(txRequest)
-    }).then(() => dispatch(clearAccountPrivateKey(txRequest.fromAccount)))
+    }).then(() => {
+      dispatch(postTxAccountCleanUp(txRequest.fromAccount))
+    })
   }
 }
 

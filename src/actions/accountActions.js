@@ -323,6 +323,20 @@ function clearAccountPrivateKey (accountData: AccountData) {
   }
 }
 
+function _postTxAccountCleanUp (accountData: AccountData) {
+  accountData = { ...accountData, status: accountStatus.dirty, connected: false }
+  let _account = createAccount(accountData)
+  _account.clearPrivateKey()
+  return _account.getAccountData()
+}
+
+function postTxAccountCleanUp (accountData: AccountData) {
+  return {
+    type: 'POST_TX_ACCOUNT_CLEAN_UP',
+    payload: _postTxAccountCleanUp(accountData)
+  }
+}
+
 export {
   syncWithNetwork,
   getTxFee,
@@ -333,5 +347,6 @@ export {
   addCryptoAccounts,
   modifyCryptoAccountsName,
   removeCryptoAccounts,
-  clearAccountPrivateKey
+  clearAccountPrivateKey,
+  postTxAccountCleanUp
 }

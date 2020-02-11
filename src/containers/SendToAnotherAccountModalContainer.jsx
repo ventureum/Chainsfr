@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import SendToAnotherAccountModal from '../components/SendToAnotherAccountModal'
 import utils from '../utils'
-import { decryptCloudWalletAccount, markAccountDirty } from '../actions/accountActions.js'
+import { decryptCloudWalletAccount } from '../actions/accountActions.js'
 import { clearError } from '../actions/userActions'
 import { directTransfer } from '../actions/transferActions'
 import { verifyAccount, checkWalletConnection } from '../actions/walletActions'
@@ -52,7 +52,6 @@ class SendToAnotherAccountModalContainer extends Component {
       actionsPending,
       verifyAccount,
       errors,
-      markAccountDirty,
       accountSelection,
       directTransfer
     } = this.props
@@ -68,8 +67,6 @@ class SendToAnotherAccountModalContainer extends Component {
       !actionsPending.verifyAccount &&
       accountSelection.connected
     ) {
-      // mart account dirty
-      markAccountDirty(accountSelection)
       // submit tx
       directTransfer({
         fromAccount: accountSelection,
@@ -154,8 +151,7 @@ const mapDispatchToProps = dispatch => {
     verifyAccount: (accountData, options) => dispatch(verifyAccount(accountData, options)),
     checkWalletConnection: (accountData, options) =>
       dispatch(checkWalletConnection(accountData, options)),
-    directTransfer: txRequest => dispatch(directTransfer(txRequest)),
-    markAccountDirty: accountData => dispatch(markAccountDirty(accountData))
+    directTransfer: txRequest => dispatch(directTransfer(txRequest))
   }
 }
 
