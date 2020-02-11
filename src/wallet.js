@@ -5,7 +5,7 @@ import MetamaskLogo from './images/metamask.svg'
 import LedgerWalletLogo from './images/ledger-button.png'
 import DriveWalletLogo from './images/drive-wallet-button.png'
 import CoinbaseWalletLinkLogo from './images/coinbase-walletLink.png'
-import CoinbaseWalletLogo from  './images/coinbase.png'
+import CoinbaseWalletLogo from './images/coinbase.png'
 import TrustWalletLogo from './images/trust-wallet.png'
 import { detect } from 'detect-browser'
 import { isMobile } from 'react-device-detect'
@@ -14,41 +14,41 @@ const browser = detect()
 
 export const walletCryptoSupports = {
   drive: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' }
   ],
   metamask: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
   ],
   ledger: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' }
   ],
-  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false }],
+  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' }],
   metamaskWalletConnect: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
   ],
   trustWalletConnect: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
   ],
   coinomiWalletConnect: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
   ],
-  referralWallet: [{ cryptoType: 'ethereum', disabled: false }],
+  referralWallet: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' }],
   coinbaseOAuthWallet: [
-    { cryptoType: 'ethereum', disabled: false },
-    { cryptoType: 'dai', disabled: false },
-    { cryptoType: 'bitcoin', disabled: false }
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' }
   ]
 }
 
-function isBrowserCompatible ({status, walletType}: {status: Object, walletType: string}) {
+function isBrowserCompatible ({ status, walletType }: { status: Object, walletType: string }) {
   if (browser && browser.name === 'chrome') {
     let v = browser.version.split('.')[0]
     if (parseInt(v) < 73) {
@@ -64,10 +64,10 @@ function isBrowserCompatible ({status, walletType}: {status: Object, walletType:
     status.disabledReason = 'Chrome browser needed'
   }
 
-  return {status, walletType}
+  return { status, walletType }
 }
 
-function isSendable ({status, walletType}: {status: Object, walletType: string}) {
+function isSendable ({ status, walletType }: { status: Object, walletType: string }) {
   if (
     isMobile &&
     [
@@ -84,37 +84,30 @@ function isSendable ({status, walletType}: {status: Object, walletType: string})
     status.disabledReason = status.disabledReason || 'Not supported in mobile device'
   }
 
-  return {status, walletType}
+  return { status, walletType }
 }
 
-function isReceivable ({status, walletType}: {status: Object, walletType: string}) {
+function isReceivable ({ status, walletType }: { status: Object, walletType: string }) {
   // enable receive for all regular wallets by default
-  if (
-    [
-     'escrow',
-      'referralWallet'
-    ].includes(walletType)
-  ) {
+  if (['escrow', 'referralWallet'].includes(walletType)) {
     status.receivable = false
   }
 
-  return {status, walletType}
+  return { status, walletType }
 }
 
-function isAddable ({status, walletType}: {status: Object, walletType: string}) {
+function isAddable ({ status, walletType }: { status: Object, walletType: string }) {
   // in mobile, only coinbaseOauthWallet is enabled
-  if (
-    isMobile && walletType !== 'coinbaseOAuthWallet'
-  ) {
+  if (isMobile && walletType !== 'coinbaseOAuthWallet') {
     status.addable = false
     status.disabledReason = status.disabledReason || 'Not supported in mobile device'
   }
 
-  return {status, walletType}
+  return { status, walletType }
 }
 
 export function getWalletStatus (walletType: string) {
-  const compose = (...args) => (value) => args.reduceRight((acc, fn) => fn(acc), value)
+  const compose = (...args) => value => args.reduceRight((acc, fn) => fn(acc), value)
   const status = {
     sendable: true,
     receivable: true,
@@ -122,7 +115,8 @@ export function getWalletStatus (walletType: string) {
   }
 
   // compose from right to left
-  return compose(isAddable, isReceivable, isSendable, isBrowserCompatible)({status, walletType}).status
+  return compose(isAddable, isReceivable, isSendable, isBrowserCompatible)({ status, walletType })
+    .status
 }
 
 export const walletSelections = [
@@ -274,4 +268,13 @@ export function getWalletConfig (walletType: string): Object {
     return walletType === wallet.walletType
   })
   return w
+}
+
+export function getWalletSupportedPlatforms (walletType: string): Array<string> {
+  let supported = {}
+  let listOfCryptos = walletCryptoSupports[walletType]
+  listOfCryptos.forEach(crypto => {
+    supported[crypto.platformType] = true
+  })
+  return Object.keys(supported)
 }

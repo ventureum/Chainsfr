@@ -6,7 +6,7 @@ import update from 'immutability-helper'
 const initState = {
   escrowAccount: null,
   cryptoAccounts: [],
-  newCryptoAccountFromWallet: null
+  newCryptoAccountsFromWallet: []
 }
 
 /*
@@ -103,8 +103,8 @@ export default function (state = initState, action) {
       return updateCryptoAccount(state, action.meta)
     case 'GET_TRANSFER_FULFILLED':
       return updateCryptoAccount(state, action.payload.escrowAccount)
-    case 'NEW_CRYPTO_ACCOUNT_FROM_WALLET_FULFILLED':
-      return update(state, { newCryptoAccountFromWallet: { $set: action.payload } })
+    case 'NEW_CRYPTO_ACCOUNTS_FROM_WALLET_FULFILLED':
+      return update(state, { newCryptoAccountsFromWallet: { $set: action.payload } })
     case 'VERIFY_ESCROW_ACCOUNT_PASSWORD_FULFILLED':
       return updateCryptoAccount(state, action.payload)
     default:

@@ -13,7 +13,8 @@ const basicWalletStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  height: '100px'
+  height: '100px',
+  justifyContent:'center'
 }
 
 const useStyles = makeStyles({
@@ -49,7 +50,7 @@ const useStyles = makeStyles({
 })
 
 export function WalletButton (props) {
-  const { walletType, handleClick, selected, disabled, disabledReason } = props
+  const { walletType, handleClick, selected, disabled, disabledReason, containerStyle } = props
   const wallet = walletSelections.find(w => w.walletType === walletType)
   const classes = useStyles()
   let cardStyle = classes.walletCard
@@ -61,6 +62,7 @@ export function WalletButton (props) {
       onClick={() => {
         if (!disabled && handleClick) handleClick(wallet.walletType)
       }}
+      style={{ ...containerStyle }}
     >
       <img className={classes.walletLogo} src={wallet.logo} alt='wallet-logo' />
       <Typography variant='body2' align='center'>

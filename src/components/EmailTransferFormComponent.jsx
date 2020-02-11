@@ -156,6 +156,7 @@ class EmailTransferFormComponent extends Component<Props, State> {
                     accountData.hdWalletVariables.xpub === xpubPrefilled)))
             }
             accountId={accountSelection}
+            online={online}
           />
         </Grid>
         <Grid item>
@@ -302,7 +303,9 @@ class EmailTransferFormComponent extends Component<Props, State> {
                 variant='contained'
                 color='primary'
                 onClick={() => push(`${path.transfer}?step=1`)}
-                disabled={!validateForm(transferForm) || actionsPending.getTxFee || error || !online}
+                disabled={
+                  !validateForm(transferForm) || actionsPending.getTxFee || error || !online
+                }
               >
                 Continue
               </Button>

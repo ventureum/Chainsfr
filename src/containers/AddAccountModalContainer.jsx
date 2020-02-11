@@ -7,7 +7,7 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import {
   verifyAccount,
   checkWalletConnection,
-  newCryptoAccountFromWallet
+  newCryptoAccountsFromWallet
 } from '../actions/walletActions'
 import { addCryptoAccounts } from '../actions/accountActions.js'
 import { clearError } from '../actions/userActions'
@@ -20,17 +20,24 @@ type Props = {
   checkWalletConnection: Function,
   open: boolean,
   handleClose: Function,
-  newCryptoAccount: Object,
-  newCryptoAccountFromWallet: Function,
+  newCryptoAccounts: Object,
+  newCryptoAccountsFromWallet: Function,
   addCryptoAccounts: Function,
   online: boolean
 }
 
 class AddAccountModalContainer extends Component<Props> {
-  onSubmit = accountData => {
+  onSubmit = (newCryptoAccounts, name) => {
     const { addCryptoAccounts, handleClose } = this.props
-    addCryptoAccounts(accountData)
+    newCryptoAccounts = newCryptoAccounts.map(accountData => {
+      return { ...accountData, name: name }
+    })
+    addCryptoAccounts(newCryptoAccounts)
     handleClose()
+  }
+
+  checkWalletConnection = ({ walletType, platformType }) => {
+    this.props.checkWalletConnection({ walletType: walletType, cryptoType: platformType })
   }
 
   componentWillUnmount () {
@@ -42,21 +49,20 @@ class AddAccountModalContainer extends Component<Props> {
       actionsPending,
       open,
       handleClose,
-      newCryptoAccountFromWallet,
-      checkWalletConnection,
-      newCryptoAccount,
+      newCryptoAccountsFromWallet,
+      newCryptoAccounts,
       errors,
       online
     } = this.props
     return (
       <AddAccountModalComponent
         actionsPending={actionsPending}
-        checkWalletConnection={checkWalletConnection}
+        checkWalletConnection={this.checkWalletConnection}
         open={open}
         handleClose={handleClose}
         onSubmit={this.onSubmit}
-        onConnect={newCryptoAccountFromWallet}
-        newCryptoAccount={newCryptoAccount}
+        onConnect={newCryptoAccountsFromWallet}
+        newCryptoAccounts={newCryptoAccounts}
         errors={errors}
         online={online}
       />
@@ -65,11 +71,13 @@ class AddAccountModalContainer extends Component<Props> {
 }
 
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_WALLET_CONNECTION'])
-const newCryptoAccountFromWalletSelector = createLoadingSelector(['NEW_CRYPTO_ACCOUNT_FROM_WALLET'])
+const newCryptoAccountsFromWalletSelector = createLoadingSelector([
+  'NEW_CRYPTO_ACCOUNTS_FROM_WALLET'
+])
 
 const checkWalletConnectionErrorSelector = createErrorSelector(['CHECK_WALLET_CONNECTION'])
-const newCryptoAccountFromWalletErrorSelector = createErrorSelector([
-  'NEW_CRYPTO_ACCOUNT_FROM_WALLET'
+const newCryptoAccountsFromWalletErrorSelector = createErrorSelector([
+  'NEW_CRYPTO_ACCOUNTS_FROM_WALLET'
 ])
 
 const mapDispatchToProps = dispatch => {
@@ -77,8 +85,8 @@ const mapDispatchToProps = dispatch => {
     verifyAccount: (accountData, options) => dispatch(verifyAccount(accountData, options)),
     checkWalletConnection: (accountData, options) =>
       dispatch(checkWalletConnection(accountData, options)),
-    newCryptoAccountFromWallet: (name, cryptoType, walletType, options) =>
-      dispatch(newCryptoAccountFromWallet(name, cryptoType, walletType, options)),
+    newCryptoAccountsFromWallet: (name, cryptoType, walletType, options) =>
+      dispatch(newCryptoAccountsFromWallet(name, cryptoType, walletType, options)),
     addCryptoAccounts: accountData => dispatch(addCryptoAccounts(accountData)),
     clearError: () => dispatch(clearError())
   }
@@ -88,14 +96,14 @@ const mapStateToProps = state => {
   return {
     actionsPending: {
       checkWalletConnection: checkWalletConnectionSelector(state),
-      newCryptoAccountFromWallet: newCryptoAccountFromWalletSelector(state)
+      newCryptoAccountsFromWallet: newCryptoAccountsFromWalletSelector(state)
     },
     errors: {
       checkWalletConnection: checkWalletConnectionErrorSelector(state),
-      newCryptoAccountFromWallet: newCryptoAccountFromWalletErrorSelector(state)
+      newCryptoAccountsFromWallet: newCryptoAccountsFromWalletErrorSelector(state)
     },
-    newCryptoAccount: state.accountReducer.newCryptoAccountFromWallet,
-    newCryptoAccountFromWalletError: newCryptoAccountFromWalletErrorSelector(state)
+    newCryptoAccounts: state.accountReducer.newCryptoAccountsFromWallet,
+    newCryptoAccountsFromWalletError: newCryptoAccountsFromWalletErrorSelector(state)
   }
 }
 
