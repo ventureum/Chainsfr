@@ -14,18 +14,17 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import InfiniteScroll from 'react-infinite-scroller'
 import moment from 'moment'
-
 import { getCryptoSymbol } from '../tokens'
 import path from '../Paths.js'
 import Divider from '@material-ui/core/Divider'
 import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
+import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import EmptyStateImage from '../images/empty_state_01.png'
 import { WalletButton } from './WalletSelectionButtons.jsx'
 import { walletSelections } from '../wallet'
-import { Avatar } from '@material-ui/core'
 
 const toUserReadableState = {
   SENDER: {
@@ -203,26 +202,22 @@ export function UserRecentTransactions (props) {
                   <Box display='flex' flexDirection='row' alignItems='center'>
                     {transfer.transferType === 'SENDER' ? (
                       <>
-                        {transfer.receiverAvatar ? (
-                          <Avatar src={transfer.receiverAvatar} style={{ width: 32 }}></Avatar>
-                        ) : (
-                          <Avatar style={{ width: 32 }}>
-                            {transfer.receiverName.charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
+                        <UserAvatar
+                          name={transfer.receiverName}
+                          src={transfer.receiverAvatar}
+                          style={{ width: 32 }}
+                        />
                         <Box ml={1}>
                           <Typography variant='body2'>{transfer.receiverName}</Typography>
                         </Box>
                       </>
                     ) : (
                       <>
-                        {transfer.senderAvatar ? (
-                          <Avatar src={transfer.senderAvatar} style={{ width: 32 }}></Avatar>
-                        ) : (
-                          <Avatar style={{ width: 32 }}>
-                            {transfer.senderName.charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
+                        <UserAvatar
+                          name={transfer.senderName}
+                          src={transfer.senderAvatar}
+                          style={{ width: 32 }}
+                        />
                         <Box ml={1}>
                           <Typography variant='body2'>{transfer.senderName}</Typography>
                           <Typography variant='caption'>{secondaryDesc}</Typography>

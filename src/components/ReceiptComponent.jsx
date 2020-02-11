@@ -18,6 +18,7 @@ import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import Divider from '@material-ui/core/Divider'
 import Box from '@material-ui/core/Box'
+import UserAvatar from './MicroComponents/UserAvatar'
 import MuiLink from '@material-ui/core/Link'
 import Skeleton from '@material-ui/lab/Skeleton'
 import url from '../url'
@@ -264,13 +265,11 @@ class ReceiptComponent extends Component<Props, State> {
                   <Box display='flex' flexDirection='column' alignItems='flex-start' width='100%'>
                     <Box display='flex' flexDirection='row' alignItems='center'>
                       <Box mr={1}>
-                        {transfer.receiverAvatar ? (
-                          <Avatar src={transfer.receiverAvatar} style={{ width: 32 }}></Avatar>
-                        ) : (
-                          <Avatar style={{ width: 32 }}>
-                            {transfer.receiverName.charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
+                        <UserAvatar
+                          name={transfer.receiverName}
+                          src={transfer.receiverAvatar}
+                          style={{ width: 32 }}
+                        />
                       </Box>
                       <Box>
                         <Typography variant='body2' id='receiverName'>
@@ -340,13 +339,11 @@ class ReceiptComponent extends Component<Props, State> {
                   <Box display='flex' flexDirection='column' alignItems='flex-start' width='100%'>
                     <Box display='flex' flexDirection='row' alignItems='center'>
                       <Box mr={1}>
-                        {transfer.senderAvatar ? (
-                          <Avatar src={transfer.senderAvatar} style={{ width: 32 }}></Avatar>
-                        ) : (
-                          <Avatar style={{ width: 32 }}>
-                            {transfer.senderName.charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
+                        <UserAvatar
+                          name={transfer.senderName}
+                          src={transfer.senderAvatar}
+                          style={{ width: 32 }}
+                        />
                       </Box>
                       <Box>
                         <Typography variant='body2' id='senderName'>
