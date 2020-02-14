@@ -173,10 +173,12 @@ class App extends Component {
     if (profile.isAuthenticated) {
       store.dispatch(refreshAccessToken())
       // if timer exist, cancel it
-      if (window.tokenRefreshTimer) clearTimeout(window.tokenRefreshTimer)
+      if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
       // refresh in 50 mins
-      window.tokenRefreshTimer = setTimeout(() => {
-        this.refreshLoginSession()
+      // use interval instead of timeout to avoid
+      // in some cases token is not refreshed
+      window.tokenRefreshTimer = setInterval(() => {
+        store.dispatch(refreshAccessToken())
       }, 1000 * 60 * 50)
     }
   }

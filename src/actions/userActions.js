@@ -8,20 +8,6 @@ import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
 
-function onLogin (loginData: any) {
-  return (dispatch: Function, getState: Function) => {
-    dispatch({
-      type: 'LOGIN',
-      payload: loginData
-    })
-    if (window.tokenRefreshTimer) clearTimeout(window.tokenRefreshTimer)
-    // refresh in 50 mins
-    window.tokenRefreshTimer = setTimeout(() => {
-      this.refreshLoginSession()
-    }, 1000 * 60 * 50)
-  }
-}
-
 function clearError () {
   return { type: 'CLEAR_ERROR' }
 }
@@ -41,6 +27,20 @@ function refreshAccessToken () {
       .then(() => {
         dispatch(getCryptoAccounts())
       })
+  }
+}
+
+function onLogin (loginData: any) {
+  return (dispatch: Function, getState: Function) => {
+    dispatch({
+      type: 'LOGIN',
+      payload: loginData
+    })
+    if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
+    // refresh in 50 mins
+    window.tokenRefreshTimer = setInterval(() => {
+      dispatch(refreshAccessToken())
+    }, 1000 * 60 * 50)
   }
 }
 
