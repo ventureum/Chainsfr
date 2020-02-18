@@ -164,13 +164,19 @@ export default class WalletConnect implements IWallet<AccountData> {
 
     if (!txFee) throw new Error('Missing txFee')
     if (!options) throw new Error('Options must not be null')
+    let txObj
+    if (options.directTransfer) {
+      // direct transfer to another address
+      txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
+    } else {
     const { multisig } = options
-    const txObj = multisig.getSendToEscrowTxObj(
-      accountData.address,
-      to,
-      value,
-      accountData.cryptoType
-    )
+      txObj = multisig.getSendToEscrowTxObj(
+        accountData.address,
+        to,
+        value,
+        accountData.cryptoType
+      )
+    }
 
     return { txHash: await window.walletConnector.sendTransaction(txObj) }
   }

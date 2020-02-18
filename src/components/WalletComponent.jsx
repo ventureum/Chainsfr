@@ -5,16 +5,11 @@ import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container'
 import Card from '@material-ui/core/Card'
-import Menu from '@material-ui/core/Menu'
-import ListItemText from '@material-ui/core/ListItemText'
-import MenuItem from '@material-ui/core/MenuItem'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCryptoSymbol } from '../tokens'
 import { UserRecentTransactions } from './LandingPageComponent.jsx'
 import { accountStatus } from '../types/account.flow'
-import SendToAnotherAccountModal from '../containers/SendToAnotherAccountModalContainer'
 import path from '../Paths.js'
 
 class WalletComponent extends Component {
@@ -31,7 +26,6 @@ class WalletComponent extends Component {
 
   renderChainsfrWalletSection = () => {
     const { classes, cloudWalletAccounts, push } = this.props
-    const { anchorEl } = this.state
 
     return (
       <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
@@ -44,45 +38,9 @@ class WalletComponent extends Component {
               <Grid item>
                 <Grid container alignItems='center' spacing={3}>
                   <Grid item>
-                    <Button color='primary' variant='outlined'>
-                      Receive
+                    <Button color='primary' onClick={() => push(path.directTransfer)}>
+                      Balance Transfer
                     </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      color='primary'
-                      variant='contained'
-                      onClick={event => this.setState({ anchorEl: event.currentTarget })}
-                    >
-                      Send
-                      <ArrowDropDownIcon></ArrowDropDownIcon>
-                    </Button>
-                    <Menu
-                      anchorEl={anchorEl}
-                      getContentAnchorEl={null}
-                      open={Boolean(anchorEl)}
-                      keepMounted
-                      onClose={() => this.setState({ anchorEl: null })}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left'
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left'
-                      }}
-                    >
-                      <MenuItem
-                        onClick={() => {
-                          this.setState({ sendToAnotherAccountModal: true, anchorEl: null })
-                        }}
-                      >
-                        <ListItemText primary='Send to my accounts' />
-                      </MenuItem>
-                      <MenuItem onClick={() => push(`${path.transfer}?walletSelection=drive`)}>
-                        <ListItemText primary='Send to others' />
-                      </MenuItem>
-                    </Menu>
                   </Grid>
                 </Grid>
               </Grid>
@@ -120,8 +78,7 @@ class WalletComponent extends Component {
   }
 
   render () {
-    const { actionsPending, transferHistory, loadMoreTransferHistory, online } = this.props
-    const { sendToAnotherAccountModal } = this.state
+    const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
     return (
       <div>
         {this.renderChainsfrWalletSection()}
@@ -130,15 +87,6 @@ class WalletComponent extends Component {
           transferHistory={transferHistory}
           loadMoreTransferHistory={loadMoreTransferHistory}
         />
-        {sendToAnotherAccountModal && (
-          <SendToAnotherAccountModal
-            handleClose={() => {
-              this.handleModalClose()
-            }}
-            open={sendToAnotherAccountModal}
-            online={online}
-          />
-        )}
       </div>
     )
   }

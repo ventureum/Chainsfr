@@ -6,7 +6,7 @@ import WalletAuthorizationComponent from '../components/WalletAuthorizationCompo
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { verifyAccount, checkWalletConnection } from '../actions/walletActions'
 import { decryptCloudWalletAccount } from '../actions/accountActions.js'
-import { submitTx } from '../actions/transferActions'
+import { submitTx, submitDirectTransferTx } from '../actions/transferActions'
 import { clearError } from '../actions/userActions'
 import utils from '../utils'
 import { push } from 'connected-react-router'
@@ -20,16 +20,19 @@ type Props = {
   actionsPending: Object,
   verifyAccount: Function,
   submitTx: Function,
+  submitDirectTransferTx: Function,
   currency: String,
   userProfile: Object,
   txFee: Object,
   setTokenAllowanceTxHash: string,
   accountSelection: Object,
+  receiveAccountSelection: Object,
   push: Function,
   checkWalletConnection: Function,
   decryptCloudWalletAccount: Function,
   clearError: Function,
   setTokenAllowance: Function,
+  directTransfer: boolean,
   errors: Object,
   online: boolean
 }
@@ -53,7 +56,8 @@ class WalletAuthorizationContainer extends Component<Props, State> {
   }
 
   insufficientAllowance = () => {
-    const { accountSelection, transferForm } = this.props
+    const { accountSelection, transferForm, directTransfer } = this.props
+    if (directTransfer) return false
     if (!isERC20(accountSelection.cryptoType)) return false
     const { transferAmount } = transferForm
     const transferAmountBasicTokenUnit = utils
@@ -73,7 +77,10 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       actionsPending,
       verifyAccount,
       accountSelection,
+      receiveAccountSelection,
       setTokenAllowance,
+      directTransfer,
+      submitDirectTransferTx,
       errors,
       push
     } = this.props
@@ -89,23 +96,35 @@ class WalletAuthorizationContainer extends Component<Props, State> {
     } = transferForm
 
     const submit = () => {
-      // submit tx
-      submitTx({
-        fromAccount: accountSelection,
-        transferAmount: transferAmount,
-        transferFiatAmountSpot: transferCurrencyAmount,
-        fiatType: currency,
-        // receiver
-        destination: destination,
-        receiverName: receiverName,
-        // sender
-        senderName: senderName,
-        senderAvatar: userProfile.imageUrl,
-        sender: sender,
-        password: password,
-        sendMessage: sendMessage,
-        txFee: txFee
-      })
+      if (directTransfer) {
+        submitDirectTransferTx({
+          fromAccount: accountSelection,
+          destinationAccount: receiveAccountSelection,
+          transferAmount: transferAmount,
+          transferFiatAmountSpot: transferCurrencyAmount,
+          fiatType: currency,
+          sendMessage: sendMessage,
+          txFee: txFee
+        })
+      } else {
+        // submit tx
+        submitTx({
+          fromAccount: accountSelection,
+          transferAmount: transferAmount,
+          transferFiatAmountSpot: transferCurrencyAmount,
+          fiatType: currency,
+          // receiver
+          destination: destination,
+          receiverName: receiverName,
+          // sender
+          senderName: senderName,
+          senderAvatar: userProfile.imageUrl,
+          sender: sender,
+          password: password,
+          sendMessage: sendMessage,
+          txFee: txFee
+        })
+      }
     }
 
     if (
@@ -136,7 +155,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       // now we can submit tx
       submit()
     } else if (prevProps.actionsPending.submitTx && !actionsPending.submitTx && !errors.submitTx) {
-      push(`${path.transfer}?step=3`)
+      push(`${directTransfer ? path.directTransfer : path.transfer}?step=3`)
     }
   }
 
@@ -149,7 +168,8 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       accountSelection,
       errors,
       push,
-      online
+      online,
+      directTransfer
     } = this.props
 
     return (
@@ -165,12 +185,17 @@ class WalletAuthorizationContainer extends Component<Props, State> {
         errors={errors}
         push={push}
         online={online}
+        directTransfer={directTransfer}
       />
     )
   }
 }
 
-const submitTxSelector = createLoadingSelector(['SUBMIT_TX', 'TRANSACTION_HASH_RETRIEVED'])
+const submitTxSelector = createLoadingSelector([
+  'SUBMIT_TX',
+  'DIRECT_TRANSFER',
+  'TRANSACTION_HASH_RETRIEVED'
+])
 const verifyAccountSelector = createLoadingSelector(['VERIFY_ACCOUNT'])
 const checkWalletConnectionSelector = createLoadingSelector(['CHECK_WALLET_CONNECTION'])
 const setTokenAllowanceSelector = createLoadingSelector(['SET_TOKEN_ALLOWANCE'])
@@ -178,7 +203,7 @@ const setTokenAllowanceWaitForConfirmationSelector = createLoadingSelector([
   'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION'
 ])
 
-const submitTxErrorSelector = createErrorSelector(['SUBMIT_TX'])
+const submitTxErrorSelector = createErrorSelector(['SUBMIT_TX', 'DIRECT_TRANSFER'])
 const checkWalletConnectionErrorSelector = createErrorSelector(['CHECK_WALLET_CONNECTION'])
 const verifyAccountErrorSelector = createErrorSelector(['VERIFY_ACCOUNT'])
 const setTokenAllowanceErrorSelector = createErrorSelector(['SET_TOKEN_ALLOWANCE'])
@@ -190,6 +215,7 @@ const mapDispatchToProps = dispatch => {
   return {
     verifyAccount: (accountData, options) => dispatch(verifyAccount(accountData, options)),
     submitTx: txRequest => dispatch(submitTx(txRequest)),
+    submitDirectTransferTx: txRequest => dispatch(submitDirectTransferTx(txRequest)),
     checkWalletConnection: (accountData, options) =>
       dispatch(checkWalletConnection(accountData, options)),
     decryptCloudWalletAccount: (accountData, password) =>
@@ -209,6 +235,9 @@ const mapStateToProps = state => {
     transferForm: state.formReducer.transferForm,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account => {
       return utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+    }),
+    receiveAccountSelection: state.accountReducer.cryptoAccounts.find(_account => {
+      return utils.accountsEqual(_account, state.formReducer.transferForm.receiveAccountId)
     }),
     actionsPending: {
       submitTx: submitTxSelector(state),

@@ -22,6 +22,26 @@ const NETWORK =
 
 const PLATFORM_TYPE = 'bitcoin'
 
+function sendMessage (message): Promise<{
+  nextIndex: number,
+  endIndex: number,
+  addresses: Array<BitcoinAddress>
+}> {
+  return new Promise(function (resolve, reject) {
+    const worker = new Worker('./accountSync.worker.js', { type: 'module' })
+    worker.postMessage(message)
+    worker.onmessage = function (event) {
+      // $FlowFixMe
+      if (event.data.error) {
+        reject(event.data.error)
+      } else {
+        // $FlowFixMe
+        resolve(event.data)
+      }
+    }
+  })
+}
+
 export default class BitcoinAccount implements IAccount<AccountData> {
   accountData: AccountData
 
@@ -37,7 +57,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       platformType: PLATFORM_TYPE,
 
       // address in hardware wallet is the next receiving address
-      address: accountData.address ? accountData.address.toLowerCase() : '0x0',
+      address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
       email: accountData.email,
       displayName: `${accountData.name} (${getWalletTitle(accountData.walletType)})`,
@@ -46,7 +66,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       balanceInStandardUnit: accountData.balanceInStandardUnit || '0',
 
       hdWalletVariables: accountData.hdWalletVariables || {
-        xpub: accountData.xpub ? accountData.xpub.toLowerCase() : null,
+        xpub: accountData.xpub || null,
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         addresses: [],
@@ -185,8 +205,15 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       ]
     } else if (walletType === 'ledger') {
       // 1. account discovery
-      const externalAddressData = await this._discoverAddress(xpub, 0, 0, 0)
-      const internalAddressData = await this._discoverAddress(xpub, 0, 1, 0)
+      // use service worker for this step
+      const externalAddressData = await sendMessage({
+        action: '_discoverAddress',
+        payload: [xpub, 0, 0, 0]
+      })
+      const internalAddressData = await sendMessage({
+        action: '_discoverAddress',
+        payload: [xpub, 0, 1, 0]
+      })
 
       // 2. update addresses
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex

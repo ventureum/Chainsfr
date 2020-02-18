@@ -151,14 +151,19 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
 
     if (!txFee) throw new Error('Missing txFee')
     if (!options) throw new Error(coinbaseWalletLinkError.noOptions)
-
-    const { multisig } = options
-    const txObj = multisig.getSendToEscrowTxObj(
-      accountData.address,
-      to,
-      value,
-      accountData.cryptoType
-    )
+    let txObj
+    if (options.directTransfer) {
+      // direct transfer to another address
+      txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
+    } else {
+      const { multisig } = options
+      txObj = multisig.getSendToEscrowTxObj(
+        accountData.address,
+        to,
+        value,
+        accountData.cryptoType
+      )
+    }
 
     return {
       txHash: await WalletUtils.web3SendTransactions(

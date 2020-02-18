@@ -37,7 +37,8 @@ type Props = {
   clearError: Function,
   errors: Object,
   push: Function,
-  online: boolean
+  online: boolean,
+  directTransfer: boolean
 }
 
 type State = {
@@ -77,9 +78,9 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     this.props.setTokenAllowanceAmount(amount)
 
     if (new BN(amount).lt(new BN(minTokenAllowanceAmount))) {
-      this.setState({tokenAllowanceError: 'Cannot be less than the transfer amount'})
+      this.setState({ tokenAllowanceError: 'Cannot be less than the transfer amount' })
     } else if (tokenAllowanceError) {
-      this.setState({tokenAllowanceError: null})
+      this.setState({ tokenAllowanceError: null })
     }
   }
 
@@ -245,11 +246,12 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     const { classes, accountSelection, actionsPending } = this.props
     const { tokenAllowanceAmount, tokenAllowanceError } = this.state
 
-    const disabled =  actionsPending.submitTx ||
-                      actionsPending.verifyAccount ||
-                      actionsPending.checkWalletConnection ||
-                      actionsPending.setTokenAllowance
-                    
+    const disabled =
+      actionsPending.submitTx ||
+      actionsPending.verifyAccount ||
+      actionsPending.checkWalletConnection ||
+      actionsPending.setTokenAllowance
+
     return (
       <>
         <Box
@@ -261,7 +263,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           }}
         >
           <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
-            Please approve a transaction limit before being able to continue. Learn more about the approve process
+            Please approve a transaction limit before being able to continue. Learn more about the
+            approve process
             <MuiLink
               target='_blank'
               rel='noopener'
@@ -315,7 +318,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
       accountSelection,
       errors,
       insufficientAllowance,
-      setTokenAllowanceTxHash
+      setTokenAllowanceTxHash,
+      directTransfer
     } = this.props
     const { walletType, cryptoType, multiSigAllowance } = accountSelection
     const multiSigAllowanceStandardTokenUnit = utils
@@ -473,7 +477,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             </Box>
           </Grid>
         )}
-        {!insufficientAllowance && isERC20(accountSelection.cryptoType) && (
+        {!insufficientAllowance && isERC20(accountSelection.cryptoType) && !directTransfer && (
           <Grid item>
             <Typography variant='body2'>
               {`Your remaining authorized ${getCryptoSymbol(
@@ -487,7 +491,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   render () {
-    const { accountSelection, actionsPending, push } = this.props
+    const { accountSelection, actionsPending, push, directTransfer } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
@@ -514,9 +518,12 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                 </Grid>
                 <Grid item style={{ marginTop: '30px' }}>
                   <Button
-                    onClick={() => push(`${path.transfer}?step=1`)}
+                    onClick={() =>
+                      push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
+                    }
                     color='primary'
                     disabled={
+                      actionsPending.submitDirectTransferTx ||
                       actionsPending.submitTx ||
                       actionsPending.verifyAccount ||
                       actionsPending.checkWalletConnection ||

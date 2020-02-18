@@ -31,6 +31,7 @@ async function directTransfer (request: {|
   transferFiatAmountSpot: string,
   fiatType: string,
   cryptoType: string,
+  sendMessage: ?string,
   sendTxHash: TxHash,
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {

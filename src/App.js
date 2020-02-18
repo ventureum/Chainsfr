@@ -6,6 +6,7 @@ import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
+import DirectTransferContainer from './containers/DirectTransferContainer'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
@@ -209,6 +210,10 @@ class App extends Component {
                   exact
                   path={paths.wallet}
                   component={userIsAuthenticated(WalletContainer)}
+                />
+                <DefaultLayout
+                  path={`${paths.directTransfer}`}
+                  component={userIsAuthenticated(DirectTransferContainer)}
                 />
                 <DefaultLayout
                   path={`${paths.transfer}`}

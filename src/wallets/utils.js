@@ -5,12 +5,14 @@ import BN from 'bn.js'
 
 import utils from '../utils'
 import url from '../url'
+import SimpleMultiSig from '../SimpleMultiSig'
+import { isERC20 } from '../tokens'
+import ERC20 from '../ERC20'
 
 import type { TxHash } from '../types/transfer.flow'
-import type { BasicTokenUnit } from '../types/token.flow'
+import type { BasicTokenUnit, Address } from '../types/token.flow'
 import type { BitcoinAddress } from '../types/account.flow.js'
 import type { TxFee } from '../types/transfer.flow'
-import SimpleMultiSig from '../SimpleMultiSig'
 
 async function broadcastBtcRawTx (signedTxRaw: string) {
   const rv = await axios.post(`${url.LEDGER_API_URL}/transactions/send`, {
@@ -217,6 +219,27 @@ async function getBtcTxFee ({
   return { price, gas, costInBasicUnit, costInStandardUnit }
 }
 
+// ethereum-based coins transfer tx obj
+async function getDirectTransferTxObj (
+  from: Address,
+  to: Address,
+  value: BasicTokenUnit,
+  cryptoType: string
+) {
+  if (isERC20(cryptoType)) {
+    return ERC20.getTransferTxObj(from, to, value, cryptoType)
+  } else if (cryptoType === 'ethereum') {
+    // eth transfer
+    return {
+      from,
+      to,
+      value
+    }
+  } else {
+    throw new Error(`Invalid cryptoType ${cryptoType}`)
+  }
+}
+
 export default {
   broadcastBtcRawTx,
   networkIdMap,
@@ -228,5 +251,6 @@ export default {
   getBufferFromHex,
   getGasCost,
   getTxFee,
-  getBtcTxFee
+  getBtcTxFee,
+  getDirectTransferTxObj
 }

@@ -42,30 +42,32 @@ async function _getTxFee (txRequest: {
   return txFee
 }
 
-function directTransfer (txRequest: {
+function submitDirectTransferTx (txRequest: {
   fromAccount: AccountData,
   destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  sendMessage: ?string,
   txFee: TxFee
 }) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'DIRECT_TRANSFER',
-      payload: _directTransfer(txRequest)
+      payload: _submitDirectTransferTx(txRequest)
     }).then(() => {
       dispatch(postTxAccountCleanUp(txRequest.fromAccount))
     })
   }
 }
 
-async function _directTransfer (txRequest: {
+async function _submitDirectTransferTx (txRequest: {
   fromAccount: AccountData,
   destinationAccount: AccountData,
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  sendMessage: ?string,
   txFee: TxFee
 }) {
   let {
@@ -74,6 +76,7 @@ async function _directTransfer (txRequest: {
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
+    sendMessage,
     txFee
   } = txRequest
 
@@ -110,12 +113,13 @@ async function _directTransfer (txRequest: {
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
+    sendMessage,
     sendTxHash: txHash
   })
 
   await saveHistoryFile({
     transferId: response.transferId,
-    sendTimestamp: response.sendTimestamp,
+    sendTimestamp: response.sendTimestamp
   })
 
   return response
@@ -438,17 +442,25 @@ async function _cancelTransfer (txRequest: {
 // helper function
 function getTransferState (transferData: Object): string {
   let state
-  const { sendTxState, receiveTxState, cancelTxState } = transferData
+  const { sendTxState, receiveTxState, cancelTxState, transferMethod } = transferData
   switch (sendTxState) {
     case 'Pending': {
       // SEND_PENDING
-      state = transferStates.SEND_PENDING
-      break
+      if (transferMethod === 'DIRECT_TRANSFER') {
+        // special case, direct transfer
+        state = transferStates.SEND_DIRECT_TRANSFER_PENDING
+        break
+      } else if (transferMethod === 'EMAIL_TRANSFER') {
+        state = transferStates.SEND_PENDING
+        break
+      } else {
+        throw new Error(`Invalid transferMethod ${transferMethod}`)
+      }
     }
     case 'Confirmed': {
-      if (transferData.senderToReceiver) {
+      if (transferMethod === 'DIRECT_TRANSFER') {
         // special case, direct transfer
-        state = transferStates.SEND_CONFIRMED
+        state = transferStates.SEND_DIRECT_TRANSFER_CONFIRMED
         break
       }
       switch (receiveTxState) {
@@ -506,6 +518,10 @@ function getTransferState (transferData: Object): string {
 // fetch transferData and convert it into an escrow account
 async function _getTransfer (transferId: ?string, receivingId: ?string) {
   let transferData = await API.getTransfer({ transferId, receivingId })
+
+  // default transfer method
+  transferData.transferMethod = 'EMAIL_TRANSFER'
+
   if (transferData.senderAccount) {
     transferData.senderAccount = createAccount(
       JSON.parse(transferData.senderAccount)
@@ -516,9 +532,22 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
       JSON.parse(transferData.receiverAccount)
     ).getAccountData()
   }
+  // direct transfer destination account
+  if (transferData.destinationAccount) {
+    transferData.destinationAccount = createAccount(
+      JSON.parse(transferData.destinationAccount)
+    ).getAccountData()
+    transferData.transferMethod = 'DIRECT_TRANSFER'
+  }
   transferData.state = getTransferState(transferData)
-  transferData.transferType = transferId ? 'SENDER' : 'RECEIVER'
+  transferData.transferType =
+    transferData.transferMethod === 'EMAIL_TRANSFER'
+      ? transferId
+        ? 'SENDER'
+        : 'RECEIVER'
+      : 'SENDER'
   transferData.txFee = await _getTxFeeForTransfer(transferData)
+
   if (transferData.txFee) {
     transferData.txFeeCurrencyAmount = utils.toCurrencyAmount(
       transferData.txFee.costInStandardUnit,
@@ -535,7 +564,7 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   return { transferData, escrowAccount }
 }
 
-async function _getTransferHistory (offset: number = 0, transferMethod: string ='ALL') {
+async function _getTransferHistory (offset: number = 0, transferMethod: string = 'ALL') {
   const ITEM_PER_FETCH = 10
   // https://github.com/facebook/flow/issues/6064
   // $FlowFixMe
@@ -582,10 +611,15 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
       receivingIds: receivingIds
     })
   )
+    .map(item => { // classify transferMethod
+      return {
+        ...item,
+        transferMethod: item.senderToReceiver ? 'DIRECT_TRANSFER' : 'EMAIL_TRANSFER'
+      }
+    })
     .filter(
       item =>
-        (transferMethod === 'DIRECT_TRANSFER' && item.senderToReceiver) ||
-        (transferMethod === 'EMAIL_TRANSFER' && !item.senderToReceiver) ||
+        transferMethod === item.transferMethod ||
         transferMethod === 'ALL'
     )
     .sort((a, b) => {
@@ -613,8 +647,9 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
           transferIdsSet.has(item.transferId) &&
           transfersDict[item.transferId]
         ) {
-          if (item.senderToReceiver) {
-            transferType = 'DIRECT_TRANSFER'
+          if (item.transferMethod === 'DIRECT_TRANSFER') {
+            // direct transfer only applies to sender
+            transferType = 'SENDER'
           } else {
             password = Base64.decode(transfersDict[item.transferId].password)
             transferType = 'SENDER'
@@ -633,6 +668,22 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
         state
       }
     })
+  
+  transferData = await Promise.all(
+    transferData.map(async transfer => {
+      if (!transfer.error) {
+        if (!transfer.senderAvatar) {
+          const senderProfile = await API.getUserProfileByEmail(transfer.sender)
+          transfer.senderAvatar = senderProfile.imageUrl
+        }
+        if (!transfer.receiverAvatar) {
+          const receiverProfile = await API.getUserProfileByEmail(transfer.destination)
+          transfer.receiverAvatar = receiverProfile.imageUrl
+        }
+      }
+      return transfer
+    })
+  )
 
   transferData = await Promise.all(
     transferData.map(async transfer => {
@@ -755,7 +806,14 @@ function clearVerifyEscrowAccountPasswordError () {
 }
 
 async function _getTxFeeForTransfer (transferData) {
-  const { cryptoType, senderToChainsfer, chainsferToSender, transferType } = transferData
+  const {
+    cryptoType,
+    senderToChainsfer,
+    chainsferToSender,
+    senderToReceiver,
+    transferType,
+    transferMethod
+  } = transferData
 
   if (chainsferToSender || transferType === 'RECEIVER') {
     return {
@@ -765,7 +823,15 @@ async function _getTxFeeForTransfer (transferData) {
       costInStandardUnit: '0'
     }
   } else {
-    const { txHash } = senderToChainsfer
+    let txHash
+    if (transferMethod === 'EMAIL_TRANSFER') {
+      txHash = senderToChainsfer.txHash
+    } else if (transferMethod === 'DIRECT_TRANSFER') {
+      txHash = senderToReceiver.txHash
+    } else {
+      throw new Error(`Invalid transferMethod ${transferMethod}`)
+    }
+
     if (cryptoType === 'bitcoin') {
       const rv = await WalletUtils.getUtxoDetails(txHash)
       if (!rv) return null
@@ -875,6 +941,6 @@ export {
   getTransferPassword,
   clearVerifyEscrowAccountPasswordError,
   transferStates,
-  directTransfer,
+  submitDirectTransferTx,
   setTokenAllowance
 }

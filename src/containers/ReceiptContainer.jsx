@@ -47,13 +47,28 @@ class ReceiptContainer extends Component<Props, State> {
     }
   }
 
+  componentDidUpdate (prevProps) {
+    const { transfer, actionsPending, error } = this.props
+
+    if (
+      prevProps.actionsPending.getTransfer &&
+      !actionsPending.getTransfer &&
+      !error &&
+      !actionsPending.getTransferPassword &&
+      transfer.transferMethod === 'EMAIL_TRANSFER' &&
+      transfer.transferType === 'SENDER' // only fetch pwd for sender 
+    ) {
+      
+      // after fetching transfer data
+      // fetch password only for transferMethod == 'EMAIL_TRANSFER'
+      getTransferPassword(transfer.transferId)
+    }
+  }
+
   getTransfer = (transferId, receivingId) => {
-    let { getTransfer, getTransferPassword, actionsPending } = this.props
+    let { getTransfer, actionsPending } = this.props
     if (!actionsPending.getTransfer) {
       getTransfer(transferId, receivingId)
-    }
-    if (transferId && !actionsPending.getTransferPassword) {
-      getTransferPassword(transferId)
     }
   }
 
