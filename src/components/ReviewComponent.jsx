@@ -1,7 +1,5 @@
 // @flow
 import React, { Component } from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
@@ -9,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
 import path from '../Paths.js'
-import { getWalletLogo, getWalletTitle } from '../wallet'
+import * as TransferInfoCommon from './TransferInfoCommon'
 
 type Props = {
   submitTx: Function,
@@ -21,6 +19,7 @@ type Props = {
   currencyAmount: Object,
   currency: string,
   userProfile: Object,
+  directTransfer: boolean,
   actionsPending: {
     submitTx: boolean,
     getTxFee: boolean
@@ -37,17 +36,12 @@ class ReviewComponent extends Component<Props> {
       txFee,
       currencyAmount,
       push,
-      userProfile
+      userProfile,
+      directTransfer
     } = this.props
-    const {
-      transferAmount,
-      destination,
-      receiverName,
-      password,
-      sendMessage,
-      accountId
-    } = transferForm
+    const { transferAmount, password, sendMessage, accountId, receiveAccountId } = transferForm
     const { cryptoType } = accountId
+
     return (
       <Grid container direction='column'>
         <Grid item>
@@ -56,54 +50,35 @@ class ReviewComponent extends Component<Props> {
               <Typography variant='h3'>Review Details</Typography>
             </Grid>
             <Grid item>
-              <Grid container direction='row' align='center' spacing={1}>
-                <Grid item xs={6}>
-                  <Box display='flex' flexDirection='column'>
-                    <Typography variant='caption' align='left'>
-                      Recipient
-                    </Typography>
-                    <Box display='flex' flexDirection='row' alignItems='center' mt={1}>
-                      <Box mr={1} display='inline'>
-                        {/* wallet icon */}
-                        <Avatar src={userProfile.imageUrl}></Avatar>
-                      </Box>
-                      <Box display='flex' flexDirection='column' alignItems='flex-start'>
-                        <Typography variant='body2' id='receiverName'>
-                          {receiverName}
-                        </Typography>
-                        <Typography variant='caption'>{destination}</Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box display='flex' flexDirection='column'>
-                    <Typography variant='caption' align='left'>
-                      From Account
-                    </Typography>
-                    <Box display='flex' flexDirection='row' alignItems='center' mt={1}>
-                      <Box mr={1} display='inline'>
-                        {/* wallet icon */}
-                        <Avatar
-                          style={{ borderRadius: '2px' }}
-                          src={getWalletLogo(accountId.walletType)}
-                        ></Avatar>
-                      </Box>
-                      <Box display='flex' flexDirection='column' alignItems='flex-start'>
-                        <Typography variant='body2' id='accountDisplayName'>
-                          {accountId.displayName}
-                        </Typography>
-                        <Typography variant='caption'>
-                          {getWalletTitle(accountId.walletType)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Grid>
-              </Grid>
+              <TransferInfoCommon.FromAndToSection
+                directionLabel='To'
+                user={
+                  !directTransfer
+                    ? {
+                        name: transferForm.receiverName,
+                        email: transferForm.destination
+                      }
+                    : null
+                }
+                account={directTransfer ? receiveAccountId : null}
+              />
             </Grid>
             <Grid item>
               <Divider />
+            </Grid>
+            <Grid item>
+              <TransferInfoCommon.FromAndToSection
+                directionLabel='From'
+                user={
+                  !directTransfer
+                    ? {
+                        name: userProfile.name,
+                        email: userProfile.email
+                      }
+                    : null
+                }
+                account={accountId}
+              />
             </Grid>
             <Grid item>
               <Grid container direction='column' alignItems='flex-start'>
@@ -146,17 +121,21 @@ class ReviewComponent extends Component<Props> {
             <Grid item>
               <Divider />
             </Grid>
-            <Grid item>
-              <Grid container direction='column' alignItems='flex-start'>
+            {password && (
+              <>
                 <Grid item>
-                  <Typography variant='caption'>Security Answer</Typography>
-                  <Typography variant='body2'>{password}</Typography>
+                  <Grid container direction='column' alignItems='flex-start'>
+                    <Grid item>
+                      <Typography variant='caption'>Security Answer</Typography>
+                      <Typography variant='body2'>{password}</Typography>
+                    </Grid>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Divider />
-            </Grid>
+                <Grid item>
+                  <Divider />
+                </Grid>
+              </>
+            )}
             <Grid item>
               <Grid container direction='column' alignItems='flex-start'>
                 <Grid item>
@@ -173,7 +152,7 @@ class ReviewComponent extends Component<Props> {
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button color='primary' size='large' onClick={() => push(`${path.transfer}`)}>
+              <Button color='primary' size='large' onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}>
                 Back to previous
               </Button>
             </Grid>
@@ -184,7 +163,9 @@ class ReviewComponent extends Component<Props> {
                   variant='contained'
                   color='primary'
                   size='large'
-                  onClick={() => push(`${path.transfer}?step=2`)}
+                  onClick={() =>
+                    push(`${directTransfer ? path.directTransfer : path.transfer}?step=2`)
+                  }
                 >
                   Continue
                 </Button>
