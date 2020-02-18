@@ -279,11 +279,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address
-        txObj = {
-          from: account.address,
-          to: to,
-          value: value
-        }
+        txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
       } else {
         // transfer to escrow wallet
         let { multisig } = options
