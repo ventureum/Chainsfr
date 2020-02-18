@@ -2,6 +2,7 @@ const paths = {
   login: '/login',
   home: '/',
   wallet: '/wallet',
+  directTransfer: '/directTransfer',
   transfer: '/send',
   receive: '/receive',
   cancel: '/cancel',

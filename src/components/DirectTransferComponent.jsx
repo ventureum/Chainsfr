@@ -3,7 +3,6 @@ import React from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import EmailTransferFormContainer from '../containers/EmailTransferFormContainer'
 import DirectTransferFormContainer from '../containers/DirectTransferFormContainer'
 import WalletAuthorization from '../containers/WalletAuthorizationContainer'
 import Review from '../containers/ReviewContainer'
@@ -19,7 +18,7 @@ type Props = {
   online: boolean
 }
 
-class TransferComponent extends React.Component<Props> {
+class DirectTransferComponent extends React.Component<Props> {
   render () {
     const { classes, history, transferForm, online } = this.props
     const urlParams = queryString.parse(history.location.search)
@@ -30,34 +29,30 @@ class TransferComponent extends React.Component<Props> {
     if (!step || step === 0) {
       renderStep = (
         <Grid item className={classes.formContainer}>
-          {urlParams.directTransfer ? (
-            <DirectTransferFormContainer online={online} />
-          ) : (
-            <EmailTransferFormContainer
-              walletSelectionPrefilled={urlParams && urlParams.walletSelection}
-              addressPrefilled={urlParams && urlParams.address}
-              cryptoTypePrefilled={urlParams && urlParams.cryptoType}
-              platformTypePrefilled={urlParams && urlParams.platformType}
-              destinationPrefilled={urlParams && (urlParams.destination || '')}
-              receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
-              xpubPrefilled={urlParams && urlParams.xpubPrefilled}
-              online={online}
-            />
-          )}
+          <DirectTransferFormContainer
+            walletSelectionPrefilled={urlParams && urlParams.walletSelection}
+            addressPrefilled={urlParams && urlParams.address}
+            cryptoTypePrefilled={urlParams && urlParams.cryptoType}
+            platformTypePrefilled={urlParams && urlParams.platformType}
+            destinationPrefilled={urlParams && (urlParams.destination || '')}
+            receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
+            xpubPrefilled={urlParams && urlParams.xpubPrefilled}
+            online={online}
+          />
         </Grid>
       )
     } else if ((step === '1' || step === '2') && !transferForm.validated) {
-      renderStep = <Redirect to={paths.transfer} />
+      renderStep = <Redirect to={paths.directTransfer} />
     } else if (step === '1') {
       renderStep = (
         <Grid item className={classes.subContainer}>
-          <Review online={online} />
+          <Review online={online} directTransfer />
         </Grid>
       )
     } else if (step === '2') {
       renderStep = (
         <Grid item className={classes.walletAuthorizationContainer}>
-          <WalletAuthorization online={online} />
+          <WalletAuthorization online={online} directTransfer />
         </Grid>
       )
     } else if (step === '3') {
@@ -109,4 +104,4 @@ const styles = theme => ({
   }
 })
 
-export default withStyles(styles)(TransferComponent)
+export default withStyles(styles)(DirectTransferComponent)
