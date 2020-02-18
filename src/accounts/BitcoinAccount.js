@@ -37,7 +37,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       platformType: PLATFORM_TYPE,
 
       // address in hardware wallet is the next receiving address
-      address: accountData.address ? accountData.address.toLowerCase() : '0x0',
+      address: accountData.address || '0x0',
       name: accountData.name, // the name of this account set by the user.
       email: accountData.email,
       displayName: `${accountData.name} (${getWalletTitle(accountData.walletType)})`,
@@ -46,7 +46,7 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       balanceInStandardUnit: accountData.balanceInStandardUnit || '0',
 
       hdWalletVariables: accountData.hdWalletVariables || {
-        xpub: accountData.xpub ? accountData.xpub.toLowerCase() : null,
+        xpub: accountData.xpub || null,
         nextAddressIndex: 0,
         nextChangeIndex: 0,
         addresses: [],
