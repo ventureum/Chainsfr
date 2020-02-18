@@ -241,9 +241,9 @@ class ReceiveFormComponent extends Component {
     }
   }
 
-  onAccountChange = event => {
+  onAccountChange = account => {
     const { transferForm, updateTransferForm } = this.props
-    updateTransferForm(update(transferForm, { accountId: { $set: event.target.value } }))
+    updateTransferForm(update(transferForm, { accountId: { $set: account } }))
   }
 
   renderUnableToAccept () {
