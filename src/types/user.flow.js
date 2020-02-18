@@ -8,3 +8,4 @@ export type UserProfile = {
   givenName: string,
   familyName: string
 }
+export type EmailType = string
