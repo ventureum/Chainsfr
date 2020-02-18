@@ -211,7 +211,8 @@ export default function DirectTransferFormContainer (props: Props) {
       <Grid item>
         <TransferFormComponents.NavigationButtons
           validated={transferForm.validated || actionsPending.getTxFee || !online}
-          onClick={() => dispatch(push(`${path.directTransfer}?step=1`))}
+          onClickPrevious={() => dispatch(push(path.wallet))}
+          onClickNext={() => dispatch(push(`${path.directTransfer}?step=1`))}
         />
       </Grid>
     </Grid>

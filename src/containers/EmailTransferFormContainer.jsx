@@ -191,7 +191,8 @@ export default function EmailTransferFormContainer (props: Props) {
       <Grid item>
         <TransferFormComponents.NavigationButtons
           validated={transferForm.validated || actionsPending.getTxFee || !online}
-          onClick={() => dispatch(push(`${path.transfer}?step=1`))}
+          onClickPrevious={() => dispatch(push(path.home))}
+          onClickNext={() => dispatch(push(`${path.transfer}?step=1`))}
         />
       </Grid>
     </Grid>

@@ -1,19 +1,18 @@
 // @flow
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
-import path from '../../Paths.js'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
-import { Link } from 'react-router-dom'
 
 type Props = {
   validated: boolean,
-  onClick: Function
+  onClickNext: Function,
+  onClickPrevious: Function
 }
 
 export default function NavigationButtons (props: Props) {
   const classes = useStyles()
-  const { validated, onClick } = props
+  const { validated, onClickNext, onClickPrevious } = props
 
   return (
     <Grid container direction='row' justify='center' spacing={2} className={classes.btnSection}>
@@ -21,10 +20,8 @@ export default function NavigationButtons (props: Props) {
         <Button
           color='primary'
           variant='text'
-          onClick={() => this.props.backToHome()}
+          onClick={onClickPrevious}
           id='back'
-          to={path.home}
-          component={Link}
         >
           Back to Previous
         </Button>
@@ -34,7 +31,7 @@ export default function NavigationButtons (props: Props) {
           id='continue'
           variant='contained'
           color='primary'
-          onClick={onClick}
+          onClick={onClickNext}
           disabled={!validated}
         >
           Continue
