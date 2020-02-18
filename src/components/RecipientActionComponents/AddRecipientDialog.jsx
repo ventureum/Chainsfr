@@ -1,6 +1,6 @@
 // @flow
-import React, { Component } from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import React, { useEffect, useState, useCallback } from 'react'
+import { useDispatch } from 'react-redux'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -12,8 +12,9 @@ import validator from 'validator'
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CloseIcon from '@material-ui/icons/Close'
-import styles from './styles'
 import IconButton from '@material-ui/core/IconButton'
+import { addRecipient } from '../../actions/userActions'
+import { useActionTracker } from '../../hooksUtils'
 
 type Props = {
   open: boolean,
@@ -23,118 +24,122 @@ type Props = {
   online: boolean
 }
 
-type State = {
+type Recipient = {
   name: string,
   email: string,
   validEmail: boolean,
   validName: boolean
 }
 
-const defaultState = {
+const defaultRecipient = {
   name: '',
   email: '',
   validEmail: true,
   validName: true
 }
 
-class AddRecipientDialog extends Component<Props, State> {
-  state = defaultState
+function AddRecipientDialog (props: Props) {
+  const { open, online, handleClose } = props
 
-  handleChange = (prop: string) => event => {
+  const [recipient, setRecipient] = useState<Recipient>(defaultRecipient)
+
+  const dispatch = useDispatch()
+  const handleSubmit = useCallback(() => dispatch(addRecipient(recipient)), [dispatch, recipient])
+
+  const { actionsPending, actionsFulfilled } = useActionTracker(
+    ['addRecipient'],
+    [['ADD_RECIPIENT']]
+  )
+  const loading = actionsPending.addRecipient
+
+  useEffect(() => {
+    if (actionsFulfilled['addRecipient']) {
+      // close dialog
+      handleClose()
+    }
+  }, [actionsFulfilled])
+
+  const handleChange = (prop: string) => event => {
     if (prop === 'email') {
-      this.setState({
+      setRecipient({
+        ...recipient,
         email: event.target.value,
         validEmail: validator.isEmail(event.target.value)
       })
     } else if (prop === 'name') {
-      this.setState({
+      setRecipient({
+        ...recipient,
         name: event.target.value,
         validName: !!event.target.value && event.target.value === event.target.value.trim()
       })
     }
   }
 
-  render () {
-    let { loading, open, handleSubmit, handleClose, online } = this.props
-    const { name, email, validEmail, validName } = this.state
-    return (
-      <Dialog
-        open={open}
-        onClose={() => {
-          handleClose()
-        }}
-        aria-labelledby='form-dialog-title'
-      >
-        <DialogTitle id='form-dialog-title'>
-          <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-            <Typography variant='h3'>Add Recipient</Typography>
-            <IconButton
-              onClick={() => {
-                handleClose()
-              }}
-            >
-              <CloseIcon fontSize='small' color='secondary' />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent className='dialog-form'>
-          <form noValidate>
-            <TextField
-              id='name'
-              variant='outlined'
-              fullWidth
-              margin='normal'
-              label='Name'
-              value={name}
-              onChange={this.handleChange('name')}
-              error={!validName}
-              disabled={loading}
-              helperText={!validName ? 'Invalid recipient name' : ''}
-            />
-            <TextField
-              id='email'
-              variant='outlined'
-              fullWidth
-              margin='normal'
-              disabled={loading}
-              error={!validEmail}
-              label='Email'
-              value={email}
-              onChange={this.handleChange('email')}
-              helperText={!validEmail ? 'Invalid Email format' : ''}
-            />
-          </form>
-          {loading && <LinearProgress />}
-        </DialogContent>
-        <DialogActions>
-          <Box mr={2}>
-            <Button
-              disabled={loading}
-              onClick={() => {
-                handleClose()
-              }}
-              variant='outlined'
-              color='secondary'
-              id='cancel'
-            >
-              Cancel
-            </Button>
-          </Box>
+  const { name, email, validEmail, validName } = recipient
+
+  return (
+    <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
+      <DialogTitle id='form-dialog-title'>
+        <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
+          <Typography variant='h3'>Add Recipient</Typography>
+          <IconButton onClick={handleClose}>
+            <CloseIcon fontSize='small' color='secondary' />
+          </IconButton>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <form noValidate>
+          <TextField
+            id='name'
+            variant='outlined'
+            fullWidth
+            margin='normal'
+            label='Name'
+            value={name}
+            onChange={handleChange('name')}
+            error={!validName}
+            disabled={loading}
+            helperText={!validName ? 'Invalid recipient name' : ''}
+          />
+          <TextField
+            id='email'
+            variant='outlined'
+            fullWidth
+            margin='normal'
+            disabled={loading}
+            error={!validEmail}
+            label='Email'
+            value={email}
+            onChange={handleChange('email')}
+            helperText={!validEmail ? 'Invalid Email format' : ''}
+          />
+        </form>
+        {loading && <LinearProgress />}
+      </DialogContent>
+      <DialogActions>
+        <Box mr={2}>
           <Button
-            variant='contained'
-            disabled={loading || !name || !email || !validEmail || !online}
-            onClick={() => {
-              handleSubmit(this.state)
-            }}
-            color='primary'
-            id='add'
+            disabled={loading}
+            onClick={handleClose}
+            variant='outlined'
+            color='secondary'
+            id='cancel'
           >
-            Add
+            Cancel
           </Button>
-        </DialogActions>
-      </Dialog>
-    )
-  }
+        </Box>
+        <Button
+          variant='contained'
+          disabled={loading || !name || !email || !validEmail || !online}
+          onClick={handleSubmit}
+          color='primary'
+          id='add'
+        >
+          Add
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
-export default withStyles(styles)(AddRecipientDialog)
+export default AddRecipientDialog
