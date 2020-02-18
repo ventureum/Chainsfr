@@ -15,6 +15,7 @@ type Props = {
   txFee: Object,
   cryptoPrice: Object,
   currency: string,
+  directTransfer: boolean,
   actionsPending: {
     submitTx: boolean,
     getTxFee: boolean
