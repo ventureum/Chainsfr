@@ -11,27 +11,9 @@ import API from '../apis.js'
 import WalletErrors from '../wallets/walletErrors'
 
 async function _syncWithNetwork (accountData: AccountData) {
-  function sendMessage (message) {
-    return new Promise(function (resolve, reject) {
-      const worker = new Worker('./accountSync.worker.js', { type: 'module' })
-      worker.postMessage(message)
-      worker.onmessage = function (event) {
-        if (event.data.error) {
-          reject(event.data.error)
-        } else {
-          resolve(event.data)
-        }
-      }
-    })
-  }
-
-  if (accountData.cryptoType === 'bitcoin') {
-    return sendMessage({ action: 'sync', payload: accountData })
-  } else {
-    let account = createAccount(accountData)
-    await account.syncWithNetwork()
-    return account.getAccountData()
-  }
+  let account = createAccount(accountData)
+  await account.syncWithNetwork()
+  return account.getAccountData()
 }
 
 function syncWithNetwork (accountData: AccountData) {

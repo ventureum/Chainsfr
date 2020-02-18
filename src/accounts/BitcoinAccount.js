@@ -22,6 +22,26 @@ const NETWORK =
 
 const PLATFORM_TYPE = 'bitcoin'
 
+function sendMessage (message): Promise<{
+  nextIndex: number,
+  endIndex: number,
+  addresses: Array<BitcoinAddress>
+}> {
+  return new Promise(function (resolve, reject) {
+    const worker = new Worker('./accountSync.worker.js', { type: 'module' })
+    worker.postMessage(message)
+    worker.onmessage = function (event) {
+      // $FlowFixMe
+      if (event.data.error) {
+        reject(event.data.error)
+      } else {
+        // $FlowFixMe
+        resolve(event.data)
+      }
+    }
+  })
+}
+
 export default class BitcoinAccount implements IAccount<AccountData> {
   accountData: AccountData
 
@@ -185,8 +205,15 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       ]
     } else if (walletType === 'ledger') {
       // 1. account discovery
-      const externalAddressData = await this._discoverAddress(xpub, 0, 0, 0)
-      const internalAddressData = await this._discoverAddress(xpub, 0, 1, 0)
+      // use service worker for this step
+      const externalAddressData = await sendMessage({
+        action: '_discoverAddress',
+        payload: [xpub, 0, 0, 0]
+      })
+      const internalAddressData = await sendMessage({
+        action: '_discoverAddress',
+        payload: [xpub, 0, 1, 0]
+      })
 
       // 2. update addresses
       hdWalletVariables.nextAddressIndex = externalAddressData.nextIndex
