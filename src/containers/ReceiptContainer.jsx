@@ -48,8 +48,8 @@ class ReceiptContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { transfer, actionsPending, error } = this.props
-
+    const { getTransferPassword, transfer, actionsPending, error } = this.props
+    if (transfer)
     if (
       prevProps.actionsPending.getTransfer &&
       !actionsPending.getTransfer &&
@@ -58,7 +58,6 @@ class ReceiptContainer extends Component<Props, State> {
       transfer.transferMethod === 'EMAIL_TRANSFER' &&
       transfer.transferType === 'SENDER' // only fetch pwd for sender 
     ) {
-      
       // after fetching transfer data
       // fetch password only for transferMethod == 'EMAIL_TRANSFER'
       getTransferPassword(transfer.transferId)
