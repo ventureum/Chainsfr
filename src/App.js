@@ -1,8 +1,9 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
 import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect'
+import Box from '@material-ui/core/Box'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
@@ -15,8 +16,8 @@ import RecipientsContainer from './containers/RecipientsContainer'
 import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
 import OAuthRedirectComponent from './components/OAuthRedirectComponent'
-import Footer from './static/Footer'
-import NaviBar from './containers/NavBarContainer'
+import AppBar from './containers/AppBarContainer'
+import NavDrawer from './containers/NavDrawerContainer'
 import paths from './Paths'
 import { ThemeProvider } from '@material-ui/styles'
 import { store, history } from './configureStore'
@@ -60,23 +61,6 @@ const userIsNotAuthenticated = connectedRouterRedirect({
   wrapperDisplayName: 'UserIsNotAuthenticated'
 })
 
-const defaultLayoutStyle = {
-  display: 'flex',
-  minHeight: '100vh',
-  flexDirection: 'column'
-}
-
-const loginLayoutStyle = {
-  minHeight: '100vh',
-  flexDirection: 'column',
-  display: 'flex'
-}
-
-const componentStyle = {
-  minHeight: '100vh',
-  flexDirection: 'column'
-}
-
 const StyledCookieConsent = () => {
   const matches = useMediaQuery('(max-width:620px)')
   return (
@@ -96,17 +80,23 @@ const LoginLayout = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={matchProps => (
-        <div style={loginLayoutStyle}>
+        <Box display='flex' flexDirection='column' minHeight='100vh'>
           <StyledCookieConsent />
           <Component {...matchProps} />
           <NotifierComponent />
-        </div>
+        </Box>
       )}
     />
   )
 }
 
-const DefaultLayout = ({ component: Component, ...rest }) => {
+const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
+  // isolate flag is used to toggle leftside navigation drawer
+  // while isolate is true, users are not allow to navigate between paths  
+  const [openDrawer, setOpenDrawer] = useState(false)
+  const handleDrawerToggle = () => {
+    setOpenDrawer(previous => !previous)
+  }
   return (
     <Route
       {...rest}
@@ -124,16 +114,35 @@ const DefaultLayout = ({ component: Component, ...rest }) => {
             } else {
               store.dispatch(closeSnackbar('offline'))
             }
+            if (isolate) {
+              return (
+                <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
+                  <AppBar {...matchProps} online={online} />
+                  <Box>
+                    <Component {...matchProps} online={online} />
+                  </Box>
+                  <StyledCookieConsent />
+                  <NotifierComponent />
+                </Box>
+              )
+            }
             return (
-              <div style={defaultLayoutStyle}>
+              <Box display='flex' flexDirection='row' minHeight='100vh' alignItems='stretch'>
+                <NavDrawer
+                  {...matchProps}
+                  online={online}
+                  open={openDrawer}
+                  handleDrawerToggle={handleDrawerToggle}
+                />
+                <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
+                  <AppBar {...matchProps} online={online} handleDrawerToggle={handleDrawerToggle} />
+                  <Box>
+                    <Component {...matchProps} online={online} />
+                  </Box>
+                </Box>
                 <StyledCookieConsent />
-                <NaviBar {...matchProps} online={online} />
-                <div style={componentStyle}>
-                  <Component {...matchProps} online={online} />
-                </div>
                 <NotifierComponent />
-                <Footer />
-              </div>
+              </Box>
             )
           }}
         />
@@ -156,9 +165,6 @@ const LoginLayoutSwitch = props => {
 class App extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      auth: false
-    }
     console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
   }
 
@@ -167,10 +173,12 @@ class App extends Component {
     if (profile.isAuthenticated) {
       store.dispatch(refreshAccessToken())
       // if timer exist, cancel it
-      if (window.tokenRefreshTimer) clearTimeout(window.tokenRefreshTimer)
+      if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
       // refresh in 50 mins
-      window.tokenRefreshTimer = setTimeout(() => {
-        this.refreshLoginSession()
+      // use interval instead of timeout to avoid
+      // in some cases token is not refreshed
+      window.tokenRefreshTimer = setInterval(() => {
+        store.dispatch(refreshAccessToken())
       }, 1000 * 60 * 50)
     }
   }
@@ -199,6 +207,7 @@ class App extends Component {
               <Switch>
                 <LoginLayoutSwitch
                   path={paths.login}
+                  isolate
                   component={userIsNotAuthenticated(LoginContainer)}
                 />
                 <DefaultLayout
@@ -217,14 +226,17 @@ class App extends Component {
                 />
                 <DefaultLayout
                   path={`${paths.transfer}`}
+                  isolate
                   component={userIsAuthenticated(TransferContainer)}
                 />
                 <DefaultLayout
                   path={`${paths.receive}`}
+                  isolate
                   component={userIsAuthenticated(ReceiveContainer)}
                 />
                 <DefaultLayout
                   path={`${paths.cancel}`}
+                  isolate
                   component={userIsAuthenticated(CancelContainer)}
                 />
                 <DefaultLayout
@@ -237,6 +249,7 @@ class App extends Component {
                 />
                 <DefaultLayout
                   path={`${paths.receipt}`}
+                  isolate
                   component={userIsAuthenticated(ReceiptContainer)}
                 />
                 <DefaultLayout
