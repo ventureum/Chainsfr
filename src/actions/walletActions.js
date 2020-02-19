@@ -105,7 +105,7 @@ async function _getCloudWallet () {
     throw new Error(WalletErrors.drive.walletNotExist)
   }
 
-  let accountDataList = Base64.decode(walletFile.accounts)
+  let accountDataList = JSON.parse(Base64.decode(walletFile.accounts))
 
   return accountDataList
 }
