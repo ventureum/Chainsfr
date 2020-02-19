@@ -28,6 +28,7 @@ type Props = {
   groupedCryptoAccounts: Array<Object>,
   purpose: string,
   pending: boolean,
+  hideCryptoDropdown: boolean,
   error: Object,
   onChange: Function,
   addAccount: Function,
@@ -58,7 +59,8 @@ class AccountDropdownComponent extends Component<Props, State> {
   componentDidMount () {
     this.setState({
       accountCryptoTypeSelectionLabelWidth: this.accountCryptoTypeSelectionLabelRef.current
-        .offsetWidth,
+        ? this.accountCryptoTypeSelectionLabelRef.current.offsetWidth
+        : 0,
       groupedAccountSelectionLabelWidth: this.groupedAccountSelectionLabelRef.current.offsetWidth
     })
   }
@@ -155,7 +157,8 @@ class AccountDropdownComponent extends Component<Props, State> {
       addAccount,
       pending,
       error,
-      inputLabel
+      inputLabel,
+      hideCryptoDropdown
     } = this.props
 
     let skeletonCryptoAccounts = []
@@ -232,56 +235,58 @@ class AccountDropdownComponent extends Component<Props, State> {
             </MenuItem>
           </Select>
         </FormControl>
-        <FormControl variant='outlined' margin='normal' disabled={!groupedAccount}>
-          <InputLabel
-            ref={this.accountCryptoTypeSelectionLabelRef}
-            id='accountCryptoTypeSelectionLabel'
-          >
-            Select Coin
-          </InputLabel>
-          <Select
-            labelId='accountCryptoTypeSelectionLabel'
-            renderValue={this.renderGroupedAccountCryptoTypeItem}
-            value={account || ''}
-            onChange={onChange} // output final account selected
-            input={
-              <OutlinedInput
-                labelWidth={this.state.accountCryptoTypeSelectionLabelWidth}
-                name='Select Account'
-              />
-            }
-            error={!!error}
-            id='accountCryptoTypeSelection'
-          >
-            {groupedAccount &&
-              groupedAccount.accounts.map((accountData, index) => {
-                return (
-                  <MenuItem
-                    key={index}
-                    value={accountData}
-                    disabled={
-                      purpose === 'send' && !getWalletConfig(accountData.walletType).sendable
-                    }
-                  >
-                    {this.renderGroupedAccountCryptoTypeItem(accountData)}
-                  </MenuItem>
-                )
-              })}
-          </Select>
-          {account && account.status === accountStatus.syncing && (
-            <Box mt={1} p={2} bgcolor='background.default' borderRadius={4}>
-              <Typography variant='body2' style={{ marginBottom: '10px' }}>
-                Checking your account
-              </Typography>
-              <LinearProgress />
-            </Box>
-          )}
-          {account && account.status === accountStatus.synced && (
-            <Box ml={1}>
-              <Typography variant='caption'>Address {account.address}</Typography>
-            </Box>
-          )}
-        </FormControl>
+        {!hideCryptoDropdown && (
+          <FormControl variant='outlined' margin='normal' disabled={!groupedAccount}>
+            <InputLabel
+              ref={this.accountCryptoTypeSelectionLabelRef}
+              id='accountCryptoTypeSelectionLabel'
+            >
+              Select Coin
+            </InputLabel>
+            <Select
+              labelId='accountCryptoTypeSelectionLabel'
+              renderValue={this.renderGroupedAccountCryptoTypeItem}
+              value={account || ''}
+              onChange={onChange} // output final account selected
+              input={
+                <OutlinedInput
+                  labelWidth={this.state.accountCryptoTypeSelectionLabelWidth}
+                  name='Select Account'
+                />
+              }
+              error={!!error}
+              id='accountCryptoTypeSelection'
+            >
+              {groupedAccount &&
+                groupedAccount.accounts.map((accountData, index) => {
+                  return (
+                    <MenuItem
+                      key={index}
+                      value={accountData}
+                      disabled={
+                        purpose === 'send' && !getWalletConfig(accountData.walletType).sendable
+                      }
+                    >
+                      {this.renderGroupedAccountCryptoTypeItem(accountData)}
+                    </MenuItem>
+                  )
+                })}
+            </Select>
+            {account && account.status === accountStatus.syncing && (
+              <Box mt={1} p={2} bgcolor='background.default' borderRadius={4}>
+                <Typography variant='body2' style={{ marginBottom: '10px' }}>
+                  Checking your account
+                </Typography>
+                <LinearProgress />
+              </Box>
+            )}
+            {account && account.status === accountStatus.synced && (
+              <Box ml={1}>
+                <Typography variant='caption'>Address {account.address}</Typography>
+              </Box>
+            )}
+          </FormControl>
+        )}
       </Grid>
     )
   }

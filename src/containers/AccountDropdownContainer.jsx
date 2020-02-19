@@ -22,6 +22,9 @@ type Props = {
   onChange: Function,
   filterCriteria: Function,
   online: Boolean,
+  // ad-hoc hide crypto dropdown
+  // may be used in receive page
+  hideCryptoDropdown: boolean,
   // redux function & states
   cryptoAccounts: Array<Object>,
   actionsPending: Object,
@@ -100,7 +103,8 @@ class AccountDropdownContainer extends Component<Props, State> {
       accountId,
       inputLabel,
       purpose,
-      online
+      online,
+      hideCryptoDropdown
     } = this.props
     const { openAddAccountModal, accountsFetchStarted } = this.state
     let { filterCriteria } = this.props
@@ -181,6 +185,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           pending={actionsPending.getCryptoAccounts || !accountsFetchStarted}
           error={error}
           inputLabel={inputLabel ? inputLabel : 'Select Account'}
+          hideCryptoDropdown={hideCryptoDropdown}
         />
         {openAddAccountModal && (
           <AddAccountModal

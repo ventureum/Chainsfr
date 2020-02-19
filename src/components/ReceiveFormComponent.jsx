@@ -310,6 +310,7 @@ class ReceiveFormComponent extends Component {
                 onChange={this.onAccountChange}
                 filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
                 accountId={accountSelection}
+                hideCryptoDropdown
               />
             </Grid>
             <Grid item>
