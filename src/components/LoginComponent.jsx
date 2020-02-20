@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
@@ -92,7 +93,7 @@ class LoginComponent extends Component {
   }
 
   renderReceiveLogin = () => {
-    let { classes, transfer, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
+    let { transfer, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
 
     let isInvalidTransfer = false
     if (transfer) {
@@ -101,36 +102,24 @@ class LoginComponent extends Component {
     }
 
     return (
-      <Grid container direction='column' alignItems='center'>
-        {/* struct copied from ReceiveComponent */}
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Grid item>
-              <Grid container direction='column' alignItems='center'>
-                <Grid item className={classes.subComponent}>
-                  <Grid
-                    container
-                    direction='column'
-                    justify='center'
-                    alignItems='stretch'
-                    spacing={2}
-                  >
-                    <ReceiveTransferDataSection
-                      transfer={transfer}
-                      sendTime={sendTime}
-                      receiveTime={receiveTime}
-                      cancelTime={cancelTime}
-                      currencyAmount={currencyAmount}
-                    />
-
-                    {!isInvalidTransfer && <Grid item>{this.renderLoginBtn()}</Grid>}
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Box display='flex' flexDirection='column' alignItems='center'>
+        <Box width='100%' maxWidth='560px' pt={3}>
+          <Box display='flex' flexDirection='column' padding='0px 10px 0px 10px'>
+            <ReceiveTransferDataSection
+              transfer={transfer}
+              sendTime={sendTime}
+              receiveTime={receiveTime}
+              cancelTime={cancelTime}
+              currencyAmount={currencyAmount}
+            />
+            {!isInvalidTransfer && (
+              <Box maxWidth={480} mt={3} width='100%' alignSelf='center'>
+                {this.renderLoginBtn()}
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
     )
   }
 
@@ -259,11 +248,7 @@ class LoginComponent extends Component {
             <Grid item md={6} className={classes.loginContainer}>
               <Paper className={classes.paperContainter}>
                 <Grid>
-                  <Typography
-                    variant='h3'
-                    align='center'
-                    className={classes.loginTitle}
-                  >
+                  <Typography variant='h3' align='center' className={classes.loginTitle}>
                     {isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}
                   </Typography>
                   <Typography align='center' className={classes.loginContent}>
@@ -307,10 +292,6 @@ class LoginComponent extends Component {
 }
 
 const styles = theme => ({
-  root: {
-    flex: 1,
-    display: 'flex'
-  },
   container: {
     width: '100%',
     flexGrow: 1

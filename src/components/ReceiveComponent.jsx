@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { withStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
 import ReceiveForm from '../containers/ReceiveFormContainer'
 import ReceiveReview from '../containers/ReceiveReviewContainer'
 import { Redirect } from 'react-router'
@@ -16,7 +15,7 @@ class ReceiveComponent extends React.Component {
   }
 
   render () {
-    const { classes, history, escrowAccount, transfer, accountSelection, receipt } = this.props
+    const { history, escrowAccount, transfer, accountSelection, receipt } = this.props
     const urlParams = queryString.parse(history.location.search)
     const id = urlParams.id
     let step = urlParams.step
@@ -37,39 +36,13 @@ class ReceiveComponent extends React.Component {
       renderStep = <Redirect push to={paths.receipt} />
     }
     return (
-      <Grid container direction='column' alignItems='center'>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Grid item>
-              <Grid container direction='column' alignItems='center'>
-                <Grid item className={classes.subComponent}>
-                  {renderStep}
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Box display='flex' flexDirection='column' alignItems='center'>
+        <Box width='100%' maxWidth='560px' pt={3}>
+          {renderStep}
+        </Box>
+      </Box>
     )
   }
 }
 
-const styles = theme => ({
-  subComponent: {
-    width: '100%',
-    maxWidth: '680px',
-    margin: '0px 0px 16px 0px',
-    padding: '30px'
-  },
-  sectionContainer: {
-    width: '100%',
-    maxWidth: '1200px'
-  },
-  walletSelectionContainer: {
-    width: '100%',
-    maxWidth: '1080px',
-    margin: '0px 0px 16px 0px'
-  }
-})
-
-export default withStyles(styles)(ReceiveComponent)
+export default ReceiveComponent

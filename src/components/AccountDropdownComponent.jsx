@@ -174,7 +174,7 @@ class AccountDropdownComponent extends Component<Props, State> {
 
     return (
       <Grid container direction='column'>
-        <FormControl variant='outlined' margin='normal'>
+        <FormControl variant='outlined' margin={hideCryptoDropdown ? 'none' : 'normal'}>
           <InputLabel ref={this.groupedAccountSelectionLabelRef} id='groupedAccountSelectionLabel'>
             {inputLabel}
           </InputLabel>

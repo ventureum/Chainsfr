@@ -1,36 +1,77 @@
-
-import React, { Component } from 'react'
-import Grid from '@material-ui/core/Grid'
+import React, { Component, useState } from 'react'
+import { AccountDropdown } from './TransferFormComponents'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import { withStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import Skeleton from '@material-ui/lab/Skeleton'
-import update from 'immutability-helper'
-import AccountDropdownContainer from '../containers/AccountDropdownContainer'
+import Card from '@material-ui/core/Card'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import Divider from '@material-ui/core/Divider'
-import { getCryptoSymbol } from '../tokens'
+import { FromAndToSection } from './TransferInfoCommon'
+import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
+import Grid from '@material-ui/core/Grid'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import { Link } from 'react-router-dom'
 import Paths from '../Paths.js'
+import Skeleton from '@material-ui/lab/Skeleton'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import update from 'immutability-helper'
+import { withStyles } from '@material-ui/core/styles'
 
-function ReceiveTransferDataSectionUnstyled (props) {
+const formStyle = theme => ({
+  divider: {
+    marginBottom: '10px'
+  },
+  title: {
+    marginBottom: '10px'
+  },
+  cardRoot: {
+    maxWidth: 540,
+    alignSelf: 'center',
+    width: '100%',
+    boxShadow: '0px 4px 8px rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    padding: 0
+  }
+})
+
+const ReceiveTransferDataSection = withStyles(formStyle)(props => {
   let { classes, transfer, sendTime, receiveTime, cancelTime, currencyAmount } = props
-  if (transfer) {
-    var {
-      receivingId,
-      transferAmount,
-      senderName,
-      sender,
-      destination,
-      sendMessage,
-      receiverName,
-      cryptoType,
-      receiveTxHash,
-      cancelTxHash
-    } = transfer
+  if (!transfer) {
+    return (
+      <Card className={classes.cardRoot}>
+        <Box display='flex' width='100%' height={300} justifyContent='center' alignItems='center'>
+          <CircularProgress />
+        </Box>
+      </Card>
+    )
   }
 
+  var {
+    receivingId,
+    transferAmount,
+    senderName,
+    sender,
+    senderAvatar,
+    receiverAvatar,
+    destination,
+    sendMessage,
+    receiverName,
+    cryptoType,
+    receiveTxHash,
+    cancelTxHash
+  } = transfer
+
+  const senderInfo = {
+    name: senderName,
+    email: sender,
+    avatar: senderAvatar
+  }
+  const receiverInfo = {
+    name: receiverName,
+    email: destination,
+    avatar: receiverAvatar
+  }
   if (receiveTxHash || cancelTxHash) {
     // invalid pending transfer
     return (
@@ -61,94 +102,26 @@ function ReceiveTransferDataSectionUnstyled (props) {
   }
 
   return (
-    <>
-      <Grid item>
+    <Card className={classes.cardRoot}>
+      <Box padding={3}>
         <Typography className={classes.title} variant='h3' align='left'>
-          Accept Pending Transfer
+          Pending Transfer
         </Typography>
-      </Grid>
-      <Grid item>
-        <Grid container direction='row' align='center' spacing={1}>
-          <Grid item xs={6}>
-            <Grid container direction='column' alignItems='flex-start'>
-              {!transfer ? (
-                <>
-                  <Skeleton
-                    height={14}
-                    width='20%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                  <Skeleton
-                    height={16}
-                    width='30%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                  <Skeleton
-                    height={14}
-                    width='50%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                </>
-              ) : (
-                <>
-                  <Typography variant='caption'>From</Typography>
-                  <Typography variant='body2' id='senderName'>
-                    {senderName}
-                  </Typography>
-                  <Typography variant='caption' id='sender'>
-                    {sender}
-                  </Typography>
-                </>
-              )}
-            </Grid>
+        <Grid container direction='column' spacing={2}>
+          <Grid item>
+            <FromAndToSection directionLabel='To' user={receiverInfo} />
           </Grid>
-          <Grid item xs={6}>
-            <Grid container direction='column' alignItems='flex-start'>
-              {!transfer ? (
-                <>
-                  <Skeleton
-                    height={14}
-                    width='20%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                  <Skeleton
-                    height={16}
-                    width='30%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                  <Skeleton
-                    height={14}
-                    width='50%'
-                    style={{ marginTop: '2px', marginBottom: '2px' }}
-                  />
-                </>
-              ) : (
-                <>
-                  <Typography variant='caption'>To</Typography>
-                  <Typography variant='body2' id='receiverName'>
-                    {receiverName}
-                  </Typography>
-                  <Typography variant='caption' id='destination'>
-                    {destination}
-                  </Typography>
-                </>
-              )}
-            </Grid>
+          <Grid item>
+            <Divider />
           </Grid>
-        </Grid>
-      </Grid>
-      <Grid item>
-        <Divider className={classes.divider} />
-      </Grid>
-      <Grid item>
-        <Grid container direction='column' alignItems='flex-start'>
-          {!transfer ? (
-            <>
-              <Skeleton height={14} width='15%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-              <Skeleton height={16} width='30%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-            </>
-          ) : (
-            <>
+          <Grid item>
+            <FromAndToSection directionLabel='From' user={senderInfo} />
+          </Grid>
+          <Grid item>
+            <Divider />
+          </Grid>
+          <Grid item>
+            <Grid container direction='column' alignItems='flex-start'>
               <Grid item>
                 <Typography variant='caption'>Amount</Typography>
               </Grid>
@@ -162,53 +135,208 @@ function ReceiveTransferDataSectionUnstyled (props) {
                   </Typography>
                 </Grid>
               </Grid>
-            </>
-          )}
-        </Grid>
-      </Grid>
-      <Grid item>
-        <Divider className={classes.divider} />
-      </Grid>
-      <Grid item>
-        <Grid container direction='column' alignItems='flex-start'>
-          {!transfer ? (
-            <>
-              <Skeleton height={14} width='15%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-              <Skeleton height={16} width='30%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-            </>
-          ) : (
-            <>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Divider />
+          </Grid>
+          <Grid item>
+            <Grid container direction='column' alignItems='flex-start'>
               <Typography variant='caption'>Message</Typography>
               <Typography variant='body2'>{sendMessage}</Typography>
-            </>
-          )}
-        </Grid>
-      </Grid>
-      <Grid item>
-        <Divider className={classes.divider} />
-      </Grid>
-      <Grid item>
-        <Grid container direction='column' spacing={1}>
-          {!transfer ? (
-            <>
-              <Skeleton height={14} width='15%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-              <Skeleton height={16} width='30%' style={{ marginTop: '2px', marginBottom: '2px' }} />
-            </>
-          ) : (
-            <>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Divider />
+          </Grid>
+          <Grid item>
+            <Grid container direction='column' spacing={1}>
               <Grid item>
                 <Typography variant='caption'>Sent on {sendTime}</Typography>
               </Grid>
               <Grid item>
                 <Typography variant='caption'>Transfer ID: {receivingId}</Typography>
-              </Grid>{' '}
-            </>
-          )}
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
-      </Grid>
-    </>
+      </Box>
+    </Card>
   )
-}
+})
+
+const inputSectionStyle = theme => ({
+  linearProgress: {
+    marginTop: '8px'
+  },
+  textField: {
+    marginTop: 30
+  },
+  btn: {
+    alignSelf: 'center',
+    marginTop: 30
+  },
+  linearProgressContainer: {
+    backgroundColor: 'rgba(66,133,244,0.05)',
+    borderRadius: '8px'
+  },
+  checkIcon: {
+    width: 14,
+    color: '#43b384',
+    marginRight: 10
+  }
+})
+
+const InputSection = withStyles(inputSectionStyle)(props => {
+  const {
+    onPasswordSubmit,
+    clearError,
+    error,
+    classes,
+    passwordValidated,
+    actionsPending,
+    transfer,
+    onDeposit,
+    accountSelection,
+    currencyAmount,
+    txFee
+  } = props
+  const [password, setPassword] = useState('')
+
+  const onChange = password => {
+    clearError()
+    setPassword(password)
+  }
+
+  const onAccountChange = content => {
+    const { transferForm, updateTransferForm } = props
+    updateTransferForm(update(transferForm, { accountId: content.accountId }))
+  }
+
+  return (
+    <Box display='flex' alignItems='stretch' flexDirection='column' padding={3} maxWidth='540px'>
+      {!passwordValidated && (
+        <>
+          <Typography variant='h3'>Enter Security Answer to Unlock</Typography>
+          <TextField
+            fullWidth
+            autoFocus
+            id='answer'
+            variant='outlined'
+            placeholder='Enter Security Answer to Unlock'
+            error={!!error}
+            helperText={error ? 'Incorrect security answer' : undefined}
+            onChange={event => {
+              onChange(event.target.value)
+            }}
+            value={password || ''}
+            onKeyPress={ev => {
+              if (ev.key === 'Enter') {
+                onPasswordSubmit(password)
+              }
+            }}
+            disabled={actionsPending.verifyEscrowAccountPassword}
+            className={classes.textField}
+          />
+          {actionsPending.verifyEscrowAccountPassword && (
+            <Box
+              display='flex'
+              flexDirection='column'
+              className={classes.linearProgressContainer}
+              padding={2}
+              mt={3}
+            >
+              <Typography variant='body2'>Checking password...</Typography>
+              <LinearProgress className={classes.linearProgress} />
+            </Box>
+          )}
+          <Button
+            color='primary'
+            variant='contained'
+            className={classes.btn}
+            onClick={() => {
+              onPasswordSubmit(password)
+            }}
+            disabled={!password}
+          >
+            Validate Security Answer
+          </Button>
+        </>
+      )}
+      {passwordValidated && (
+        <>
+          <Box
+            display='flex'
+            flexDirection='row'
+            alignItems='center'
+            padding={2}
+            style={{
+              backgroundColor: 'rgba(67, 179, 132, 0.1)'
+            }}
+          >
+            <CheckCircleIcon className={classes.checkIcon}></CheckCircleIcon>
+            <Typography variant='body2'>Security answer validated</Typography>
+          </Box>
+          <Box mt={3} mb={3}>
+            <Typography variant='h3'>Select Account to Deposit</Typography>
+          </Box>
+          <AccountDropdown
+            online
+            purpose='receive'
+            inputLabel='Account'
+            filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
+            updateForm={onAccountChange}
+            hideCryptoDropdown
+          />
+          <Box>
+            {txFee ? (
+              <Typography variant='caption'>
+                Network Fee:
+                {` ${txFee.costInStandardUnit} ${getCryptoSymbol(
+                  getTxFeesCryptoType(transfer.cryptoType)
+                )} `}
+                {`(${currencyAmount.txFee})`}
+              </Typography>
+            ) : (
+              <>
+                <Typography variant='caption'>Network Fee: </Typography>
+                <Skeleton style={{ width: 50 }} />
+              </>
+            )}
+          </Box>
+          {actionsPending.acceptTransfer && (
+            <Box
+              display='flex'
+              flexDirection='column'
+              className={classes.linearProgressContainer}
+              padding={2}
+              mt={3}
+            >
+              <Typography variant='body2'>Processing transaction...</Typography>
+              <LinearProgress className={classes.linearProgress} />
+            </Box>
+          )}
+          <Button
+            color='primary'
+            variant='contained'
+            className={classes.btn}
+            onClick={() => {
+              onDeposit()
+            }}
+            disabled={
+              actionsPending.acceptTransfer ||
+              actionsPending.syncWithNetwork ||
+              actionsPending.getTxFee ||
+              !accountSelection
+            }
+          >
+            Deposit to Account
+          </Button>
+        </>
+      )}
+    </Box>
+  )
+})
 
 class ReceiveFormComponent extends Component {
   state = {
@@ -224,9 +352,8 @@ class ReceiveFormComponent extends Component {
     this.setState({ password: event.target.value })
   }
 
-  handleNext = () => {
+  onPasswordSubmit = password => {
     let { verifyEscrowAccountPassword, escrowAccount } = this.props
-    let { password } = this.state
     verifyEscrowAccountPassword({
       transferId: null,
       account: escrowAccount,
@@ -239,11 +366,6 @@ class ReceiveFormComponent extends Component {
     if (error) {
       clearVerifyEscrowAccountPasswordError()
     }
-  }
-
-  onAccountChange = account => {
-    const { transferForm, updateTransferForm } = this.props
-    updateTransferForm(update(transferForm, { accountId: { $set: account } }))
   }
 
   renderUnableToAccept () {
@@ -289,7 +411,7 @@ class ReceiveFormComponent extends Component {
   }
 
   render () {
-    const { classes, accountSelection, transfer, error, actionsPending, push } = this.props
+    const { transfer } = this.props
 
     let isInvalidTransfer = false
 
@@ -297,131 +419,30 @@ class ReceiveFormComponent extends Component {
       var { receiveTxHash, cancelTxHash } = transfer
       if (receiveTxHash || cancelTxHash) isInvalidTransfer = true
     }
-    const { password } = this.state
 
     return (
-      <Grid container direction='column' justify='center' alignItems='stretch' spacing={2}>
+      <Box display='flex' flexDirection='column' padding='0px 10px 0px 10px'>
         <ReceiveTransferDataSection {...this.props} />
         {!isInvalidTransfer && transfer && (
-          <>
-            <Grid item style={{ marginTop: '65px' }}>
-              <AccountDropdownContainer
-                purpose={'receive'}
-                onChange={this.onAccountChange}
-                filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
-                accountId={accountSelection}
-                hideCryptoDropdown
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                fullWidth
-                autoFocus
-                id='password'
-                label='Security Answer'
-                margin='normal'
-                variant='outlined'
-                error={!!error}
-                helperText={
-                  error
-                    ? 'Incorrect security answer'
-                    : 'Please enter security answer set by the sender'
-                }
-                onChange={this.onChange}
-                value={password || ''}
-                onKeyPress={ev => {
-                  if (ev.key === 'Enter') {
-                    this.handleNext()
-                  }
-                }}
-              />
-            </Grid>
-          </>
+          <InputSection
+            onPasswordSubmit={this.onPasswordSubmit}
+            clearError={this.clearError}
+            {...this.props}
+          />
         )}
-        {actionsPending.verifyEscrowAccountPassword && (
-          <Grid item>
-            <Grid
-              container
-              direction='column'
-              className={classes.linearProgressContainer}
-              spacing={2}
-            >
-              <Grid item>
-                <Typography variant='body2'>Checking password...</Typography>
-              </Grid>
-              <Grid item>
-                <LinearProgress className={classes.linearProgress} />
-              </Grid>
-            </Grid>
-          </Grid>
-        )}
-        {!isInvalidTransfer && (
-          <Grid item className={classes.btnSection}>
-            <Grid container direction='row' justify='center'>
-              <Grid item>
-                <Button
-                  id='cancel'
-                  color='primary'
-                  size='large'
-                  onClick={() => {
-                    this.clearError()
-                    push(Paths.home)
-                  }}
-                  disabled={actionsPending.verifyEscrowAccountPassword}
-                >
-                  Cancel
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  id='continue'
-                  fullWidth
-                  variant='contained'
-                  color='primary'
-                  size='large'
-                  onClick={this.handleNext}
-                  disabled={actionsPending.verifyEscrowAccountPassword || !accountSelection}
-                >
-                  Continue
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        )}
-      </Grid>
+      </Box>
     )
   }
 }
 
 const styles = theme => ({
-  root: {
-    padding: '0px 20px 0px 20px',
-    margin: '60px 0px 60px 0px'
-  },
-  divider: {
-    marginBottom: '10px'
-  },
   title: {
     marginBottom: '10px'
   },
   btnSection: {
     marginTop: '60px'
-  },
-  linearProgressContainer: {
-    backgroundColor: 'rgba(66,133,244,0.05)',
-    borderRadius: '4px',
-    padding: '10px 20px 10px 20px',
-    marginTop: '30px'
-  },
-  linearProgress: {
-    marginTop: '8px'
-  },
-  transferDataSectionSkeleton: {
-    marginTop: '2px',
-    marginBottom: '2px'
   }
 })
 
-const ReceiveTransferDataSection = withStyles(styles)(ReceiveTransferDataSectionUnstyled)
 export { ReceiveTransferDataSection }
 export default withStyles(styles)(ReceiveFormComponent)
