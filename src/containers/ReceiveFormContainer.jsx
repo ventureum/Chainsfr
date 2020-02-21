@@ -4,16 +4,29 @@ import ReceiveFormComponent from '../components/ReceiveFormComponent'
 import { verifyEscrowAccountPassword } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { updateTransferForm } from '../actions/formActions'
-import { getTransfer, clearVerifyEscrowAccountPasswordError } from '../actions/transferActions'
+import { syncWithNetwork } from '../actions/accountActions'
+import {
+  getTransfer,
+  clearVerifyEscrowAccountPasswordError,
+  getTxFee,
+  acceptTransfer
+} from '../actions/transferActions'
 import moment from 'moment'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
-
+import { accountStatus } from '../types/account.flow'
 class ReceiveFormContainer extends Component {
   componentDidUpdate (prevProps) {
-    const { actionsPending, error, push, id } = this.props
+    const {
+      actionsPending,
+      error,
+      syncWithNetwork,
+      escrowAccount,
+      transfer
+    } = this.props
     const prevActionPending = prevProps.actionsPending
+
     if (
       prevActionPending.verifyEscrowAccountPassword &&
       !actionsPending.verifyEscrowAccountPassword &&
@@ -21,12 +34,41 @@ class ReceiveFormContainer extends Component {
     ) {
       // verified password successfully
       // go to next step
-      push(`${path.receive}?step=1&id=${id}`)
+      syncWithNetwork(escrowAccount)
+    } else if (
+      prevActionPending.syncWithNetwork &&
+      !actionsPending.syncWithNetwork &&
+      escrowAccount &&
+      escrowAccount.status === accountStatus.synced
+    ) {
+      this.props.getTxFee({
+        fromAccount: escrowAccount,
+        transferAmount: transfer.transferAmount
+      })
+    } else if (
+      prevProps.actionsPending.acceptTransfer &&
+      !this.props.actionsPending.acceptTransfer &&
+      !this.props.error
+    ) {
+      this.props.push(`${path.receive}?step=2&id=${this.props.id}`)
     }
   }
 
+  onDeposit = () => {
+    const { accountSelection, transfer, escrowAccount, txFee } = this.props
+    const { receivingId, transferAmount, walletId } = transfer
+    this.props.acceptTransfer({
+      receivingId: receivingId,
+      escrowAccount: escrowAccount,
+      destinationAccount: accountSelection,
+      transferAmount: transferAmount,
+      txFee: txFee,
+      walletId: walletId
+    })
+  }
+
   render () {
-    const { transfer, cryptoPrice, currency } = this.props
+    const { transfer, cryptoPrice, currency, escrowAccount, txFee } = this.props
     let sendTime, receiveTime, cancelTime
     if (transfer) {
       const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
@@ -38,9 +80,11 @@ class ReceiveFormContainer extends Component {
       var toCurrencyAmount = cryptoAmount =>
         utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transfer.cryptoType], currency)
       var currencyAmount = {
-        transferAmount: toCurrencyAmount(transfer.transferAmount)
+        transferAmount: toCurrencyAmount(transfer.transferAmount),
+        txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit)
       }
     }
+    const passwordValidated = escrowAccount && !!escrowAccount.privateKey
     return (
       <ReceiveFormComponent
         {...this.props}
@@ -48,6 +92,8 @@ class ReceiveFormContainer extends Component {
         receiveTime={receiveTime}
         cancelTime={cancelTime}
         currencyAmount={currencyAmount}
+        passwordValidated={passwordValidated}
+        onDeposit={this.onDeposit}
       />
     )
   }
@@ -57,6 +103,9 @@ const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
 const verifyEscrowAccountPasswordSelector = createLoadingSelector([
   'VERIFY_ESCROW_ACCOUNT_PASSWORD'
 ])
+const acceptTransferSelector = createLoadingSelector(['ACCEPT_TRANSFER'])
+const syncWithNetworkSelector = createLoadingSelector(['SYNC_WITH_NETWORK'])
+
 const errorSelector = createErrorSelector(['VERIFY_ESCROW_ACCOUNT_PASSWORD', 'GET_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
@@ -66,7 +115,10 @@ const mapDispatchToProps = dispatch => {
     verifyEscrowAccountPassword: transferInfo =>
       dispatch(verifyEscrowAccountPassword(transferInfo)),
     clearVerifyEscrowAccountPasswordError: () => dispatch(clearVerifyEscrowAccountPasswordError()),
-    push: path => dispatch(push(path))
+    push: path => dispatch(push(path)),
+    getTxFee: txRequest => dispatch(getTxFee(txRequest)),
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
+    acceptTransfer: txRequest => dispatch(acceptTransfer(txRequest))
   }
 }
 
@@ -76,13 +128,16 @@ const mapStateToProps = state => {
     accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
       utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
     ),
+    txFee: state.transferReducer.txFee,
     escrowAccount: state.accountReducer.escrowAccount,
     transferForm: state.formReducer.transferForm,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {
       verifyEscrowAccountPassword: verifyEscrowAccountPasswordSelector(state),
-      getTransfer: getTransferSelector(state)
+      getTransfer: getTransferSelector(state),
+      syncWithNetwork: syncWithNetworkSelector(state),
+      acceptTransfer: acceptTransferSelector(state)
     },
     error: errorSelector(state)
   }

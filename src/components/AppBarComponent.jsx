@@ -179,9 +179,6 @@ class AppBarComponent extends Component<Props, State> {
                           {location.pathname === path.transfer && (
                             <Stepper actionType='transfer' step={step} />
                           )}
-                          {location.pathname === path.receive && (
-                            <Stepper actionType='receive' step={step} />
-                          )}
                         </Grid>
                         <Grid item xs={12} sm='auto'>
                           {this.renderProfileButton()}

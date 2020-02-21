@@ -163,7 +163,6 @@ async function _submitTx (txRequest: {
   let escrowAccount = await escrowWallet.newAccount('escrow', cryptoType)
   await escrowAccount.encryptAccount(password)
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
-
   // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
   await saveTempSendFile({
     sender: sender,
@@ -252,7 +251,6 @@ async function _transactionHashRetrieved (txRequest: {|
 
   // mask out password
   const { password, ...request } = txRequest
-
   let response = await API.transfer(request)
 
   await saveHistoryFile({
@@ -555,6 +553,16 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
       transferData.fiatType
     )
   }
+
+  if (!transferData.senderAvatar) {
+    const senderProfile = await API.getUserProfileByEmail(transferData.sender)
+    transferData.senderAvatar = senderProfile.imageUrl
+  }
+  if (!transferData.receiverAvatar) {
+    const receiverProfile = await API.getUserProfileByEmail(transferData.destination)
+    transferData.receiverAvatar = receiverProfile.imageUrl
+  }
+
   let escrowAccount = createAccount({
     walletType: 'escrow',
     cryptoType: transferData.cryptoType,
@@ -611,17 +619,14 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
       receivingIds: receivingIds
     })
   )
-    .map(item => { // classify transferMethod
+    .map(item => {
+      // classify transferMethod
       return {
         ...item,
         transferMethod: item.senderToReceiver ? 'DIRECT_TRANSFER' : 'EMAIL_TRANSFER'
       }
     })
-    .filter(
-      item =>
-        transferMethod === item.transferMethod ||
-        transferMethod === 'ALL'
-    )
+    .filter(item => transferMethod === item.transferMethod || transferMethod === 'ALL')
     .sort((a, b) => {
       // we have to re-sort since API.getBatchTransfers does not persist order
       // sort transfers by timestamp in descending order
@@ -668,7 +673,7 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
         state
       }
     })
-  
+
   transferData = await Promise.all(
     transferData.map(async transfer => {
       if (!transfer.error) {
