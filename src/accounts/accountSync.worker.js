@@ -113,7 +113,7 @@ const _discoverAddress = async (
         address: addrBatch[j].address,
         path: addrBatch[j].addressPath,
         utxos: utxos,
-        balance: balance
+        balance: balance.toString()
       })
 
       if (gap >= 20) {
