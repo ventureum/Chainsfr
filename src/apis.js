@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
-import type { UserProfile } from './types/user.flow.js'
+import type { UserProfile, CloudWalletFolderMetaType } from './types/user.flow.js'
 import type { AccountData, BackEndCryptoAccountType } from './types/account.flow.js'
 import type { CoinBaseAccessObject } from './wallets/CoinbaseClient'
 import { store } from './configureStore.js'
@@ -32,7 +32,7 @@ async function directTransfer (request: {|
   fiatType: string,
   cryptoType: string,
   sendMessage: ?string,
-  sendTxHash: TxHash,
+  sendTxHash: TxHash
 |}) {
   let apiResponse = await chainsferApi.post('/transfer', {
     clientId: 'test-client',
@@ -480,6 +480,48 @@ async function getUserProfileByEmail (email: string): Promise<UserProfile> {
   }
 }
 
+async function getUserCloudWalletFolderMeta (): Promise<CloudWalletFolderMetaType> {
+  const { idToken } = store.getState().userReducer.profile
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'GET_UESR_CLOUD_WALLET_FOLDER_META',
+      idToken: idToken
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Get user cloud wallet folder meta failed:${err.response.data}`)
+  }
+}
+
+async function updateUserCloudWalletFolderMeta (
+  newMetaInfo: CloudWalletFolderMetaType
+): Promise<CloudWalletFolderMetaType> {
+  const { idToken } = store.getState().userReducer.profile
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'UPDATE_UESR_CLOUD_WALLET_FOLDER_META',
+      newMetaInfo: newMetaInfo,
+      idToken: idToken
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error(`Update user cloud wallet folder meta failed:${err.response.data}`)
+  }
+}
+
+async function getUserRegisterTime () {
+  const { idToken } = store.getState().userReducer.profile
+  try {
+    let rv = await chainsferApi.post('/user', {
+      action: 'GET_USER',
+      idToken: idToken
+    })
+    return rv.data.registerTime
+  } catch (e) {
+    return {}
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -505,5 +547,8 @@ export default {
   getBtcMultisigPublicKey,
   sendBtcMultiSigTransaction,
   getCoinbaseAccessObject,
-  getUserProfileByEmail
+  getUserProfileByEmail,
+  getUserCloudWalletFolderMeta,
+  updateUserCloudWalletFolderMeta,
+  getUserRegisterTime
 }

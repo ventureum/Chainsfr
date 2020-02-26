@@ -6,6 +6,7 @@
 
 import env from './typedEnv'
 import moment from 'moment'
+import API from './apis.js'
 
 const APP_DATA_FOLDER_SPACE: string = 'appDataFolder'
 const DRIVE_SPACE: string = 'drive'
@@ -434,6 +435,12 @@ async function backupData (rootFolderId: FileId) {
         fileId: files[0].id,
         name: `${folderName}_Backup_${timestamp}`
       })
+      if (folderName === WALLET_FOLDER_NAME) {
+        await API.updateUserCloudWalletFolderMeta({
+          fileId: files[0].id,
+          lastModified: moment().unix()
+        })
+      }
     }
   }
 }

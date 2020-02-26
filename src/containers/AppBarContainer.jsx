@@ -5,6 +5,7 @@ import AppBarComponent from '../components/AppBarComponent'
 import { onLogout } from '../actions/userActions'
 import queryString from 'query-string'
 import { backToHome } from '../actions/navigationActions'
+import { push } from 'connected-react-router'
 import path from '../Paths.js'
 
 type Props = {
@@ -13,7 +14,8 @@ type Props = {
   location: Object,
   cloudWalletConnected: Boolean,
   handleDrawerToggle: Function,
-  backToHome: Function
+  backToHome: Function,
+  push: Function
 }
 
 class AppBarContainer extends Component<Props> {
@@ -22,6 +24,10 @@ class AppBarContainer extends Component<Props> {
     if (location.pathname === path.transfer) {
       backToHome()
     }
+  }
+
+  onSetting = () => {
+    this.props.push(path.userSetting)
   }
 
   render () {
@@ -47,6 +53,7 @@ class AppBarContainer extends Component<Props> {
         handleDrawerToggle={handleDrawerToggle}
         navigatable={navigatable}
         disabled={!navigatable}
+        onSetting={this.onSetting}
       />
     )
   }
@@ -55,7 +62,8 @@ class AppBarContainer extends Component<Props> {
 const mapDispatchToProps = dispatch => {
   return {
     onLogout: () => dispatch(onLogout()),
-    backToHome: () => dispatch(backToHome())
+    backToHome: () => dispatch(backToHome()),
+    push: path => dispatch(push(path))
   }
 }
 

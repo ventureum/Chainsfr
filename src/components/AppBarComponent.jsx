@@ -2,24 +2,25 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
+import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
-import AccountCircle from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import path from '../Paths.js'
 import Menu from '@material-ui/core/Menu'
 import ExitIcon from '@material-ui/icons/ExitToApp'
-import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Avatar from '@material-ui/core/Avatar'
+import UserAvatar from './MicroComponents/UserAvatar'
 import Divider from '@material-ui/core/Divider'
 import { fontColors } from '../styles/color'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
 import ChainsfrLogo from '../images/chainsfr_logo.svg'
 import Stepper from './Stepper'
+import SettingsIcon from '@material-ui/icons/Settings'
 
 type Props = {
   disabled: boolean,
@@ -31,7 +32,8 @@ type Props = {
   step: string,
   cloudWalletConnected: boolean,
   handleDrawerToggle: Function,
-  navigatable: boolean // used to show Chainsfr Icon but disable top app bar 
+  onSetting: Function,
+  navigatable: boolean // used to show Chainsfr Icon but disable top app bar
 }
 
 type State = {
@@ -51,6 +53,8 @@ class AppBarComponent extends Component<Props, State> {
   handleClose = action => event => {
     if (action === 'logout') {
       this.props.onLogout()
+    } else if (action === 'setting') {
+      this.props.onSetting()
     }
 
     this.setState({ anchorEl: null })
@@ -92,11 +96,15 @@ class AppBarComponent extends Component<Props, State> {
           style={{ textTransform: 'none' }}
           disabled={disabled}
         >
-          {profile && profile.profileObj && profile.profileObj.imageUrl ? (
-            <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
-          ) : (
-            <AccountCircle className={classes.userIcon} id='accountCircle' />
-          )}
+          <Box mr={1}>
+            <UserAvatar
+              src={profile && profile.profileObj && profile.profileObj.imageUrl}
+              style={{
+                width: '32px'
+              }}
+              name={profile && profile.profileObj && profile.profileObj.name}
+            />
+          </Box>
           <Typography variant='body2'>{profile.profileObj.name}</Typography>
         </Button>
         <Menu
@@ -114,20 +122,44 @@ class AppBarComponent extends Component<Props, State> {
             horizontal: 'right'
           }}
         >
-          <Container className={classes.menuContainer}>
-            {profile && profile.profileObj && profile.profileObj.imageUrl ? (
-              <Avatar alt='' src={profile.profileObj.imageUrl} className={classes.avatar} />
-            ) : (
-              <AccountCircle className={classes.userIcon} id='accountCircle' />
-            )}
-            <Typography className={classes.menuItemUserName}>{profile.profileObj.name}</Typography>
-            <Typography className={classes.menuItemEmail}>{profile.profileObj.email}</Typography>
+          <Box display='flex' flexDirection='column'>
+            <Box padding={2} display='flex' flexDirection='row' alignItems='center'>
+              <Box mr={1}>
+                <UserAvatar
+                  src={profile.profileObj.imageUrl}
+                  style={{
+                    width: '32px'
+                  }}
+                  name={profile.profileObj.name}
+                />
+              </Box>
+              <Box display='flex' flexDirection='column'>
+                <Typography variant='h4'>{profile.profileObj.name}</Typography>
+                <Typography variant='caption'>{profile.profileObj.email}</Typography>
+              </Box>
+            </Box>
             <Divider />
-            <Button onClick={this.handleClose('logout')} id='logout' className={classes.logoutBtn}>
-              <ExitIcon className={classes.logoutIcon} id='exitIcon' />
-              <Typography>Logout</Typography>
-            </Button>
-          </Container>
+            <Box display='flex' flexDirection='column'>
+              <MenuItem
+                onClick={this.handleClose('setting')}
+                id='setting'
+                component='button'
+                className={classes.menuItem}
+              >
+                <SettingsIcon color='primary' className={classes.icon} />
+                Setting
+              </MenuItem>
+              <MenuItem
+                onClick={this.handleClose('logout')}
+                id='logout'
+                component='button'
+                className={classes.menuItem}
+              >
+                <ExitIcon color='primary' className={classes.icon} />
+                Logout
+              </MenuItem>
+            </Box>
+          </Box>
         </Menu>
       </>
     )
@@ -153,19 +185,25 @@ class AppBarComponent extends Component<Props, State> {
               <Grid container direction='row' justify='space-between' alignItems='center'>
                 <Grid item>
                   {navigatable ? (
-                    <Hidden only={['md', 'lg', 'xl']}>
-                      <IconButton
-                        color='secondary'
-                        aria-label='Open drawer'
-                        edge='start'
-                        onClick={handleDrawerToggle}
-                        disabled={disabled}
-                        className={classes.drawerButton}
-                      >
-                        <MenuIcon />
-                      </IconButton>
-                      {this.renderChainsfrLogo()}
-                    </Hidden>
+                    location.pathname === path.userSetting ? (
+                      <Box ml={5}>
+                        <Typography variant='h2'>Setting</Typography>
+                      </Box>
+                    ) : (
+                      <Hidden only={['md', 'lg', 'xl']}>
+                        <IconButton
+                          color='secondary'
+                          aria-label='Open drawer'
+                          edge='start'
+                          onClick={handleDrawerToggle}
+                          disabled={disabled}
+                          className={classes.drawerButton}
+                        >
+                          <MenuIcon />
+                        </IconButton>
+                        {this.renderChainsfrLogo()}
+                      </Hidden>
+                    )
                   ) : (
                     this.renderChainsfrLogo()
                   )}
@@ -242,13 +280,12 @@ const styles = theme => ({
   menuContainer: {
     padding: '15px 10px 0px 10px'
   },
-  logoutBtn: {
-    color: '#3a4b6c',
-    margin: '10px'
+  icon: {
+    marginRight: '10px',
+    marginLeft: '10px'
   },
-  logoutIcon: {
-    color: '#3a4b6c',
-    marginRight: '10px'
+  menuItem: {
+    justifyContent: 'flex-start'
   }
 })
 

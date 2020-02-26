@@ -187,6 +187,31 @@ function setCoinbaseAccessObject (accessObject: Object) {
   }
 }
 
+async function _getUserCloudWalletFolderMeta () {
+  const meta = await API.getUserCloudWalletFolderMeta()
+  return meta
+}
+
+function getUserCloudWalletFolderMeta () {
+  return {
+    type: 'GET_UESR_CLOUD_WALLET_FOLDER_META',
+    payload: _getUserCloudWalletFolderMeta()
+  }
+}
+
+
+async function _getUserRegisterTime () {
+  const date = await API.getUserRegisterTime()
+  return date
+}
+
+function getUserRegisterTime () {
+  return {
+    type: 'GET_USER_JOIN_DATE',
+    payload: _getUserRegisterTime()
+  }
+}
+
 export {
   clearError,
   register,
@@ -198,5 +223,7 @@ export {
   addRecipient,
   removeRecipient,
   editRecipient,
-  setCoinbaseAccessObject
+  setCoinbaseAccessObject,
+  getUserCloudWalletFolderMeta,
+  getUserRegisterTime
 }

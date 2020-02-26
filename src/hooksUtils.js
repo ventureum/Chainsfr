@@ -25,7 +25,8 @@ export function useActionTracker (actions, actionTypes) {
   prevActionsPending = usePrevious(actionsPending)
 
   for (let action of actions) {
-    actionsFulfilled[action] =  prevActionsPending && prevActionsPending[action] && !actionsPending[action] && !errors[action]
+    actionsFulfilled[action] =
+      prevActionsPending && prevActionsPending[action] && !actionsPending[action] && !errors[action]
   }
 
   return { actionsPending, actionsFulfilled, errors }
