@@ -2,7 +2,8 @@ import { borderRadius, elementWidth, spacing } from './base'
 
 export const radius = {
   buttonRadius: borderRadius.s,
-  tileRadius: borderRadius.m
+  tileRadius: borderRadius.m,
+  roundedButtonRadius: borderRadius.max
 }
 
 export const componentMargins = {
