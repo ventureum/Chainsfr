@@ -34,6 +34,7 @@ import { refreshAccessToken } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 
 import { Detector } from 'react-detect-offline'
+import { Hidden } from '@material-ui/core'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -118,7 +119,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
             if (isolate) {
               return (
                 <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
-                  <AppBar {...matchProps} online={online} />
+                  <AppBar {...matchProps} online={online} isolate={isolate} />
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -136,7 +137,13 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   handleDrawerToggle={handleDrawerToggle}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
-                  <AppBar {...matchProps} online={online} handleDrawerToggle={handleDrawerToggle} />
+                  <Hidden only={['md', 'lg', 'xl']}>
+                    <AppBar
+                      {...matchProps}
+                      online={online}
+                      handleDrawerToggle={handleDrawerToggle}
+                    />
+                  </Hidden>
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>

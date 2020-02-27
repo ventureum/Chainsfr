@@ -335,7 +335,7 @@ const Backup = props => {
       </Box>
       <Box mb={3} maxWidth={480}>
         <Typography variant='h6'>
-          All wallet data are automatically encrypted and backuped in you personal Google drive
+          All wallet data is automatically encrypted and backuped in you personal Google drive
           folder. To learn more, please check the related topics our help center
         </Typography>
       </Box>
