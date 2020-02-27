@@ -4,11 +4,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import CloseIcon from '@material-ui/icons/Close'
+import Dialog from '@material-ui/core/Dialog'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import path from '../Paths.js'
-import Menu from '@material-ui/core/Menu'
 import ExitIcon from '@material-ui/icons/ExitToApp'
 import Typography from '@material-ui/core/Typography'
 import UserAvatar from './MicroComponents/UserAvatar'
@@ -16,10 +16,11 @@ import Divider from '@material-ui/core/Divider'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
 import ChainsfrLogoSvg from '../images/chainsfr_logo.svg'
 import Stepper from './Stepper'
 import SettingsIcon from '@material-ui/icons/Settings'
+import Popover from '@material-ui/core/Popover'
+import Paper from '@material-ui/core/Paper'
 
 type Props = {
   disabled?: boolean,
@@ -49,9 +50,43 @@ const profileBtnStyle = makeStyles({
   },
   iconButton: {
     padding: 0
+  },
+  icon: {
+    marginRight: 10
+  },
+  menuItem: {
+    padding: '10px 20px 10px 20px',
+    display: 'flex',
+    justifyContent: 'flex-start'
+  },
+  paper: {
+    margin: 0
   }
 })
 
+const PaperComponent = props => {
+  const {
+    onClose,
+    anchorEl,
+    anchorOrigin,
+    transformOrigin,
+    getContentAnchorEl,
+    open,
+    ...otherProps
+  } = props
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      anchorOrigin={anchorOrigin}
+      transformOrigin={transformOrigin}
+      getContentAnchorEl={getContentAnchorEl}
+      onClose={onClose}
+    >
+      <Paper {...otherProps} />
+    </Popover>
+  )
+}
 const ProfileButton = (props: ProfileButtonProps) => {
   const classes = profileBtnStyle()
   const { profile, disabled, onLogout, onSetting } = props
@@ -88,20 +123,26 @@ const ProfileButton = (props: ProfileButtonProps) => {
           name={profileObj.name}
         />
       </IconButton>
-      <Menu
+      <Dialog
         id='simple-menu'
-        anchorEl={anchorEl}
-        getContentAnchorEl={null}
+        PaperComponent={PaperComponent}
+        PaperProps={{
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'right'
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: 'right'
+          },
+          getContentAnchorEl: null,
+          anchorEl: anchorEl,
+          open: Boolean(anchorEl),
+          onClose: handleClose()
+        }}
+        classes={{ paper: classes.paper }}
         open={Boolean(anchorEl)}
         onClose={handleClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
       >
         <Box display='flex' flexDirection='column'>
           <Box padding={2} display='flex' flexDirection='row' alignItems='center'>
@@ -120,28 +161,18 @@ const ProfileButton = (props: ProfileButtonProps) => {
             </Box>
           </Box>
           <Divider />
-          <Box display='flex' flexDirection='column'>
-            <MenuItem
-              onClick={handleClose('setting')}
-              id='setting'
-              component='button'
-              className={classes.menuItem}
-            >
+          <Box display='flex' flexDirection='column' pt={1} pb={1}>
+            <Button onClick={handleClose('setting')} id='setting' className={classes.menuItem}>
               <SettingsIcon color='primary' className={classes.icon} />
               Setting
-            </MenuItem>
-            <MenuItem
-              onClick={handleClose('logout')}
-              id='logout'
-              component='button'
-              className={classes.menuItem}
-            >
+            </Button>
+            <Button onClick={handleClose('logout')} id='logout' className={classes.menuItem}>
               <ExitIcon color='primary' className={classes.icon} />
               Logout
-            </MenuItem>
+            </Button>
           </Box>
         </Box>
-      </Menu>
+      </Dialog>
     </>
   )
 }
@@ -271,3 +302,4 @@ const AppBarComponent = (props: Props) => {
 }
 
 export default AppBarComponent
+export { ProfileButton }
