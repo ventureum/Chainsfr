@@ -113,7 +113,8 @@ export const baseColors = {
 export const borderRadius = {
   s: 4,
   m: 8,
-  l: 16
+  l: 16,
+  max: 100
 }
 
 export const textTransform = {

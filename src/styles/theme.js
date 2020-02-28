@@ -127,6 +127,9 @@ export const themeChainsfr = createMuiTheme({
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
         paddingRight: componentPaddings.buttons.default.paddingRight,
 
+        // borderRadius: radius.buttonRadius,
+        borderRadius: radius.roundedButtonRadius,
+
         '&.warning': {
           backgroundColor: uiColors.error,
           color: uiColors.white,
