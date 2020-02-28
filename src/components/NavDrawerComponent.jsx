@@ -83,13 +83,21 @@ const useStyles = makeStyles(theme => ({
     marginTop: '5px'
   },
   buildText: {
-    fontSize: '10px',
+    fontSize: '12px',
     color: '#ffffff'
   },
   homeButton: {
     '&:hover': {
       backgroundColor: 'transparent'
     }
+  },
+  link: {
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '12px',
+    fontFamily: 'Lato',
+    marginRight: 5,
+    marginLeft: 5
   }
 }))
 
@@ -176,11 +184,30 @@ const NavDrawerComponent = (props: Props) => {
               )
             })}
           </List>
-          <Box height='60px' display='flex' flexDirection='column' alignItems='center'>
+          <Box display='flex' flexDirection='column' alignItems='center'>
             <Typography className={classes.copyright}>
               &copy; {'2018 - '}
               {new Date().getFullYear()} Ventureum Inc.
             </Typography>
+            <Box mt={1} mb={1} display='flex' alignItems='center'>
+              <a
+                target='_blank'
+                rel='noopener noreferrer'
+                href='https://help.chainsfr.com/en/'
+                className={classes.link}
+              >
+                Help Center
+              </a>
+              <Box borderLeft='0.5px solid #ffffff' width='1px' height='14px' />
+              <a
+                target='_blank'
+                rel='noopener noreferrer'
+                href='https://help.chainsfr.com/en/articles/3303336'
+                className={classes.link}
+              >
+                Terms
+              </a>
+            </Box>
             <Box display='flex' flexDirection='row' alignItems='center'>
               <GitHubIcon style={{ width: 12, color: '#ffffff', marginRight: 10 }} />
               <Typography className={classes.buildText}>
