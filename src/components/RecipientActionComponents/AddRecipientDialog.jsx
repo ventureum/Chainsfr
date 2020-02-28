@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -46,18 +46,8 @@ function AddRecipientDialog (props: Props) {
   const dispatch = useDispatch()
   const handleSubmit = useCallback(() => dispatch(addRecipient(recipient)), [dispatch, recipient])
 
-  const { actionsPending, actionsFulfilled } = useActionTracker(
-    ['addRecipient'],
-    [['ADD_RECIPIENT']]
-  )
+  const { actionsPending } = useActionTracker(['addRecipient'], [['ADD_RECIPIENT']])
   const loading = actionsPending.addRecipient
-
-  useEffect(() => {
-    if (actionsFulfilled['addRecipient']) {
-      // close dialog
-      handleClose()
-    }
-  }, [actionsFulfilled])
 
   const handleChange = (prop: string) => event => {
     if (prop === 'email') {
