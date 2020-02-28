@@ -3,7 +3,7 @@ import MetamaskExtensionLogo from './images/metamask-chrome.svg'
 import MetamaskMobileLogo from './images/metamask-mobile.svg'
 import MetamaskLogo from './images/metamask.svg'
 import LedgerWalletLogo from './images/ledger-button.png'
-import DriveWalletLogo from './images/drive-wallet-button.png'
+import DriveWalletLogo from './images/drive-wallet-button.svg'
 import CoinbaseWalletLinkLogo from './images/coinbase-walletLink.png'
 import CoinbaseWalletLogo from './images/coinbase.png'
 import TrustWalletLogo from './images/trust-wallet.png'
@@ -122,7 +122,7 @@ export function getWalletStatus (walletType: string) {
 export const walletSelections = [
   {
     walletType: 'drive',
-    title: 'Chainsfr Wallet',
+    title: 'Chainsfr',
     desc: 'Use Chainsfr Wallet',
     logo: DriveWalletLogo,
     ...getWalletStatus('drive'),

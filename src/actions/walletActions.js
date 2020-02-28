@@ -3,7 +3,6 @@ import type { AccountData } from '../types/account.flow.js'
 import { Base64 } from 'js-base64'
 import { createWallet } from '../wallets/WalletFactory.js'
 import { saveWallet, getWallet } from '../drive.js'
-import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
@@ -29,13 +28,13 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
         if (ethereumBasedAccountData && ['ethereum', 'dai'].includes(cryptoType)) {
           // share the same privateKey for ethereum based coins
-          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
+          await _wallet.newAccount('Wallet', cryptoType, {
             privateKey: ethereumBasedAccountData.privateKey
           })
           account = _wallet.getAccount()
           accountData = account.getAccountData()
         } else {
-          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
+          await _wallet.newAccount('Wallet', cryptoType, {
             getPrefilled: true
           })
           account = _wallet.getAccount()
