@@ -9,3 +9,8 @@ export type UserProfile = {
   familyName: string
 }
 export type EmailType = string
+
+export type CloudWalletFolderMetaType = {
+  fileId: string,
+  lastModified: number // timestamp
+}

@@ -1,5 +1,5 @@
 // @flow
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button'
 import Divider from '@material-ui/core/Divider'
 import AddIcon from '@material-ui/icons/AddRounded'
 import { AddRecipientDialog } from '../../components/RecipientActionComponents'
-
+import { useActionTracker } from '../../hooksUtils'
 import type { EmailType } from '../../types/user.flow'
 
 type Props = {
@@ -37,6 +37,19 @@ export default function SelectRecipient (props: Props) {
         receiverName: { $set: recipient.name }
       })
     }
+  }
+
+  const { actionsFulfilled } = useActionTracker(['addRecipient'], [['ADD_RECIPIENT']])
+
+  useEffect(() => {
+    if (actionsFulfilled['addRecipient']) {
+      // close dialog
+      toggleAddRecipientDialog()
+    }
+  }, [actionsFulfilled])
+
+  const toggleAddRecipientDialog = () => {
+    setOpenAddRecipientDialog(!openAddRecipientDialog)
   }
 
   return (
@@ -73,7 +86,7 @@ export default function SelectRecipient (props: Props) {
           {recipients.length !== 0 && <Divider />}
           <MenuItem value='AddRecipient'>
             <Button
-              onClick={() => setOpenAddRecipientDialog(true)}
+              onClick={() => toggleAddRecipientDialog()}
               variant='text'
               color='primary'
               fullWidth
@@ -86,7 +99,7 @@ export default function SelectRecipient (props: Props) {
       </FormControl>
       <AddRecipientDialog
         open={openAddRecipientDialog}
-        handleClose={() => setOpenAddRecipientDialog(false)}
+        handleClose={() => toggleAddRecipientDialog()}
         online={online}
       />
     </>

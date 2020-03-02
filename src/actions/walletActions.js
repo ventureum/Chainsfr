@@ -3,12 +3,12 @@ import type { AccountData } from '../types/account.flow.js'
 import { Base64 } from 'js-base64'
 import { createWallet } from '../wallets/WalletFactory.js'
 import { saveWallet, getWallet } from '../drive.js'
-import { getCryptoTitle } from '../tokens'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
 import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
+import { createAccount } from '../accounts/AccountFactory.js'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
@@ -28,13 +28,13 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
         if (ethereumBasedAccountData && ['ethereum', 'dai'].includes(cryptoType)) {
           // share the same privateKey for ethereum based coins
-          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
+          await _wallet.newAccount('Wallet', cryptoType, {
             privateKey: ethereumBasedAccountData.privateKey
           })
           account = _wallet.getAccount()
           accountData = account.getAccountData()
         } else {
-          await _wallet.newAccount(`${getCryptoTitle(cryptoType)} Cloud Wallet`, cryptoType, {
+          await _wallet.newAccount('Wallet', cryptoType, {
             getPrefilled: true
           })
           account = _wallet.getAccount()
@@ -134,6 +134,47 @@ function getCloudWallet () {
   }
 }
 
+async function _changeChainsfrWalletPassword (oldPassword, newPassword) {
+  let accountDataList = await _getCloudWallet()
+  if (!accountDataList) throw new Error('Chainsfr does not exist')
+
+  let walletFileData = {}
+
+  await Promise.all(
+    Object.values(accountDataList).map(async accountData => {
+      const account = createAccount(accountData)
+      await account.decryptAccount(oldPassword)
+      await account.encryptAccount(newPassword)
+      const newAccountData = account.getAccountData()
+      if (newAccountData.cryptoType === 'bitcoin') {
+        walletFileData[newAccountData.hdWalletVariables.xpub] = newAccountData
+      } else {
+        walletFileData[newAccountData.address] = newAccountData
+      }
+    })
+  )
+
+  walletFileData = { accounts: Base64.encode(JSON.stringify(walletFileData)) }
+  await saveWallet(walletFileData)
+}
+
+function changeChainsfrWalletPassword (oldPassword: string, newPassword: string) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'CHANGE_CHAINSFR_WALLET_PASSWORD',
+      payload: _changeChainsfrWalletPassword(oldPassword, newPassword)
+    }).then(() => {
+      dispatch(
+        enqueueSnackbar({
+          message: 'Your password has been changed successfully.',
+          key: new Date().getTime() + Math.random(),
+          options: { variant: 'success', autoHideDuration: 3000 }
+        })
+      )
+    })
+  }
+}
+
 async function _verifyAccount (accountData: AccountData, options: ?Object) {
   let wallet = createWallet(accountData)
   await wallet.verifyAccount(options)
@@ -218,5 +259,6 @@ export {
   createCloudWallet,
   verifyAccount,
   checkWalletConnection,
-  newCryptoAccountsFromWallet
+  newCryptoAccountsFromWallet,
+  changeChainsfrWalletPassword
 }

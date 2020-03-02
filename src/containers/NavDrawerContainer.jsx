@@ -5,21 +5,29 @@ import { backToHome } from '../actions/navigationActions'
 import { connect } from 'react-redux'
 import NavDrawerComponent from '../components/NavDrawerComponent'
 import { onLogout } from '../actions/userActions'
+import { push } from 'connected-react-router'
+import path from '../Paths.js'
 
 type Props = {
   location: Object,
   profile: Object,
   onLogout: Function,
   open: boolean,
+  push: Function,
   handleDrawerToggle: Function,
   backToHome: Function
 }
 
 class NaviDrawerContainer extends PureComponent<Props> {
+  onSetting = () => {
+    this.props.push(path.userSetting)
+  }
+
   render () {
     let { location, profile, onLogout, open, handleDrawerToggle, backToHome } = this.props
     return (
       <NavDrawerComponent
+        onSetting={this.onSetting}
         onLogout={onLogout}
         backToHome={backToHome}
         location={location}
@@ -34,7 +42,8 @@ class NaviDrawerContainer extends PureComponent<Props> {
 const mapDispatchToProps = dispatch => {
   return {
     backToHome: () => dispatch(backToHome()),
-    onLogout: () => dispatch(onLogout())
+    onLogout: () => dispatch(onLogout()),
+    push: path => dispatch(push(path))
   }
 }
 

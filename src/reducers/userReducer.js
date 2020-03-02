@@ -11,7 +11,8 @@ const initState = {
   },
   recipients: [],
   cloudWalletConnected: false,
-  coinbaseAccessObject: null
+  coinbaseAccessObject: null,
+  cloudWalletFolderMeta: null
 }
 
 export default function (state = initState, action) {
@@ -57,6 +58,10 @@ export default function (state = initState, action) {
       })
     case 'SET_COINBASE_ACCESS_OBJECT':
       return { ...state, coinbaseAccessObject: action.payload }
+    case 'GET_UESR_CLOUD_WALLET_FOLDER_META_FULFILLED':
+      return { ...state, cloudWalletFolderMeta: action.payload }
+    case 'GET_USER_JOIN_DATE_FULFILLED':
+      return { ...state, registerTime: action.payload }
     default:
       // need this for default case
       return state

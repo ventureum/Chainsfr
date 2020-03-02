@@ -16,6 +16,7 @@ import RecipientsContainer from './containers/RecipientsContainer'
 import ReceiptContainer from './containers/ReceiptContainer'
 import AccountsManagementContainer from './containers/AccountsManagementContainer'
 import OAuthRedirectComponent from './components/OAuthRedirectComponent'
+import UserSettingContainer from './containers/UserSettingContainer'
 import AppBar from './containers/AppBarContainer'
 import NavDrawer from './containers/NavDrawerContainer'
 import paths from './Paths'
@@ -33,6 +34,7 @@ import { refreshAccessToken } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 
 import { Detector } from 'react-detect-offline'
+import { Hidden } from '@material-ui/core'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -92,7 +94,7 @@ const LoginLayout = ({ component: Component, ...rest }) => {
 
 const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   // isolate flag is used to toggle leftside navigation drawer
-  // while isolate is true, users are not allow to navigate between paths  
+  // while isolate is true, users are not allow to navigate between paths
   const [openDrawer, setOpenDrawer] = useState(false)
   const handleDrawerToggle = () => {
     setOpenDrawer(previous => !previous)
@@ -117,7 +119,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
             if (isolate) {
               return (
                 <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
-                  <AppBar {...matchProps} online={online} />
+                  <AppBar {...matchProps} online={online} isolate={isolate} />
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -135,7 +137,13 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   handleDrawerToggle={handleDrawerToggle}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
-                  <AppBar {...matchProps} online={online} handleDrawerToggle={handleDrawerToggle} />
+                  <Hidden only={['md', 'lg', 'xl']}>
+                    <AppBar
+                      {...matchProps}
+                      online={online}
+                      handleDrawerToggle={handleDrawerToggle}
+                    />
+                  </Hidden>
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -255,6 +263,10 @@ class App extends Component {
                 <DefaultLayout
                   path={`${paths.OAuthRedirect}`}
                   component={userIsAuthenticated(OAuthRedirectComponent)}
+                />
+                <DefaultLayout
+                  path={`${paths.userSetting}`}
+                  component={userIsAuthenticated(UserSettingContainer)}
                 />
               </Switch>
             </ConnectedRouter>
