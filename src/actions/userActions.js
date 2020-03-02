@@ -116,6 +116,19 @@ function addRecipient (recipient: Recipient) {
   return (dispatch: Function, getState: Function) => {
     const { idToken } = getState().userReducer.profile
     const { transferForm } = getState().formReducer
+    const { recipients } = getState().userReducer
+    for (let i = 0; i < recipients.length; i++) {
+      const r = recipients[i]
+      if (r.email === recipient.email) {
+        return dispatch(
+          enqueueSnackbar({
+            message: 'Recipient already exists.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'error', autoHideDuration: 3000 }
+          })
+        )
+      }
+    }
     return dispatch({
       type: 'ADD_RECIPIENT',
       payload: API.addRecipient({ idToken, recipient })
@@ -198,7 +211,6 @@ function getUserCloudWalletFolderMeta () {
     payload: _getUserCloudWalletFolderMeta()
   }
 }
-
 
 async function _getUserRegisterTime () {
   const date = await API.getUserRegisterTime()
