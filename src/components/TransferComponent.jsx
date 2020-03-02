@@ -40,7 +40,7 @@ class TransferComponent extends React.Component<Props> {
               platformTypePrefilled={urlParams && urlParams.platformType}
               destinationPrefilled={urlParams && (urlParams.destination || '')}
               receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
-              xpubPrefilled={urlParams && urlParams.xpubPrefilled}
+              xpubPrefilled={urlParams && urlParams.xpub}
               online={online}
             />
           )}
