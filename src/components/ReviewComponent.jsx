@@ -8,12 +8,14 @@ import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
 import path from '../Paths.js'
 import * as TransferInfoCommon from './TransferInfoCommon'
+import type { AccountData } from '../types/account.flow'
 
 type Props = {
   submitTx: Function,
   push: Function,
   classes: Object,
   transferForm: Object,
+  accountSelection: AccountData,
   wallet: Object,
   txFee: Object,
   currencyAmount: Object,
@@ -32,6 +34,7 @@ class ReviewComponent extends Component<Props> {
     const {
       classes,
       transferForm,
+      accountSelection,
       actionsPending,
       txFee,
       currencyAmount,
@@ -39,8 +42,8 @@ class ReviewComponent extends Component<Props> {
       userProfile,
       directTransfer
     } = this.props
-    const { transferAmount, password, sendMessage, accountId, receiveAccountId } = transferForm
-    const { cryptoType } = accountId
+    const { transferAmount, password, sendMessage, receiveAccountId } = transferForm
+    const { cryptoType } = accountSelection
 
     return (
       <Grid container direction='column'>
@@ -77,7 +80,7 @@ class ReviewComponent extends Component<Props> {
                       }
                     : null
                 }
-                account={accountId}
+                account={accountSelection}
               />
             </Grid>
             <Grid item>
@@ -152,7 +155,11 @@ class ReviewComponent extends Component<Props> {
         <Grid item className={classes.btnSection}>
           <Grid container direction='row' justify='center' spacing={3}>
             <Grid item>
-              <Button color='primary' size='large' onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}>
+              <Button
+                color='primary'
+                size='large'
+                onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}
+              >
                 Back to previous
               </Button>
             </Grid>

@@ -56,7 +56,7 @@ export default function EmailTransferFormContainer (props: Props) {
 
   const accountSelection = useSelector(state =>
     state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+      utils.accountsEqual(_account, {id: state.formReducer.transferForm.accountId})
     )
   )
 
@@ -64,9 +64,6 @@ export default function EmailTransferFormContainer (props: Props) {
     // form must be filled without errors
     return (
       !!transferForm.accountId &&
-      !!transferForm.accountId.cryptoType &&
-      !!transferForm.accountId.walletType &&
-      (!!transferForm.accountId.address || !!transferForm.accountId.xpub) &&
       !!transferForm.senderName &&
       !!transferForm.sender &&
       !!transferForm.destination &&
@@ -97,22 +94,30 @@ export default function EmailTransferFormContainer (props: Props) {
 
   const dispatch = useDispatch()
 
-  // on mount
+  // on mount with profile
   useEffect(() => {
     if (profile.isAuthenticated) {
+      console.log('hehe')
       // prefill form
       updateForm({
         sender: { $set: profile.profileObj.email },
         senderName: { $set: profile.profileObj.name },
         destination: { $set: destinationPrefilled || transferForm.destination },
         receiverName: { $set: receiverNamePrefilled || transferForm.receiverName },
+
+        // always clear transferAmount
+        // this also applies going from step 2 to step 1
+        transferAmount: {$set: ''},
+        transferCurrencyAmount: {$set: ''},
+
         accountId: {
-          $set: {
-            walletType: walletSelectionPrefilled || transferForm.accountId.walletType,
-            cryptoType: cryptoTypePrefilled || transferForm.accountId.cryptoType,
-            address: addressPrefilled || transferForm.accountId.address,
-            xpub: xpubPrefilled || transferForm.accountId.xpub
-          }
+          $set: JSON.stringify({
+            walletType: walletSelectionPrefilled,
+            platformType: platformTypePrefilled,
+            cryptoType: cryptoTypePrefilled,
+            address: addressPrefilled,
+            xpub: xpubPrefilled
+          })
         }
       })
       // fetch recipients
@@ -145,7 +150,7 @@ export default function EmailTransferFormContainer (props: Props) {
       <Grid item>
         <TransferFormComponents.AccountDropdown
           purpose={'send'}
-          accountId={accountSelection}
+          accountSelection={accountSelection}
           filterCriteria={accountData =>
             !walletSelectionPrefilled ||
             (accountData.walletType === walletSelectionPrefilled &&
