@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import GoogleIcon from '../images/google-icon.svg'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
 
 class GoogleLoginButton extends Component {
   gapiLoad = () => {
@@ -63,7 +67,7 @@ class GoogleLoginButton extends Component {
   }
 
   render () {
-    const { disabled } = this.props
+    const { disabled, classes } = this.props
     return (
       <Button
         fullWidth
@@ -71,11 +75,48 @@ class GoogleLoginButton extends Component {
         color='primary'
         onClick={() => this.login()}
         disabled={disabled}
+        classes={{ label: classes.loginBtnSpan, root: classes.loginBtnRoot }}
       >
-        Sign in with Google
+        <Box
+          className={classes.iconContainer}
+          display='flex'
+          justifyContent='center'
+          alignItems='center'
+        >
+          <img src={GoogleIcon} style={{ width: 16 }} alt='googleIcon' />
+        </Box>
+        <Typography variant='button' style={{ flex: 1 }} align='center'>
+          Sign in with Google
+        </Typography>
       </Button>
     )
   }
 }
 
-export default GoogleLoginButton
+const style = theme => ({
+  loginBtnRoot: {
+    padding: '8px',
+    maxWidth:'300px'
+  },
+  loginBtnSpan: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+    height:'24px'
+  },
+  iconContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: '50%',
+    width: '24px',
+    height: '24px',
+    alignSelf: 'flex-start',
+    position: 'absolute',
+    left: '0px',
+    top: '0px'
+  },
+  btnText: {
+    fontSize: '14px'
+  }
+})
+
+export default withStyles(style)(GoogleLoginButton)

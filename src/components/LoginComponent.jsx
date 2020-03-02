@@ -364,11 +364,7 @@ const styles = theme => ({
     display: 'flex',
     maxHeight: 40,
     position: 'relative',
-    '&:first-child p': {
-      padding: 5,
-      fontFamily: 'Poppins',
-      fontSize: 16
-    }
+    justifyContent:'center'
   },
   leftContainer: {
     padding: 30,
