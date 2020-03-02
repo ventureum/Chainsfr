@@ -99,11 +99,11 @@ function generatePassphrase (size: number) {
 async function getBtcTxFeePerByte () {
   const rv = (await axios.get(url.BTC_FEE_ENDPOINT)).data
   // safety check
-  if (new BN(rv.hourFee).gt(new BN(200))) {
+  if (new BN(rv.fastestFee).gt(new BN(200))) {
     console.warn(new Error('Abnormal btc fee per byte'))
     return 200
   }
-  return rv.hourFee
+  return rv.fastestFee
 }
 
 /*
