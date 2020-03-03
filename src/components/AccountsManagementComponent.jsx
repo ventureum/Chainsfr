@@ -81,7 +81,7 @@ class AccountsManagementComponent extends Component {
       return {
         changeNameModal: !prevState.changeNameModal,
         chosenAccount: account,
-        newAccountName:''
+        newAccountName: ''
       }
     })
   }
@@ -368,7 +368,7 @@ class AccountsManagementComponent extends Component {
                             <TableCell
                               rowSpan={account.assets.length}
                               colSpan={account.assets.length === 1 ? 5 : 1}
-                              padding='none'
+                              className={classes.btnCellWide}
                             >
                               {this.rednerAccountActionButtons(account)}
                             </TableCell>
@@ -483,7 +483,7 @@ class AccountsManagementComponent extends Component {
                   pl={4}
                   pr={3}
                 >
-                  <ListItem style={{ padding: 0 }}>
+                  <ListItem style={{ padding: '10px 0px 10px 0px' }}>
                     {this.rednerAccountActionButtons(account)}
                   </ListItem>
                   {account.assets.length > 1 &&
@@ -659,6 +659,11 @@ const styles = theme => ({
   buttonIcon: {
     width: 18,
     height: 18
+  },
+  btnCellWide: {
+    paddingTop: 30,
+    paddingBottom: 30,
+    paddingLeft: 0
   }
 })
 export default withStyles(styles)(AccountsManagementComponent)
