@@ -3,7 +3,7 @@
  *
  *  e.g. tx hash, timestamp, sender, receiver, etc
  */
-
+import update from 'immutability-helper'
 const initialState = {
   // transfer data (sender, destination, encryptedWallet, etc)
   // fetched from database
@@ -18,7 +18,9 @@ const initialState = {
   transferHistory: {
     hasMore: true,
     history: []
-  }
+  },
+
+  txHistoryByAccount: {}
 }
 
 export default function (state = initialState, action) {
@@ -70,6 +72,12 @@ export default function (state = initialState, action) {
               : [...state.transferHistory.history, ...action.payload.transferData]
         }
       }
+    case 'GET_TX_HISTORY_BY_ACCOUNT_FULFILLED':
+      return update(state, {
+        txHistoryByAccount: {
+          [action.payload.account.id]: {$set: action.payload.accountTxHistory}
+        }
+      })
     case 'SET_TOKEN_ALLOWANCE_FULFILLED':
       return {
         ...state,

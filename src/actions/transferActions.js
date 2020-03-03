@@ -8,10 +8,10 @@ import { goToStep } from './navigationActions'
 import { saveTempSendFile, saveHistoryFile, getAllTransfers } from '../drive.js'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
-import { getCryptoDecimals } from '../tokens'
+import { getCryptoDecimals, isERC20, getCryptoPlatformType, getCrypto } from '../tokens'
 import url from '../url'
 import SimpleMultiSig from '../SimpleMultiSig'
-import type { TxFee, TxHash } from '../types/transfer.flow.js'
+import type { TxFee, TxHash, AccountTxHistoryType } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
@@ -20,6 +20,7 @@ import { postTxAccountCleanUp } from './accountActions'
 import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
+import env from '../typedEnv'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -572,6 +573,308 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   return { transferData, escrowAccount }
 }
 
+function unmarshalAccount (transferData) {
+  if (transferData.senderAccount) {
+    transferData.senderAccount = createAccount(
+      JSON.parse(transferData.senderAccount)
+    ).getAccountData()
+  }
+  if (transferData.receiverAccount) {
+    transferData.receiverAccount = createAccount(
+      JSON.parse(transferData.receiverAccount)
+    ).getAccountData()
+  }
+  // direct transfer destination account
+  if (transferData.destinationAccount) {
+    transferData.destinationAccount = createAccount(
+      JSON.parse(transferData.destinationAccount)
+    ).getAccountData()
+    transferData.transferMethod = 'DIRECT_TRANSFER'
+  }
+
+  const transferMethod = transferData.senderToReceiver ? 'DIRECT_TRANSFER' : 'EMAIL_TRANSFER'
+  const state = getTransferState(transferData)
+
+  return { ...transferData, transferMethod, state }
+}
+
+// gather recent txs using third-party APIs for an account
+async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
+  const MAX_TXS = 50 // maximum number of txs
+  let txs = []
+  if (getCryptoPlatformType(account.cryptoType) === 'bitcoin') {
+    // get a list of txs
+    let response = await axios.get(
+      `${url.LEDGER_API_URL}/addresses/${account.address}/transactions?noToken=true`
+    )
+
+    // sort tx by received timestamp in non-increasing order
+    txs = response.data.txs.sort(
+      (txA, txB) => moment(txB['received_at']).unix() - moment(txA['received_at']).unix()
+    )
+  } else if (getCryptoPlatformType(account.cryptoType) === 'ethereum') {
+    if (isERC20(account.cryptoType)) {
+      // token tx
+      // gather erc20 txs
+      let response = await axios.get(
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=tokentx&address=${
+          account.address
+        }&contractaddress=${
+          getCrypto(account.cryptoType).address
+        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+      )
+      txs = response.data.result
+    } else {
+      // eth tx
+      // 1. gather normal tx
+      let response = await axios.get(
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+      )
+      const txsNormal = response.data.result
+
+      // 2. gather internal tx (sent from a contract)
+      response = await axios.get(
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+      )
+      const txsInternal = response.data.result
+
+      // combine normal txs and internal txs, order in non-increasing timestamp
+      txs = [...txsNormal, ...txsInternal].sort((txA, txB) => txB - txA)
+    }
+  }
+  return txs
+}
+
+async function _getTxHistoryByAccount ({
+  account,
+  accountTxHistory
+}: {
+  account: AccountData,
+  accountTxHistory: ?AccountTxHistoryType
+}) {
+  const MAX_TXS = 50 // maximum number of txs
+  const MIN_UPDATE_INTERVAL = 10 // 10 seconds
+
+  // init accountTxHistory if necessary
+  accountTxHistory = accountTxHistory
+    ? accountTxHistory
+    : {
+        updated: null,
+        history: []
+      }
+
+  // do not update if MIN_UPDATE_INTERVAL has not passed
+  if (accountTxHistory.updated + MIN_UPDATE_INTERVAL >= moment().unix())
+    return { account, accountTxHistory }
+
+  let rv = {}
+
+  let txs: Array<Object> = []
+
+  // gather recent txs using third-party APIs
+  // tx always have property hash regardless of cryptoType
+  txs = await getRecentTxs(account)
+
+  // limit the numnber of txs to MAX_TXS
+  txs = txs.slice(0, MAX_TXS)
+
+  // create a dict with key of txHash for existing tx history
+  let historyDict = {}
+  if (accountTxHistory.history) {
+    accountTxHistory.history.map(tx => (historyDict[tx.txHash] = tx))
+  }
+
+  // filter out tx whose corresponding transferData or standaloneTx already
+  // exists in accountTxHistory
+  txs = txs.filter(tx => !historyDict[tx.txHash])
+
+  const txHash2Idx = txs.reduce((accumulator, currentValue, idx) => {
+    if (currentValue && currentValue.hash) {
+      accumulator[currentValue.hash] = idx
+    }
+    return accumulator
+  }, {})
+
+  // lookup hashes in our transfer database to see if any
+  // transfer.[sendTxHash | receiveTxHash | cancelTxHash] matches txHash
+  const txHashLookupResults: Array<{
+    txHash: string,
+    transferId: string,
+    receivingId: string
+  }> = await API.lookupTxHash(txs.map(tx => tx.hash))
+
+  // split results into matched and unmatched
+  const matched = {
+    transferIdList: txHashLookupResults
+      .filter(result => result.transferId)
+      .map(result => result.transferId),
+    receivingIdList: txHashLookupResults
+      .filter(result => result.receivingId)
+      .map(result => result.receivingId)
+  }
+  const unmatched = txHashLookupResults.filter(result => !result.transferId && !result.receivingId)
+
+  // gather transferData using transferIds and receivingIds
+  const transferDataList = await API.getBatchTransfers({
+    transferIds: matched.transferIdList,
+    receivingIds: matched.receivingIdList
+  })
+
+  // handle matched txHash list
+  // fill in txs with transferData
+  for (let transferData of transferDataList) {
+    let idx
+    let { sendTxHash, receiveTxHash, cancelTxHash } = transferData
+    let transferType: string
+    let timestamp
+    // exactly one of [sendTxHash | receiveTxHash | cancelTxHash] matches txHash
+    if (sendTxHash && sendTxHash in txHash2Idx) {
+      idx = txHash2Idx[sendTxHash]
+      transferType = 'SENDER'
+      timestamp = transferData.senderToChainsfer.txTimestamp
+    } else if (receiveTxHash && receiveTxHash in txHash2Idx) {
+      idx = txHash2Idx[receiveTxHash]
+      transferType = 'RECEIVER'
+      timestamp = transferData.chainsferToReceiver.txTimestamp
+    } else if (cancelTxHash && cancelTxHash in txHash2Idx) {
+      idx = txHash2Idx[cancelTxHash]
+      transferType = 'SENDER'
+      timestamp = transferData.chainsferToSender.txTimestamp
+    } else {
+      console.log(sendTxHash, txHash2Idx[sendTxHash])
+      // this should not happen
+      throw new Error('transferData does not have matched txHash')
+    }
+
+    // fill in data
+    transferData = unmarshalAccount(transferData)
+    rv[txs[idx].hash] = { timestamp }
+    rv[txs[idx].hash].transferData = { ...transferData, transferType }
+  }
+
+  // deal with unmatched txs
+  if (getCryptoPlatformType(account.cryptoType) === 'bitcoin') {
+    for (let result of unmatched) {
+      let txHash = result.txHash
+      let txData = txs[txHash2Idx[txHash]]
+
+      let from: Address
+      let to: Address
+      // actual amount received by the destination address
+      let amount: BasicTokenUnit
+
+      let matchedInput = txData.inputs.find(input => input.address === account.address)
+      let matchedOutput = txData.outputs.find(output => output.address === account.address)
+      if (matchedInput) {
+        // if address is in inputs, then it is transfering out
+        //
+        // the destination address is assumed to be the first one in the outputs which
+        // is not account.address
+        // note that having multiple output addresses is possible
+
+        let _out = txData.outputs.find(
+          output => output.address && output.address !== account.address
+        )
+        from = account.address
+        to = _out.address
+        amount = _out.value
+      } else if (matchedOutput) {
+        // if address only exists in outputs, then it is transfering in
+        from = matchedOutput.address
+        to = account.address
+        amount = matchedOutput.value
+      } else {
+        // this should not happen
+        throw new Error(`Cannot find matched input or output for ${txHash}`)
+      }
+
+      // fill in data
+      rv[txHash] = {
+        timestamp: moment(txData.received_at).unix(),
+        blockNumber: txData.block.height,
+        txFees: txData.fees
+      }
+      rv[txHash].standaloneTx = { from, to, value: amount, cryptoType: account.cryptoType }
+    }
+  } else if (getCryptoPlatformType(account.cryptoType) === 'ethereum') {
+    // address is in lowercase in returned txData
+    // must convert account address to lowercase first
+    const accountAddr = account.address.toLowerCase()
+
+    for (let result of unmatched) {
+      let txHash = result.txHash
+      let txData = txs[txHash2Idx[txHash]]
+      if (isERC20(account.cryptoType)) {
+        // token tx
+        const tokenContractAddr = getCrypto(account.cryptoType).address.toLowerCase()
+        let {
+          contractAddress,
+          from,
+          to,
+          value,
+          timeStamp,
+          blockNumber,
+          nonce,
+          gasPrice,
+          cumulativeGasUsed
+        } = txData
+
+        if (contractAddress === tokenContractAddr && (from === accountAddr || to === accountAddr)) {
+          // token matches
+          // fill in data
+          rv[txHash] = { timestamp: timeStamp, blockNumber, nonce, gasPrice, cumulativeGasUsed }
+          rv[txHash].standaloneTx = {
+            from,
+            to,
+            value,
+            cryptoType: account.cryptoType
+          }
+        }
+      } else {
+        // eth tx
+        let { from, to, value, timeStamp, blockNumber, nonce, gasPrice, cumulativeGasUsed } = txData
+        if (from === accountAddr || to === accountAddr) {
+          // from or to matches
+          // fill in data
+          rv[txHash] = { timestamp: timeStamp, blockNumber, nonce, gasPrice, cumulativeGasUsed }
+          rv[txHash].standaloneTx = {
+            from,
+            to,
+            value,
+            cryptoType: account.cryptoType
+          }
+        }
+      }
+    }
+  }
+
+  // now we have gathered all txs data in one of the two structs
+  // 1. transferData
+  // 2. standaloneTx
+  //
+  // convert results from dict to list
+  rv = Object.entries(rv).map(([txHash, value]) => {
+    //$FlowFixMe
+    return {
+      txHash,
+      ...value
+    }
+  })
+
+  // add results to the existing accountTxHistory.history
+  accountTxHistory.updated = moment().unix()
+  accountTxHistory.history = accountTxHistory.history.concat(rv)
+
+  // re-sort accountTxHistory by timestamp in non-increasing order
+  accountTxHistory.history = accountTxHistory.history.sort(
+    (txA, txB) => txB.timestamp - txA.timestamp
+  )
+
+  // TODO: update existing tx  confirmations
+
+  return { account, accountTxHistory }
+}
+
 async function _getTransferHistory (offset: number = 0, transferMethod: string = 'ALL') {
   const ITEM_PER_FETCH = 10
   // https://github.com/facebook/flow/issues/6064
@@ -673,23 +976,6 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
         state
       }
     })
-
-  transferData = await Promise.all(
-    transferData.map(async transfer => {
-      if (!transfer.error) {
-        if (!transfer.senderAvatar) {
-          const senderProfile = await API.getUserProfileByEmail(transfer.sender)
-          transfer.senderAvatar = senderProfile.imageUrl
-        }
-        if (!transfer.receiverAvatar) {
-          const receiverProfile = await API.getUserProfileByEmail(transfer.destination)
-          transfer.receiverAvatar = receiverProfile.imageUrl
-        }
-      }
-      return transfer
-    })
-  )
-
   transferData = await Promise.all(
     transferData.map(async transfer => {
       if (!transfer.error) {
@@ -787,6 +1073,18 @@ function getTransfer (transferId: ?string, receivingId: ?string) {
   return {
     type: 'GET_TRANSFER',
     payload: _getTransfer(transferId, receivingId)
+  }
+}
+
+function getTxHistoryByAccount ({ account }: { account: AccountData }) {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'GET_TX_HISTORY_BY_ACCOUNT',
+      payload: _getTxHistoryByAccount({
+        account,
+        accountTxHistory: getState().transferReducer.txHistoryByAccount[account.accountId]
+      })
+    })
   }
 }
 
@@ -943,6 +1241,7 @@ export {
   getTxFee,
   getTransfer,
   getTransferHistory,
+  getTxHistoryByAccount,
   getTransferPassword,
   clearVerifyEscrowAccountPasswordError,
   transferStates,
