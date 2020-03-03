@@ -195,7 +195,7 @@ async function getPrefilledAccount () {
   }
 }
 
-async function getRecipients (request: { idToken: string }) {
+async function getRecipients (request: { idToken: string }): Promise<any> {
   try {
     let rv = await chainsferApi.post('/user', {
       clientId: 'test-client',

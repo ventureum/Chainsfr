@@ -102,12 +102,23 @@ function setNewUserTag (isNewUser: boolean) {
   }
 }
 
+async function _getRecipients (idToken: string) {
+  let recipients = await API.getRecipients({ idToken })
+  recipients = await Promise.all(
+    recipients.map(async recipient => {
+      const recipientProfile = await API.getUserProfileByEmail(recipient.email)
+      return { ...recipient, imageUrl: recipientProfile.imageUrl }
+    })
+  )
+  return recipients
+}
+
 function getRecipients () {
   return (dispatch: Function, getState: Function) => {
     const { idToken } = getState().userReducer.profile
     return dispatch({
       type: 'GET_RECIPIENTS',
-      payload: API.getRecipients({ idToken })
+      payload: _getRecipients(idToken)
     })
   }
 }

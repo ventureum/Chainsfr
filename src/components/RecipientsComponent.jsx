@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Button, Grid } from '@material-ui/core'
-import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import Box from '@material-ui/core/Box'
 import SendIcon from '@material-ui/icons/SendRounded'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
@@ -11,6 +10,7 @@ import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Tooltip from '@material-ui/core/Tooltip'
 import EmptyStateImage from '../images/empty_state_01.png'
+import UserAvatar from './MicroComponents/UserAvatar'
 
 class RecipientsComponent extends Component {
   state = {
@@ -80,8 +80,12 @@ class RecipientsComponent extends Component {
             >
               <Grid container justify='space-between'>
                 <Grid item>
-                  <Box display='flex' alignItems='flex-top'>
-                    <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
+                  <Box display='flex' alignItems='center'>
+                    <UserAvatar
+                      style={{ width: 32 }}
+                      name={recipient.name}
+                      src={recipient.imageUrl}
+                    />
                     <Box ml={1}>
                       <Typography>{recipient.name}</Typography>
                       <Typography variant='caption'>{recipient.email}</Typography>
@@ -143,10 +147,10 @@ const styles = theme => ({
     width: '100%',
     maxWidth: '1200px',
     margin: '60px 0px 60px 0px',
-    [theme.breakpoints.up('xs')] : {
+    [theme.breakpoints.up('xs')]: {
       padding: '0px 50px 0px 50px'
     },
-    [theme.breakpoints.down('xs')] : {
+    [theme.breakpoints.down('xs')]: {
       padding: '0px 10px 0px 10px'
     }
   },

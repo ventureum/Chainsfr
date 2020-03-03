@@ -28,7 +28,8 @@ type Recipient = {
   name: string,
   email: string,
   validEmail: boolean,
-  validName: boolean
+  validName: boolean,
+  imageUrl?: string
 }
 
 const defaultRecipient = {
