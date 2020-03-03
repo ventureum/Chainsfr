@@ -114,7 +114,7 @@ class ReceiptComponent extends Component<Props, State> {
         title = 'Transfer Delayed'
         titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
         messageBoxContent =
-          'Your transfer is experiencing longer than usual time to' +
+          'Your transfer is experiencing longer than usual time to ' +
           'be processed by the network. To learn more, visit our Help Center.'
         break
       case transferStates.SEND_DIRECT_TRANSFER_CONFIRMED:
