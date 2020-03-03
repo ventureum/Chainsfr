@@ -136,21 +136,23 @@ export default function TransferAmountTextField (props: Props) {
   }
 
   useEffect(() => {
-    if (prevTransferAmount !== transferAmount && accountSelection) {
-      // if transfer amount changed, update tx fee
-      getTxFee({
-        fromAccount: accountSelection,
-        transferAmount: transferAmount
-      })
-    } else if (actionsFulfilled.getTxFee) {
-      // if tx fee updated, re-validate form
-      updateForm({
-        formError: {
-          transferAmount: {
-            $set: validate(transferAmount)
+    if (accountSelection) {
+      if (prevTransferAmount !== transferAmount) {
+        // if transfer amount changed, update tx fee
+        getTxFee({
+          fromAccount: accountSelection,
+          transferAmount: transferAmount
+        })
+      } else if (actionsFulfilled.getTxFee) {
+        // if tx fee updated, re-validate form
+        updateForm({
+          formError: {
+            transferAmount: {
+              $set: validate(transferAmount)
+            }
           }
-        }
-      })
+        })
+      }
     }
   }, [transferAmount, txFee])
 

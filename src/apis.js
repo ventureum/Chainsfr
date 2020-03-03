@@ -522,6 +522,22 @@ async function getUserRegisterTime () {
   }
 }
 
+async function lookupTxHash (txHashes: Array<string>): Promise<Array<{
+  txHash: string,
+  transferId: string,
+  receivingId: string
+}>> {
+  try {
+    let rv = await chainsferApi.post('/transfer', {
+      action: 'LOOKUP_TX_HASHES',
+      txHashes
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error('Lookup tx hashes failed')
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -550,5 +566,6 @@ export default {
   getUserProfileByEmail,
   getUserCloudWalletFolderMeta,
   updateUserCloudWalletFolderMeta,
-  getUserRegisterTime
+  getUserRegisterTime,
+  lookupTxHash
 }

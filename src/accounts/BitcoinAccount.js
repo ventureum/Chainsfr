@@ -22,7 +22,9 @@ const NETWORK =
 
 const PLATFORM_TYPE = 'bitcoin'
 
-function sendMessage (message): Promise<{
+function sendMessage (
+  message
+): Promise<{
   nextIndex: number,
   endIndex: number,
   addresses: Array<BitcoinAddress>
@@ -91,19 +93,19 @@ export default class BitcoinAccount implements IAccount<AccountData> {
     }
 
     // set id
-    if (!_accountData.id) {
-      accountData.xpub
-        ? (_accountData.id = JSON.stringify({
-            cryptoType: accountData.cryptoType,
-            walletType: accountData.walletType,
-            xpub: accountData.xpub
-          }))
-        : (_accountData.id = JSON.stringify({
-            cryptoType: accountData.cryptoType,
-            walletType: accountData.walletType,
-            address: accountData.address
-          }))
-    }
+    _accountData.hdWalletVariables.xpub
+      ? (_accountData.id = JSON.stringify({
+          walletType: _accountData.walletType,
+          platformType: _accountData.platformType,
+          cryptoType: _accountData.cryptoType,
+          xpub: _accountData.hdWalletVariables.xpub
+        }))
+      : (_accountData.id = JSON.stringify({
+          walletType: _accountData.walletType,
+          platformType: _accountData.platformType,
+          cryptoType: _accountData.cryptoType,
+          address: _accountData.address
+        }))
 
     this.accountData = _accountData
   }

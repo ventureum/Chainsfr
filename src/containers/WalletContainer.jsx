@@ -1,26 +1,56 @@
+// @flow
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import WalletComponent from '../components/WalletComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getTransferHistory } from '../actions/transferActions'
+import { getTxHistoryByAccount } from '../actions/transferActions'
 import utils from '../utils'
 import { push } from 'connected-react-router'
+import type { AccountData } from '../types/account.flow'
 
-class WalletContainer extends Component {
+type Props = {
+  cloudWalletAccounts: Array<AccountData>,
+  getTxHistoryByAccount: Function,
+  txHistoryByAccount: Object,
+  cryptoPrice: Object,
+  currency: string,
+  actionsPending: {
+    getCryptoAccounts: boolean,
+    getTransferHistory: boolean
+  },
+  push: Function,
+  online: boolean,
+  errors: {
+    getCryptoAccounts: boolean,
+    getTransferHistory: boolean
+  }
+}
+
+class WalletContainer extends Component<Props> {
   componentDidMount () {
-    let { getTransferHistory } = this.props
-    getTransferHistory(0)
+    let { getTxHistoryByAccount, cloudWalletAccounts } = this.props
+    if (cloudWalletAccounts) {
+      cloudWalletAccounts.map(account => getTxHistoryByAccount(account))
+    }
   }
 
-  loadMoreTransferHistory = offset => {
-    this.props.getTransferHistory(offset)
+  componentDidUpdate (prevProps) {
+    const { actionsPending } = prevProps
+    let { getTxHistoryByAccount, cloudWalletAccounts } = this.props
+    if (
+      actionsPending.getCryptoAccounts &&
+      !this.props.actionsPending.getCryptoAccounts &&
+      !this.props.errors.getCryptoAccounts
+    ) {
+      // get history by account once accounts have been fetched
+      cloudWalletAccounts.map(account => getTxHistoryByAccount(account))
+    }
   }
 
   render () {
     let {
       cryptoPrice,
-      transferHistory,
-      currency,
+      txHistoryByAccount,
       actionsPending,
       cloudWalletAccounts,
       push,
@@ -28,22 +58,14 @@ class WalletContainer extends Component {
     } = this.props
 
     const toCurrencyAmount = (cryptoAmount, cryptoType) =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoType], currency)
-
-    // add currency value to transferHistory
-    transferHistory.history = transferHistory.history.map(transfer => {
-      return {
-        ...transfer,
-        transferCurrencyAmount: toCurrencyAmount(transfer.transferAmount, transfer.cryptoType)
-      }
-    })
+      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[cryptoType])
 
     return (
       <WalletComponent
         cloudWalletAccounts={cloudWalletAccounts}
-        transferHistory={transferHistory}
+        txHistoryByAccount={txHistoryByAccount}
         actionsPending={actionsPending}
-        loadMoreTransferHistory={this.loadMoreTransferHistory}
+        toCurrencyAmount={toCurrencyAmount}
         push={push}
         online={online}
       />
@@ -51,8 +73,11 @@ class WalletContainer extends Component {
   }
 }
 
-const getTransferHistorySelector = createLoadingSelector(['GET_TRANSFER_HISTORY'])
-const errorSelector = createErrorSelector(['GET_TRANSFER_HISTORY'])
+const getTxHistoryByAccountSelector = createLoadingSelector(['GET_TX_HISTORY_BY_ACCOUNT'])
+const getCryptoAccountsSelector = createLoadingSelector(['GET_CRYPTO_ACCOUNTS'])
+
+const getTxHistoryByAccountErrorSelector = createErrorSelector(['GET_TX_HISTORY_BY_ACCOUNT'])
+const getCryptoAccountsErrorSelector = createErrorSelector(['GET_CRYPTO_ACCOUNTS'])
 
 const mapStateToProps = state => {
   return {
@@ -60,18 +85,27 @@ const mapStateToProps = state => {
       account => account.walletType === 'drive'
     ),
     actionsPending: {
-      getTransferHistory: getTransferHistorySelector(state)
+      getTxHistoryByAccount: getTxHistoryByAccountSelector(state),
+      getCryptoAccounts: getCryptoAccountsSelector(state)
     },
     currency: state.cryptoPriceReducer.currency,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
-    transferHistory: state.transferReducer.transferHistory,
-    error: errorSelector(state)
+    txHistoryByAccount: state.transferReducer.txHistoryByAccount,
+    errors: {
+      getTransferHistory: getTxHistoryByAccountErrorSelector(state),
+      getCryptoAccounts: getCryptoAccountsErrorSelector(state)
+    }
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransferHistory: offset => dispatch(getTransferHistory(offset)),
+    getTxHistoryByAccount: account =>
+      dispatch(
+        getTxHistoryByAccount({
+          account
+        })
+      ),
     push: path => dispatch(push(path))
   }
 }

@@ -12,10 +12,8 @@ type Props = {
 export default function AccountDropdown (props: Props) {
   const updateAccountSelection = account =>
     props.updateForm({
-      accountId: { $set: account }
+      accountId: { $set: account ? account.id : null }
     })
 
-  return (
-    <AccountDropdownContainer {...props} onChange={updateAccountSelection} />
-  )
+  return <AccountDropdownContainer {...props} onChange={updateAccountSelection} />
 }

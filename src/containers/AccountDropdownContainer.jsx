@@ -10,11 +10,7 @@ import type { AccountData } from '../types/account.flow'
 
 type Props = {
   // param passed in
-  accountId: {
-    walletType: string,
-    cryptoType: string,
-    address: string
-  },
+  accountSelection: AccountData,
   purpose: string,
   inputLabel: ?string,
   cryptoPrice: { [string]: number },
@@ -100,7 +96,7 @@ class AccountDropdownContainer extends Component<Props, State> {
       cryptoPrice,
       currency,
       error,
-      accountId,
+      accountSelection,
       inputLabel,
       purpose,
       online,
@@ -142,23 +138,17 @@ class AccountDropdownContainer extends Component<Props, State> {
       }
     })
 
-    // accountId is specified
-    // find the corresponding account selection
-    const account = accountId
-      ? cryptoAccounts.find(_account => utils.accountsEqual(_account, accountId))
-      : null
-
     // a new account was added, pre-select the new account
     const { newlyAddedAccount } = this.state
     if (newlyAddedAccount) this.setState({ newlyAddedAccount: null })
     const { walletType, platformType, email } = newlyAddedAccount
       ? newlyAddedAccount
-      : account || {}
+      : accountSelection || {}
 
     const groupedAccount =
       // must have non-null account passed-in
       // otherwise set groupedAccount to null
-      (account || newlyAddedAccount) &&
+      (accountSelection || newlyAddedAccount) &&
       groupedCryptoAccounts.find(
         groupedAccount =>
           (!walletType || walletType === groupedAccount.walletType) &&
@@ -171,7 +161,7 @@ class AccountDropdownContainer extends Component<Props, State> {
         <AccountDropdownComponent
           purpose={purpose}
           // final account selected
-          account={account}
+          account={accountSelection}
           // find groupedAccount which matches account.[walletType, platformType/email]
           // for showing crypto list in the second dropdown
           groupedAccount={groupedAccount}

@@ -14,6 +14,9 @@ const ETHEREUM_EXPLORER_BASE_URL =
     ? `https://etherscan.io/`
     : `https://${env.REACT_APP_ETHEREUM_NETWORK}.etherscan.io/`
 
+const ETHERSCAN_API_URL =
+  env.REACT_APP_BTC_NETWORK === 'mainnet' ? 'https://api.etherscan.io' : 'https://api-rinkeby.etherscan.io'
+
 const ETHEREUM_EXPLORER_ADDRESS_BASE_URL =
   ETHEREUM_EXPLORER_BASE_URL + 'address/'
 const ETHEREUM_EXPLORER_TOKEN_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'token/'
@@ -96,6 +99,7 @@ export default {
   REACT_APP_BTC_NETWORK,
   INFURA_API_URL,
   LEDGER_API_URL,
+  ETHERSCAN_API_URL,
   BTC_FEE_ENDPOINT,
   getEthExplorerAddress,
   getEthExplorerToken,
@@ -105,5 +109,5 @@ export default {
   getLibraExplorerAddress,
   getLibraExplorerTx,
   getExplorerTx,
-  getExplorerAddress
+  getExplorerAddress,
 }

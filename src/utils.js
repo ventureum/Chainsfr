@@ -190,18 +190,7 @@ function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbo
 
 function accountsEqual (account1: AccountData, account2: AccountData): boolean {
   if (!account1 || !account2) return false
-  if (account1.cryptoType === 'bitcoin') {
-    return (
-      account1.cryptoType === account2.cryptoType &&
-      account1.hdWalletVariables.xpub === account2.hdWalletVariables.xpub &&
-      account1.walletType === account2.walletType
-    )
-  } else
-    return (
-      account1.cryptoType === account2.cryptoType &&
-      account1.address === account2.address &&
-      account1.walletType === account2.walletType
-    )
+  return account1.id === account2.id
 }
 export default {
   toHumanReadableUnit,
