@@ -34,6 +34,7 @@ import Link from '@material-ui/core/Link'
 import IconButton from '@material-ui/core/IconButton'
 import AddressQRCodeDialog from './AddressQRCodeDialog'
 import Skeleton from '@material-ui/lab/Skeleton'
+import Chip from '@material-ui/core/Chip'
 import type { AccountData } from '../types/account.flow'
 
 function WalletComponent (props: {
@@ -133,7 +134,7 @@ function WalletComponent (props: {
       var { cryptoType } = account
       var accountAddressLower = account.address.toLowerCase()
 
-      var { txHash, standaloneTx, transferData, timestamp } = tx
+      var { txHash, standaloneTx, transferData, timestamp, pending } = tx
     }
     if (!skeletonOnly) {
       if (standaloneTx) {
@@ -141,7 +142,7 @@ function WalletComponent (props: {
         const { from, to, value } = standaloneTx
         transferTypeIcon = (
           <Icon fontSize='small'>
-            <img src={SwapVertIcon} alt='swap icon' style={{color: '#A8A8A8'}} />
+            <img src={SwapVertIcon} alt='swap icon' style={{ color: '#A8A8A8' }} />
           </Icon>
         )
         if (from === accountAddressLower) {
@@ -160,10 +161,10 @@ function WalletComponent (props: {
         if (transferData.transferMethod === 'DIRECT_TRANSFER') {
           // 3. direct transfer
           transferTypeIcon = (
-          <Icon fontSize='small'>
-            <img src={SwapVertIcon} alt='swap icon' style={{color: '#A8A8A8'}} />
-          </Icon>
-        )
+            <Icon fontSize='small'>
+              <img src={SwapVertIcon} alt='swap icon' style={{ color: '#A8A8A8' }} />
+            </Icon>
+          )
           title =
             transferData.transferType === 'SENDER'
               ? transferData.destinationAccount.getAccountData().name
@@ -202,7 +203,18 @@ function WalletComponent (props: {
           <Box ml={1}>
             {!skeletonOnly ? (
               <>
-                <Typography variant='body2'> {title} </Typography>
+                <Box display='flex' flexDirection='row' alignItems='center'>
+                  <Typography variant='body2'> {title} </Typography>
+                  <Box ml={1}>
+                    {pending && (
+                      <Chip
+                        size='small'
+                        label='pending'
+                        style={{ backgroundColor: '#E9E9E9', color: '#777777' }}
+                      />
+                    )}
+                  </Box>
+                </Box>
                 <Typography variant='caption'>
                   {moment.unix(timestamp).format('MMM Do YYYY, HH:mm:ss')}
                 </Typography>
@@ -258,6 +270,18 @@ function WalletComponent (props: {
 
   const renderTxHistory = account => {
     let txHistory = txHistoryByAccount[account.id]
+
+    if (txHistory) {
+      // combine pending and confirmed txs
+      const pendingTxs = txHistory.pendingTxs.map(tx => {
+        tx.pending = true
+        return tx
+      })
+
+      const confirmedTxs = txHistory.confirmedTxs
+      var allTxs = [...pendingTxs, ...confirmedTxs]
+    }
+
     return (
       <InfiniteScroll
         loader={
@@ -286,7 +310,8 @@ function WalletComponent (props: {
             </Box>
           )}
         {txHistory
-          ? txHistory.history.map((tx, i) => (
+          ? allTxs &&
+            allTxs.map((tx, i) => (
               <>
                 <Divider />
                 {renderRecentTransferItem(account, tx, i)}

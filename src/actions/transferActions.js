@@ -120,7 +120,9 @@ async function _submitDirectTransferTx (txRequest: {
 
   await saveHistoryFile({
     transferId: response.transferId,
-    sendTimestamp: response.sendTimestamp
+    senderAccountId: fromAccount.id,
+    sendTimestamp: response.sendTimestamp,
+    sendTxHash: txHash
   })
 
   return response
@@ -217,6 +219,7 @@ async function _submitTx (txRequest: {
       address: fromAccount.address,
       name: fromAccount.name
     }),
+    senderAccountId: fromAccount.id,
     sendMessage,
     destination,
     receiverName,
@@ -236,6 +239,7 @@ async function _transactionHashRetrieved (txRequest: {|
   senderAvatar: string,
   sender: string,
   senderAccount: string,
+  senderAccountId: string,
   destination: string,
   receiverName: string,
   cryptoType: string,
@@ -251,14 +255,17 @@ async function _transactionHashRetrieved (txRequest: {|
   }
 
   // mask out password
-  const { password, ...request } = txRequest
+  const { password, senderAccountId, ...request } = txRequest
   let response = await API.transfer(request)
 
   await saveHistoryFile({
     transferId: response.transferId,
+    // used to filter transfer history by account
+    senderAccountId: senderAccountId,
     sendTimestamp: response.sendTimestamp,
     data: txRequest.data,
-    password: txRequest.password
+    password: txRequest.password,
+    sendTxHash: txRequest.sendTxHash
   })
 
   return response
@@ -343,13 +350,17 @@ async function _acceptTransfer (txRequest: {
 
   await saveHistoryFile({
     receivingId: txRequest.receivingId,
-    receiveTimestamp: response.receiveTimestamp
+    // used to filter transfer history by account
+    destinationAccountId: destinationAccount.id,
+    receiveTimestamp: response.receiveTimestamp,
+    receiveTxHash: response.receiveTxHash
   })
 
   return { ...response, ...txRequest }
 }
 
 async function _cancelTransfer (txRequest: {
+  senderAccount: AccountData,
   escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
@@ -432,7 +443,10 @@ async function _cancelTransfer (txRequest: {
 
   await saveHistoryFile({
     transferId: transferId,
-    cancelTimestamp: response.cancelTimestamp
+    // used to filter transfer history by account
+    senderAccountId: escrowAccount.id,
+    cancelTimestamp: response.cancelTimestamp,
+    cancelTxHash: response.cancelTxHash
   })
 
   return { ...response, ...txRequest }
@@ -589,13 +603,13 @@ function unmarshalAccount (transferData) {
     transferData.destinationAccount = createAccount(
       JSON.parse(transferData.destinationAccount)
     ).getAccountData()
-    transferData.transferMethod = 'DIRECT_TRANSFER'
   }
 
   const transferMethod = transferData.senderToReceiver ? 'DIRECT_TRANSFER' : 'EMAIL_TRANSFER'
+  transferData = { ...transferData, transferMethod }
   const state = getTransferState(transferData)
 
-  return { ...transferData, transferMethod, state }
+  return { ...transferData, state }
 }
 
 // gather recent txs using third-party APIs for an account
@@ -608,8 +622,11 @@ async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
       `${url.LEDGER_API_URL}/addresses/${account.address}/transactions?noToken=true`
     )
 
+    // filter out unconfirmed
+    txs = response.data.txs.filter(tx => tx.confirmations > 0)
+
     // sort tx by received timestamp in non-increasing order
-    txs = response.data.txs.sort(
+    txs = txs.sort(
       (txA, txB) => moment(txB['received_at']).unix() - moment(txA['received_at']).unix()
     )
   } else if (getCryptoPlatformType(account.cryptoType) === 'ethereum') {
@@ -645,6 +662,159 @@ async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
   return txs
 }
 
+/* 
+  Given a list a txHash, convert the corresponding list of transferData
+  into list of txHistory objects
+
+  @param transferDataList Array of transferData to be converted
+  @param txHashDict original list of txHash to be looked up
+ */
+async function TransferData2TxHistory (transferDataList, txHashDict) {
+  // handle matched txHash list
+  // fill in txs with transferData
+  let rv = {}
+  for (let transferData of transferDataList) {
+    let hash
+    let { sendTxHash, receiveTxHash, cancelTxHash } = transferData
+    let transferType: string
+    let timestamp
+    // exactly one of [sendTxHash | receiveTxHash | cancelTxHash] matches txHash
+    if (sendTxHash && sendTxHash in txHashDict) {
+      transferType = 'SENDER'
+      timestamp = transferData.senderToChainsfer.txTimestamp
+      hash = sendTxHash
+    } else if (receiveTxHash && receiveTxHash in txHashDict) {
+      transferType = 'RECEIVER'
+      timestamp = transferData.chainsferToReceiver.txTimestamp
+      hash = receiveTxHash
+    } else if (cancelTxHash && cancelTxHash in txHashDict) {
+      transferType = 'SENDER'
+      timestamp = transferData.chainsferToSender.txTimestamp
+      hash = cancelTxHash
+    } else {
+      console.log(sendTxHash, txHashDict[sendTxHash])
+      // this should not happen
+      throw new Error('transferData does not have matched txHash')
+    }
+
+    // fill in data
+    transferData = unmarshalAccount(transferData)
+    rv[hash] = { timestamp }
+    rv[hash].transferData = { ...transferData, transferType }
+  }
+  return rv
+}
+
+async function getPendingTxHistoryByAccount (account, confirmedTxs) {
+  // number of most most recent txs to check
+  const NUM_MOST_RECENT_TXS = 20
+
+  // https://github.com/facebook/flow/issues/6064
+  // $FlowFixMe
+  let transfersDict = await getAllTransfers()
+
+  // convert dict to array
+  let transfers = []
+  for (let key in transfersDict) {
+    const { senderAccountId, destinationAccountId, sendTxHash, cancelTxHash } = transfersDict[key]
+    if (
+      utils.accountsEqual(account, { id: senderAccountId }) ||
+      utils.accountsEqual(account, { id: destinationAccountId })
+    ) {
+      // filter by account
+      if (sendTxHash && cancelTxHash) {
+        // special case
+        // need to split it into two separate transfers, each representing
+        // a distinct tx
+        transfers.push({
+          ...transfersDict[key],
+          cancelTxHash: undefined,
+          cancelTimestamp: undefined
+        })
+        transfers.push({
+          ...transfersDict[key],
+          sendTxHash: undefined,
+          sendTimestamp: undefined
+        })
+      } else {
+        transfers.push(transfersDict[key])
+      }
+    }
+  }
+
+  // sort by timestamp
+  transfers = transfers.sort((a, b) => {
+    let getTimestamp = item => {
+      let rv = item.sendTimestamp
+        ? item.sendTimestamp
+        : item.receiveTimestamp
+        ? item.receiveTimestamp
+        : item.cancelTimestamp
+      if (!rv) {
+        console.warn('Missing timestamp in transfer history data')
+        return 0
+      }
+      return rv
+    }
+    return getTimestamp(b) - getTimestamp(a)
+  })
+
+  // only check most recent txs
+  transfers = transfers.slice(0, NUM_MOST_RECENT_TXS)
+
+  // create a dict for confirmedTxs for look-ups
+  const confirmedTxsDict = {}
+  confirmedTxs.map(tx => (confirmedTxsDict[tx.hash] = {}))
+
+  // filter transfer whose txHash is in confirmedTxs
+  transfers = transfers.filter(transferItem => {
+    const { sendTxHash, receiveTxHash, cancelTxHash } = transferItem
+    if (sendTxHash && sendTxHash in confirmedTxsDict) return false
+    if (receiveTxHash && receiveTxHash in confirmedTxsDict) return false
+    if (cancelTxHash && cancelTxHash in confirmedTxsDict) return false
+
+    // filter out invalid trqnsfers
+    if (!sendTxHash && !receiveTxHash && !cancelTxHash) return false
+
+    return true
+  })
+
+  const txHash2Idx = transfers.reduce((accumulator, currentValue, idx) => {
+    if (currentValue) {
+      const { sendTxHash, receiveTxHash, cancelTxHash } = currentValue
+      if (sendTxHash || receiveTxHash || cancelTxHash) {
+        accumulator[sendTxHash || receiveTxHash || cancelTxHash] = idx
+      }
+    }
+    return accumulator
+  }, {})
+
+  // gather data for pending txs
+  // make it match AccountTxHistoryType
+  const transferDataList = await API.getBatchTransfers({
+    transferIds: transfers.filter(item => item.transferId).map(item => item.transferId),
+    receivingIds: transfers.filter(item => item.receivingId).map(item => item.receivingId)
+  })
+
+  // handle matched txHash list
+  // fill in txs with transferData
+  let rv = await TransferData2TxHistory(transferDataList, txHash2Idx)
+
+  // convert to array
+  rv = Object.entries(rv).map(([txHash, value]) => {
+    //$FlowFixMe
+    return {
+      txHash,
+      ...value
+    }
+  })
+
+  // re-sort by timestamp in non-increasing order
+  rv = rv.sort((txA, txB) => txB.timestamp - txA.timestamp)
+
+  return rv
+}
+
 async function _getTxHistoryByAccount ({
   account,
   accountTxHistory
@@ -660,28 +830,28 @@ async function _getTxHistoryByAccount ({
     ? accountTxHistory
     : {
         updated: null,
-        history: []
+        confirmedTxs: [],
+        pendingTxs: []
       }
 
   // do not update if MIN_UPDATE_INTERVAL has not passed
   if (accountTxHistory.updated + MIN_UPDATE_INTERVAL >= moment().unix())
     return { account, accountTxHistory }
 
-  let rv = {}
-
   let txs: Array<Object> = []
 
   // gather recent txs using third-party APIs
   // tx always have property hash regardless of cryptoType
   txs = await getRecentTxs(account)
+  const confirmedTxs = txs
 
   // limit the numnber of txs to MAX_TXS
   txs = txs.slice(0, MAX_TXS)
 
   // create a dict with key of txHash for existing tx history
   let historyDict = {}
-  if (accountTxHistory.history) {
-    accountTxHistory.history.map(tx => (historyDict[tx.txHash] = tx))
+  if (accountTxHistory.confirmedTxs) {
+    accountTxHistory.confirmedTxs.map(tx => (historyDict[tx.txHash] = tx))
   }
 
   // filter out tx whose corresponding transferData or standaloneTx already
@@ -722,35 +892,7 @@ async function _getTxHistoryByAccount ({
 
   // handle matched txHash list
   // fill in txs with transferData
-  for (let transferData of transferDataList) {
-    let idx
-    let { sendTxHash, receiveTxHash, cancelTxHash } = transferData
-    let transferType: string
-    let timestamp
-    // exactly one of [sendTxHash | receiveTxHash | cancelTxHash] matches txHash
-    if (sendTxHash && sendTxHash in txHash2Idx) {
-      idx = txHash2Idx[sendTxHash]
-      transferType = 'SENDER'
-      timestamp = transferData.senderToChainsfer.txTimestamp
-    } else if (receiveTxHash && receiveTxHash in txHash2Idx) {
-      idx = txHash2Idx[receiveTxHash]
-      transferType = 'RECEIVER'
-      timestamp = transferData.chainsferToReceiver.txTimestamp
-    } else if (cancelTxHash && cancelTxHash in txHash2Idx) {
-      idx = txHash2Idx[cancelTxHash]
-      transferType = 'SENDER'
-      timestamp = transferData.chainsferToSender.txTimestamp
-    } else {
-      console.log(sendTxHash, txHash2Idx[sendTxHash])
-      // this should not happen
-      throw new Error('transferData does not have matched txHash')
-    }
-
-    // fill in data
-    transferData = unmarshalAccount(transferData)
-    rv[txs[idx].hash] = { timestamp }
-    rv[txs[idx].hash].transferData = { ...transferData, transferType }
-  }
+  let rv = await TransferData2TxHistory(transferDataList, txHash2Idx)
 
   // deal with unmatched txs
   if (getCryptoPlatformType(account.cryptoType) === 'bitcoin') {
@@ -854,7 +996,7 @@ async function _getTxHistoryByAccount ({
   //
   // convert results from dict to list
   rv = Object.entries(rv).map(([txHash, value]) => {
-    //$FlowFixMe
+    // $FlowFixMe
     return {
       txHash,
       ...value
@@ -863,15 +1005,17 @@ async function _getTxHistoryByAccount ({
 
   // add results to the existing accountTxHistory.history
   accountTxHistory.updated = moment().unix()
-  accountTxHistory.history = accountTxHistory.history.concat(rv)
+  accountTxHistory.confirmedTxs = accountTxHistory.confirmedTxs.concat(rv)
 
   // re-sort accountTxHistory by timestamp in non-increasing order
-  accountTxHistory.history = accountTxHistory.history.sort(
+  accountTxHistory.confirmedTxs = accountTxHistory.confirmedTxs.sort(
     (txA, txB) => txB.timestamp - txA.timestamp
   )
 
-  // TODO: update existing tx  confirmations
+  // gather pending txs
+  accountTxHistory.pendingTxs = await getPendingTxHistoryByAccount(account, confirmedTxs)
 
+  // TODO: update existing tx  confirmations
   return { account, accountTxHistory }
 }
 
@@ -959,7 +1103,7 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
             // direct transfer only applies to sender
             transferType = 'SENDER'
           } else {
-            password = Base64.decode(transfersDict[item.transferId].password)
+            //password = Base64.decode(transfersDict[item.transferId].password)
             transferType = 'SENDER'
           }
         } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {
@@ -1044,6 +1188,7 @@ function acceptTransfer (txRequest: {
 }
 
 function cancelTransfer (txRequest: {
+  senderAccount: AccountData,
   escrowAccount: AccountData,
   transferId: string,
   sendTxHash: TxHash,
