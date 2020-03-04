@@ -37,7 +37,7 @@ const toUserReadableState = {
     SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Pending',
     SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
     SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
-    SEND_CONFIRMED_CANCEL_Failure: 'Cancel Failed'
+    SEND_CONFIRMED_CANCEL_FAILURE: 'Cancel Failed'
   },
   RECEIVER: {
     SEND_CONFIRMED_RECEIVE_PENDING: 'Receiving',

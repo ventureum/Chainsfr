@@ -1103,7 +1103,9 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
             // direct transfer only applies to sender
             transferType = 'SENDER'
           } else {
-            //password = Base64.decode(transfersDict[item.transferId].password)
+            if (transfersDict[item.transferId].password) {
+              password = Base64.decode(transfersDict[item.transferId].password)
+            }
             transferType = 'SENDER'
           }
         } else if (item.receivingId && receivingIdsSet.has(item.receivingId)) {

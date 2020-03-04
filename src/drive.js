@@ -407,7 +407,10 @@ async function saveHistoryFile (transferData: TransferData) {
   let id = transferData.transferId ? transferData.transferId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
-    transfers[id] = transferData
+    transfers[id] = {
+      ...transfers[id],
+      ...transferData
+    }
   } else {
     transfers = {
       [id]: transferData

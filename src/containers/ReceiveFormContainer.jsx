@@ -18,13 +18,7 @@ import path from '../Paths.js'
 import { accountStatus } from '../types/account.flow'
 class ReceiveFormContainer extends Component {
   componentDidUpdate (prevProps) {
-    const {
-      actionsPending,
-      error,
-      syncWithNetwork,
-      escrowAccount,
-      transfer
-    } = this.props
+    const { actionsPending, error, syncWithNetwork, escrowAccount, transfer } = this.props
     const prevActionPending = prevProps.actionsPending
 
     if (
@@ -126,7 +120,7 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
     ),
     txFee: state.transferReducer.txFee,
     escrowAccount: state.accountReducer.escrowAccount,
