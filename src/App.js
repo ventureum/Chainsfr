@@ -229,6 +229,7 @@ class App extends Component {
                   component={userIsAuthenticated(WalletContainer)}
                 />
                 <DefaultLayout
+                  isolate
                   path={`${paths.directTransfer}`}
                   component={userIsAuthenticated(DirectTransferContainer)}
                 />
