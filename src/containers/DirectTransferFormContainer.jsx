@@ -9,7 +9,7 @@ import { getTxFee } from '../actions/transferActions.js'
 import { push } from 'connected-react-router'
 import update from 'immutability-helper'
 import { updateTransferForm } from '../actions/formActions'
-import { useActionTracker } from '../hooksUtils'
+import { useActionTracker, usePrevious } from '../hooksUtils'
 import utils from '../utils'
 import path from '../Paths.js'
 type Props = {
@@ -37,29 +37,25 @@ export default function DirectTransferFormContainer (props: Props) {
 
   const sendAccountSelection = useSelector(state =>
     state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, state.formReducer.transferForm.accountId)
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
     )
   )
 
   const receiveAccountSelection = useSelector(state =>
     state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, state.formReducer.transferForm.receiveAccountId)
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.receiveAccountId })
     )
   )
+
+  const prevIsSendingFromDriveWallet = usePrevious(isSendingFromDriveWallet)
 
   const validateForm = transferForm => {
     // form must be filled without errors
     return (
       // send account
       !!transferForm.accountId &&
-      !!transferForm.accountId.cryptoType &&
-      !!transferForm.accountId.walletType &&
-      (!!transferForm.accountId.address || !!transferForm.accountId.xpub) &&
       // receive account
       !!transferForm.receiveAccountId &&
-      !!transferForm.receiveAccountId.cryptoType &&
-      !!transferForm.receiveAccountId.walletType &&
-      (!!transferForm.receiveAccountId.address || !!transferForm.receiveAccountId.xpub) &&
       // other info
       !!transferForm.senderName &&
       !!transferForm.sender &&
@@ -104,28 +100,12 @@ export default function DirectTransferFormContainer (props: Props) {
   useEffect(() => {
     let selectedCryptoType
     let accountIdType
-    if (isSendingFromDriveWallet) {
-      if (receiveAccountId) {
-        // receive account is selected
-        // use receive account cryptoType to select drive account
-        selectedCryptoType = receiveAccountId.cryptoType
-        accountIdType = 'accountId'
-      }
-    } else {
-      if (accountId) {
-        // send account is selected
-        // use send account cryptoType to select drive account
-        selectedCryptoType = accountId.cryptoType
-        accountIdType = 'receiveAccountId'
-      }
-    }
-    if (selectedCryptoType && accountIdType) {
-      const driveAccount = cryptoAccounts.find(
-        account => account.walletType === 'drive' && account.cryptoType === selectedCryptoType
-      )
+    if (prevIsSendingFromDriveWallet && prevIsSendingFromDriveWallet !== isSendingFromDriveWallet) {
+      // swap sendAccount and receiveAccount
       updateForm({
         // $FlowFixMe
-        [accountIdType]: { $set: driveAccount },
+        accountId: { $set: receiveAccountId },
+        receiveAccountId: { $set: accountId },
         // clear amount field after every account
         transferAmount: { $set: '' },
         transferCurrencyAmount: { $set: '' },
@@ -135,6 +115,39 @@ export default function DirectTransferFormContainer (props: Props) {
           }
         }
       })
+    } else {
+      if (isSendingFromDriveWallet) {
+        if (receiveAccountSelection) {
+          // receive account is selected
+          // use receive account cryptoType to select drive account
+          selectedCryptoType = receiveAccountSelection.cryptoType
+          accountIdType = 'accountId'
+        }
+      } else {
+        if (sendAccountSelection) {
+          // send account is selected
+          // use send account cryptoType to select drive account
+          selectedCryptoType = sendAccountSelection.cryptoType
+          accountIdType = 'receiveAccountId'
+        }
+      }
+      if (selectedCryptoType && accountIdType) {
+        const driveAccount = cryptoAccounts.find(
+          account => account.walletType === 'drive' && account.cryptoType === selectedCryptoType
+        )
+        updateForm({
+          // $FlowFixMe
+          [accountIdType]: { $set: driveAccount.id },
+          // clear amount field after every account
+          transferAmount: { $set: '' },
+          transferCurrencyAmount: { $set: '' },
+          formError: {
+            transferAmount: {
+              $set: null
+            }
+          }
+        })
+      }
     }
   }, [isSendingFromDriveWallet, receiveAccountId, accountId, cryptoAccounts])
 
@@ -165,7 +178,9 @@ export default function DirectTransferFormContainer (props: Props) {
         <TransferFormComponents.AccountDropdown
           inputLabel={isSendingFromDriveWallet ? 'To' : 'From'}
           purpose={isSendingFromDriveWallet ? 'receive' : 'send'}
-          accountId={receiveAccountSelection}
+          accountSelection={
+            isSendingFromDriveWallet ? receiveAccountSelection : sendAccountSelection
+          }
           filterCriteria={nonDriveAccountsFilter}
           // force use receiveAccountId instead of accountId
           updateForm={content =>

@@ -13,6 +13,7 @@ type Props = {
   getTxFee: Function,
   transferForm: Object,
   accountSelection: AccountData,
+  receiveAccountSelection: AccountData,
   wallet: Object,
   txFee: Object,
   cryptoPrice: Object,
@@ -58,7 +59,11 @@ const mapStateToProps = state => {
     userProfile: state.userReducer.profile.profileObj,
     transferForm: state.formReducer.transferForm,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, {id: state.formReducer.transferForm.accountId})
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
+    ),
+    // for direct transfer
+    receiveAccountSelection: state.accountReducer.cryptoAccounts.find(_account =>
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.receiveAccountId })
     ),
     txFee: state.transferReducer.txFee,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
