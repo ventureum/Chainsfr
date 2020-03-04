@@ -165,10 +165,11 @@ function WalletComponent (props: {
               <img src={SwapVertIcon} alt='swap icon' style={{ color: '#A8A8A8' }} />
             </Icon>
           )
-          title =
-            transferData.transferType === 'SENDER'
-              ? transferData.destinationAccount.getAccountData().name
-              : transferData.senderAccount.getAccountData()
+          transferIn = transferData.destinationAccount.walletType === 'drive'
+          title = !transferIn
+            ? transferData.destinationAccount.name
+            : transferData.senderAccount.name
+          receiptLink = `${path.receipt}?transferId=${transferData.transferId}`
         } else if (transferData.transferMethod === 'EMAIL_TRANSFER') {
           // 2. email transfer
           transferTypeIcon = <EmailIcon style={{ color: '#A8A8A8' }} />
@@ -176,15 +177,15 @@ function WalletComponent (props: {
             transferData.transferType === 'SENDER'
               ? transferData.receiverName
               : transferData.senderName
+          transferIn = transferData.transferType === 'RECEIVER'
+          receiptLink = transferIn
+            ? `${path.receipt}?receivingId=${transferData.receivingId}`
+            : `${path.receipt}?transferId=${transferData.transferId}`
         }
 
         transferAmount = transferData.transferAmount
         transferFiatAmount = transferData.transferFiatAmountSpot
-        transferIn = transferData.transferType === 'RECEIVER'
         receiptIcon = <ReceiptIcon color='primary' />
-        receiptLink = transferIn
-          ? `${path.receipt}?receivingId=${transferData.receivingId}`
-          : `${path.receipt}?transferId=${transferData.transferId}`
       }
     }
 

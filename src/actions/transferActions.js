@@ -681,7 +681,13 @@ async function TransferData2TxHistory (transferDataList, txHashDict) {
     // exactly one of [sendTxHash | receiveTxHash | cancelTxHash] matches txHash
     if (sendTxHash && sendTxHash in txHashDict) {
       transferType = 'SENDER'
-      timestamp = transferData.senderToChainsfer.txTimestamp
+      if (transferData.senderToChainsfer) {
+        // email transfer
+        timestamp = transferData.senderToChainsfer.txTimestamp
+      } else if (transferData.senderToReceiver) {
+        // direct transfrer
+        timestamp = transferData.senderToReceiver.txTimestamp
+      }
       hash = sendTxHash
     } else if (receiveTxHash && receiveTxHash in txHashDict) {
       transferType = 'RECEIVER'
