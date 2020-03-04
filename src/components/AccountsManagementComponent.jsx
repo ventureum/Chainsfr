@@ -358,7 +358,7 @@ class AccountsManagementComponent extends Component {
                   account.assets.map((asset, i) => {
                     const isLast = account.assets.length - 1 === i
                     return (
-                      <TableRow>
+                      <TableRow key={'expended-'+i}>
                         <TableCell
                           padding='none'
                           className={isLast ? undefined : classes.noBottomBrd}
@@ -415,6 +415,7 @@ class AccountsManagementComponent extends Component {
             <React.Fragment key={'narrow' + i}>
               <Divider />
               <ListItem
+                key={i}
                 button
                 onClick={() => {
                   this.expandRow(account)

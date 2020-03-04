@@ -16,6 +16,7 @@ type Props = {
   classes: Object,
   transferForm: Object,
   accountSelection: AccountData,
+  receiveAccountSelection: AccountData,
   wallet: Object,
   txFee: Object,
   currencyAmount: Object,
@@ -35,6 +36,7 @@ class ReviewComponent extends Component<Props> {
       classes,
       transferForm,
       accountSelection,
+      receiveAccountSelection,
       actionsPending,
       txFee,
       currencyAmount,
@@ -42,7 +44,7 @@ class ReviewComponent extends Component<Props> {
       userProfile,
       directTransfer
     } = this.props
-    const { transferAmount, password, sendMessage, receiveAccountId } = transferForm
+    const { transferAmount, password, sendMessage } = transferForm
     const { cryptoType } = accountSelection
 
     return (
@@ -63,7 +65,7 @@ class ReviewComponent extends Component<Props> {
                       }
                     : null
                 }
-                account={directTransfer ? receiveAccountId : null}
+                account={directTransfer ? receiveAccountSelection : null}
               />
             </Grid>
             <Grid item>

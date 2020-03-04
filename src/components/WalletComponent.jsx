@@ -291,10 +291,12 @@ function WalletComponent (props: {
             </Grid>
           )
         }
-        threshold={50}
+        threshold={10}
         pageStart={0}
         useWindow={false}
         initialLoad={false}
+        loadMore={() => null}
+        hasMore={false}
       >
         {!actionsPending.getTxHistoryByAccount &&
           txHistory &&
@@ -467,7 +469,7 @@ function WalletComponent (props: {
     }
 
     return (
-      <>
+      <React.Fragment key={idx}>
         {/* align content center vertically */}
         <Box
           display='flex'
@@ -547,7 +549,7 @@ function WalletComponent (props: {
         <Grid item>
           <Divider />
         </Grid>
-      </>
+      </React.Fragment>
     )
   }
 

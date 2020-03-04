@@ -234,10 +234,10 @@ const mapStateToProps = state => {
     setTokenAllowanceTxHash: state.transferReducer.setTokenAllowanceTxHash,
     transferForm: state.formReducer.transferForm,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account => {
-      return utils.accountsEqual(_account, {id: state.formReducer.transferForm.accountId})
+      return utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
     }),
     receiveAccountSelection: state.accountReducer.cryptoAccounts.find(_account => {
-      return utils.accountsEqual(_account, state.formReducer.transferForm.receiveAccountId)
+      return utils.accountsEqual(_account, { id: state.formReducer.transferForm.receiveAccountId })
     }),
     actionsPending: {
       submitTx: submitTxSelector(state),
