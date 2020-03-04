@@ -6,11 +6,11 @@ import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
-import MuiLink from '@material-ui/core/Link'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import TextField from '@material-ui/core/TextField'
 import Divider from '@material-ui/core/Divider'
-import url from '../url'
+import * as TransferInfoCommon from './TransferInfoCommon'
+import numeral from 'numeral'
 
 class CancelReviewComponent extends Component {
   state = {
@@ -136,6 +136,7 @@ class CancelReviewComponent extends Component {
 
     if (transfer) {
       var {
+        senderAccount,
         transferId,
         transferAmount,
         receiveTxHash,
@@ -145,8 +146,7 @@ class CancelReviewComponent extends Component {
         destination,
         receiverName,
         cryptoType,
-        sendMessage,
-        cancelMessage
+        sendMessage
       } = transfer
       var hasReceived = !!receiveTxHash
       var hasCancelled = !!cancelTxHash
@@ -183,36 +183,28 @@ class CancelReviewComponent extends Component {
                 {hasCancelled && 'Transfer has already been cancelled'}
                 {!hasReceived && !hasCancelled && 'Transfer details'}
               </Typography>
-
-              <Typography variant='caption' align='left'>
-                {`Transfer ID: ${transferId}`}
-              </Typography>
             </Grid>
             <Grid item>
-              <Grid container direction='row' align='center' spacing={1}>
-                <Grid item xs={6}>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Typography variant='caption'>From</Typography>
-                    <Typography variant='body2' id='senderName'>
-                      {senderName}
-                    </Typography>
-                    <Typography variant='caption' id='sender'>
-                      {sender}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={6}>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Typography variant='caption'>To</Typography>
-                    <Typography variant='body2' id='receiverName'>
-                      {receiverName}
-                    </Typography>
-                    <Typography variant='caption' id='destination'>
-                      {destination}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <TransferInfoCommon.FromAndToSection
+                directionLabel='To'
+                user={{
+                  name: senderName,
+                  email: sender
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              <TransferInfoCommon.FromAndToSection
+                directionLabel='From'
+                user={{
+                  name: receiverName,
+                  email: destination
+                }}
+                account={senderAccount}
+              />
             </Grid>
             <Grid item>
               <Divider />
@@ -246,7 +238,7 @@ class CancelReviewComponent extends Component {
                   {!actionsPending.getTxFee && txFee ? (
                     <Grid container direction='row' alignItems='center'>
                       <Typography variant='body2'>
-                        {`${txFee.costInStandardUnit} ${getCryptoSymbol(
+                        {`${numeral(txFee.costInStandardUnit).format('0.000000')} ${getCryptoSymbol(
                           getTxFeesCryptoType(cryptoType)
                         )}`}
                       </Typography>
@@ -274,7 +266,9 @@ class CancelReviewComponent extends Component {
                       {receiveAmount ? (
                         <Grid container direction='row' alignItems='center'>
                           <Typography variant='body2'>
-                            {`${receiveAmount} ${getCryptoSymbol(cryptoType)}`}
+                            {`${numeral(receiveAmount).format('0.000000')} ${getCryptoSymbol(
+                              cryptoType
+                            )}`}
                           </Typography>
                           <Typography style={{ marginLeft: '10px' }} variant='caption'>
                             ( ≈ {toCurrencyAmount(receiveAmount)})
@@ -288,21 +282,6 @@ class CancelReviewComponent extends Component {
                 </Grid>
               </>
             )}
-            <Grid item>
-              <Divider />
-            </Grid>
-            <Grid item>
-              <Grid container direction='column' alignItems='flex-start'>
-                <Grid item>
-                  <Typography variant='caption'>Sent on</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant='body2' id='sendTime'>
-                    {sendTime}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
             {!hasReceived && !hasCancelled && sendMessage && sendMessage.length > 0 && (
               <>
                 <Grid item>
@@ -318,64 +297,31 @@ class CancelReviewComponent extends Component {
                 </Grid>
               </>
             )}
-            {(hasCancelled || hasReceived) && (
-              <>
-                <Grid item>
-                  <Divider />
-                </Grid>
-                <Grid item>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Grid item>
-                      <Typography variant='caption'>
-                        {hasCancelled && 'Cancelled on'}
-                        {hasReceived && 'Received on'}
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography variant='body2' id='actionTime'>
-                        {hasCancelled && cancelTime}
-                        {hasReceived && receiveTime}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </>
-            )}
-            {hasCancelled && cancelMessage && cancelMessage.length > 0 && (
-              <>
-                <Grid item>
-                  <Divider />
-                </Grid>
-                <Grid item>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Grid item>
-                      <Typography variant='caption'>Cancellation Reason</Typography>
-                      <Typography variant='body2'>{cancelMessage}</Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </>
-            )}
-
             <Grid item>
               <Divider />
             </Grid>
-            {(hasCancelled || hasReceived) && (
-              <Grid item>
-                <Typography variant='caption' align='left'>
-                  <MuiLink
-                    target='_blank'
-                    rel='noopener'
-                    href={url.getExplorerTx(
-                      cryptoType,
-                      hasCancelled ? cancelTxHash : receiveTxHash
-                    )}
-                  >
-                    Check {hasCancelled ? 'cancellation' : 'receive'} transaction on Etherscan
-                  </MuiLink>
-                </Typography>
+            <Grid item>
+              <Grid container direction='column' spacing={1}>
+                {sendTime && (
+                  <Grid item>
+                    <Typography variant='caption'>Sent on {sendTime}</Typography>
+                  </Grid>
+                )}
+                {receiveTime && (
+                  <Grid item>
+                    <Typography variant='caption'>Received on {receiveTime}</Typography>
+                  </Grid>
+                )}
+                {cancelTime && (
+                  <Grid item>
+                    <Typography variant='caption'>Cancelled on {cancelTime}</Typography>
+                  </Grid>
+                )}
+                <Grid item>
+                  <Typography variant='caption'>Transfer ID: {transferId}</Typography>
+                </Grid>
               </Grid>
-            )}
+            </Grid>
           </Grid>
         </Grid>
         {!hasReceived && !hasCancelled && (
