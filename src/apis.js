@@ -522,11 +522,13 @@ async function getUserRegisterTime () {
   }
 }
 
-async function lookupTxHash (txHashes: Array<string>): Promise<Array<{
-  txHash: string,
-  transferId: string,
-  receivingId: string
-}>> {
+async function lookupTxHash (
+  txHashes: Array<string>
+): Promise<Array<{
+    txHash: string,
+    transferId: string,
+    receivingId: string
+  }>> {
   try {
     let rv = await chainsferApi.post('/transfer', {
       action: 'LOOKUP_TX_HASHES',
