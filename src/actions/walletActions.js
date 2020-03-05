@@ -43,8 +43,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
             ethereumBasedAccountData = JSON.parse(JSON.stringify(accountData))
           }
         }
-
-        await account.encryptAccount(password)
+        // await account.encryptAccount(password)
         if (accountData.cryptoType === 'bitcoin') {
           walletFileData[accountData.hdWalletVariables.xpub] = accountData
         } else {

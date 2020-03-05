@@ -17,7 +17,7 @@ const initState = {
 
 export default function (state = initState, action) {
   switch (action.type) {
-    case 'LOGIN':
+    case 'ON_GOOGLE_LOGIN_RETURN':
       return {
         ...state,
         profile: {
@@ -39,6 +39,7 @@ export default function (state = initState, action) {
       return initState
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
+    case 'POST_LOGIN_PREPARATION_FULFILLED':
       return {
         ...state,
         cloudWalletConnected: true

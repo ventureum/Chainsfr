@@ -1,0 +1,29 @@
+.waveDivBox {
+  align-items: center;
+  border: 5px solid #393386;
+  display: flex;
+  height: 60px;
+  margin: 0 auto;
+  width: 60px;
+}
+
+.waveSvg { 
+  margin: 0 auto; 
+  overflow: hidden;
+}
+
+#wave {
+  stroke-dasharray: 0 16 101 16;
+  animation: moveTheWave 2400ms linear infinite;
+}
+
+@keyframes moveTheWave {
+  0% { 
+    stroke-dashoffset: 0; 
+    transform: translate3d(0, 0, 0);
+  }
+  100% { 
+    stroke-dashoffset: -133;
+    transform: translate3d(-90px, 0, 0);
+  }
+}

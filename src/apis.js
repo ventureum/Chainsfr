@@ -236,7 +236,7 @@ async function removeRecipient (request: { idToken: string, recipient: Recipient
   }
 }
 
-async function register (idToken: string, userProfile: UserProfile) {
+async function register (idToken: string, userProfile: UserProfile): Promise<any> {
   const { email, ...otherInfo } = userProfile
   if (!idToken || !email) throw new Error('Invalid user to register')
   try {
