@@ -248,13 +248,20 @@ class AddAccountModalComponent extends Component<Props, State> {
           instruction = 'Please scan the QR code with MetaMask Mobile app...'
         }
         break
+      case 'coinbaseOAuthWallet':
+        if (actionsPending.checkWalletConnection) {
+          instruction = 'Fetching your account...'
+        } else {
+          instruction = 'Waiting for authorization...\nMake sure the login pop-up window is not blocked by the browser.'
+        }
+        break
       default:
         instruction = 'Please wait...'
     }
 
     return (
       <Box style={{ width: '100%' }}>
-        <Typography variant='body2'>{instruction}</Typography>
+        <Typography variant='body2' style={{whiteSpace: 'pre-line'}}>{instruction}</Typography>
         <LinearProgress style={{ marginTop: '10px' }} />
       </Box>
     )
@@ -475,7 +482,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             variant='contained'
             color='primary'
             // name cannot be empty
-            disabled={step !== 2 && name.length > 0}
+            disabled={step !== 2 || name.length === 0}
             onClick={() => {
               onSubmit(newCryptoAccounts, name)
             }}
