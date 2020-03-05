@@ -482,7 +482,7 @@ class AddAccountModalComponent extends Component<Props, State> {
             variant='contained'
             color='primary'
             // name cannot be empty
-            disabled={step !== 2 && name.length > 0}
+            disabled={step !== 2 || name.length === 0}
             onClick={() => {
               onSubmit(newCryptoAccounts, name)
             }}
