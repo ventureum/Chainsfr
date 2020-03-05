@@ -46,11 +46,13 @@ async function _createCloudWallet (password: string, progress: ?Function) {
         }
 
         if (accountData.cryptoType === 'bitcoin') {
-          walletFileData[accountData.hdWalletVariables.xpub] = {...account.getAccountData()}
+          walletFileData[accountData.hdWalletVariables.xpub] = JSON.parse(
+            JSON.stringify(account.getAccountData())
+          )
           await account.encryptAccount(password)
           encryptedWalletFileData[accountData.hdWalletVariables.xpub] = account.getAccountData()
         } else {
-          walletFileData[accountData.address] = {...account.getAccountData()}
+          walletFileData[accountData.address] = JSON.parse(JSON.stringify(account.getAccountData()))
           await account.encryptAccount(password)
           encryptedWalletFileData[accountData.address] = account.getAccountData()
         }

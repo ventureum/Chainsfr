@@ -42,7 +42,6 @@ type Props = {
 }
 
 type State = {
-  password: string,
   tokenAllowanceAmount: string,
   minTokenAllowanceAmount: string,
   tokenAllowanceError: ?string
@@ -50,7 +49,6 @@ type State = {
 
 class WalletAuthorizationComponent extends Component<Props, State> {
   state = {
-    password: '',
     tokenAllowanceAmount: '0',
     minTokenAllowanceAmount: '0',
     tokenAllowanceError: null
@@ -118,46 +116,22 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderDriveConnectSteps = () => {
-    const { checkWalletConnection, actionsPending, errors, online } = this.props
-    const { password } = this.state
+    const { checkWalletConnection, actionsPending, online } = this.props
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <Typography variant='body1'>Unlock Drive Wallet</Typography>
-        </Grid>
-        <Grid item>
-          <form noValidate autoComplete='drive-wallet-independent-password-form'>
-            <TextField
-              id='drive-wallet-independent-password'
-              autoComplete='drive-wallet-independent-password'
-              variant='outlined'
-              fullWidth
-              error={!!errors.checkWalletConnection}
-              type={'password'}
-              label='Password'
-              value={password}
-              onChange={this.handleChange('password')}
-              helperText={errors.checkWalletConnection ? 'Incorrect password' : ''}
-              onKeyPress={ev => {
-                if (ev.key === 'Enter') {
-                  this.setState({ password: '' })
-                  checkWalletConnection({ password })
-                  ev.preventDefault()
-                }
-              }}
-            />
-          </form>
+          <Typography variant='body1'>Connect Drive Wallet</Typography>
         </Grid>
         <Grid item>
           <Button
             disabled={actionsPending.submitTx || !online}
             onClick={() => {
-              checkWalletConnection({ password })
+              checkWalletConnection()
             }}
             color='primary'
           >
             <LockOpenIcon />
-            Unlock
+            Connect
           </Button>
         </Grid>
       </Grid>
@@ -379,7 +353,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         break
       case 'drive':
         if (actionsPending.checkWalletConnection) {
-          instruction = 'Checking password...'
+          instruction = 'Loading Chainfr wallet...'
         } else if (actionsPending.verifyAccount) {
           instruction = 'Verifying account...'
         }
