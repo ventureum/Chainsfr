@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
 import { withStyles } from '@material-ui/core/styles'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import GoogleLoginButton from './GoogleLoginButton'
 import ChainsfrLogo from '../images/chainsfr_logo.svg'
 import ChainsfrLogoWhite from '../images/chainsfr_logo_white.svg'
@@ -67,7 +66,7 @@ const data = {
 
 class LoginComponent extends Component {
   loginSuccess = async response => {
-    this.props.onLogin(response)
+    this.props.onGoogleLoginReturn(response)
   }
 
   loginFailure = async response => {
@@ -75,19 +74,10 @@ class LoginComponent extends Component {
   }
 
   renderLoginBtn = () => {
-    const { classes, actionsPending } = this.props
+    const { classes } = this.props
     return (
       <Grid className={classes.btnContainer}>
-        <GoogleLoginButton
-          onSuccess={this.loginSuccess}
-          onFailure={this.loginFailure}
-          disabled={
-            actionsPending.getTransfer || actionsPending.getCloudWallet || actionsPending.register
-          }
-        />
-        {(actionsPending.getCloudWallet || actionsPending.register) && (
-          <CircularProgress size={24} color='primary' className={classes.buttonProgress} />
-        )}
+        <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
       </Grid>
     )
   }
@@ -159,7 +149,7 @@ class LoginComponent extends Component {
   }
 
   render () {
-    let { classes, renderReceiveLogin, renderReceiptLogin, actionsPending, isMainNet } = this.props
+    let { classes, renderReceiveLogin, renderReceiptLogin, isMainNet } = this.props
 
     const envSuffix = isMainNet ? 'MainNet' : 'TestNet'
 
@@ -260,15 +250,7 @@ class LoginComponent extends Component {
                     <GoogleLoginButton
                       onSuccess={this.loginSuccess}
                       onFailure={this.loginFailure}
-                      disabled={actionsPending.getCloudWallet || actionsPending.register}
                     />
-                    {(actionsPending.getCloudWallet || actionsPending.register) && (
-                      <CircularProgress
-                        size={24}
-                        color='primary'
-                        className={classes.buttonProgress}
-                      />
-                    )}
                   </Grid>
                 </Grid>
                 <Grid item container className={classes.paperFooter} justify='center'>
@@ -364,7 +346,7 @@ const styles = theme => ({
     display: 'flex',
     maxHeight: 40,
     position: 'relative',
-    justifyContent:'center'
+    justifyContent: 'center'
   },
   leftContainer: {
     padding: 30,

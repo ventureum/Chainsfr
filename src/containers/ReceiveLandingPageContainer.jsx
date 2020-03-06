@@ -6,7 +6,7 @@ import ReceiveLandingPageComponent from '../components/ReceiveLandingPageCompone
 import { getTransfer } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { onLogin } from '../actions/userActions'
+import { onGoogleLoginReturn } from '../actions/userActions'
 import moment from 'moment'
 import utils from '../utils'
 
@@ -50,7 +50,7 @@ const errorSelector = createErrorSelector(['GET_TRANSFER'])
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: loginData => dispatch(onLogin(loginData)),
+    onGoogleLoginReturn: loginData => dispatch(onGoogleLoginReturn(loginData)),
     getTransfer: id => dispatch(getTransfer(null, id)),
     goToStep: n => dispatch(goToStep('receive', n))
   }

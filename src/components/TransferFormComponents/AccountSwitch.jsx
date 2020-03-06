@@ -5,16 +5,18 @@ import ToggleButton from '@material-ui/lab/ToggleButton'
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
 import { makeStyles } from '@material-ui/core/styles'
 
-export default function AccountSwitch (props: {
-  transferOut: boolean,
-  onChange: Function
-}) {
+export default function AccountSwitch (props: { transferOut: boolean, onChange: Function }) {
   const { transferOut, onChange } = props
   const classes = useStyles()
 
   return (
     <Box mb={4} display='flex' flexDirection='row' justifyContent='center' alignItems='center'>
-      <ToggleButtonGroup value={transferOut} exclusive aria-label='text alignment'>
+      <ToggleButtonGroup
+        value={transferOut}
+        exclusive
+        aria-label='text alignment'
+        classes={{ grouped: classes.grouped }}
+      >
         <ToggleButton
           value={false}
           onClick={() => onChange(false)}
@@ -47,6 +49,7 @@ export default function AccountSwitch (props: {
 const useStyles = makeStyles(theme => {
   return {
     toggleBtn: {
+      width: '105px',
       backgroundColor: 'white',
       color: theme.palette.primary.main,
       border: `1px solid ${theme.palette.primary.main}`,
@@ -59,6 +62,11 @@ const useStyles = makeStyles(theme => {
         backgroundColor: theme.palette.primary.main,
         color: 'white',
         border: `1px solid ${theme.palette.primary.main}`
+      }
+    },
+    grouped: {
+      '&:not(:first-child)': {
+        borderLeft: `1px solid ${theme.palette.primary.main}`
       }
     }
   }

@@ -180,26 +180,20 @@ export default class DriveWallet implements IWallet<AccountData> {
         throw new Error(driveErrors.walletNotExist)
       }
       let accountDataList = JSON.parse(Base64.decode(walletFile.accounts))
-
-      let encryptedPrivateKey
+      let privateKey
       if (
         accountData.cryptoType === 'bitcoin' &&
         accountDataList[accountData.hdWalletVariables.xpub]
       ) {
-        encryptedPrivateKey =
-          accountDataList[accountData.hdWalletVariables.xpub].encryptedPrivateKey
+        const xpub = accountData.hdWalletVariables.xpub
+        privateKey = accountDataList[xpub].privateKey
+        accountData.hdWalletVariables.xpriv = accountDataList[xpub].hdWalletVariables.xpriv
       } else if (accountDataList[accountData.address]) {
-        encryptedPrivateKey = accountDataList[accountData.address].encryptedPrivateKey
+        privateKey = accountDataList[accountData.address].privateKey
       }
-      if (!encryptedPrivateKey) throw new Error(driveErrors.accountNotExist)
+      if (!privateKey) throw new Error(driveErrors.accountNotExist)
 
-      accountData.encryptedPrivateKey = encryptedPrivateKey
-
-      if (additionalInfo && additionalInfo.password && accountData.encryptedPrivateKey) {
-        await account.decryptAccount(additionalInfo.password)
-        return true
-      }
-      return false
+      accountData.privateKey = privateKey
     }
     return true
   }
@@ -266,7 +260,12 @@ export default class DriveWallet implements IWallet<AccountData> {
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address
-        txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
+        txObj = await WalletUtils.getDirectTransferTxObj(
+          accountData.address,
+          to,
+          value,
+          accountData.cryptoType
+        )
       } else {
         // transfer to escrow wallet
         let { multisig } = options

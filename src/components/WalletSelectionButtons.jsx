@@ -14,7 +14,7 @@ const basicWalletStyle = {
   flexDirection: 'column',
   alignItems: 'center',
   height: '100px',
-  justifyContent:'center'
+  justifyContent: 'center'
 }
 
 const useStyles = makeStyles({
@@ -28,7 +28,11 @@ const useStyles = makeStyles({
     border: '1px solid transparent',
     boxShadow: 'none',
     marginBottom: '10px',
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    '&:hover': {
+      backgroundColor: 'rgba(66,133,244,0.1)',
+      cursor: 'pointer'
+    }
   },
   walletCardSelected: {
     ...basicWalletStyle,

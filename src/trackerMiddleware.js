@@ -92,8 +92,7 @@ export const trackerMiddleware = store => next => action => {
         trackPage(nextPage)
       }
       break
-    case 'LOGIN':
-      // register user
+    case 'ON_GOOGLE_LOGIN_RETURN':
       currentUserId = action.payload.googleId
       const profile = action.payload.profileObj
       trackUser(currentUserId)

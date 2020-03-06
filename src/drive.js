@@ -448,7 +448,7 @@ async function backupData (rootFolderId: FileId) {
   }
 }
 
-async function saveWallet (walletDataList: any) {
+async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
   let files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
   if (files.length > 0) {
     // root folder exists
@@ -464,7 +464,7 @@ async function saveWallet (walletDataList: any) {
 
   await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
     name: WALLET_FILE_NAME,
-    content: walletDataList
+    content: encryptedWalletFileData
   })
 
   await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LoginComponent from '../components/LoginComponent'
-import OnboardingComponent from '../components/OnboardingComponent'
-import { onLogin, register } from '../actions/userActions'
+import PreloadingComponent from '../components/PreloadingComponent'
+import { onGoogleLoginReturn, postLoginPreparation } from '../actions/userActions'
 import { createCloudWallet, getCloudWallet } from '../actions/walletActions'
 import { getCryptoAccounts } from '../actions/accountActions'
 import { getTransfer } from '../actions/transferActions'
@@ -11,7 +11,6 @@ import env from '../typedEnv'
 import queryString from 'query-string'
 import utils from '../utils'
 import moment from 'moment'
-import WalletErrors from '../wallets/walletErrors'
 
 class LoginContainer extends Component {
   state = { renderReceiveLogin: false, renderReceiptLogin: false }
@@ -35,45 +34,21 @@ class LoginContainer extends Component {
     }
   }
 
-  componentDidUpdate (prevProps) {
-    let { actionsPending } = this.props
-
-    if (prevProps.actionsPending.register && !actionsPending.register) {
-      // try to fetch user's cloud wallet after registration
-      this.props.getCloudWallet()
-      // fetch user accounts after explicitly logging in
-      this.props.getCryptoAccounts()
-    }
-  }
-
-  onLogin = loginData => {
-    // this is what happens after Google login successfully
-    // store loginData into redux
-    this.props.onLogin(loginData)
-    // register user
-    this.props.register(loginData.idToken, loginData.profileObj)
+  onGoogleLoginReturn = loginData => {
+    this.props.postLoginPreparation(loginData)
   }
 
   render () {
     let {
-      profile,
       transfer,
       actionsPending,
-      createCloudWallet,
       cryptoPrice,
       currency,
-      error,
       push
     } = this.props
 
-    if (error === WalletErrors.drive.walletNotExist) {
-      return (
-        <OnboardingComponent
-          createCloudWallet={createCloudWallet}
-          profile={profile}
-          actionsPending={actionsPending}
-        />
-      )
+    if (actionsPending.postLoginPreparation) {
+      return <PreloadingComponent actionsPending={actionsPending} />
     }
 
     if (transfer) {
@@ -93,8 +68,7 @@ class LoginContainer extends Component {
 
     return (
       <LoginComponent
-        onLogin={this.onLogin}
-        actionsPending={actionsPending}
+        onGoogleLoginReturn={this.onGoogleLoginReturn}
         isMainNet={env.REACT_APP_ENV === 'prod'}
         renderReceiveLogin={this.state.renderReceiveLogin}
         renderReceiptLogin={this.state.renderReceiptLogin}
@@ -110,13 +84,13 @@ class LoginContainer extends Component {
 }
 
 const getTransferSelector = createLoadingSelector(['GET_TRANSFER'])
-const registerSelector = createLoadingSelector(['REGISTER'])
+const postLoginPreparationSelector = createLoadingSelector(['POST_LOGIN_PREPARATION'])
 const createCloudWalletSelector = createLoadingSelector(['CREATE_CLOUD_WALLET'])
 const getCloudWalletSelector = createLoadingSelector(['GET_CLOUD_WALLET'])
 const errorSelector = createErrorSelector([
   'CREATE_CLOUD_WALLET',
   'GET_CLOUD_WALLET',
-  'REGISTER',
+  'POST_LOGIN_PREPARATION',
   'GET_CRYPTO_ACCOUNTS',
   'GET_TRANSFER'
 ])
@@ -129,7 +103,7 @@ const mapStateToProps = state => {
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {
-      register: registerSelector(state),
+      postLoginPreparation: postLoginPreparationSelector(state),
       createCloudWallet: createCloudWalletSelector(state),
       getCloudWallet: getCloudWalletSelector(state),
       getTransfer: getTransferSelector(state)
@@ -140,8 +114,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: loginData => dispatch(onLogin(loginData)),
-    register: (idToken, userProfile) => dispatch(register(idToken, userProfile)),
+    onGoogleLoginReturn: loginData => dispatch(onGoogleLoginReturn(loginData)),
+    postLoginPreparation: (idToken, userProfile) =>
+      dispatch(postLoginPreparation(idToken, userProfile)),
     getCryptoAccounts: idToken => dispatch(getCryptoAccounts()),
     createCloudWallet: (password, progress) => dispatch(createCloudWallet(password, progress)),
     getCloudWallet: () => dispatch(getCloudWallet()),

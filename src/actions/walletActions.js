@@ -12,7 +12,8 @@ import { createAccount } from '../accounts/AccountFactory.js'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
-  var walletFileData = {}
+  let walletFileData = {}
+  let encryptedWalletFileData = {}
   let ethereumBasedAccountData
   if (progress) progress('CREATE')
 
@@ -44,11 +45,16 @@ async function _createCloudWallet (password: string, progress: ?Function) {
           }
         }
 
-        await account.encryptAccount(password)
         if (accountData.cryptoType === 'bitcoin') {
-          walletFileData[accountData.hdWalletVariables.xpub] = accountData
+          walletFileData[accountData.hdWalletVariables.xpub] = JSON.parse(
+            JSON.stringify(account.getAccountData())
+          )
+          await account.encryptAccount(password)
+          encryptedWalletFileData[accountData.hdWalletVariables.xpub] = account.getAccountData()
         } else {
-          walletFileData[accountData.address] = accountData
+          walletFileData[accountData.address] = JSON.parse(JSON.stringify(account.getAccountData()))
+          await account.encryptAccount(password)
+          encryptedWalletFileData[accountData.address] = account.getAccountData()
         }
 
         newAccountList.push(account.getAccountData())
@@ -60,10 +66,11 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   }
 
   walletFileData = { accounts: Base64.encode(JSON.stringify(walletFileData)) }
+  encryptedWalletFileData = { accounts: Base64.encode(JSON.stringify(encryptedWalletFileData)) }
   // save the encrypted wallet into drive
   if (progress) progress('STORE')
   // this never fails
-  await saveWallet(walletFileData)
+  await saveWallet(walletFileData, encryptedWalletFileData)
   // this never fails
   return _getCloudWallet()
 }
