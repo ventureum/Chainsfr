@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import clsx from 'clsx'
 import utils from '../../utils'
 import { usePrevious } from '../../hooksUtils'
-import { getCryptoDecimals, getCryptoSymbol } from '../../tokens'
+import { getCryptoDecimals, getCryptoSymbol, getCryptoPlatformType, isERC20 } from '../../tokens'
 import validator from 'validator'
 import BN from 'bn.js'
 import TextField from '@material-ui/core/TextField'
@@ -69,9 +69,6 @@ export default function TransferAmountTextField (props: Props) {
         max: parseFloat(accountSelection.balanceInStandardUnit)
       })
     ) {
-      if (!parseFloat(value)) {
-        return null
-      }
       if (parseFloat(value) < 0.001) {
         return 'The amount must be greater than 0.001'
       } else if (parseFloat(value) > parseFloat(accountSelection.balanceInStandardUnit)) {
@@ -82,11 +79,11 @@ export default function TransferAmountTextField (props: Props) {
     }
     if (txFee) {
       // balance check passed
-      if (['ethereum', 'dai'].includes(cryptoType)) {
+      if (getCryptoPlatformType(cryptoType) === 'ethereum') {
         // ethereum based coins
         // now check if ETH balance is sufficient for paying tx fees
         if (
-          cryptoType === 'ethereum' &&
+          !isERC20(cryptoType) &&
           new BN(balance).lt(
             new BN(txFee.costInBasicUnit).add(
               utils.toBasicTokenUnit(parseFloat(value), decimals, 8)
@@ -95,14 +92,14 @@ export default function TransferAmountTextField (props: Props) {
         ) {
           return INSUFFICIENT_FUNDS_FOR_TX_FEES
         }
-        if (cryptoType === 'dai') {
+        if (isERC20(cryptoType)) {
           let ethBalance = accountSelection.ethBalance
           if (new BN(ethBalance).lt(new BN(txFee.costInBasicUnit))) {
             return INSUFFICIENT_FUNDS_FOR_TX_FEES
           }
         }
       } else if (
-        cryptoType === 'bitcoin' &&
+        getCryptoPlatformType(cryptoType) === 'bitcoin' &&
         new BN(balance).lt(
           new BN(txFee.costInBasicUnit).add(utils.toBasicTokenUnit(parseFloat(value), decimals, 8))
         )
@@ -116,23 +113,44 @@ export default function TransferAmountTextField (props: Props) {
     let cryptoAmountVal
     let currencyAmountVal
 
-    if (cryptoAmount) {
-      cryptoAmountVal = cryptoAmount === '' ? 0.0 : parseFloat(cryptoAmount)
-      currencyAmountVal = toCurrencyAmount(cryptoAmountVal, accountSelection.cryptoType)
-    } else {
-      currencyAmountVal = currencyAmount === '' ? 0.0 : parseFloat(currencyAmount)
-      cryptoAmountVal = toCryptoAmount(currencyAmountVal, accountSelection.cryptoType)
+    if (cryptoAmount === '' || currencyAmount ==='') {
+      cryptoAmountVal = ''
+      currencyAmountVal = ''
     }
 
-    updateForm({
-      transferAmount: { $set: cryptoAmountVal.toString() },
-      transferCurrencyAmount: { $set: currencyAmountVal.toString() },
-      formError: {
+    if (cryptoAmount && !cryptoAmount.endsWith('.') && cryptoAmount !== '') {
+      // convert only for valid string
+      currencyAmountVal = toCurrencyAmount(cryptoAmount, accountSelection.cryptoType)
+      cryptoAmountVal = cryptoAmount
+    }
+
+    if (currencyAmount && !currencyAmount.endsWith('.') && currencyAmount !== '') {
+      // convert only for valid string
+      cryptoAmountVal = toCryptoAmount(currencyAmount, accountSelection.cryptoType)
+      currencyAmountVal = currencyAmount
+    }
+
+    let formContent = {}
+    
+    if (cryptoAmountVal !== null) {
+      formContent.transferAmount = { $set: cryptoAmountVal }
+    }
+
+    if (currencyAmountVal !== null) {
+      formContent.transferCurrencyAmount = { $set: currencyAmountVal }
+    }
+
+    if (cryptoAmountVal !== null) {
+      formContent.formError = {
         transferAmount: {
-          $set: validate(cryptoAmountVal.toString())
+          $set: validate(cryptoAmountVal)
         }
       }
-    })
+    }
+
+    if (formContent !== {}) {
+      updateForm(formContent)
+    }
   }
 
   useEffect(() => {
