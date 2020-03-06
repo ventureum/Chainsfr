@@ -149,12 +149,12 @@ export function UserRecentTransactions (props) {
     }
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
     } else if (transfer.state === transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm')
     } else {
       // pending receive
-      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
     }
 
     let stateClassName = 'recentTransferItemTransferStatusTextBased' // default
@@ -216,6 +216,7 @@ export function UserRecentTransactions (props) {
                         />
                         <Box ml={1}>
                           <Typography variant='body2'>{transfer.receiverName}</Typography>
+                          <Typography variant='caption'>{secondaryDesc}</Typography>
                         </Box>
                       </>
                     ) : (
