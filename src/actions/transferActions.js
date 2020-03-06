@@ -539,7 +539,10 @@ function getTransferState (transferData: Object): string {
     default:
       break
   }
-  if (!state) throw new Error('Unable to calculate transfer state')
+  if (!state) {
+    console.warn('Unable to calculate transfer state', transferData)
+    state = ''
+  }
   return state
 }
 
