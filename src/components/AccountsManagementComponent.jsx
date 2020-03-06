@@ -6,6 +6,7 @@ import Avatar from '@material-ui/core/Avatar'
 import { btnTexts } from '../styles/typography'
 import { uiColors } from '../styles/color'
 import Box from '@material-ui/core/Box'
+import Container from '@material-ui/core/Container'
 import clsx from 'clsx'
 import CloseIcon from '@material-ui/icons/Close'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -358,7 +359,7 @@ class AccountsManagementComponent extends Component {
                   account.assets.map((asset, i) => {
                     const isLast = account.assets.length - 1 === i
                     return (
-                      <TableRow key={'expended-'+i}>
+                      <TableRow key={'expended-' + i}>
                         <TableCell
                           padding='none'
                           className={isLast ? undefined : classes.noBottomBrd}
@@ -523,6 +524,61 @@ class AccountsManagementComponent extends Component {
     )
   }
 
+  renderUpperSection = () => {
+    const { classes } = this.props
+    return (
+      <Box
+        className={classes.coloredBackgrond}
+        alignItems='center'
+        justifyContent='center'
+        display='flex'
+      >
+        <Container className={classes.container}>
+          <Grid container direction='row-reverse'>
+            <Grid item md={6} xs={12}>
+              <Box display='flex' justifyContent='center' height='225px' width='100%'>
+                <iframe
+                  width='100%'
+                  maxWidth='400px'
+                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
+                  frameborder='0'
+                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+                  title='accountManagementFrame'
+                />
+              </Box>
+            </Grid>
+            <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
+              <Box
+                display='flex'
+                alignItems='flex-start'
+                flexDirection='column'
+                justifyContent='center'
+                height='100%'
+              >
+                <Typography variant='h2'>Manage Accounts</Typography>
+                <Typography variant='h6' className={classes.decText}>
+                  Chainsfr supports major platforms, including hardware wallets, mobile wallets,
+                  exchanges.
+                </Typography>
+                <Box display='flex' mt={2}>
+                  <Button
+                    onClick={() => {
+                      this.toggleAddAccountModal()
+                    }}
+                    variant='contained'
+                    color='primary'
+                  >
+                    Connect to Your Account
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+    )
+  }
+
   render () {
     const { classes, categorizedAccounts, actionsPending, online } = this.props
     const {
@@ -534,52 +590,30 @@ class AccountsManagementComponent extends Component {
       chosenAccount
     } = this.state
 
-    const wide = windowWidth >= 800
+    const wide = windowWidth >= 960
     return (
-      <Grid container justify='center'>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Grid item style={{ width: '100%' }}>
-              <Grid container alignItems='center' justify='space-between'>
-                <Grid item>
-                  <Typography variant='h2'>Connected Accounts</Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    disabled={!online}
-                    onClick={() => {
-                      this.toggleAddAccountModal()
-                    }}
-                  >
-                    Add Account
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item style={{ width: '100%' }}>
-              <Box display='flex' flexDirection='column'>
-                {!actionsPending.getCryptoAccounts && categorizedAccounts.length === 0 ? (
-                  <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
-                    <Box mb={2}>
-                      <img src={EmptyStateImage} alt='Empty State' />
-                    </Box>
-                    <Typography variant='subtitle2' color='textSecondary'>
-                      It seems you don't have any accounts saved
-                    </Typography>
-                  </Box>
-                ) : actionsPending.getCryptoAccounts ? (
-                  <CircularProgress style={{ marginTop: '10px', alignSelf: 'center' }} />
-                ) : wide ? (
-                  this.renderAccountsWideTable()
-                ) : (
-                  this.renderAccountsNarrowList()
-                )}
+      <Box display='flex' flexDirection='column'>
+        {this.renderUpperSection()}
+        <Container className={classes.container}>
+          <Box display='flex' flexDirection='column'>
+            {!actionsPending.getCryptoAccounts && categorizedAccounts.length === 0 ? (
+              <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
+                <Box mb={2}>
+                  <img src={EmptyStateImage} alt='Empty State' />
+                </Box>
+                <Typography variant='subtitle2' color='textSecondary'>
+                  It seems you don't have any accounts saved
+                </Typography>
               </Box>
-            </Grid>
-          </Grid>
-        </Grid>
+            ) : actionsPending.getCryptoAccounts ? (
+              <CircularProgress style={{ marginTop: '10px', alignSelf: 'center' }} />
+            ) : wide ? (
+              this.renderAccountsWideTable()
+            ) : (
+              this.renderAccountsNarrowList()
+            )}
+          </Box>
+        </Container>
         {addAccountModal && (
           <AddAccountModal
             open={addAccountModal}
@@ -598,23 +632,12 @@ class AccountsManagementComponent extends Component {
             account={chosenAccount}
           />
         )}
-      </Grid>
+      </Box>
     )
   }
 }
 
 const styles = theme => ({
-  sectionContainer: {
-    width: '100%',
-    maxWidth: '1200px',
-    margin: '60px 0px 60px 0px',
-    [theme.breakpoints.up('sm')]: {
-      padding: '0px 50px 0px 50px'
-    },
-    [theme.breakpoints.down('sm')]: {
-      padding: '0px 10px 0px 10px'
-    }
-  },
   iconBtn: {
     color: '#777777',
     fontSize: '20px'
@@ -665,6 +688,27 @@ const styles = theme => ({
     paddingTop: 30,
     paddingBottom: 30,
     paddingLeft: 0
+  },
+  coloredBackgrond: {
+    backgroundColor: '#FAFBFE'
+  },
+  container: {
+    paddingTop: 40,
+    paddingBottom: 40,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft:'30px',
+      paddingRight:'30px'
+    }
+  },
+  upperBigGridItem: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: '30px'
+    }
+  },
+  decText: {
+    [theme.breakpoints.up('md')]: {
+      width: '80%'
+    }
   }
 })
 export default withStyles(styles)(AccountsManagementComponent)

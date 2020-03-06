@@ -5,19 +5,18 @@ import { useSelector } from 'react-redux'
 import Avatar from '@material-ui/core/Avatar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import Container from '@material-ui/core/Container'
 import Divider from '@material-ui/core/Divider'
 import Drawer from '@material-ui/core/Drawer'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import CompareArrowsIcon from '@material-ui/icons/CompareArrows'
 import CloseIcon from '@material-ui/icons/Close'
 import numeral from 'numeral'
 import path from '../Paths.js'
 import { getCryptoDecimals, getCryptoLogo, getCryptoTitle, getCryptoSymbol } from '../tokens'
 import utils from '../utils'
 import url from '../url'
-import { getWalletLogo, walletSelections } from '../wallet'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import QRCode from '../images/qrcode.svg'
 import SendIcon from '@material-ui/icons/Send'
@@ -35,7 +34,7 @@ import IconButton from '@material-ui/core/IconButton'
 import AddressQRCodeDialog from './AddressQRCodeDialog'
 import Skeleton from '@material-ui/lab/Skeleton'
 import Chip from '@material-ui/core/Chip'
-import type { AccountData } from '../types/account.flow'
+import { AccountData } from '../types/account.flow'
 
 function WalletComponent (props: {
   cloudWalletAccounts: Array<Object>,
@@ -55,63 +54,6 @@ function WalletComponent (props: {
   const { cryptoPrice } = useSelector(state => state.cryptoPriceReducer)
 
   const { txHistoryByAccount, cloudWalletAccounts, toCurrencyAmount, push, actionsPending } = props
-
-  const renderChainsfrWalletSection = () => {
-    return (
-      <Grid container direction='column'>
-        {/* upper section */}
-        <Grid item>
-          {/* title and transfer btn row */}
-          <Grid container direction='row' alignItems='center' justify='space-between'>
-            <Grid item>
-              <Typography variant='h2'> Wallet </Typography>
-            </Grid>
-            <Grid item>
-              <Button variant='contained' color='primary' onClick={() => push(path.directTransfer)}>
-                Balance Transfer
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-        {/* subtitle row */}
-        <Grid item>
-          <Typography variant='h4'>
-            Transfer your balances between your Chainsfr wallet and connected accounts. It’s fast
-            and easy.
-          </Typography>
-        </Grid>
-        {/* wallet icons row */}
-        <Grid item style={{ marginTop: '30px' }}>
-          <Grid container direction='row' alignItems='center' justify='flex-start' spacing={4}>
-            {/* drive wallet logo */}
-            <Grid item>
-              <img className={classes.walletLogo} src={getWalletLogo('drive')} alt='wallet-logo' />
-            </Grid>
-            {/* exchange arrow */}
-            <Grid item>
-              <CompareArrowsIcon fontSize='large' />
-            </Grid>
-            {walletSelections
-              .filter(w => {
-                return (
-                  w.walletType !== 'drive' &&
-                  !w.hide &&
-                  w.walletType !== 'metamask' &&
-                  w.walletType !== 'metamaskWalletConnect'
-                )
-              })
-              .map((w, i) => {
-                return (
-                  <Grid item>
-                    <img className={classes.walletLogo} src={w.logo} alt='wallet-logo' />
-                  </Grid>
-                )
-              })}
-          </Grid>
-        </Grid>
-      </Grid>
-    )
-  }
 
   const renderRecentTransferItem = (account: AccountData, tx: ?Object, images) => {
     // three cases
@@ -577,50 +519,69 @@ function WalletComponent (props: {
     )
   }
 
-  return (
-    <>
-      <Grid container justify='center'>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column' spacing={10}>
-            <Grid item>{renderChainsfrWalletSection()}</Grid>
-            <Grid item>{renderCryptoList()}</Grid>
-            {renderAccountDrawer()}
+  const renderUpperSection = () => {
+    return (
+      <Box
+        className={classes.coloredBackgrond}
+        alignItems='center'
+        justifyContent='center'
+        display='flex'
+      >
+        <Container className={classes.container}>
+          <Grid container direction='row-reverse'>
+            <Grid item md={6} xs={12}>
+              <Box display='flex' justifyContent='center' height='225px' width='100%'>
+                <iframe
+                  width='100%'
+                  maxWidth='400px'
+                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
+                  frameborder='0'
+                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+                  title="walletFrame"
+                />
+              </Box>
+            </Grid>
+            <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
+              <Box
+                display='flex'
+                alignItems='flex-start'
+                flexDirection='column'
+                justifyContent='center'
+                height='100%'
+              >
+                <Typography variant='h2'>My Wallet</Typography>
+                <Typography variant='h6' className={classes.decText}>
+                  Transfer your balance between your Chainsfr wallet and connected accounts. It's
+                  fast and easy.
+                </Typography>
+                <Box display='flex' mt={2}>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={() => push(path.directTransfer)}
+                  >
+                    Balance Transfer
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Grid>
-    </>
+        </Container>
+      </Box>
+    )
+  }
+
+  return (
+    <Box display='flex' flexDirection='column'>
+      {renderUpperSection()}
+      <Container className={classes.container}>{renderCryptoList()}</Container>
+      {renderAccountDrawer()}
+    </Box>
   )
 }
 
 const useStyles = makeStyles(theme => {
   return {
-    sectionContainer: {
-      width: '100%',
-      maxWidth: '1200px',
-      margin: '60px 0px 60px 0px',
-      [theme.breakpoints.up('sm')]: {
-        padding: '0px 50px 0px 50px'
-      },
-      [theme.breakpoints.down('sm')]: {
-        padding: '0px 10px 0px 10px'
-      }
-    },
-    coloredBackgrond: {
-      backgroundColor: '#FAFBFE'
-    },
-    balanceCard: {
-      width: '320px',
-      height: '160px',
-      padding: '0px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: '0px'
-    },
-    walletLogo: {
-      height: '64px',
-      alignSelf: 'center'
-    },
     actionBtnLabel: {
       flexDirection: 'column'
     },
@@ -635,6 +596,27 @@ const useStyles = makeStyles(theme => {
     },
     skeleton: {
       margin: 5
+    },
+    coloredBackgrond: {
+      backgroundColor: '#FAFBFE'
+    },
+    container: {
+      paddingTop: 40,
+      paddingBottom: 40,
+      [theme.breakpoints.up('sm')]: {
+        paddingLeft:'30px',
+        paddingRight:'30px'
+      }
+    },
+    upperBigGridItem: {
+      [theme.breakpoints.down('sm')]: {
+        paddingTop: '30px'
+      }
+    },
+    decText: {
+      [theme.breakpoints.up('md')]: {
+        width: '80%'
+      }
     }
   }
 })

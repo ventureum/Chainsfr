@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, Button, Grid } from '@material-ui/core'
+import { Typography, Button, Grid, Container } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import SendIcon from '@material-ui/icons/SendRounded'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
@@ -119,47 +119,77 @@ class RecipientsComponent extends Component {
     )
   }
 
-  render () {
+  renderUpperSection = props => {
     const { classes, addRecipient } = this.props
-
     return (
-      <Grid container justify='center'>
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Box display='flex' justifyContent='space-between' mb={3}>
-              <Typography variant='h2' display='inline'>
-                Recipients
-              </Typography>
+      <Box
+        className={classes.coloredBackgrond}
+        alignItems='center'
+        justifyContent='center'
+        display='flex'
+      >
+        <Container className={classes.container}>
+          <Box
+            display='flex'
+            alignItems='flex-start'
+            flexDirection='column'
+            justifyContent='center'
+            height='100%'
+          >
+            <Typography variant='h2'>Manage Recipients</Typography>
+            <Typography variant='h6' className={classes.decText}>
+              Add recipients to use email transfer.
+            </Typography>
+            <Box display='flex' mt={2}>
               <Button variant='contained' color='primary' onClick={() => addRecipient()}>
                 Add Recipient
               </Button>
             </Box>
-            <Grid item>{this.renderRecipientsList()}</Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+          </Box>
+        </Container>
+      </Box>
+    )
+  }
+
+  render () {
+    const { classes } = this.props
+    return (
+      <Box display='flex' flexDirection='column'>
+        {this.renderUpperSection()}
+        <Container className={classes.container}>{this.renderRecipientsList()}</Container>
+      </Box>
     )
   }
 }
 
 const styles = theme => ({
-  sectionContainer: {
-    width: '100%',
-    maxWidth: '1200px',
-    margin: '60px 0px 60px 0px',
-    [theme.breakpoints.up('xs')]: {
-      padding: '0px 50px 0px 50px'
-    },
-    [theme.breakpoints.down('xs')]: {
-      padding: '0px 10px 0px 10px'
-    }
-  },
   recipientItem: {
     padding: '20px'
   },
   recipientItemColored: {
     backgroundColor: '#FAFBFE',
     padding: '20px'
+  },
+  coloredBackgrond: {
+    backgroundColor: '#FAFBFE'
+  },
+  container: {
+    paddingTop: 40,
+    paddingBottom: 40,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft:'30px',
+      paddingRight:'30px'
+    }
+  },
+  upperBigGridItem: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: '30px'
+    }
+  },
+  decText: {
+    [theme.breakpoints.up('md')]: {
+      width: '80%'
+    }
   }
 })
 export default withStyles(styles)(RecipientsComponent)
