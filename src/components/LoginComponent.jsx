@@ -160,113 +160,93 @@ class LoginComponent extends Component {
     }
 
     return (
-      <Grid
-        container
-        justify='center'
-        className={classNames(classes.container, classes[`container${envSuffix}`])}
-      >
-        <Grid container direction='column' className={classes.centerContainer}>
-          <Grid item md={12} className={classes.header}>
-            <img
-              className={classes.chainsfrLogo}
-              src={isMainNet ? ChainsfrLogo : ChainsfrLogoWhite}
-              alt='Chainsfr Logo'
-            />
-          </Grid>
-          <Grid container direction='row'>
-            <Grid className={classes.faqContainer} item md={6}>
-              <Grid>
-                <Typography
-                  variant='h4'
-                  gutterBottom
-                  className={classNames(
-                    classes.faqSectionTitle,
-                    classes[`faqFontColor${envSuffix}`]
-                  )}
-                >
-                  FAQ
-                </Typography>
+      <Grid container className={classNames(classes.container, classes[`container${envSuffix}`])}>
+        <Grid className={classes.faqContainer} container md={6} justify='center'>
+          <Box mt={6} mx='auto'>
+            <Grid>
+              <Typography
+                variant='h4'
+                display='inline'
+                gutterBottom
+                className={classNames(classes.faqSectionTitle, classes[`faqFontColor${envSuffix}`])}
+              >
+                FAQ
+              </Typography>
+            </Grid>
+            {isMainNet &&
+              data.mainNet.faq.map((item, i) => (
+                <Grid className={classes.leftContainer} key={i}>
+                  <Typography
+                    align='left'
+                    className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography
+                    align='left'
+                    className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}
+                  >
+                    {item.content}
+                  </Typography>
+                </Grid>
+              ))}
+            {!isMainNet &&
+              data.testNet.faq.map((item, i) => (
+                <Grid className={classes.leftContainer} key={i}>
+                  <Typography
+                    align='left'
+                    className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography
+                    align='left'
+                    className={classNames(classes.faqContent, classes[`faqFontColor${envSuffix}`])}
+                  >
+                    {item.content}
+                  </Typography>
+                </Grid>
+              ))}
+            <Grid className={classes.leftContainer}>
+              <Button
+                className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite}
+                href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL}
+                target='_blank'
+              >
+                Learn More
+              </Button>
+            </Grid>
+          </Box>
+        </Grid>
+        <Grid item md={6} className={classes.loginContainer}>
+          <Box mt={12}>
+            <Grid item xs>
+              <Typography variant='h3' align='center' className={classes.loginTitle}>
+                {isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}
+              </Typography>
+              <Typography align='center' className={classes.loginContent}>
+                Send cryptocurrency by email
+              </Typography>
+            </Grid>
+            <Grid item align='center' className={classes.paperButtons}>
+              <Grid className={classes.btnContainer}>
+                <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
               </Grid>
-              {isMainNet &&
-                data.mainNet.faq.map((item, i) => (
-                  <Grid className={classes.leftContainer} key={i}>
-                    <Typography
-                      variant='h6'
-                      className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
-                    >
-                      {item.title}
-                    </Typography>
-                    <Typography
-                      className={classNames(
-                        classes.faqContent,
-                        classes[`faqFontColor${envSuffix}`]
-                      )}
-                    >
-                      {item.content}
-                    </Typography>
-                  </Grid>
-                ))}
-              {!isMainNet &&
-                data.testNet.faq.map((item, i) => (
-                  <Grid className={classes.leftContainer} key={i}>
-                    <Typography
-                      variant='h6'
-                      className={classNames(classes.faqTitle, classes[`faqFontColor${envSuffix}`])}
-                    >
-                      {item.title}
-                    </Typography>
-                    <Typography
-                      className={classNames(
-                        classes.faqContent,
-                        classes[`faqFontColor${envSuffix}`]
-                      )}
-                    >
-                      {item.content}
-                    </Typography>
-                  </Grid>
-                ))}
-              <Grid className={classes.leftContainer}>
-                <Button
-                  className={isMainNet ? classes.btnOutlinedDark : classes.btnOutlinedWhite}
-                  href={isMainNet ? data.mainNet.faqURL : data.testNet.faqURL}
+            </Grid>
+            <Grid item container className={classes.paperFooter} justify='center'>
+              <Box mb={6}>
+                <Link
+                  variant='caption'
+                  align='center'
+                  color='textSecondary'
+                  href={data.termURL}
                   target='_blank'
                 >
-                  Learn More
-                </Button>
-              </Grid>
+                  Term and Use
+                </Link>
+              </Box>
             </Grid>
-            <Grid item md={6} className={classes.loginContainer}>
-              <Paper className={classes.paperContainter}>
-                <Grid>
-                  <Typography variant='h3' align='center' className={classes.loginTitle}>
-                    {isMainNet ? data.mainNet.loginTitle : data.testNet.loginTitle}
-                  </Typography>
-                  <Typography align='center' className={classes.loginContent}>
-                    Send cryptocurrency by email
-                  </Typography>
-                </Grid>
-                <Grid item align='center' className={classes.paperButtons}>
-                  <Grid className={classes.btnContainer}>
-                    <GoogleLoginButton
-                      onSuccess={this.loginSuccess}
-                      onFailure={this.loginFailure}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item container className={classes.paperFooter} justify='center'>
-                  <Link
-                    variant='caption'
-                    align='center'
-                    color='textSecondary'
-                    href={data.termURL}
-                    target='_blank'
-                  >
-                    Term and Use
-                  </Link>
-                </Grid>
-              </Paper>
-            </Grid>
-          </Grid>
+          </Box>
         </Grid>
       </Grid>
     )
@@ -318,16 +298,15 @@ const styles = theme => ({
     }
   },
   loginContainer: {
+    width: '100%',
+    backgroundColor: '#fff',
     order: 2
   },
   paperContainter: {
     marginLeft: 30,
     marginRight: 30,
     marginBottom: 60,
-    paddingLeft: 60,
-    paddingRight: 60,
-    paddingTop: 60,
-    paddingBottom: 20
+    marginTop: 60
   },
   paperButtons: {
     marginTop: 30,
@@ -367,11 +346,14 @@ const styles = theme => ({
   },
   faqTitle: {
     fontFamily: 'Poppins',
-    fontSize: 18,
+    fontSize: 20,
+    lineHeight: '40px',
     fontWeight: 500
   },
   faqContent: {
     fontFamily: 'Poppins',
+    fontSize: 16,
+    lineHeight: '20px',
     fontWeight: 400
   },
   loginTitle: {
