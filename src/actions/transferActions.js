@@ -166,17 +166,11 @@ async function _submitTx (txRequest: {
   let escrowAccount = await escrowWallet.newAccount('escrow', cryptoType)
   await escrowAccount.encryptAccount(password)
   let encryptedPrivateKey = escrowAccount.getAccountData().encryptedPrivateKey
-  // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
-  await saveTempSendFile({
-    sender: sender,
-    destination: destination,
-    transferAmount: transferAmount,
-    cryptoType: cryptoType,
-    data: Base64.encode(encryptedPrivateKey),
-    password: Base64.encode(password),
-    tempTimestamp: moment().unix()
-  })
 
+  if (!sendMessage || sendMessage === '') {
+    // Set a default message if not provided
+    sendMessage = MESSAGE_NOT_PROVIDED
+  }
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
@@ -193,6 +187,46 @@ async function _submitTx (txRequest: {
     }
     const _wallet = createWallet(fromAccount)
 
+    var transferObj = {
+      transferId: null,
+      transferAmount,
+      transferFiatAmountSpot,
+      fiatType,
+      senderName,
+      senderAvatar,
+      sender,
+      senderAccount: JSON.stringify({
+        cryptoType: fromAccount.cryptoType,
+        walletType: fromAccount.walletType,
+        address: fromAccount.address,
+        name: fromAccount.name
+      }),
+      sendMessage,
+      destination,
+      receiverName,
+      data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
+      cryptoType: cryptoType,
+      // we do not have txHash yet
+      sendTxHash: null,
+      walletId: walletId
+    }
+
+    // back transfer data in db before broadcasting
+    const dryRunResponse = await API.transfer(transferObj)
+    const { transferId, timestamp } = dryRunResponse
+
+    // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
+    await saveTempSendFile({
+      transferId,
+      sender: sender,
+      destination: destination,
+      transferAmount: transferAmount,
+      cryptoType: cryptoType,
+      data: Base64.encode(encryptedPrivateKey),
+      password: Base64.encode(password),
+      tempTimestamp: timestamp
+    })
+
     const rv = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
@@ -201,37 +235,23 @@ async function _submitTx (txRequest: {
     })
     var { txHash } = rv
     if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
+
+    // update sendTxHash
+    return _transactionHashRetrieved({
+      ...transferObj,
+      transferId,
+      senderAccountId: fromAccount.id,
+      sendTxHash: txHash,
+      password: Base64.encode(password),
+    })
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
-  // update tx data
-  return _transactionHashRetrieved({
-    transferAmount,
-    transferFiatAmountSpot,
-    fiatType,
-    senderName,
-    senderAvatar,
-    sender,
-    senderAccount: JSON.stringify({
-      cryptoType: fromAccount.cryptoType,
-      walletType: fromAccount.walletType,
-      address: fromAccount.address,
-      name: fromAccount.name
-    }),
-    senderAccountId: fromAccount.id,
-    sendMessage,
-    destination,
-    receiverName,
-    data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
-    cryptoType: cryptoType,
-    sendTxHash: txHash,
-    password: Base64.encode(password),
-    walletId: walletId
-  })
 }
 
 async function _transactionHashRetrieved (txRequest: {|
+  transferId: string,
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
@@ -249,11 +269,6 @@ async function _transactionHashRetrieved (txRequest: {|
   password: string,
   walletId?: string
 |}) {
-  if (!txRequest.sendMessage || txRequest.sendMessage === '') {
-    // Set a default message if not provided
-    txRequest.sendMessage = MESSAGE_NOT_PROVIDED
-  }
-
   // mask out password
   const { password, senderAccountId, ...request } = txRequest
   let response = await API.transfer(request)
