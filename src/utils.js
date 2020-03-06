@@ -184,6 +184,10 @@ function toCurrencyAmount (cryptoAmount: StandardTokenUnit, price: number, symbo
 
 function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbol: ?string): string {
   let rv = numeral(parseFloat(currencyAmount) / price).format('0.000[000]')
+  if (isNaN(rv)) {
+    // NaN value displayed on Balance when the value is <= 0.0000001 caused by a bug on NumeralJs
+    rv = numeral(0).format('0.000[000]')
+  }
   if (symbol) rv = rv + ` ${symbol}`
   return rv
 }
