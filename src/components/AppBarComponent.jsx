@@ -234,7 +234,7 @@ const IsolateAppBarContent = (props: Props) => {
             backToHome()
           }}
           component={Link}
-          to={path.home}
+          to={location.pathname === path.directTransfer ? path.wallet : path.home}
           disabled={disabled}
         >
           <CloseIcon fontSize='small' color='secondary' />

@@ -137,7 +137,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   handleDrawerToggle={handleDrawerToggle}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
-                  <Hidden only={['md', 'lg', 'xl']}>
+                  <Hidden only={['sm', 'md', 'lg', 'xl']}>
                     <AppBar
                       {...matchProps}
                       online={online}

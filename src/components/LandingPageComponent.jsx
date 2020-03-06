@@ -23,8 +23,6 @@ import url from '../url'
 import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import EmptyStateImage from '../images/empty_state_01.png'
-import { WalletButton } from './WalletSelectionButtons.jsx'
-import { walletSelections } from '../wallet'
 
 const toUserReadableState = {
   SENDER: {
@@ -116,6 +114,10 @@ const useStyles = makeStyles({
   },
   coloredBackgrond: {
     backgroundColor: '#FAFBFE'
+  },
+  container: {
+    paddingTop: 40,
+    paddingBottom: 30
   }
 })
 
@@ -147,12 +149,12 @@ export function UserRecentTransactions (props) {
     }
     let secondaryDesc = null
     if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
     } else if (transfer.state === transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm')
     } else {
       // pending receive
-      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY')
+      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
     }
 
     let stateClassName = 'recentTransferItemTransferStatusTextBased' // default
@@ -214,6 +216,7 @@ export function UserRecentTransactions (props) {
                         />
                         <Box ml={1}>
                           <Typography variant='body2'>{transfer.receiverName}</Typography>
+                          <Typography variant='caption'>{secondaryDesc}</Typography>
                         </Box>
                       </>
                     ) : (
@@ -363,7 +366,7 @@ export function UserRecentTransactions (props) {
   }
 
   return (
-    <Container maxWidth='lg'>
+    <Container className={classes.container}>
       <Grid container direction='column' justify='center' alignItems='stretch'>
         <Grid item>
           <Grid container direction='row'>
@@ -436,66 +439,107 @@ export function UserRecentTransactions (props) {
 }
 
 class LandingPageComponent extends Component {
-  renderWalletSection = props => {
+  renderUpperSection = props => {
     const { classes, push } = this.props
     return (
-      <Grid container alignItems='center' justify='center' className={classes.coloredBackgrond}>
-        <Container className={classes.walletSectionContainer}>
-          <Box mb={4}>
-            <Typography align='center' variant='h2'>
-              Start an Email Transfer from
-            </Typography>
-          </Box>
-          <Grid container direction='row' alignItems='center' justify='center'>
-            {walletSelections
-              .filter(w => {
-                return (
-                  w.walletType !== 'drive' &&
-                  !w.hide &&
-                  w.walletType !== 'metamask' &&
-                  w.walletType !== 'metamaskWalletConnect'
-                )
-              })
-              .map((w, i) => {
-                return (
-                  <Grid item xs={4} sm={2} md={2} key={i}>
-                    <WalletButton walletType={w.walletType} handleClick={this.handleWalletSelect} />
+      <Box
+        className={classes.coloredBackgrond}
+        alignItems='center'
+        justifyContent='center'
+        display='flex'
+      >
+        <Container className={classes.container}>
+          <Grid container direction='row-reverse'>
+            <Grid item md={6} xs={12}>
+              <Box display='flex' justifyContent='center' height='225px' width='100%'>
+                <iframe
+                  width='100%'
+                  maxWidth='400px'
+                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
+                  frameborder='0'
+                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+                  title='landingFrame'
+                />
+              </Box>
+            </Grid>
+            <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
+              <Box
+                display='flex'
+                alignItems='flex-start'
+                flexDirection='column'
+                height='100%'
+                justifyContent='center'
+              >
+                <Typography variant='h2'>Email Transfer</Typography>
+                <Typography variant='h6'>Description goes here...</Typography>
+                <Box display='flex' alignItems='center' mt={1} width='100%'>
+                  <Grid container>
+                    <Grid item className={classes.uppperSmallGridItem}>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        onClick={() => push(path.transfer)}
+                      >
+                        Start Email Transfer
+                      </Button>
+                    </Grid>
+                    <Grid item className={classes.uppperSmallGridItem}>
+                      <Button
+                        className={classes.lightbtn}
+                        color='primary'
+                        onClick={() => push(path.accounts)}
+                      >
+                        Connect Your Accounts
+                      </Button>
+                    </Grid>
                   </Grid>
-                )
-              })}
-          </Grid>
-          <Grid container direction='row' alignItems='center' justify='center'>
-            <Grid item>
-              <Button variant='contained' color='primary' onClick={() => push(path.transfer)}>
-                Start Transfer
-              </Button>
+                </Box>
+              </Box>
             </Grid>
           </Grid>
         </Container>
-      </Grid>
+      </Box>
     )
   }
 
   render () {
     const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
     return (
-      <Grid container direction='column'>
-        <Grid item>{this.renderWalletSection()}</Grid>
-        <Grid item>
-          <UserRecentTransactions
-            actionsPending={actionsPending}
-            transferHistory={transferHistory}
-            loadMoreTransferHistory={loadMoreTransferHistory}
-          />
-        </Grid>
-      </Grid>
+      <Box display='flex' flexDirection='column'>
+        {this.renderUpperSection()}
+        <UserRecentTransactions
+          actionsPending={actionsPending}
+          transferHistory={transferHistory}
+          loadMoreTransferHistory={loadMoreTransferHistory}
+        />
+      </Box>
     )
   }
 }
 
 const styles = theme => ({
-  walletSectionContainer: {
-    maxWidth: '1000px'
+  coloredBackgrond: {
+    backgroundColor: '#FAFBFE'
+  },
+  upperBigGridItem: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: '30px'
+    }
+  },
+  uppperSmallGridItem: {
+    marginTop: '20px',
+    marginRight: '40px'
+  },
+  lightbtn: {
+    backgroundColor: 'rgba(57, 51, 134, 0.05)'
+  },
+  container: {
+    paddingTop: 40,
+    paddingBottom: 30,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: '30px',
+      paddingRight: '30px'
+    }
   }
 })
 
