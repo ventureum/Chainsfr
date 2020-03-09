@@ -5,7 +5,7 @@ import { createWallet } from '../wallets/WalletFactory.js'
 import { saveWallet, getWallet } from '../drive.js'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
-import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
+import { enqueueSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
 import { createAccount } from '../accounts/AccountFactory.js'
@@ -77,14 +77,6 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
 function createCloudWallet (password: string, progress: ?Function) {
   return (dispatch: Function, getState: Function) => {
-    const key = new Date().getTime() + Math.random()
-    dispatch(
-      enqueueSnackbar({
-        message: 'We are setting up your drive wallet. Please do not close the page.',
-        key,
-        options: { variant: 'info', persist: true }
-      })
-    )
     return dispatch({
       type: 'CREATE_CLOUD_WALLET',
       payload: _createCloudWallet(password, progress),
@@ -93,8 +85,6 @@ function createCloudWallet (password: string, progress: ?Function) {
         // errors are warned in the console
         localErrorHandling: true
       }
-    }).then(() => {
-      dispatch(closeSnackbar(key))
     })
   }
 }
