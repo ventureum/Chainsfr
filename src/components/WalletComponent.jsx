@@ -538,6 +538,7 @@ function WalletComponent (props: {
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='walletFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>

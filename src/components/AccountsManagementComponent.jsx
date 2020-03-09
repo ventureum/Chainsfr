@@ -544,6 +544,7 @@ class AccountsManagementComponent extends Component {
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='accountManagementFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>

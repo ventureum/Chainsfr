@@ -459,6 +459,7 @@ class LandingPageComponent extends Component {
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='landingFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>
