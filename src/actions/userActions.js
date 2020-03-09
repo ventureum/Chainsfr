@@ -9,6 +9,7 @@ import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
 import { getWallet } from '../drive.js'
 import { createCloudWallet } from './walletActions'
+import moment from 'moment'
 
 function clearError () {
   return { type: 'CLEAR_ERROR' }
@@ -34,6 +35,8 @@ function refreshAccessToken () {
 
 function onGoogleLoginReturn (loginData: any) {
   return (dispatch: Function, getState: Function) => {
+    const currentTimestamp = moment().unix()
+    loginData = { ...loginData, lastLoginTimestamp: currentTimestamp }
     dispatch({
       type: 'ON_GOOGLE_LOGIN_RETURN',
       payload: loginData

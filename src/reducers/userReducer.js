@@ -7,7 +7,8 @@ const initState = {
   // user profile
   profile: {
     isAuthenticated: false,
-    newUser: null
+    newUser: null,
+    lastLoginTimestamp: null
   },
   recipients: [],
   cloudWalletConnected: false,
