@@ -210,7 +210,7 @@ class App extends Component {
   componentDidMount () {
     this.preload()
 
-    // // refresh price immediately
+    // refresh price immediately
     store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
     // refresh price every 60 seconds
     setInterval(() => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai'])), 60000)

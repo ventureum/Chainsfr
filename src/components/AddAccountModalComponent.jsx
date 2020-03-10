@@ -1,501 +1,53 @@
 // @flow
-import React, { Component } from 'react'
-import { withStyles } from '@material-ui/core/styles'
-
+import React, { useState, useEffect } from 'react'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { Avatar, Divider } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
 import CropFreeIcon from '@material-ui/icons/CropFree'
+import CloseIcon from '@material-ui/icons/Close'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
-import CloseIcon from '@material-ui/icons/Close'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
+import ErrorIcon from '@material-ui/icons/Error'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 import IconButton from '@material-ui/core/IconButton'
-import UsbIcon from '@material-ui/icons/Usb'
-import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
-import { WalletButton } from './WalletSelectionButtons.jsx'
-import { walletSelections, getWalletConfig, getWalletSupportedPlatforms } from '../wallet'
-import { getCryptoTitle, getPlatformCryptos, getCryptoLogo, getCryptoSymbol } from '../tokens'
-import Radio from '@material-ui/core/Radio'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
+import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import TextField from '@material-ui/core/TextField'
+import Tooltip from '@material-ui/core/Tooltip'
+import Typography from '@material-ui/core/Typography'
+import UsbIcon from '@material-ui/icons/Usb'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import InputLabel from '@material-ui/core/InputLabel'
+import FormControl from '@material-ui/core/FormControl'
+import OutlinedInput from '@material-ui/core/OutlinedInput'
+import {
+  walletSelections,
+  getWalletSupportedPlatforms,
+  getWalletLogo,
+  getWalletTitle,
+  getWalletDescText,
+  walletCryptoSupports
+} from '../wallet'
+import {
+  getCryptoTitle,
+  getPlatformCryptos,
+  getCryptoLogo,
+  getCryptoSymbol,
+  getCryptoPlatformType
+} from '../tokens'
+import Radio from '@material-ui/core/Radio'
+import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
-import withMobileDialog from '@material-ui/core/withMobileDialog'
-import { Avatar } from '@material-ui/core'
+import { useActionTracker } from '../hooksUtils'
 
-type Props = {
-  walletType: string,
-  classes: Object,
-  name: string,
-  open: boolean,
-  actionsPending: Object,
-  handleClose: Function,
-  onConnect: Function,
-  newCryptoAccounts: Object,
-  checkWalletConnection: Function,
-  errors: Object,
-  onSubmit: Function,
-  online: boolean,
-  fullScreen: boolean
-}
-
-type State = {
-  step: number,
-  walletType: string,
-  platformType: string,
-  name: string
-}
-
-class AddAccountModalComponent extends Component<Props, State> {
-  state = {
-    step: 0,
-    walletType: '',
-    platformType: '',
-    name: ''
-  }
-
-  componentDidUpdate (prevProps) {
-    const { walletType, platformType, name } = this.state
-    const { onConnect, newCryptoAccounts, actionsPending, errors } = this.props
-    if (
-      prevProps.actionsPending.checkWalletConnection &&
-      !actionsPending.checkWalletConnection &&
-      !errors.checkWalletConnection
-    ) {
-      const cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
-      onConnect('default', cryptoTypes, walletType)
-    } else if (
-      prevProps.actionsPending.newCryptoAccountsFromWallet &&
-      !actionsPending.newCryptoAccountsFromWallet &&
-      !errors.newCryptoAccountsFromWallet
-    ) {
-      this.setState({ step: 2 })
-    }
-
-    if (
-      newCryptoAccounts.length > 0 &&
-      newCryptoAccounts[0].walletType === 'coinbaseOAuthWallet' &&
-      newCryptoAccounts[0].email &&
-      name.length === 0
-    ) {
-      // for coinbaseOAuthWallet, fill name with email address if email is provided
-      this.setState({ name: newCryptoAccounts[0].email })
-    }
-
-    if (walletType && !platformType && getWalletSupportedPlatforms(walletType).length === 1) {
-      this.handlePlatformSelect(getWalletSupportedPlatforms(walletType)[0])
-    }
-  }
-
-  handleWalletSelect = walletType => {
-    this.setState({ step: 1, walletType })
-  }
-
-  handlePlatformSelect = platformType => {
-    this.setState({ platformType })
-  }
-
-  handleAccountNameChange = accountName => {
-    this.setState({ name: accountName })
-  }
-
-  locked = () => {
-    const { actionsPending } = this.props
-    return actionsPending.checkWalletConnection || actionsPending.newCryptoAccountsFromWallet
-  }
-
-  renderWalletSelections = () => {
-    return (
-      <Grid container spacing={3} direction='row' align='center'>
-        {walletSelections
-          .filter(w => {
-            return w.walletType !== 'drive' && !w.hide && w.walletType !== 'metamaskOne'
-          })
-          .map((w, i) => {
-            return (
-              <Grid item xs={12} sm={6} md={4} key={i}>
-                <WalletButton
-                  walletType={w.walletType}
-                  handleClick={this.handleWalletSelect}
-                  disabled={!getWalletConfig(w.walletType).addable}
-                  disabledReason={getWalletConfig(w.walletType).disabledReason}
-                  containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
-                />
-              </Grid>
-            )
-          })}
-      </Grid>
-    )
-  }
-
-  renderPlatformSelection = () => {
-    const { classes, actionsPending } = this.props
-    const { walletType, platformType } = this.state
-    if (walletType === '') {
-      return null
-    }
-
-    const listOfPlatform = getWalletSupportedPlatforms(walletType)
-    return (
-      <Grid container spacing={3}>
-        <Grid item sm={4} xs={12}>
-          <WalletButton
-            walletType={walletType}
-            containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
-          />
-        </Grid>
-        <Grid item xs>
-          <Grid container direction='column'>
-            {listOfPlatform.length > 1 && (
-              <>
-                <Grid item>
-                  <Typography className={classes.subtitle}>Select blockchain network</Typography>
-                </Grid>
-                <Grid item>
-                  <List>
-                    {listOfPlatform.map((p, i) => {
-                      return (
-                        <ListItem
-                          key={`${i} platform`}
-                          button
-                          onClick={() => {
-                            this.handlePlatformSelect(p)
-                          }}
-                          disabled={this.locked()}
-                        >
-                          <Radio checked={platformType === p} />
-                          <Typography variant='body2'>{getCryptoTitle(p)} </Typography>
-                        </ListItem>
-                      )
-                    })}
-                  </List>
-                </Grid>
-              </>
-            )}
-            {platformType !== '' && (
-              <>
-                <Grid item>
-                  <Typography className={classes.subtitle}>Supported coin types</Typography>
-                </Grid>
-                <Grid item style={{ marginLeft: 10, marginTop: 10 }}>
-                  <Grid container spacing={1}>
-                    {getPlatformCryptos(platformType).map((crypto, i) => {
-                      return (
-                        <Grid item xs={2} key={`${i} crypto`}>
-                          <Box
-                            display='flex'
-                            flexDirection='column'
-                            alignItems='center'
-                            width='100%'
-                          >
-                            <Avatar src={getCryptoLogo(crypto.cryptoType)} />
-                            <Typography variant='h6'>
-                              {getCryptoSymbol(crypto.cryptoType)}
-                            </Typography>
-                          </Box>
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
-                </Grid>
-              </>
-            )}
-            {platformType !== '' &&
-              !actionsPending.checkWalletConnection &&
-              !actionsPending.newCryptoAccountsFromWallet && (
-                <Grid item>{this.renderWalletConnect()}</Grid>
-              )}
-            {(actionsPending.checkWalletConnection ||
-              actionsPending.newCryptoAccountsFromWallet) && (
-              <Grid item>{this.renderCheckWalletConnectionInstruction()}</Grid>
-            )}
-          </Grid>
-        </Grid>
-      </Grid>
-    )
-  }
-
-  renderCheckWalletConnectionInstruction = () => {
-    const { actionsPending } = this.props
-    const { walletType, platformType } = this.state
-    let instruction = ''
-    switch (walletType) {
-      case 'metamask':
-        if (actionsPending.checkWalletConnection) {
-          instruction = 'Checking if MetaMask extension is installed and enabled...'
-        } else {
-          instruction = 'Waiting for authorization...'
-        }
-        break
-      case 'ledger':
-        if (actionsPending.newCryptoAccountsFromWallet && platformType === 'bitcoin') {
-          instruction = 'Please wait while we sync your Bitcoin account with the network...'
-        } else if (actionsPending.checkWalletConnection) {
-          instruction = 'Please connect your Ledger Device and connect it through popup window...'
-        } else {
-          instruction = 'Please navigate to selected crypto on your Ledger device...'
-        }
-        break
-      case 'trustWalletConnect':
-      case 'metamaskWalletConnect':
-        if (actionsPending.checkWalletConnection) {
-          instruction = 'Creating connection...'
-        } else {
-          instruction = 'Please scan the QR code with MetaMask Mobile app...'
-        }
-        break
-      case 'coinbaseOAuthWallet':
-        if (actionsPending.checkWalletConnection) {
-          instruction = 'Fetching your account...'
-        } else {
-          instruction = 'Waiting for authorization...\nMake sure the login pop-up window is not blocked by the browser.'
-        }
-        break
-      default:
-        instruction = 'Please wait...'
-    }
-
-    return (
-      <Box style={{ width: '100%' }}>
-        <Typography variant='body2' style={{whiteSpace: 'pre-line'}}>{instruction}</Typography>
-        <LinearProgress style={{ marginTop: '10px' }} />
-      </Box>
-    )
-  }
-
-  renderWalletConnect = () => {
-    const { checkWalletConnection, errors, online, classes } = this.props
-    const { walletType, platformType } = this.state
-    let connectText, buttonText, buttonIcon
-    let errorInstruction
-    switch (walletType) {
-      case 'metamask':
-        connectText = 'Connect your wallet via browser extendsion'
-        buttonText = 'Connect to MetaMask'
-        buttonIcon = <OpenInBrowser />
-        if (errors.checkWalletConnection === walletErrors.metamask.extendsionNotFound) {
-          errorInstruction = 'MetaMask extension is not available'
-        } else if (errors.newCryptoAccountsFromWallet === walletErrors.metamask.incorrectNetwork) {
-          errorInstruction = 'Incorrect MetaMask network'
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.metamask.authorizationDenied
-        ) {
-          errorInstruction = 'MetaMask authorization denied'
-        }
-        break
-      case 'ledger':
-        connectText = 'Plug-in and connect to your ledger divice'
-        buttonText = 'Connect to Ledger'
-        buttonIcon = <UsbIcon />
-        if (errors.checkWalletConnection === walletErrors.ledger.deviceNotConnected) {
-          errorInstruction = 'Ledger device is not connected'
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.ledger.ledgerAppCommunicationFailed
-        ) {
-          errorInstruction = `Ledger ${platformType} app is not available`
-        }
-        break
-      case 'trustWalletConnect':
-      case 'metamaskWalletConnect':
-        connectText = 'Connect your wallet via Wallet Connect'
-        buttonText = 'Scan QR Code'
-        buttonIcon = <CropFreeIcon />
-        if (errors.checkWalletConnection) {
-          errorInstruction = 'WalletConnect loading failed'
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.metamaskWalletConnect.modalClosed
-        ) {
-          errorInstruction = `User denied account authorization`
-        }
-        break
-      case 'coinbaseWalletLink':
-        connectText = 'Connect your wallet via WalletLink'
-        buttonText = 'Scan QR Code'
-        buttonIcon = <CropFreeIcon />
-        if (errors.checkWalletConnection) {
-          errorInstruction = 'WalletLink loading failed'
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseWalletLink.authorizationDenied
-        ) {
-          errorInstruction = `User denied account authorization`
-        }
-        break
-      case 'coinbaseOAuthWallet':
-        connectText = `Fetch Coinbase ${getCryptoTitle(platformType)} accounts`
-        buttonText = 'Authorize Chainsfr'
-        buttonIcon = <OpenInBrowser />
-        if (errors.checkWalletConnection) {
-          errorInstruction = 'Failed to get authorization from Coinbase'
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseOAuthWallet.accountNotFound
-        ) {
-          errorInstruction = `Please select the proper account in the Coinbase pop window`
-        } else if (
-          errors.newCryptoAccountsFromWallet === walletErrors.coinbaseOAuthWallet.noAddress
-        ) {
-          errorInstruction = `No address is available from Coinbase`
-        } else if (
-          errors.newCryptoAccountsFromWallet ===
-          walletErrors.coinbaseOAuthWallet.cryptoTypeNotMatched
-        ) {
-          errorInstruction = errors.newCryptoAccountsFromWallet
-        }
-        break
-      default:
-        throw new Error('Invalid wallet type')
-    }
-    return (
-      <Grid container spacing={1} direction='column'>
-        <Grid item>
-          <Typography className={classes.subtitle}>{connectText}</Typography>
-        </Grid>
-        <Grid item>
-          <Button
-            color='primary'
-            onClick={() => {
-              checkWalletConnection({ walletType: walletType, platformType: platformType })
-            }}
-            disabled={this.locked() || !online}
-          >
-            {buttonIcon}
-            {buttonText}
-          </Button>
-        </Grid>
-        {errorInstruction && (
-          <Grid item>
-            <Box
-              style={{
-                backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                borderRadius: '4px',
-                padding: '20px'
-              }}
-            >
-              <Typography variant='body2' color='error'>
-                {errorInstruction}
-              </Typography>
-            </Box>
-          </Grid>
-        )}
-      </Grid>
-    )
-  }
-
-  renderNameNewAccount = () => {
-    const { newCryptoAccounts, actionsPending, classes } = this.props
-    const { name, walletType } = this.state
-
-    if (newCryptoAccounts.length > 0 && !actionsPending.newCryptoAccountsFromWallet) {
-      const firstNewCryptoAccount = newCryptoAccounts[0]
-      return (
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
-            <WalletButton
-              walletType={walletType}
-              containerStyle={{ height: 140, width: 180, border: '1px solid #e9e9e9' }}
-            />
-          </Grid>
-          <Grid item xs>
-            <Grid container spacing={3} direction='column'>
-              <Grid item>
-                <Typography className={classes.subtitle}>Wallet Connected</Typography>
-                <Typography variant='caption'>
-                  {firstNewCryptoAccount.hdWalletVariables &&
-                  firstNewCryptoAccount.hdWalletVariables.xpub
-                    ? `Account xpub: ${firstNewCryptoAccount.hdWalletVariables.xpub.slice(0, 16)}...
-                    ${firstNewCryptoAccount.hdWalletVariables.xpub.slice(-24)}`
-                    : `Wallet address: ${firstNewCryptoAccount.address}`}
-                </Typography>
-              </Grid>
-              <Grid item>
-                <TextField
-                  margin='normal'
-                  fullWidth
-                  id='account name'
-                  variant='outlined'
-                  label='Account Name'
-                  onChange={event => {
-                    this.handleAccountNameChange(event.target.value)
-                  }}
-                  disabled={firstNewCryptoAccount.email} // force using email as name
-                  value={name}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      )
-    }
-  }
-
-  renderSteps = () => {
-    const { step } = this.state
-    switch (step) {
-      case 0:
-        return this.renderWalletSelections()
-      case 1:
-        return this.renderPlatformSelection()
-      case 2:
-        return this.renderNameNewAccount()
-      default:
-        return this.renderWalletSelections()
-    }
-  }
-
-  render () {
-    const { open, handleClose, onSubmit, newCryptoAccounts, fullScreen, classes } = this.props
-    const { step, name } = this.state
-    return (
-      <Dialog
-        open={open}
-        fullScreen={fullScreen}
-        onClose={() => {
-          if (!this.locked) handleClose()
-        }}
-        classes={{ paperScrollPaper: classes.dialogRoot }}
-        fullWidth
-      >
-        <DialogTitle disableTypography className={classes.titleRoot}>
-          <Typography variant='h3'>Connect to Account</Typography>
-          <IconButton
-            onClick={handleClose}
-            className={classes.closeButton}
-            disabled={this.locked()}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent className={classes.contentRoot}>{this.renderSteps()}</DialogContent>
-        <DialogActions style={{ justifyContent: 'center' }}>
-          <Button
-            onClick={() => {
-              handleClose()
-            }}
-            disabled={this.locked()}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            // name cannot be empty
-            disabled={step !== 2 || name.length === 0}
-            onClick={() => {
-              onSubmit(newCryptoAccounts, name)
-            }}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    )
-  }
-}
-
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   closeButton: {
     position: 'absolute',
     right: theme.spacing(1),
@@ -503,20 +55,720 @@ const styles = theme => ({
     color: theme.palette.grey[500]
   },
   dialogRoot: {
-    maxWidth: '640px'
-  },
-  titleRoot: {
-    paddingTop: '30px'
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '360px',
+      height: '640px'
+    }
   },
   contentRoot: {
-    paddingTop: '0px',
-    paddingBottom: '20px',
-    minHeight: '370px'
+    padding: 0
+  },
+  titleRoot: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    borderBottom: '1px solid #E9E9E9'
   },
   subtitle: {
     fontSize: '14px',
-    fontWeight: 600
+    fontWeight: 600,
+    color: '#777777'
+  },
+  closeIcon: {
+    width: '16px',
+    height: 'auto'
+  },
+  avatar: {
+    borderRadius: '0px',
+    width: '32px',
+    height: 'auto'
+  },
+  bigAvatarContainer: {
+    paddingTop: theme.spacing(6),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(12),
+    paddingRight: theme.spacing(12)
+  },
+  listItem: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3)
+  },
+  denseListItem: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
+  },
+  bigAvatar: {
+    borderRadius: '0px',
+    width: '60px',
+    height: 'auto'
+  },
+  radio: {
+    padding: 0,
+    marginRight: theme.spacing(1)
+  },
+  successAlert: {
+    backgroundColor: '#EDF7ED'
+  },
+  errorAlert: {
+    backgroundColor: '#FFEEF0'
+  },
+  successText: {
+    color: '#1E4620'
+  },
+  errorText: {
+    color: '#F86D70'
+  },
+  divider: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
   }
-})
+}))
+type SelectCoinProps = {
+  selectedCryptoType: string,
+  cryptoTypeList: Array<string>,
+  onSelect: Function
+}
 
-export default withStyles(styles)(withMobileDialog()(AddAccountModalComponent))
+const SelectCoin = (props: SelectCoinProps) => {
+  const { selectedCryptoType, onSelect, cryptoTypeList } = props
+  return (
+    <FormControl variant='outlined'>
+      <InputLabel>Select Coin Type</InputLabel>
+      <Select
+        value={selectedCryptoType}
+        input={
+          <OutlinedInput labelWidth={100} name='Select Coin Type' value={selectedCryptoType} />
+        }
+        onChange={event => onSelect(event.target.value)}
+      >
+        {cryptoTypeList.map((cryptoType, index) => {
+          return (
+            <MenuItem key={`cryptoType-${index}`} value={cryptoType}>
+              <Box display='flex' alignItems='center'>
+                <Box mr={1} display='inline'>
+                  {/* wallet icon */}
+                  <Avatar style={{ borderRadius: '2px' }} src={getCryptoLogo(cryptoType)}></Avatar>
+                </Box>
+                <Box>
+                  {/* wallet symbol */}
+                  <Typography variant='body2'>{getCryptoSymbol(cryptoType)}</Typography>
+                </Box>
+              </Box>
+            </MenuItem>
+          )
+        })}
+      </Select>
+    </FormControl>
+  )
+}
+
+type ErrorMessageProps = {
+  walletType: string,
+  platformType: string,
+  errors: Object
+}
+
+const ErrorMessage = (props: ErrorMessageProps) => {
+  const { walletType, errors, platformType } = props
+  const classes = useStyles()
+  let errorInstruction
+  if ((!errors.checkWalletConnection && !errors.newCryptoAccountsFromWallet) || !platformType) {
+    return null
+  }
+  let error = errors.checkWalletConnection || errors.newCryptoAccountsFromWallet
+  switch (walletType) {
+    case 'metamask':
+      if (error === walletErrors.metamask.extendsionNotFound) {
+        errorInstruction = 'MetaMask extension is not available'
+      } else if (error === walletErrors.metamask.incorrectNetwork) {
+        errorInstruction = 'Incorrect MetaMask network'
+      } else if (error === walletErrors.metamask.authorizationDenied) {
+        errorInstruction = 'MetaMask authorization denied'
+      } else {
+        errorInstruction = error
+      }
+      break
+    case 'ledger':
+      if (error === walletErrors.ledger.deviceNotConnected) {
+        errorInstruction = 'Ledger device is not connected'
+      } else if (error === walletErrors.ledger.ledgerAppCommunicationFailed) {
+        errorInstruction = `Ledger ${platformType} app is not available`
+      } else {
+        errorInstruction = error
+      }
+      break
+    case 'trustWalletConnect':
+    case 'metamaskWalletConnect':
+      if (errors.checkWalletConnection) {
+        errorInstruction = 'WalletConnect loading failed'
+      } else if (error === walletErrors.metamaskWalletConnect.modalClosed) {
+        errorInstruction = `User denied account authorization`
+      } else {
+        errorInstruction = error
+      }
+      break
+    case 'coinbaseWalletLink':
+      if (errors.checkWalletConnection) {
+        errorInstruction = 'WalletLink loading failed'
+      } else if (error === walletErrors.coinbaseWalletLink.authorizationDenied) {
+        errorInstruction = `User denied account authorization`
+      } else {
+        errorInstruction = error
+      }
+      break
+    case 'coinbaseOAuthWallet':
+      if (errors.checkWalletConnection) {
+        errorInstruction = 'Failed to get authorization from Coinbase'
+      } else if (error === walletErrors.coinbaseOAuthWallet.accountNotFound) {
+        errorInstruction = `Please select the proper account in the Coinbase pop window`
+      } else if (error === walletErrors.coinbaseOAuthWallet.noAddress) {
+        errorInstruction = `No address is available from Coinbase`
+      } else {
+        errorInstruction = error
+      }
+      break
+    default:
+      errorInstruction = 'Unknown error'
+  }
+  return (
+    <Box padding={1} className={classes.errorAlert} mb={1} display='flex' alignItems='center'>
+      <Box mr={1}>
+        <ErrorIcon className={classes.errorText} />
+      </Box>
+      <Typography variant='body2' className={classes.errorText}>
+        {errorInstruction}
+      </Typography>
+    </Box>
+  )
+}
+
+type WalletListProps = {
+  onSelect: Function
+}
+
+const WalletList = (props: WalletListProps) => {
+  const { onSelect } = props
+  const addableWallets = walletSelections.filter(w => {
+    return w.addable
+  })
+  const classes = useStyles()
+  return (
+    <Box width='100%'>
+      <List disablePadding>
+        {addableWallets.map((w, i) => {
+          return (
+            <ListItem
+              button
+              key={`wallet-${i}`}
+              divider
+              className={classes.listItem}
+              onClick={() => {
+                onSelect(w.walletType)
+              }}
+            >
+              <Box display='flex' flexDirection='row' alignItems='center'>
+                <Box mr={1}>
+                  <Avatar className={classes.avatar} src={getWalletLogo(w.walletType)} />
+                </Box>
+                <Box>
+                  <Typography variant='body2'>{getWalletTitle(w.walletType)}</Typography>
+                </Box>
+              </Box>
+            </ListItem>
+          )
+        })}
+      </List>
+    </Box>
+  )
+}
+
+type SupportedCoinTypesProps = {
+  platformType: string
+}
+
+const SupportedCoinTypes = (props: SupportedCoinTypesProps) => {
+  const { platformType } = props
+  const cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
+  const classes = useStyles()
+  if (!platformType) return null
+  return (
+    <Box width='100%' flexDirection='column' display='flex'>
+      <Typography variant='h6'>Supported coin types</Typography>
+      <Divider style={{ marginTop: 10 }} />
+      <List disablePadding>
+        {cryptoTypes.map((c, i) => {
+          return (
+            <ListItem key={`crypto-${i}`} divider className={classes.denseListItem}>
+              <Box display='flex' flexDirection='row' alignItems='center'>
+                <Box mr={1}>
+                  <Avatar className={classes.avatar} src={getCryptoLogo(c)} />
+                </Box>
+                <Box>
+                  <Typography variant='body2'>{getCryptoSymbol(c)}</Typography>
+                </Box>
+              </Box>
+            </ListItem>
+          )
+        })}
+      </List>
+    </Box>
+  )
+}
+
+type WalletConnectActionProps = {
+  platformType: string,
+  walletType: string,
+  onConnect: Function,
+  actionsPending: Object,
+  selectedCryptoType: string
+}
+
+const WalletConnectAction = (props: WalletConnectActionProps) => {
+  const classes = useStyles()
+  const { onConnect, platformType, walletType, actionsPending, selectedCryptoType } = props
+  if (!platformType || !walletType) return null
+  let connectText, buttonText, buttonIcon, statusMessage
+  switch (walletType) {
+    case 'metamask':
+      connectText = 'Connect your wallet via browser extension'
+      buttonText = 'Connect to MetaMask'
+      buttonIcon = <OpenInBrowser />
+      if (actionsPending.checkWalletConnection) {
+        statusMessage = 'Checking if MetaMask extension is installed and enabled...'
+      } else {
+        statusMessage = 'Waiting for authorization...'
+      }
+      break
+    case 'ledger':
+      connectText = 'Plug-in and connect to your ledger divice'
+      buttonText = 'Connect to Ledger'
+      buttonIcon = <UsbIcon />
+      if (actionsPending.newCryptoAccountsFromWallet && platformType === 'bitcoin') {
+        statusMessage = 'Please wait while we sync your Bitcoin account with the network...'
+      } else if (actionsPending.checkWalletConnection) {
+        statusMessage =
+          'Please connect your Ledger Device and connect it through the popup window...'
+      } else {
+        statusMessage = 'Please navigate to the selected crypto app on your Ledger device...'
+      }
+      break
+    case 'trustWalletConnect':
+    case 'metamaskWalletConnect':
+      connectText = 'Connect your wallet via WalletConnect'
+      buttonText = 'Scan QR Code'
+      buttonIcon = <CropFreeIcon />
+      if (actionsPending.checkWalletConnection) {
+        statusMessage = 'Creating connection...'
+      } else {
+        statusMessage = 'Please scan the QR code with MetaMask Mobile app...'
+      }
+      break
+    case 'coinbaseWalletLink':
+      connectText = 'Connect your wallet via WalletLink'
+      buttonText = 'Scan QR Code'
+      buttonIcon = <CropFreeIcon />
+      break
+    case 'coinbaseOAuthWallet':
+      connectText = `Fetch Coinbase ${getCryptoTitle(platformType)} accounts`
+      buttonText = 'Authorize Chainsfr'
+      buttonIcon = <OpenInBrowser />
+      if (actionsPending.checkWalletConnection) {
+        statusMessage = 'Fetching your account...'
+      } else {
+        statusMessage =
+          'Waiting for authorization...\nMake sure the login pop-up window is not blocked by the browser.'
+      }
+      break
+    default:
+      statusMessage = 'Please wait...'
+  }
+  let cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
+  if (walletType === 'coinbaseOAuthWallet') {
+    // coinbase OAuth wallet can only add one crypto at a time
+    cryptoTypes = cryptoTypes.filter(cryptoType => {
+      return selectedCryptoType === cryptoType
+    })
+  }
+  if (actionsPending.checkWalletConnection || actionsPending.newCryptoAccountsFromWallet) {
+    return (
+      <Box display='flex' flexDirection='column'>
+        <Typography className={classes.subtitle}>{statusMessage}</Typography>
+        <Box mt={1} mb={1}>
+          <LinearProgress />
+        </Box>
+      </Box>
+    )
+  }
+
+  return (
+    <Box display='flex' flexDirection='column'>
+      <Box mb={1}>
+        <Typography className={classes.subtitle}>{connectText}</Typography>
+      </Box>
+      <Button
+        color='primary'
+        onClick={() => {
+          onConnect('default', cryptoTypes, walletType, platformType)
+        }}
+        variant='contained'
+        disabled={cryptoTypes.length === 0}
+      >
+        {buttonIcon}
+        {buttonText}
+      </Button>
+    </Box>
+  )
+}
+
+type SelectPlateformProps = {
+  platformType: string,
+  walletType: string,
+  onSelect: Function
+}
+
+const SelectPlateform = (props: SelectPlateformProps) => {
+  const classes = useStyles()
+  const { walletType, platformType, onSelect } = props
+  const listOfPlatform = getWalletSupportedPlatforms(walletType)
+  if (listOfPlatform.length === 1) {
+    onSelect(listOfPlatform[0])
+    return null
+  }
+  return (
+    <Box display='flex' flexDirection='column'>
+      <Typography variant='body2'>
+        {platformType ? 'Selected blockchain network' : 'Select blockchain network'}
+      </Typography>
+      <List disablePadding>
+        {listOfPlatform.map((p, i) => {
+          return (
+            <ListItem
+              key={`platform-${i}`}
+              button
+              onClick={() => {
+                onSelect(p)
+              }}
+              disableGutters
+            >
+              <Radio checked={platformType === p} className={classes.radio} />
+              <Typography variant='body2'>{getCryptoTitle(p)} </Typography>
+            </ListItem>
+          )
+        })}
+      </List>
+    </Box>
+  )
+}
+
+type WalletBigIconProps = {
+  src: string,
+  name: string
+}
+
+const WalletBigIcon = (props: WalletBigIconProps) => {
+  const classes = useStyles()
+  const { src, name } = props
+  return (
+    <Box display='flex' flexDirection='column' alignItems='center'>
+      <Box className={classes.bigAvatarContainer}>
+        <Avatar src={src} className={classes.bigAvatar} />
+      </Box>
+      <Typography variant='body2'>{name}</Typography>
+    </Box>
+  )
+}
+
+type ConnectWalletProps = {
+  platformType: string,
+  walletType: string,
+  onConnect: Function,
+  actionsPending: Object,
+  actionsFulfilled: Object,
+  errors: Object,
+  cryptoType: string,
+  setPlateformType: Function,
+  setCryptoType: Function
+}
+
+const ConnectWallet = (props: ConnectWalletProps) => {
+  const {
+    walletType,
+    onConnect,
+    actionsPending,
+    actionsFulfilled,
+    errors,
+    cryptoType,
+    platformType,
+    setPlateformType,
+    setCryptoType
+  } = props
+  if (walletType !== 'coinbaseOAuthWallet') {
+    return (
+      <Box display='flex' flexDirection='column'>
+        <WalletBigIcon src={getWalletLogo(walletType)} name={getWalletDescText(walletType)} />
+        <Box pt={2} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
+          <ErrorMessage errors={errors} walletType={walletType} platformType={platformType} />
+          <SelectPlateform
+            walletType={walletType}
+            platformType={platformType}
+            onSelect={setPlateformType}
+          />
+          <Box mt={1} width='100%'>
+            <WalletConnectAction
+              selectedCryptoType={cryptoType}
+              walletType={walletType}
+              platformType={platformType}
+              onConnect={onConnect}
+              actionsPending={actionsPending}
+              actionsFulfilled={actionsFulfilled}
+              errors={errors}
+            />
+          </Box>
+          <Box mt={1} width='100%'>
+            <SupportedCoinTypes platformType={platformType} />
+          </Box>
+        </Box>
+      </Box>
+    )
+  } else {
+    const cryptoTypeList = walletCryptoSupports['coinbaseOAuthWallet'].map(c => c.cryptoType)
+    return (
+      <Box display='flex' flexDirection='column'>
+        <WalletBigIcon src={getWalletLogo(walletType)} name={getWalletDescText(walletType)} />
+        <Box pt={2} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
+          <ErrorMessage errors={errors} walletType={walletType} platformType={platformType} />
+          <SelectCoin
+            selectedCryptoType={cryptoType}
+            cryptoTypeList={cryptoTypeList}
+            onSelect={setCryptoType}
+          />
+          <Box mt={1} width='100%'>
+            <WalletConnectAction
+              selectedCryptoType={cryptoType}
+              walletType={walletType}
+              platformType={platformType}
+              onConnect={onConnect}
+              actionsPending={actionsPending}
+              actionsFulfilled={actionsFulfilled}
+              errors={errors}
+            />
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
+}
+
+type NameNewAccountsProps = {
+  walletType: string,
+  name: string,
+  newCryptoAccounts: Function,
+  onNameChanged: Function
+}
+
+const NameNewAccounts = (props: NameNewAccountsProps) => {
+  const { walletType, onNameChanged, name, newCryptoAccounts } = props
+  const [toolipText, setTooltipText] = useState('Copy')
+  const firstNewCryptoAccount = newCryptoAccounts[0]
+  const classes = useStyles()
+  if (!firstNewCryptoAccount) return null
+  useEffect(() => {
+    if (
+      firstNewCryptoAccount &&
+      walletType === 'coinbaseOAuthWallet' &&
+      firstNewCryptoAccount.email &&
+      name.length === 0
+    ) {
+      onNameChanged(firstNewCryptoAccount.email)
+    }
+  }, [firstNewCryptoAccount])
+
+  let addressInfo = ''
+  if (firstNewCryptoAccount.hdWalletVariables && firstNewCryptoAccount.hdWalletVariables.xpub) {
+    addressInfo = firstNewCryptoAccount.hdWalletVariables.xpub
+  } else {
+    addressInfo = firstNewCryptoAccount.address
+  }
+
+  return (
+    <Box display='flex' flexDirection='column'>
+      <WalletBigIcon src={getWalletLogo(walletType)} name={getWalletDescText(walletType)} />
+      <Box pt={2} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
+        <Box padding={1} className={classes.successAlert} mb={1}>
+          <Typography variant='body2' className={classes.successText}>
+            {`${getWalletTitle(walletType)} connected`}
+          </Typography>
+        </Box>
+        <Box mt={1} width='100%'>
+          <TextField
+            fullWidth
+            id='account name'
+            variant='outlined'
+            label='Account Name'
+            onChange={event => {
+              onNameChanged(event.target.value)
+            }}
+            value={name}
+            disabled={walletType === 'coinbaseOAuthWallet'}
+          />
+        </Box>
+        <Box mt={1} display='flex' alignItems='center' justifyContent='space-between'>
+          <Typography variant='caption'>
+            {firstNewCryptoAccount.hdWalletVariables && firstNewCryptoAccount.hdWalletVariables.xpub
+              ? `xpub: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`
+              : `Address: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`}
+          </Typography>
+          <CopyToClipboard
+            text={addressInfo}
+            onCopy={() => {
+              setTooltipText('Copied')
+            }}
+          >
+            <Tooltip placement='bottom' title={toolipText}>
+              <IconButton style={{ padding: 0 }}>
+                <FileCopyIcon color='primary' style={{ width: '16px' }} />
+              </IconButton>
+            </Tooltip>
+          </CopyToClipboard>
+        </Box>
+        {firstNewCryptoAccount.hdWalletVariables && firstNewCryptoAccount.hdWalletVariables.xpub && (
+          <Box display='flex' alignItems='center'>
+            <ErrorIcon color='primary' style={{ width: '16px' }} />
+            <Button
+              target='_blank'
+              rel='noopener noreferrer'
+              href='https://support.ledger.com/hc/en-us/articles/360011069619-Extended-public-key'
+              style={{ padding: 0, borderRadius: 0 }}
+            >
+              <Typography color='primary' variant='caption' style={{ fontStyle: 'italic' }}>
+                What's xpub
+              </Typography>
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </Box>
+  )
+}
+
+type AddAccountModalComponentProps = {
+  open: boolean,
+  handleClose: Function,
+  onConnect: Function,
+  newCryptoAccounts: Object,
+  onSubmit: Function,
+  online: boolean
+}
+
+const AddAccountModalComponent = (props: AddAccountModalComponentProps) => {
+  const classes = useStyles()
+  const { handleClose, open, onConnect, newCryptoAccounts, onSubmit } = props
+  const [step, setStep] = useState(0)
+  const [walletType, setWalletType] = useState('')
+  const [name, setName] = useState('')
+  const [platformType, setPlateformType] = useState('')
+  const [cryptoType, setCryptoType] = useState('')
+
+  useEffect(() => {
+    if (cryptoType) setPlateformType(getCryptoPlatformType(cryptoType))
+  }, [cryptoType])
+
+  function handleWalletSelect (walletType) {
+    setWalletType(walletType)
+    setStep(1)
+  }
+
+  const { actionsPending, actionsFulfilled, errors } = useActionTracker(
+    ['newCryptoAccountsFromWallet', 'checkWalletConnection'],
+    [['NEW_CRYPTO_ACCOUNTS_FROM_WALLET'], ['CHECK_WALLET_CONNECTION]']]
+  )
+  const locked = actionsPending.newCryptoAccountsFromWallet || actionsPending.checkWalletConnection
+
+  useEffect(() => {
+    if (actionsFulfilled['newCryptoAccountsFromWallet']) {
+      setStep(2)
+    }
+  }, [actionsFulfilled['newCryptoAccountsFromWallet']])
+
+  function renderSteps () {
+    switch (step) {
+      case 0:
+        return <WalletList onSelect={handleWalletSelect} />
+      case 1:
+        return (
+          <ConnectWallet
+            walletType={walletType}
+            onConnect={onConnect}
+            actionsPending={actionsPending}
+            actionsFulfilled={actionsFulfilled}
+            errors={errors}
+            cryptoType={cryptoType}
+            platformType={platformType}
+            setPlateformType={setPlateformType}
+            setCryptoType={setCryptoType}
+          />
+        )
+      case 2:
+        return (
+          <NameNewAccounts
+            walletType={walletType}
+            name={name}
+            onNameChanged={setName}
+            newCryptoAccounts={newCryptoAccounts}
+          />
+        )
+      default:
+        return <WalletList onSelect={handleWalletSelect} />
+    }
+  }
+  const theme = useTheme()
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
+  return (
+    <Dialog
+      open={open}
+      fullScreen={fullScreen}
+      onClose={() => {
+        handleClose()
+      }}
+      classes={{ paperScrollPaper: classes.dialogRoot }}
+      fullWidth
+      disableBackdropClick={locked}
+    >
+      <DialogTitle disableTypography className={classes.titleRoot}>
+        <Typography variant='h3'>Connect to Account</Typography>
+        <IconButton onClick={handleClose} className={classes.closeButton} disabled={locked}>
+          <CloseIcon className={classes.closeIcon} />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className={classes.contentRoot}>{renderSteps()}</DialogContent>
+      {/* show buttons at last step */}
+      {step === 2 && (
+        <DialogActions style={{ justifyContent: 'center' }}>
+          <Button
+            onClick={() => {
+              handleClose()
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            // name cannot be empty
+            disabled={name.length === 0}
+            onClick={() => {
+              onSubmit(newCryptoAccounts, name)
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      )}
+    </Dialog>
+  )
+}
+
+export default AddAccountModalComponent
