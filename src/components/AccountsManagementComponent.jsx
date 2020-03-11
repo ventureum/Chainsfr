@@ -544,6 +544,7 @@ class AccountsManagementComponent extends Component {
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='accountManagementFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>
@@ -556,7 +557,7 @@ class AccountsManagementComponent extends Component {
                 height='100%'
               >
                 <Typography variant='h2'>Manage Accounts</Typography>
-                <Typography variant='h6' className={classes.decText}>
+                <Typography className={classes.decText}>
                   Chainsfr supports major platforms, including hardware wallets, mobile wallets,
                   exchanges.
                 </Typography>
@@ -696,8 +697,8 @@ const styles = theme => ({
     paddingTop: 40,
     paddingBottom: 40,
     [theme.breakpoints.up('sm')]: {
-      paddingLeft:'30px',
-      paddingRight:'30px'
+      paddingLeft: '30px',
+      paddingRight: '30px'
     }
   },
   upperBigGridItem: {
@@ -707,7 +708,11 @@ const styles = theme => ({
   },
   decText: {
     [theme.breakpoints.up('md')]: {
-      width: '80%'
+      width: '80%',
+      lineHeight: '20px',
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#777777'
     }
   }
 })

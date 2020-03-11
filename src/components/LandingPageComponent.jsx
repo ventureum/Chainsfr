@@ -459,6 +459,7 @@ class LandingPageComponent extends Component {
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='landingFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>
@@ -471,7 +472,7 @@ class LandingPageComponent extends Component {
                 justifyContent='center'
               >
                 <Typography variant='h2'>Email Transfer</Typography>
-                <Typography variant='h6'>Description goes here...</Typography>
+                <Typography className={classes.descText}>Description goes here...</Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>
                     <Grid item className={classes.uppperSmallGridItem}>
@@ -540,6 +541,12 @@ const styles = theme => ({
       paddingLeft: '30px',
       paddingRight: '30px'
     }
+  },
+  descText: {
+    lineHeight: '20px',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#777777'
   }
 })
 

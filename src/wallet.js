@@ -103,6 +103,10 @@ function isAddable ({ status, walletType }: { status: Object, walletType: string
     status.disabledReason = status.disabledReason || 'Not supported in mobile device'
   }
 
+  if (['drive', 'metamaskOne', 'referralWallet', 'escrow'].includes(walletType)) {
+    status.addable = false
+  }
+
   return { status, walletType }
 }
 
@@ -268,6 +272,13 @@ export function getWalletConfig (walletType: string): Object {
     return walletType === wallet.walletType
   })
   return w
+}
+
+export function getWalletDescText (walletType: string): Object {
+  const w: Object = walletSelections.find(wallet => {
+    return walletType === wallet.walletType
+  })
+  return w.desc
 }
 
 export function getWalletSupportedPlatforms (walletType: string): Array<string> {

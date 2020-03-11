@@ -97,7 +97,6 @@ export default function EmailTransferFormContainer (props: Props) {
   // on mount with profile
   useEffect(() => {
     if (profile.isAuthenticated) {
-      console.log('hehe')
       // prefill form
       updateForm({
         sender: { $set: profile.profileObj.email },

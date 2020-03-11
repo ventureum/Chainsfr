@@ -137,7 +137,7 @@ class RecipientsComponent extends Component {
             height='100%'
           >
             <Typography variant='h2'>Manage Recipients</Typography>
-            <Typography variant='h6' className={classes.decText}>
+            <Typography className={classes.decText}>
               Add recipients to use email transfer.
             </Typography>
             <Box display='flex' mt={2}>
@@ -177,8 +177,8 @@ const styles = theme => ({
     paddingTop: 40,
     paddingBottom: 40,
     [theme.breakpoints.up('sm')]: {
-      paddingLeft:'30px',
-      paddingRight:'30px'
+      paddingLeft: '30px',
+      paddingRight: '30px'
     }
   },
   upperBigGridItem: {
@@ -188,7 +188,11 @@ const styles = theme => ({
   },
   decText: {
     [theme.breakpoints.up('md')]: {
-      width: '80%'
+      width: '80%',
+      lineHeight: '20px',
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#777777'
     }
   }
 })

@@ -5,7 +5,7 @@ import { createWallet } from '../wallets/WalletFactory.js'
 import { saveWallet, getWallet } from '../drive.js'
 import { walletCryptoSupports } from '../wallet.js'
 import API from '../apis'
-import { enqueueSnackbar, closeSnackbar } from './notificationActions.js'
+import { enqueueSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
 import { createAccount } from '../accounts/AccountFactory.js'
@@ -77,14 +77,6 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
 function createCloudWallet (password: string, progress: ?Function) {
   return (dispatch: Function, getState: Function) => {
-    const key = new Date().getTime() + Math.random()
-    dispatch(
-      enqueueSnackbar({
-        message: 'We are setting up your drive wallet. Please do not close the page.',
-        key,
-        options: { variant: 'info', persist: true }
-      })
-    )
     return dispatch({
       type: 'CREATE_CLOUD_WALLET',
       payload: _createCloudWallet(password, progress),
@@ -93,8 +85,6 @@ function createCloudWallet (password: string, progress: ?Function) {
         // errors are warned in the console
         localErrorHandling: true
       }
-    }).then(() => {
-      dispatch(closeSnackbar(key))
     })
   }
 }
@@ -211,50 +201,44 @@ function checkWalletConnection (accountData: AccountData, additionalInfo: Object
   }
 }
 
-async function _newCryptoAccountsFromWallet (
-  name: string,
-  cryptoTypes: Array<string>,
-  walletType: string,
-  cryptoAccounts: Array<AccountData>,
-  options: Object
-) {
-  let newAccounts = await Promise.all(
-    cryptoTypes.map(async cryptoType => {
-      let _wallet = createWallet({ walletType: walletType })
-      let _account = await _wallet.newAccount(name, cryptoType, options)
-      let _newAccountData = _account.getAccountData()
-
-      if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
-        throw new Error('Account already exists')
-      }
-
-      if (cryptoType === 'bitcoin') {
-        await _account.syncWithNetwork()
-      }
-      return _account.getAccountData()
-    })
-  )
-  return newAccounts
-}
-
 function newCryptoAccountsFromWallet (
   name: string,
   cryptoTypes: Array<string>,
   walletType: string,
-  options: Object
+  platformType: string
 ) {
   return (dispatch: Function, getState: Function) => {
     const cryptoAccounts = getState().accountReducer.cryptoAccounts
     return dispatch({
       type: 'NEW_CRYPTO_ACCOUNTS_FROM_WALLET',
-      payload: _newCryptoAccountsFromWallet(name, cryptoTypes, walletType, cryptoAccounts, options)
+      payload: async () => {
+        // check wallet connection
+        await dispatch(checkWalletConnection({ walletType: walletType, cryptoType: platformType }))
+        let newAccounts = await Promise.all(
+          cryptoTypes.map(async cryptoType => {
+            let _wallet = createWallet({ walletType: walletType })
+            let _account = await _wallet.newAccount(name, cryptoType)
+            let _newAccountData = _account.getAccountData()
+
+            if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
+              throw new Error('Account already exists')
+            }
+
+            if (cryptoType === 'bitcoin') {
+              await _account.syncWithNetwork()
+            }
+            return _account.getAccountData()
+          })
+        )
+        return newAccounts
+      }
     }).catch(err => {
       if (err.message === 'Account already exists')
         dispatch(
           enqueueSnackbar({
             message: err.message,
             key: new Date().getTime() + Math.random(),
-            options: { autoHideDuration: 3000 }
+            options: { variant: 'error', autoHideDuration: 3000 }
           })
         )
     })

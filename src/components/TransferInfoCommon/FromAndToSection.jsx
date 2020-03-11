@@ -57,7 +57,7 @@ class AccountInfo extends Component<
           color='primary'
           onClick={() => this.setState({ showAddress: !showAddress })}
         >
-          Show Address
+          {showAddress ? 'Hide Address' : 'Show Address'}
         </Button>
         {showAddress && (
           <Box mt={1}>

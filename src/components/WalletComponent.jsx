@@ -537,7 +537,8 @@ function WalletComponent (props: {
                   src='https://www.youtube.com/embed/TeHbsQ0-wmM'
                   frameborder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                  title="walletFrame"
+                  title='walletFrame'
+                  allowFullScreen
                 />
               </Box>
             </Grid>
@@ -550,7 +551,7 @@ function WalletComponent (props: {
                 height='100%'
               >
                 <Typography variant='h2'>My Wallet</Typography>
-                <Typography variant='h6' className={classes.decText}>
+                <Typography className={classes.decText}>
                   Transfer your balance between your Chainsfr wallet and connected accounts. It's
                   fast and easy.
                 </Typography>
@@ -604,8 +605,8 @@ const useStyles = makeStyles(theme => {
       paddingTop: 40,
       paddingBottom: 40,
       [theme.breakpoints.up('sm')]: {
-        paddingLeft:'30px',
-        paddingRight:'30px'
+        paddingLeft: '30px',
+        paddingRight: '30px'
       }
     },
     upperBigGridItem: {
@@ -615,7 +616,11 @@ const useStyles = makeStyles(theme => {
     },
     decText: {
       [theme.breakpoints.up('md')]: {
-        width: '80%'
+        width: '80%',
+        lineHeight: '20px',
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#777777'
       }
     }
   }

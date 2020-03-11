@@ -30,11 +30,12 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
-import { refreshAccessToken } from './actions/userActions'
+import { refreshAccessToken, onLogout } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
+import moment from 'moment'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -174,25 +175,40 @@ class App extends Component {
   constructor (props) {
     super(props)
     console.info(`Build ${process.env.REACT_APP_VERSION}-${process.env.REACT_APP_ENV}`)
-  }
-
-  refreshLoginSession = () => {
-    const profile = store.getState().userReducer.profile
-    if (profile.isAuthenticated) {
-      store.dispatch(refreshAccessToken())
-      // if timer exist, cancel it
-      if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
-      // refresh in 50 mins
-      // use interval instead of timeout to avoid
-      // in some cases token is not refreshed
-      window.tokenRefreshTimer = setInterval(() => {
-        store.dispatch(refreshAccessToken())
-      }, 1000 * 60 * 50)
+    this.state = {
+      preloadFinished: false
     }
   }
 
+  // Do all the precheck inside this function
+  // once it's finished, it sets preloadFinished flag to true.
+  preload = async () => {
+    const { profile } = store.getState().userReducer
+    if (profile.isAuthenticated) {
+      // if it has been more than 24 hours since last login,
+      // then logout
+      let validLogin = profile.lastLoginTimestamp + 60 * 60 * 24 > moment().unix()
+      if (!validLogin) {
+        await store.dispatch(onLogout())
+      } else {
+        // if login is still valid
+        // refresh access token to make sure it is valid in the next one hour
+        store.dispatch(refreshAccessToken())
+        // if timer exist, cancel it
+        if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
+        // refresh in 50 mins
+        // use interval instead of timeout to avoid
+        // in some cases token is not refreshed
+        window.tokenRefreshTimer = setInterval(() => {
+          store.dispatch(refreshAccessToken())
+        }, 1000 * 60 * 50)
+      }
+    }
+    this.setState({ preloadFinished: true })
+  }
+
   componentDidMount () {
-    this.refreshLoginSession()
+    this.preload()
 
     // refresh price immediately
     store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
@@ -201,6 +217,10 @@ class App extends Component {
   }
 
   render () {
+    if (!this.state.preloadFinished) {
+      return null
+    }
+
     return (
       <ThemeProvider theme={themeChainsfr}>
         <Provider store={store}>
