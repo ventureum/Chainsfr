@@ -17,7 +17,6 @@ import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
 import path from '../Paths.js'
 import Divider from '@material-ui/core/Divider'
-import { transferStates } from '../actions/transferActions'
 import MuiLink from '@material-ui/core/Link'
 import url from '../url'
 import UserAvatar from './MicroComponents/UserAvatar'
@@ -26,21 +25,128 @@ import EmptyStateImage from '../images/empty_state_01.png'
 
 const toUserReadableState = {
   SENDER: {
-    SEND_PENDING: 'Sending',
-    SEND_FAILURE: 'Send Failed',
-    SEND_CONFIRMED_RECEIVE_EXPIRED: 'Expired',
-    SEND_CONFIRMED_RECEIVE_PENDING: 'Accepting',
-    SEND_CONFIRMED_RECEIVE_FAILURE: 'Accept Failed',
-    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Completed',
-    SEND_CONFIRMED_RECEIVE_NOT_INITIATED: 'Pending',
-    SEND_CONFIRMED_CANCEL_PENDING: 'Cancelling',
-    SEND_CONFIRMED_CANCEL_CONFIRMED: 'Cancelled',
-    SEND_CONFIRMED_CANCEL_FAILURE: 'Cancel Failed'
+    /* sending */
+    SEND_PENDING: {
+      label: 'Sending',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_FAILURE: {
+      label: 'Send Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
+
+    /* receiving */
+    SEND_CONFIRMED_RECEIVE_NOT_INITIATED: {
+      label: 'Pending',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'CANCEL'
+    },
+    SEND_CONFIRMED_RECEIVE_PENDING: {
+      label: 'Accepting',
+      labelStyle: 'recentTransferItemTransferStatusPending'
+    },
+    SEND_CONFIRMED_RECEIVE_FAILURE: {
+      label: 'Pending',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'CANCEL'
+    },
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: {
+      label: 'Completed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* receiving during expiration */
+    SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED: {
+      label: 'Expired',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'CANCEL'
+    },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING: {
+      // receiver is accepting the transfer,
+      // ignore expiration status to prevent sender from
+      // cancelling the transfer
+      label: 'Accepting',
+      labelStyle: 'recentTransferItemTransferStatusPending'
+    },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE: {
+      // receive failure just after expiration
+      // receiver cannot accept the transfer anymore due to
+      // expiration, mark it as "Expired"
+      label: 'Expired',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'CANCEL'
+    },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED: {
+      label: 'Completed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* cancellation */
+    SEND_CONFIRMED_CANCEL_PENDING: {
+      label: 'Cancelling',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_CANCEL_FAILURE: {
+      label: 'Cancel Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_CANCEL_CONFIRMED: {
+      label: 'Cancelled',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* cancellation after expiration */
+    SEND_CONFIRMED_EXPIRED_CANCEL_PENDING: {
+      label: 'Reclaiming',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_EXPIRED_CANCEL_FAILURE: {
+      label: 'Reclaim Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED: {
+      label: 'Reclaimed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    }
   },
   RECEIVER: {
-    SEND_CONFIRMED_RECEIVE_PENDING: 'Receiving',
-    SEND_CONFIRMED_RECEIVE_FAILURE: 'Receive Failed',
-    SEND_CONFIRMED_RECEIVE_CONFIRMED: 'Completed'
+    /* receiving */
+    SEND_CONFIRMED_RECEIVE_PENDING: {
+      label: 'Receiving',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_RECEIVE_FAILURE: {
+      label: 'Receive Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_RECEIVE_CONFIRMED: {
+      label: 'Completed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* receiving during expiration */
+    SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING: {
+      label: 'Receiving',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE: {
+      label: 'Receive Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED: {
+      label: 'Completed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    }
   },
   DIRECT_TRANSFER: {
     SEND_PENDING: 'Sending',
@@ -148,36 +254,12 @@ export function UserRecentTransactions (props) {
       )
     }
     let secondaryDesc = null
-    if (transfer.state === transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
-    } else if (transfer.state === transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED) {
-      secondaryDesc = 'on ' + moment.unix(transfer.cancelTimestamp).format('MMM Do YYYY, HH:mm')
-    } else {
-      // pending receive
-      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
-    }
 
-    let stateClassName = 'recentTransferItemTransferStatusTextBased' // default
-    if (
-      // in progress
-      [
-        transferStates.SEND_PENDING,
-        transferStates.SEND_CONFIRMED_RECEIVE_PENDING,
-        transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED,
-        transferStates.SEND_CONFIRMED_CANCEL_PENDING
-      ].includes(transfer.state)
-    ) {
-      stateClassName = 'recentTransferItemTransferStatusPending'
-    } else if (
-      // error
-      [
-        transferStates.SEND_FAILURE,
-        transferStates.SEND_CONFIRMED_RECEIVE_FAILURE,
-        transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
-        transferStates.SEND_CONFIRMED_CANCEL_FAILURE
-      ].includes(transfer.state)
-    ) {
-      stateClassName = 'recentTransferItemTransferStatusError'
+    // show timestamp of the first action by either sender or receiver
+    if (transfer.transferType === 'SENDER') {
+      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
+    } else if (transfer.transferType === 'RECEIVER') {
+      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
     }
 
     const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
@@ -246,9 +328,15 @@ export function UserRecentTransactions (props) {
               >
                 <Grid item xs={12} sm='auto'>
                   <Box display='flex' justifyContent='flex-end'>
-                    <Box className={classes[stateClassName]}>
+                    <Box
+                      className={
+                        classes[
+                          toUserReadableState[transfer.transferType][transfer.state].labelStyle
+                        ]
+                      }
+                    >
                       <Typography variant='button' align='center'>
-                        {toUserReadableState[transfer.transferType][transfer.state]}
+                        {toUserReadableState[transfer.transferType][transfer.state].label}
                       </Typography>
                     </Box>
                   </Box>
@@ -308,11 +396,7 @@ export function UserRecentTransactions (props) {
                 </Typography>
               </Grid>
             )}
-            {[
-              transferStates.SEND_PENDING,
-              transferStates.SEND_FAILURE,
-              transferStates.SEND_CONFIRMED_CANCEL_PENDING
-            ].includes(transfer.state) && (
+            {toUserReadableState[transfer.transferType][transfer.state].action === 'TRACK_TX' && (
               <Grid item>
                 <Typography variant='caption'>
                   You can track the Transaction
@@ -326,10 +410,7 @@ export function UserRecentTransactions (props) {
                 </Typography>
               </Grid>
             )}
-            {[
-              transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED,
-              transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
-            ].includes(transfer.state) && (
+            {toUserReadableState[transfer.transferType][transfer.state].action === 'CANCEL' && (
               <Grid item>
                 <Button
                   color='primary'
@@ -343,22 +424,21 @@ export function UserRecentTransactions (props) {
                 </Button>
               </Grid>
             )}
-            {transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED === transfer.state && (
-              <Grid item>
-                <Button
-                  color='primary'
-                  component={Link}
-                  target='_blank'
-                  rel='noopener'
-                  to={`${path.receipt}?${
-                    transfer.transferId ? 'transferId' : 'receivingId'
-                  }=${transfer.transferId || transfer.receivingId}`}
-                  className={classes.recentTransferItemCancelBtn}
-                >
-                  View receipt
-                </Button>
-              </Grid>
-            )}
+            {/* always show receipt */}
+            <Grid item>
+              <Button
+                color='primary'
+                component={Link}
+                target='_blank'
+                rel='noopener'
+                to={`${path.receipt}?${
+                  transfer.transferId ? 'transferId' : 'receivingId'
+                }=${transfer.transferId || transfer.receivingId}`}
+                className={classes.recentTransferItemCancelBtn}
+              >
+                View Receipt
+              </Button>
+            </Grid>
           </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
