@@ -44,6 +44,13 @@ export const fontWeight = {
   black: 900
 }
 
+export const textTransform = {
+  lowercase: 'lowercase',
+  uppercase: 'uppercase',
+  titlecase: 'capitalize',
+  default: 'none'
+}
+
 // spacing
 const spacingBaseUnit = 10
 
@@ -104,9 +111,26 @@ export const baseColors = {
     b900: '#0C2375'
   },
   green: {
-    g100: '#e3f5ee',
-    g500: '#09BC8A',
-    g700: '#008e5c'
+    g100: '#e6f1f0',
+    g200: '#9df6ba',
+    g300: '#68e49e',
+    g400: '#41ca8a',
+    g500: '#10a870',
+    g600: '#0b906c',
+    g700: '#087865',
+    g800: '#05615a',
+    g900: '#034e50'
+  },
+  orange: {
+    o100: '#FEF3CF',
+    o200: '#FDE5A0',
+    o300: '#F9D170',
+    o400: '#F3BC4C',
+    o500: '#EC9D14',
+    o600: '#CA7F0E',
+    o700: '#A9630A',
+    o800: '#884A06',
+    o900: '#713803'
   }
 }
 
@@ -114,20 +138,23 @@ export const borderRadius = {
   s: 4,
   m: 8,
   l: 16,
-  max: 100
-}
-
-export const textTransform = {
-  lowercase: 'lowercase',
-  uppercase: 'uppercase',
-  titlecase: 'capitalize',
-  default: 'none'
+  max: 200
 }
 
 export const elementWidth = {
   fullWidth: '100%',
   xxl: 640,
   xl: 420,
+  l: 240,
+  m: 120,
+  s: 60,
+  xs: 30
+}
+
+export const containerWidth = {
+  fullWidth: '100%',
+  xxl: 640,
+  xl: 480,
   l: 240,
   m: 120,
   s: 60,
