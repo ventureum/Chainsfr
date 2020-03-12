@@ -504,7 +504,7 @@ function getTransferState (transferData: Object): string {
         case 'Failed':
           state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
           break
-        case null:
+        case 'NotInitiated':
           state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
           break
         case 'Expired': {
