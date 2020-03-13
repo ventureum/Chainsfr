@@ -468,9 +468,11 @@ async function _cancelTransfer (txRequest: {
 }
 
 // helper function
+// transferState format: [SEND_STATE, EXPIRED_STATE(optional), RECEIVE_STATE | CANCEL_STATE]
+// which follows the timeline of transfer events
 function getTransferState (transferData: Object): string {
   let state
-  const { sendTxState, receiveTxState, cancelTxState, transferMethod } = transferData
+  const { sendTxState, receiveTxState, cancelTxState, transferMethod, expired } = transferData
   switch (sendTxState) {
     case 'Pending': {
       // SEND_PENDING
@@ -491,42 +493,43 @@ function getTransferState (transferData: Object): string {
         state = transferStates.SEND_DIRECT_TRANSFER_CONFIRMED
         break
       }
+      // expired state
+      const EXPIRED_STATE = expired ? '_EXPIRED': ''
       switch (receiveTxState) {
         // SEND_CONFIRMED_RECEIVE_PENDING
         case 'Pending':
-          state = transferStates.SEND_CONFIRMED_RECEIVE_PENDING
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_RECEIVE_PENDING`]
           break
         // SEND_CONFIRMED_RECEIVE_CONFIRMED
         case 'Confirmed':
-          state = transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED
+          // receive confirmed after expiration is possible:
+          //  receiver started receiving right before expiration,
+          //  transfer expired and receiver's tx is confirmed
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_RECEIVE_CONFIRMED`]
           break
         // SEND_CONFIRMED_RECEIVE_FAILURE
         case 'Failed':
-          state = transferStates.SEND_CONFIRMED_RECEIVE_FAILURE
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_RECEIVE_FAILURE`]
           break
-        case null:
-          state = transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED
+        case 'NotInitiated':
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_RECEIVE_NOT_INITIATED`]
           break
-        case 'Expired': {
-          // SEND_CONFIRMED_RECEIVE_EXPIRED
-          state = transferStates.SEND_CONFIRMED_RECEIVE_EXPIRED
-          break
-        }
         default:
           break
       }
       switch (cancelTxState) {
         // SEND_CONFIRMED_CANCEL_PENDING
         case 'Pending':
-          state = transferStates.SEND_CONFIRMED_CANCEL_PENDING
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_CANCEL_PENDING`]
           break
         // SEND_CONFIRMED_CANCEL_CONFIRMED
         case 'Confirmed':
-          state = transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED
+          // SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED is equivalent to reclaimed 
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_CANCEL_CONFIRMED`]
           break
         // SEND_CONFIRMED_CANCEL_FAILURE
         case 'Failed':
-          state = transferStates.SEND_CONFIRMED_CANCEL_FAILURE
+          state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_CANCEL_FAILURE`]
           break
         default:
           break
