@@ -214,22 +214,22 @@ function newCryptoAccountsFromWallet (
       payload: async () => {
         // check wallet connection
         await dispatch(checkWalletConnection({ walletType: walletType, cryptoType: platformType }))
-        let newAccounts = await Promise.all(
-          cryptoTypes.map(async cryptoType => {
-            let _wallet = createWallet({ walletType: walletType })
-            let _account = await _wallet.newAccount(name, cryptoType)
-            let _newAccountData = _account.getAccountData()
+        let newAccounts = []
+        for (let i = 0; i < cryptoTypes.length; i++) {
+          const cryptoType = cryptoTypes[i]
+          let _wallet = createWallet({ walletType: walletType })
+          let _account = await _wallet.newAccount(name, cryptoType)
+          let _newAccountData = _account.getAccountData()
 
-            if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
-              throw new Error('Account already exists')
-            }
+          if (cryptoAccounts.findIndex(item => utils.accountsEqual(item, _newAccountData)) >= 0) {
+            throw new Error('Account already exists')
+          }
 
-            if (cryptoType === 'bitcoin') {
-              await _account.syncWithNetwork()
-            }
-            return _account.getAccountData()
-          })
-        )
+          if (cryptoType === 'bitcoin') {
+            await _account.syncWithNetwork()
+          }
+          newAccounts.push(_account.getAccountData())
+        }
         return newAccounts
       }
     }).catch(err => {
