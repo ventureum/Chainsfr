@@ -56,7 +56,7 @@ export default function EmailTransferFormContainer (props: Props) {
 
   const accountSelection = useSelector(state =>
     state.accountReducer.cryptoAccounts.find(_account =>
-      utils.accountsEqual(_account, {id: state.formReducer.transferForm.accountId})
+      utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
     )
   )
 
@@ -95,34 +95,38 @@ export default function EmailTransferFormContainer (props: Props) {
   const dispatch = useDispatch()
 
   // on mount with profile
-  useEffect(() => {
-    if (profile.isAuthenticated) {
-      // prefill form
-      updateForm({
-        sender: { $set: profile.profileObj.email },
-        senderName: { $set: profile.profileObj.name },
-        destination: { $set: destinationPrefilled || transferForm.destination },
-        receiverName: { $set: receiverNamePrefilled || transferForm.receiverName },
+  useEffect(
+    () => {
+      if (profile.isAuthenticated) {
+        // prefill form
+        updateForm({
+          sender: { $set: profile.profileObj.email },
+          senderName: { $set: profile.profileObj.name },
+          destination: { $set: destinationPrefilled || transferForm.destination },
+          receiverName: { $set: receiverNamePrefilled || transferForm.receiverName },
 
-        // always clear transferAmount
-        // this also applies going from step 2 to step 1
-        transferAmount: {$set: ''},
-        transferCurrencyAmount: {$set: ''},
+          // always clear transferAmount
+          // this also applies going from step 2 to step 1
+          transferAmount: { $set: '' },
+          transferCurrencyAmount: { $set: '' },
 
-        accountId: {
-          $set: JSON.stringify({
-            walletType: walletSelectionPrefilled,
-            platformType: platformTypePrefilled,
-            cryptoType: cryptoTypePrefilled,
-            address: addressPrefilled,
-            xpub: xpubPrefilled
-          })
-        }
-      })
-      // fetch recipients
-      dispatch(getRecipients())
-    }
-  }, [profile])
+          accountId: {
+            $set: JSON.stringify({
+              walletType: walletSelectionPrefilled,
+              platformType: platformTypePrefilled,
+              cryptoType: cryptoTypePrefilled,
+              address: addressPrefilled,
+              xpub: xpubPrefilled
+            })
+          }
+        })
+        // fetch recipients
+        dispatch(getRecipients())
+      }
+    },
+    // set data once user is logged in
+    [profile.isAuthenticated]
+  )
 
   // helper functions for converting currency
   const toCurrencyAmount = (cryptoAmount, cryptoType) =>
