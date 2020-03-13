@@ -59,7 +59,6 @@ export default class WalletConnect implements IWallet<AccountData> {
     options?: Object
   ): Promise<EthereumAccount> => {
     const addresses = await this._getWalletConnectAddresses()
-    console.log(this.WALLET_TYPE)
     const accountData = {
       cryptoType: cryptoType,
       walletType: this.WALLET_TYPE,
@@ -167,15 +166,15 @@ export default class WalletConnect implements IWallet<AccountData> {
     let txObj
     if (options.directTransfer) {
       // direct transfer to another address
-      txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
-    } else {
-    const { multisig } = options
-      txObj = multisig.getSendToEscrowTxObj(
+      txObj = await WalletUtils.getDirectTransferTxObj(
         accountData.address,
         to,
         value,
         accountData.cryptoType
       )
+    } else {
+      const { multisig } = options
+      txObj = multisig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
     }
 
     return { txHash: await window.walletConnector.sendTransaction(txObj) }
@@ -207,7 +206,7 @@ export default class WalletConnect implements IWallet<AccountData> {
       gas: txFee.gas,
       gasPrice: txFee.price
     }
-    
+
     // boardcast tx
     return window.walletConnector.sendTransaction(txObj)
   }
@@ -224,9 +223,10 @@ export default class WalletConnect implements IWallet<AccountData> {
     if (window.walletConnector && window.walletConnector.connected) {
       await window.walletConnector.killSession()
     }
-    window.walletConnector = new WalletConnect({
+    window.walletConnector = new _WalletConnect({
       bridge: 'https://bridge.walletconnect.org' // Required
     })
+    this._subscribeToWalletConnectEvents()
   }
 
   _subscribeToWalletConnectEvents = () => {
