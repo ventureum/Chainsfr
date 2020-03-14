@@ -25,6 +25,12 @@ export const themeChainsfr = createMuiTheme({
       main: uiColors.error,
       dark: uiColors.errorDark,
       contrastText: uiColors.white
+    },
+    text: {
+      primary: fontColors.primary,
+      secondary: fontColors.secondary,
+      disabled: fontColors.disabled,
+      hint: fontColors.placeholder
     }
   },
   typography: {
@@ -73,11 +79,11 @@ export const themeChainsfr = createMuiTheme({
       textTransform: descriptions.d1.textTransform
     },
     subtitle2: {
-      fontSize: descriptions.d3.fontSize,
-      fontWeight: descriptions.d3.fontWeight,
-      lineHeight: descriptions.d3.lineHeight,
-      color: descriptions.d3.color,
-      textTransform: descriptions.d3.textTransform
+      fontSize: descriptions.d2.fontSize,
+      fontWeight: descriptions.d2.fontWeight,
+      lineHeight: descriptions.d2.lineHeight,
+      color: descriptions.d2.color,
+      textTransform: descriptions.d2.textTransform
     },
     body1: {
       fontSize: descriptions.d3.fontSize,

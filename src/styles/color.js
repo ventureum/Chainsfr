@@ -17,6 +17,7 @@ export const uiColors = {
 export const fontColors = {
   primary: baseColors.black,
   secondary: baseColors.grey.g700,
-  placeholder: baseColors.grey.g500,
+  disabled: baseColors.grey.g500,
+  placeholder: baseColors.grey.g300,
   white: baseColors.white
 }
