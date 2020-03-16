@@ -65,7 +65,7 @@ class EditRecipientDialog extends Component<Props, State> {
       >
         <DialogTitle id='form-dialog-title'>
           <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-            <Typography variant='h3'>Edit Recipient</Typography>
+            <Typography variant='h3'>Edit Contact</Typography>
             <IconButton
               onClick={() => {
                 handleClose()
@@ -87,7 +87,7 @@ class EditRecipientDialog extends Component<Props, State> {
               onChange={this.handleChange('name')}
               error={!validName}
               disabled={loading}
-              helperText={!validName ? 'Invalid recipient name' : ''}
+              helperText={!validName ? 'Invalid contact name' : ''}
             />
             <TextField
               id='email'

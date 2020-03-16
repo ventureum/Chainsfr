@@ -72,7 +72,7 @@ function AddRecipientDialog (props: Props) {
     <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
         <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-          <Typography variant='h3'>Add Recipient</Typography>
+          <Typography variant='h3'>Add Contact</Typography>
           <IconButton onClick={handleClose}>
             <CloseIcon fontSize='small' color='secondary' />
           </IconButton>
@@ -90,7 +90,7 @@ function AddRecipientDialog (props: Props) {
             onChange={handleChange('name')}
             error={!validName}
             disabled={loading}
-            helperText={!validName ? 'Invalid recipient name' : ''}
+            helperText={!validName ? 'Invalid contact name' : ''}
           />
           <TextField
             id='email'
