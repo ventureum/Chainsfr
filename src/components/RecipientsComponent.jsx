@@ -68,7 +68,7 @@ class RecipientsComponent extends Component {
               <img src={EmptyStateImage} alt='Empty State' />
             </Box>
             <Typography variant='subtitle2' color='textSecondary'>
-              It seems you don't have any recipients saved
+              It seems you don't have any contacts saved
             </Typography>
           </Box>
         ) : (
@@ -103,7 +103,7 @@ class RecipientsComponent extends Component {
                     </Tooltip>
                   </Box>
                   <Box display='inline'>
-                    <Tooltip title='Send to Recipient'>
+                    <Tooltip title='Send to Contact'>
                       <IconButton onClick={() => onSend(recipient)}>
                         <SendIcon color='primary' id='sendBtn' />
                       </IconButton>
@@ -136,13 +136,13 @@ class RecipientsComponent extends Component {
             justifyContent='center'
             height='100%'
           >
-            <Typography variant='h2'>Manage Recipients</Typography>
+            <Typography variant='h2'>Manage Contacts</Typography>
             <Typography className={classes.decText}>
-              Add recipients to use email transfer.
+              Add contacts to use email transfer.
             </Typography>
             <Box display='flex' mt={2}>
               <Button variant='contained' color='primary' onClick={() => addRecipient()}>
-                Add Recipient
+                Add Contacts
               </Button>
             </Box>
           </Box>

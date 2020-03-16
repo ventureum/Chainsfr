@@ -33,7 +33,7 @@ const NAV_BTNS = [
     icon: <AccountBalanceIcon />
   },
   {
-    name: 'Recipients',
+    name: 'Contacts',
     path: path.recipients,
     icon: <ContactsIcon />
   },
