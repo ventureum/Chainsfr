@@ -286,107 +286,103 @@ function WalletComponent (props: {
           anchor='right'
           open={drawerState.open}
           onClose={() => setDrawerState({ open: false, idx: -1 })}
+          classes={{ paper: classes.drawerPapper }}
         >
           {account && (
-            <Grid
-              container
-              direction='column'
-              justify='center'
-              style={{
-                width: '480px',
-                maxWidth: '100vw',
-                margin: '20px'
-              }}
-              spacing={2}
-            >
-              {/* title */}
-              <Grid item>
-                <Box display='flex' justifyContent='space-between'>
-                  <Typography variant='h3'>
-                    Wallet - {getCryptoTitle(account.cryptoType)}
-                  </Typography>
-                  <IconButton
-                    onClick={() => setDrawerState({ open: false, idx: -1 })}
-                    aria-label='close crypto tx history'
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-              </Grid>
-              <Grid item>
-                <Divider />
-              </Grid>
-
-              {/* crypto icon, name and balance */}
-              <Grid item>
-                <Grid container direction='row' alignItems='center'>
-                  {/* coin icon and name */}
-                  <Grid item xs={6}>
-                    <Box display='flex' flexDirection='row' alignItems='center'>
-                      <Box mr={1} display='inline'>
-                        <Avatar
-                          style={{ height: '32px', borderRadius: '2px' }}
-                          src={getCryptoLogo(account.cryptoType)}
-                        ></Avatar>
-                      </Box>
-                      <Typography variant='body2'>{getCryptoTitle(account.cryptoType)}</Typography>
-                    </Box>
-                  </Grid>
-                  {/* amount */}
-                  <Grid item xs={6}>
-                    <Box
-                      display='flex'
-                      flexDirection='column'
-                      alignItems='flex-end'
-                      justifyContent='flex-end'
+            <Box padding={2}>
+              <Grid container direction='column' justify='center' spacing={2}>
+                {/* title */}
+                <Grid item>
+                  <Box display='flex' justifyContent='space-between' alignItems='flex-start'>
+                    <Typography variant='h3'>
+                      Wallet - {getCryptoTitle(account.cryptoType)}
+                    </Typography>
+                    <IconButton
+                      onClick={() => setDrawerState({ open: false, idx: -1 })}
+                      aria-label='close crypto tx history'
+                      style={{ padding: 0 }}
                     >
-                      <Typography variant='body2'>
-                        {numeral(balanceStandardTokenUnit).format('0.00a')}
-                      </Typography>
-                      <Typography variant='body2'>
-                        {`$${toCurrencyAmount(balanceStandardTokenUnit, account.cryptoType)}`}
-                      </Typography>
-                    </Box>
+                      <CloseIcon />
+                    </IconButton>
+                  </Box>
+                </Grid>
+                <Grid item>
+                  <Divider />
+                </Grid>
+
+                {/* crypto icon, name and balance */}
+                <Grid item>
+                  <Grid container direction='row' alignItems='center'>
+                    {/* coin icon and name */}
+                    <Grid item xs={6}>
+                      <Box display='flex' flexDirection='row' alignItems='center'>
+                        <Box mr={1} display='inline'>
+                          <Avatar
+                            style={{ height: '32px', borderRadius: '2px' }}
+                            src={getCryptoLogo(account.cryptoType)}
+                          ></Avatar>
+                        </Box>
+                        <Typography variant='body2'>
+                          {getCryptoTitle(account.cryptoType)}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    {/* amount */}
+                    <Grid item xs={6}>
+                      <Box
+                        display='flex'
+                        flexDirection='column'
+                        alignItems='flex-end'
+                        justifyContent='flex-end'
+                      >
+                        <Typography variant='body2'>
+                          {numeral(balanceStandardTokenUnit).format('0.00a')}
+                        </Typography>
+                        <Typography variant='body2'>
+                          {`$${toCurrencyAmount(balanceStandardTokenUnit, account.cryptoType)}`}
+                        </Typography>
+                      </Box>
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
 
-              {/* Address and send icons */}
-              <Grid item>
-                <Box display='flex' justifyContent='center'>
-                  <Button
-                    classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
-                    color='primary'
-                    onClick={() => setAddressQRCodeDialogOpen(true)}
-                  >
-                    <img src={QRCode} alt='' className={classes.buttonIcon} />
-                    Address
-                  </Button>
-                  <Button
-                    color='primary'
-                    classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
-                    onClick={() =>
-                      push(
-                        `${path.transfer}` +
-                          `?walletSelection=${account.walletType}` +
-                          `&platformType=${account.platformType}` +
-                          `&cryptoType=${account.cryptoType}` +
-                          `${
-                            account.platformType === 'bitcoin'
-                              ? `&xpub=${account.hdWalletVariables.xpub}`
-                              : `&address=${account.address}`
-                          }`
-                      )
-                    }
-                  >
-                    <SendIcon className={classes.buttonIcon} />
-                    Send
-                  </Button>
-                </Box>
+                {/* Address and send icons */}
+                <Grid item>
+                  <Box display='flex' justifyContent='center'>
+                    <Button
+                      classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
+                      color='primary'
+                      onClick={() => setAddressQRCodeDialogOpen(true)}
+                    >
+                      <img src={QRCode} alt='' className={classes.buttonIcon} />
+                      Address
+                    </Button>
+                    <Button
+                      color='primary'
+                      classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
+                      onClick={() =>
+                        push(
+                          `${path.transfer}` +
+                            `?walletSelection=${account.walletType}` +
+                            `&platformType=${account.platformType}` +
+                            `&cryptoType=${account.cryptoType}` +
+                            `${
+                              account.platformType === 'bitcoin'
+                                ? `&xpub=${account.hdWalletVariables.xpub}`
+                                : `&address=${account.address}`
+                            }`
+                        )
+                      }
+                    >
+                      <SendIcon className={classes.buttonIcon} />
+                      Send
+                    </Button>
+                  </Box>
+                </Grid>
+                {/* transfer history by accountId */}
+                <Grid item>{renderTxHistory(account)}</Grid>
               </Grid>
-              {/* transfer history by accountId */}
-              <Grid item>{renderTxHistory(account)}</Grid>
-            </Grid>
+            </Box>
           )}
         </Drawer>
         {addressQRCodeDialogOpen && (
@@ -622,6 +618,10 @@ const useStyles = makeStyles(theme => {
         fontWeight: '600',
         color: '#777777'
       }
+    },
+    drawerPapper: {
+      maxWidth: '480px',
+      width: '100%'
     }
   }
 })
