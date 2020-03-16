@@ -8,7 +8,7 @@ import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
 import { getWallet } from '../drive.js'
-import { createCloudWallet } from './walletActions'
+import { createCloudWallet, clearCloudWalletCryptoAccounts } from './walletActions'
 import moment from 'moment'
 
 function clearError () {
@@ -252,6 +252,8 @@ function postLoginPreparation (loginData: any, progress?: Function) {
         const chainfrWalletFile = await getWallet()
         if (!chainfrWalletFile) {
           const { masterKey } = userMetaInfo
+          // delete old cloud wallet accounts from backend
+          await dispatch(clearCloudWalletCryptoAccounts())
           // if chainfr wallet file does not exist
           // create
           await dispatch(createCloudWallet(masterKey))
