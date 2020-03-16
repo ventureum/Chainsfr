@@ -36,7 +36,7 @@ class RemoveRecipientDialog extends Component<Props> {
       >
         <DialogTitle id='form-dialog-title'>
           <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-            <Typography variant='h3'>Delete Recipient</Typography>
+            <Typography variant='h3'>Delete Contact</Typography>
             <IconButton
               onClick={() => {
                 handleClose()
@@ -48,7 +48,7 @@ class RemoveRecipientDialog extends Component<Props> {
         </DialogTitle>
         <DialogContent className='dialog-content'>
           <Typography variant='body2'>
-            Are you sure you want to delete the recipient {recipient.name}?
+            Are you sure you want to delete the contact {recipient.name}?
           </Typography>
           {loading && <LinearProgress />}
         </DialogContent>

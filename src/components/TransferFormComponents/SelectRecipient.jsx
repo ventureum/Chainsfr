@@ -56,7 +56,7 @@ export default function SelectRecipient (props: Props) {
     <>
       <FormControl variant='outlined' fullWidth margin='normal'>
         <InputLabel ref={inputLabelRef} htmlFor='destination-helper'>
-          Select Recipient
+          Select Contact
         </InputLabel>
         <Select
           value={destination || ''}
@@ -64,7 +64,7 @@ export default function SelectRecipient (props: Props) {
           input={
             <OutlinedInput
               labelWidth={inputLabelRef.current ? inputLabelRef.current.offsetWidth : undefined}
-              name='Select Recipient'
+              name='Select Contact'
             />
           }
           error={!!formError.destination}
@@ -92,7 +92,7 @@ export default function SelectRecipient (props: Props) {
               fullWidth
             >
               <AddIcon fontSize='small' />
-              Add Recipient
+              Add Contact
             </Button>
           </MenuItem>
         </Select>
