@@ -117,17 +117,14 @@ function getCloudWallet () {
         // necessary for checking if cloud wallet exists
         localErrorHandling: true
       }
-    }).catch(error => {
-      if (error.message === WalletErrors.drive.walletNotExist) {
-        console.warn(error)
-        dispatch({
-          type: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
-          payload: API.clearCloudWalletCryptoAccounts()
-        })
-      } else {
-        throw error
-      }
     })
+  }
+}
+
+function clearCloudWalletCryptoAccounts () {
+  return {
+    type: 'CLEAR_CLOUD_WALLET_CRYPTO_ACCOUNTS',
+    payload: API.clearCloudWalletCryptoAccounts()
   }
 }
 
@@ -251,5 +248,6 @@ export {
   verifyAccount,
   checkWalletConnection,
   newCryptoAccountsFromWallet,
-  changeChainsfrWalletPassword
+  changeChainsfrWalletPassword,
+  clearCloudWalletCryptoAccounts
 }
