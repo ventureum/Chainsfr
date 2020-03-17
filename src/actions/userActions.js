@@ -7,7 +7,7 @@ import { enqueueSnackbar } from './notificationActions.js'
 import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
-import { getWallet } from '../drive.js'
+import { getWallet, deleteWallet } from '../drive.js'
 import { createCloudWallet, clearCloudWalletCryptoAccounts } from './walletActions'
 import moment from 'moment'
 
@@ -84,19 +84,23 @@ function register (idToken: string, userProfile: UserProfile) {
   }
 }
 
-async function _onLogout () {
+async function _onLogout (disconnect?: boolean, deleteAppDataFolder?: boolean) {
   if (window.gapi && window.gapi.auth2) {
     let googleAuth = await window.gapi.auth2.getAuthInstance()
     if (googleAuth && googleAuth.isSignedIn.get()) {
+      if (disconnect) {
+        if (deleteAppDataFolder) await deleteWallet()
+        await googleAuth.disconnect()
+      }
       await googleAuth.signOut()
     }
   }
 }
 
-function onLogout () {
+function onLogout (disconnect?: boolean, deleteAppDataFolder?: boolean) {
   return {
     type: 'LOGOUT',
-    payload: _onLogout()
+    payload: _onLogout(disconnect, deleteAppDataFolder)
   }
 }
 
