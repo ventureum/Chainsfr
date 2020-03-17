@@ -8,6 +8,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
 import DirectTransferContainer from './containers/DirectTransferContainer'
+import Disconnect from './components/MicroComponents/Disconnect'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
@@ -289,6 +290,12 @@ class App extends Component {
                   path={`${paths.userSetting}`}
                   component={userIsAuthenticated(UserSettingContainer)}
                 />
+                {process.env.REACT_APP_ENV === 'test' && (
+                  <DefaultLayout
+                    path={`${paths.disconnect}`}
+                    component={userIsAuthenticated(Disconnect)}
+                  />
+                )}
               </Switch>
             </ConnectedRouter>
           </SnackbarProvider>

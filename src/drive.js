@@ -501,6 +501,14 @@ async function getWallet (): Promise<any> {
   return loadFileByName(APP_DATA_FOLDER_SPACE, WALLET_FILE_NAME, WALLET_FOLDER_NAME)
 }
 
+async function deleteWallet (): Promise<any> {
+  let rootFolder = await listFiles(APP_DATA_FOLDER_SPACE, null, true, ROOT_FOLDER_NAME)
+  if (rootFolder.length === 0) return null
+  await window.gapi.client.drive.files.delete({
+    fileId: rootFolder[0].id
+  })
+}
+
 export {
   saveTempSendFile,
   saveHistoryFile,
@@ -508,5 +516,6 @@ export {
   getTransferData,
   getAllTransfers,
   getWallet,
-  gapiLoad
+  gapiLoad,
+  deleteWallet
 }

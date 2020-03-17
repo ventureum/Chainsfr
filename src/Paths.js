@@ -14,4 +14,9 @@ const paths = {
   userSetting: '/userSetting'
 }
 
-export default paths
+const testPaths = {
+  ...paths,
+  disconnect: '/disconnect'
+}
+
+export default process.env.REACT_APP_ENV === 'test' ? testPaths : paths
