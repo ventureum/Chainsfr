@@ -84,7 +84,7 @@
     "build:staging": "env-cmd .env.staging npm run build",
     "build:prod": "env-cmd .env.prod npm run build",
     "test": "REACT_APP_VERSION=`git describe --long --always --tags --dirty` react-app-rewired test",
-    "test:e2e": "env-cmd .env jest --config ./src/tests/e2e/jest.config.js",
+    "test:e2e": "env-cmd .env jest --config ./src/tests/e2e/jest.config.js --runInBand",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
@@ -124,7 +124,8 @@
     "jest-puppeteer": "^4.4.0",
     "loglevel": "^1.6.7",
     "puppeteer": "^2.1.1",
-    "puppeteer-recorder": "^1.0.7",
+    "puppeteer-extra": "^3.1.9",
+    "puppeteer-extra-plugin-stealth": "^2.4.9",
     "react-app-rewired": "^2.1.1",
     "react-test-renderer": "^16.8.6",
     "worker-plugin": "^3.2.0"
