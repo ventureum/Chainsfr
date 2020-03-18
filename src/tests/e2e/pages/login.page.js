@@ -1,4 +1,7 @@
 import log from 'loglevel'
+import captcha from 'async-captcha'
+
+const anticaptcha = new captcha(process.env.E2E_TEST_ANTICAPTCHA_API_KEY, 2, 10)
 log.setDefaultLevel('info')
 
 const runUntilEvaluateEquals = (fn, value, opts = {}) => {
@@ -51,6 +54,32 @@ class LoginPage {
 
     await googleLoginPopup.keyboard.type(username)
     await googleLoginPopup.keyboard.press('Enter')
+
+    while (true) {
+      // solve captcha
+      await sleep(1000)
+
+      if (await googleLoginPopup.$('input[name=password]')) {
+        log.info('Password input field found, proceed to type password')
+        break
+      }
+      let captchaElementHandler = await googleLoginPopup.$('#captchaimg')
+      if (captchaElementHandler) {
+        console.log(captchaElementHandler)
+        log.info('Found captcha in login popup')
+        // base64String contains the captcha image's base64 encoded version
+        const base64String = await captchaElementHandler.screenshot({ encoding: 'base64' })
+        log.info('Solving captcha...')
+        const captchaCode = await anticaptcha.getResult(base64String)
+        if (captchaCode) {
+          log.info('Captcha solution: ' + captchaCode)
+          await googleLoginPopup.keyboard.type(captchaCode)
+          await googleLoginPopup.keyboard.press('Enter')
+        } else {
+          log.error('Unable to find captcha solution')
+        }
+      }
+    }
 
     await googleLoginPopup.waitForFunction('document.querySelector("input")')
     log.info('Google login popup password field loaded')

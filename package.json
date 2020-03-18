@@ -103,6 +103,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "async-captcha": "^1.0.4",
     "env-cmd": "^8.0.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
