@@ -31,9 +31,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
-import { onLogout } from './actions/userActions'
+import { postLoginPreparation, onLogout } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
-
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
 import moment from 'moment'
@@ -193,6 +192,8 @@ class App extends Component {
       let validLogin = moment().unix() < accessTokenExpiresAt
       if (!validLogin) {
         await store.dispatch(onLogout())
+      } else {
+        store.dispatch(postLoginPreparation(profile))
       }
     }
     this.setState({ preloadFinished: true })
