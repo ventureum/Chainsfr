@@ -475,7 +475,7 @@ async function getUserProfileByEmail (email: string): Promise<UserProfile> {
       action: 'GET_USER',
       email: email
     })
-    return rv.data
+    return rv.data.profile
   } catch (e) {
     return {}
   }

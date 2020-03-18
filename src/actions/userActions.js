@@ -63,8 +63,13 @@ async function _getRecipients (idToken: string) {
   let recipients = await API.getRecipients({ idToken })
   recipients = await Promise.all(
     recipients.map(async recipient => {
-      const recipientProfile = await API.getUserProfileByEmail(recipient.email)
-      return { ...recipient, imageUrl: recipientProfile.imageUrl }
+      try {
+        const recipientProfile = await API.getUserProfileByEmail(recipient.email)
+        return { ...recipient, imageUrl: recipientProfile.imageUrl }
+      } catch (e) {
+        console.warn(e.message)
+        return recipient
+      }
     })
   )
   return recipients
