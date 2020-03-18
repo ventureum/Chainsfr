@@ -27,7 +27,7 @@ const sleep = milliseconds => {
 }
 
 class LoginPage {
-  async login (username, password) {
+  async login (username, password, newUser) {
     log.debug(username, password)
     // assume we are at login page
     await page.waitForFunction('document.querySelector("button")')
@@ -65,7 +65,6 @@ class LoginPage {
       }
       let captchaElementHandler = await googleLoginPopup.$('#captchaimg')
       if (captchaElementHandler) {
-        console.log(captchaElementHandler)
         log.info('Found captcha in login popup')
         // base64String contains the captcha image's base64 encoded version
         const base64String = await captchaElementHandler.screenshot({ encoding: 'base64' })
@@ -83,11 +82,24 @@ class LoginPage {
 
     await googleLoginPopup.waitForFunction('document.querySelector("input")')
     log.info('Google login popup password field loaded')
-    await sleep(1000)
 
     await googleLoginPopup.keyboard.type(password)
     await googleLoginPopup.keyboard.press('Enter')
 
+    if (newUser) {
+      // new user would get a authorization page
+      await expect(page).toClick('button', { text: 'Allow' })
+      await sleep(1000)
+    }
+
+    await expect(page).toMatchElement('p', { text: 'Loading...', timeout: 100000 })
+    if (newUser) {
+      // new user would get a authorization page
+      await expect(page).toMatchElement('p', { text: 'Setting up your account...', timeout: 100000 })
+      await expect(page).toMatchElement('p', { text: 'It won\'t take long.', timeout: 100000 })
+    }
+
+    log.info('loading page displayed')
     await page.waitForNavigation({
       waitUntil: 'networkidle0'
     })
