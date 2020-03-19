@@ -1,5 +1,5 @@
 // @flow
-import React , { useRef} from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import Box from '@material-ui/core/Box'
 import Avatar from '@material-ui/core/Avatar'
 import Typography from '@material-ui/core/Typography'
@@ -11,7 +11,15 @@ import OutlinedInput from '@material-ui/core/OutlinedInput'
 import { getWalletLogo, getWalletTitle } from '../../wallet'
 
 export default function MockDriveWalletDropdown (props: { inputLabel: string }) {
+  const [inputLabelWidth, setInputLabelWidth] = useState(undefined)
+
   const inputLabelRef = useRef()
+
+  useEffect(()=>{
+    if (inputLabelRef.current){
+      setInputLabelWidth(inputLabelRef.current.offsetWidth)
+    }
+  },[props.inputLabel])
 
   const renderAccountItem = () => {
     return (
@@ -22,7 +30,8 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
         </Box>
         <Box>
           {/* name and wallet title*/}
-          <Typography variant='body2'>{getWalletTitle('drive')}</Typography>
+          <Typography variant='body2'>Wallet</Typography>
+          <Typography variant='caption'>{getWalletTitle('drive')}</Typography>
         </Box>
       </Box>
     )
@@ -30,8 +39,8 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
   return (
     <FormControl variant='outlined' fullWidth margin='normal'>
       <InputLabel ref={inputLabelRef} id='mockDriveWalletInputLabel'>
-          { props.inputLabel }
-        </InputLabel>
+        {props.inputLabel}
+      </InputLabel>
       <Select
         labelId='mockDriveWalletInputLabel'
         id='mockDriveWalletSelect'
@@ -39,12 +48,12 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
         value={{}}
         // must have outlinedInput for complete dropdown mock
         input={
-            <OutlinedInput
-              labelWidth={inputLabelRef.current ? inputLabelRef.current.offsetWidth : undefined}
-              name='Select Account'
-            />
-          }
-      > 
+          <OutlinedInput
+            labelWidth={inputLabelWidth}
+            name='Select Account'
+          />
+        }
+      >
         {/* Must have a single menu item since the select is not disabled */}
         <MenuItem key={1} value={{}}>
           {renderAccountItem()}

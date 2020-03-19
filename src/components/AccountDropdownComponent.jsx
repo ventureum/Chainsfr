@@ -57,16 +57,22 @@ class AccountDropdownComponent extends Component<Props, State> {
     this.accountCryptoTypeSelectionLabelRef = React.createRef()
   }
   componentDidMount () {
-    this.setState({
-      accountCryptoTypeSelectionLabelWidth: this.accountCryptoTypeSelectionLabelRef.current
-        ? this.accountCryptoTypeSelectionLabelRef.current.offsetWidth
-        : 0,
-      groupedAccountSelectionLabelWidth: this.groupedAccountSelectionLabelRef.current.offsetWidth
-    })
+    if (this.accountCryptoTypeSelectionLabelRef.current) {
+      this.setState({
+        accountCryptoTypeSelectionLabelWidth: this.accountCryptoTypeSelectionLabelRef.current
+          .offsetWidth
+      })
+    }
+
+    if (this.groupedAccountSelectionLabelRef.current) {
+      this.setState({
+        groupedAccountSelectionLabelWidth: this.groupedAccountSelectionLabelRef.current.offsetWidth
+      })
+    }
   }
 
-  componentDidUpdate () {
-    const { groupedAccount } = this.props
+  componentDidUpdate (prevProps: Props) {
+    const { groupedAccount, inputLabel } = this.props
     if (
       groupedAccount &&
       // deep object comparison
@@ -74,6 +80,20 @@ class AccountDropdownComponent extends Component<Props, State> {
     ) {
       this.setState({ groupedAccount: groupedAccount })
       this.autoSelectAccount(groupedAccount)
+    }
+    if (prevProps.inputLabel !== inputLabel) {
+      if (this.accountCryptoTypeSelectionLabelRef.current) {
+        this.setState({
+          accountCryptoTypeSelectionLabelWidth: this.accountCryptoTypeSelectionLabelRef.current
+            .offsetWidth
+        })
+      }
+      if (this.groupedAccountSelectionLabelRef.current) {
+        this.setState({
+          groupedAccountSelectionLabelWidth: this.groupedAccountSelectionLabelRef.current
+            .offsetWidth
+        })
+      }
     }
   }
 
@@ -282,7 +302,7 @@ class AccountDropdownComponent extends Component<Props, State> {
             )}
             {account && account.status === accountStatus.synced && (
               <Box ml={1}>
-                <Typography variant='caption'>Address {account.address}</Typography>
+                <Typography variant='caption'>Address: {account.address}</Typography>
               </Box>
             )}
           </FormControl>
