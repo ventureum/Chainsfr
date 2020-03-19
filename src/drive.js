@@ -509,7 +509,7 @@ async function deleteWallet (): Promise<any> {
   })
 }
 
-export {
+let exportObj = {
   saveTempSendFile,
   saveHistoryFile,
   saveWallet,
@@ -518,4 +518,30 @@ export {
   getWallet,
   gapiLoad,
   deleteWallet
+}
+if (env.REACT_APP_ENV === 'test' && env.REACT_APP_E2E_TEST_MOCK_USER) {
+  // mock user drive
+  exportObj = require('./tests/e2e/mocks/drive.js')
+}
+
+
+  const _saveTempSendFile = exportObj.saveTempSendFile
+  const _saveHistoryFile= exportObj.saveHistoryFile
+  const _saveWallet=exportObj.saveWallet
+  const _getTransferData=exportObj.getTransferData
+  const _getAllTransfers=exportObj.getAllTransfers
+  const _getWallet=exportObj.getWallet
+  const _gapiLoad=exportObj.gapiLoad
+  const _deleteWallet=exportObj.deleteWallet
+
+
+export {
+  _saveTempSendFile as saveTempSendFile,
+  _saveHistoryFile as saveHistoryFile,
+  _saveWallet as saveWallet,
+  _getTransferData as getTransferData,
+  _getAllTransfers as getAllTransfers,
+  _getWallet as getWallet,
+  _gapiLoad as gapiLoad,
+  _deleteWallet as deleteWallet
 }

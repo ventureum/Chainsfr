@@ -79,6 +79,7 @@
   },
   "scripts": {
     "start": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired start",
+    "start:mock-user": "REACT_APP_E2E_TEST_MOCK_USER=true REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired start",
     "build": "REACT_APP_VERSION=`git describe --always --long --dirty` react-app-rewired build",
     "build:test": "env-cmd .env.test npm run build",
     "build:staging": "env-cmd .env.staging npm run build",
