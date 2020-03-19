@@ -4,6 +4,10 @@ import Button from '@material-ui/core/Button'
 import GoogleIcon from '../images/google-icon.svg'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
+import env from '../typedEnv'
+
+// for testing only
+import { googleLoginAuthObj } from '../tests/e2e/mocks/user'
 
 class GoogleLoginButton extends Component {
   gapiLoad = () => {
@@ -29,36 +33,42 @@ class GoogleLoginButton extends Component {
     try {
       await this.gapiLoad()
       console.log('gapi loaded')
-      let googleAuth = await window.gapi.auth2.getAuthInstance()
       let userInstance
-      if (!googleAuth || !googleAuth.isSignedIn.get()) {
-        const client = await window.gapi.auth2.init({
-          clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-          scope: process.env.REACT_APP_GOOGLE_API_SCOPE,
-          discoveryDocs: process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS
-        })
-
-        // set option to display account selection everytime
-        // This is what differs from react-google-login
-        let options = new window.gapi.auth2.SigninOptionsBuilder()
-        options.setPrompt('select_account')
-        userInstance = await client.signIn(options)
+      if (env.REACT_APP_ENV === 'test' && env.REACT_APP_E2E_TEST_MOCK_USER) {
+        // mock login
+        console.log('Mocking login')
+        userInstance = googleLoginAuthObj
       } else {
-        userInstance = await googleAuth.currentUser.get()
-      }
-      const basicProfile = userInstance.getBasicProfile()
-      const authResponse = userInstance.getAuthResponse()
-      userInstance.googleId = basicProfile.getId()
-      userInstance.tokenObj = authResponse
-      userInstance.idToken = authResponse.id_token
-      userInstance.accessToken = authResponse.access_token
-      userInstance.profileObj = {
-        googleId: basicProfile.getId(),
-        imageUrl: basicProfile.getImageUrl(),
-        email: basicProfile.getEmail(),
-        name: basicProfile.getName(),
-        givenName: basicProfile.getGivenName(),
-        familyName: basicProfile.getFamilyName()
+        let googleAuth = await window.gapi.auth2.getAuthInstance()
+        if (!googleAuth || !googleAuth.isSignedIn.get()) {
+          const client = await window.gapi.auth2.init({
+            clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+            scope: process.env.REACT_APP_GOOGLE_API_SCOPE,
+            discoveryDocs: process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS
+          })
+
+          // set option to display account selection everytime
+          // This is what differs from react-google-login
+          let options = new window.gapi.auth2.SigninOptionsBuilder()
+          options.setPrompt('select_account')
+          userInstance = await client.signIn(options)
+        } else {
+          userInstance = await googleAuth.currentUser.get()
+        }
+        const basicProfile = userInstance.getBasicProfile()
+        const authResponse = userInstance.getAuthResponse()
+        userInstance.googleId = basicProfile.getId()
+        userInstance.tokenObj = authResponse
+        userInstance.idToken = authResponse.id_token
+        userInstance.accessToken = authResponse.access_token
+        userInstance.profileObj = {
+          googleId: basicProfile.getId(),
+          imageUrl: basicProfile.getImageUrl(),
+          email: basicProfile.getEmail(),
+          name: basicProfile.getName(),
+          givenName: basicProfile.getGivenName(),
+          familyName: basicProfile.getFamilyName()
+        }
       }
       this.props.onSuccess(userInstance)
     } catch (e) {
@@ -96,13 +106,13 @@ class GoogleLoginButton extends Component {
 const style = theme => ({
   loginBtnRoot: {
     padding: '8px',
-    maxWidth:'300px'
+    maxWidth: '300px'
   },
   loginBtnSpan: {
     display: 'flex',
     alignItems: 'center',
     position: 'relative',
-    height:'24px'
+    height: '24px'
   },
   iconContainer: {
     backgroundColor: '#ffffff',
