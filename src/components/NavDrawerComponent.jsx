@@ -34,7 +34,7 @@ const NAV_BTNS = [
   },
   {
     name: 'Contacts',
-    path: path.recipients,
+    path: path.contacts,
     icon: <ContactsIcon />
   },
   {

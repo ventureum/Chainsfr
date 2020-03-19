@@ -261,7 +261,7 @@ class App extends Component {
                   component={userIsAuthenticated(CancelContainer)}
                 />
                 <DefaultLayout
-                  path={`${paths.recipients}`}
+                  path={`${paths.contacts}`}
                   component={userIsAuthenticated(RecipientsContainer)}
                 />
                 <DefaultLayout
