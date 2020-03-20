@@ -110,7 +110,7 @@ class AccountsManagementComponent extends Component {
         maxWidth='md'
         classes={{ paper: classes.confirmDialogPaper }}
       >
-        <DialogTitle disableTypography>
+        <DialogTitle disableTypography className={classes.dialogTitle}>
           <Typography variant='h2'>Delete Account</Typography>
           <IconButton
             onClick={() => this.toggleDeleteConfirmModal()}
@@ -119,10 +119,10 @@ class AccountsManagementComponent extends Component {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent style={{ height: '100px', width: '560px' }}>
+        <DialogContent className={classes.dialogContent}>
           <DialogContentText>Are you sure you want to delete the account?</DialogContentText>
         </DialogContent>
-        <DialogActions style={{ marginBottom: '10px' }}>
+        <DialogActions className={classes.dialogAction}>
           <Button onClick={() => this.toggleDeleteConfirmModal()}>Cancel</Button>
           <Button
             variant='contained'
@@ -150,13 +150,13 @@ class AccountsManagementComponent extends Component {
         maxWidth='md'
         classes={{ paper: classes.confirmDialogPaper }}
       >
-        <DialogTitle disableTypography>
+        <DialogTitle disableTypography className={classes.dialogTitle}>
           <Typography variant='h2'>Change Account Name</Typography>
           <IconButton onClick={() => this.toggleChangeNameModal()} className={classes.closeButton}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent style={{ width: '560px' }}>
+        <DialogContent className={classes.dialogContent}>
           <TextField
             fullWidth
             id='newName'
@@ -170,7 +170,7 @@ class AccountsManagementComponent extends Component {
             value={newAccountName || ''}
           />
         </DialogContent>
-        <DialogActions style={{ marginBottom: '10px' }}>
+        <DialogActions className={classes.dialogAction}>
           <Button onClick={() => this.toggleChangeNameModal()}>Cancel</Button>
           <Button
             disabled={!online}
@@ -650,7 +650,26 @@ const styles = theme => ({
     color: theme.palette.grey[500]
   },
   confirmDialogPaper: {
-    padding: '20px'
+    padding: '30px',
+    width: '100vh',
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '540px'
+    }
+  },
+  dialogTitle: {
+    marginBottom: theme.spacing(2),
+    padding: 0
+  },
+  dialogContent: {
+    marginBottom: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0
+  },
+  dialogAction: {
+    marginBottom: theme.spacing(1),
+    padding: 0
   },
   deleteBtn: {
     fontFamily: btnTexts.btnTextLight.fontFamily,
