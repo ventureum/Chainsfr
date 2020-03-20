@@ -148,7 +148,12 @@ const PreloadingComponent = props => {
             </Typography>
           </>
         ) : (
-          <Typography variant='body2' color='primary' className={classes.text}>
+          <Typography
+            variant='body2'
+            color='primary'
+            className={classes.text}
+            data-test-id='loading'
+          >
             Loading...
           </Typography>
         )}

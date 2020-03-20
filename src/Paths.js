@@ -6,7 +6,7 @@ const paths = {
   transfer: '/send',
   receive: '/receive',
   cancel: '/cancel',
-  recipients: '/recipients',
+  contacts: '/contacts',
   referral: '/referral',
   accounts: '/accounts',
   receipt: '/receipt',

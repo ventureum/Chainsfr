@@ -24,21 +24,25 @@ import WalletIcon from '../images/logo-white-square.svg'
 const NAV_BTNS = [
   {
     name: 'Overview',
+    id: 'overview',
     path: path.home,
     icon: <FormatListBulletedIcon />
   },
   {
     name: 'Accounts',
+    id: 'accounts',
     path: path.accounts,
     icon: <AccountBalanceIcon />
   },
   {
     name: 'Contacts',
-    path: path.recipients,
+    id: 'contacts',
+    path: path.contacts,
     icon: <ContactsIcon />
   },
   {
     name: 'Wallet',
+    id: 'wallet',
     path: path.wallet,
     icon: <img src={WalletIcon} width='100%' alt='wallet_icon'></img>
   }
@@ -170,6 +174,7 @@ const NavDrawerComponent = (props: Props) => {
                   onClick={() => {
                     handleDrawerToggle()
                   }}
+                  data-test-id={`${item.id}_nav_btn`}
                 >
                   <ListItemIcon className={clsx(classes.baseListColor, classes.listItemIcon)}>
                     {item.icon}
@@ -185,7 +190,7 @@ const NavDrawerComponent = (props: Props) => {
             })}
           </List>
           <Box display='flex' flexDirection='column' alignItems='center'>
-            <Typography className={classes.copyright}>
+            <Typography className={classes.copyright} data-test-id='copy_right'>
               &copy; {'2018 - '}
               {new Date().getFullYear()} Ventureum Inc.
             </Typography>
@@ -210,7 +215,7 @@ const NavDrawerComponent = (props: Props) => {
             </Box>
             <Box display='flex' flexDirection='row' alignItems='center'>
               <GitHubIcon style={{ width: 12, color: '#ffffff', marginRight: 10 }} />
-              <Typography className={classes.buildText}>
+              <Typography className={classes.buildText} data-test-id='build_version'>
                 Build {process.env.REACT_APP_VERSION}
               </Typography>
             </Box>

@@ -451,7 +451,9 @@ export function UserRecentTransactions (props) {
         <Grid item>
           <Grid container direction='row'>
             <Grid item>
-              <Typography variant='h2'>Recent Transactions</Typography>
+              <Typography variant='h2' data-test-id='rt_title'>
+                Recent Transactions
+              </Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -503,7 +505,7 @@ export function UserRecentTransactions (props) {
             {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
               <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
                 <Box mb={2}>
-                  <img src={EmptyStateImage} alt='Empty State' />
+                  <img src={EmptyStateImage} alt='Empty State' data-test-id='empty_img' />
                 </Box>
                 <Typography variant='subtitle2' color='textSecondary'>
                   It seems you don't have any transactions yet
@@ -540,6 +542,7 @@ class LandingPageComponent extends Component {
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='landingFrame'
                   allowFullScreen
+                  data-test-id='video_embed'
                 />
               </Box>
             </Grid>
@@ -551,8 +554,12 @@ class LandingPageComponent extends Component {
                 height='100%'
                 justifyContent='center'
               >
-                <Typography variant='h2'>Email Transfer</Typography>
-                <Typography className={classes.descText}>Description goes here...</Typography>
+                <Typography variant='h2' data-test-id='emt_title'>
+                  Email Transfer
+                </Typography>
+                <Typography className={classes.descText} data-test-id='emt_subtitle'>
+                  Description goes here...
+                </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>
                     <Grid item className={classes.uppperSmallGridItem}>
@@ -560,6 +567,7 @@ class LandingPageComponent extends Component {
                         variant='contained'
                         color='primary'
                         onClick={() => push(path.transfer)}
+                        data-test-id='emt_btn'
                       >
                         Start Email Transfer
                       </Button>
@@ -569,6 +577,7 @@ class LandingPageComponent extends Component {
                         className={classes.lightbtn}
                         color='primary'
                         onClick={() => push(path.accounts)}
+                        data-test-id='cya_btn'
                       >
                         Connect Your Accounts
                       </Button>

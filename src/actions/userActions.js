@@ -95,7 +95,7 @@ function addRecipient (recipient: Recipient) {
       if (r.email === recipient.email) {
         return dispatch(
           enqueueSnackbar({
-            message: 'Recipient already exists.',
+            message: 'Contact already exists.',
             key: new Date().getTime() + Math.random(),
             options: { variant: 'error', autoHideDuration: 3000 }
           })
@@ -108,7 +108,7 @@ function addRecipient (recipient: Recipient) {
     }).then(() => {
       dispatch(
         enqueueSnackbar({
-          message: 'Recipient added successfully.',
+          message: 'Contact added successfully.',
           key: new Date().getTime() + Math.random(),
           options: { variant: 'info', autoHideDuration: 3000 }
         })
@@ -139,7 +139,7 @@ function editRecipient (oldRecipient: Recipient, newRecipient: Recipient) {
     }).then(() => {
       dispatch(
         enqueueSnackbar({
-          message: 'Recipient modified successfully.',
+          message: 'Contact modified successfully.',
           key: new Date().getTime() + Math.random(),
           options: { variant: 'info', autoHideDuration: 3000 }
         })
@@ -157,7 +157,7 @@ function removeRecipient (recipient: Recipient) {
     }).then(() => {
       dispatch(
         enqueueSnackbar({
-          message: 'Recipient removed successfully.',
+          message: 'Contact removed successfully.',
           key: new Date().getTime() + Math.random(),
           options: { variant: 'info', autoHideDuration: 3000 }
         })
