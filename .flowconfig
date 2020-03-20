@@ -6,7 +6,7 @@
 ./src
 
 [libs]
-./flow-typed/npm/.*
+./flow-typed/npm/*
 
 [lints]
 
