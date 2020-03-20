@@ -76,7 +76,7 @@ class EditRecipientDialog extends Component<Props, State> {
           </Box>
         </DialogTitle>
         <DialogContent className='dialog-form'>
-          <form noValidate>
+          <form noValidate data-test-id='edit_recipient_form'>
             <TextField
               id='name'
               variant='outlined'
@@ -88,6 +88,7 @@ class EditRecipientDialog extends Component<Props, State> {
               error={!validName}
               disabled={loading}
               helperText={!validName ? 'Invalid contact name' : ''}
+              name='name'
             />
             <TextField
               id='email'
@@ -100,6 +101,7 @@ class EditRecipientDialog extends Component<Props, State> {
               value={email}
               onChange={this.handleChange('email')}
               helperText={!validEmail ? 'Invalid Email format' : ''}
+              name='email'
             />
           </form>
           {loading && <LinearProgress />}

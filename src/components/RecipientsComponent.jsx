@@ -77,6 +77,7 @@ class RecipientsComponent extends Component {
               item
               key={i}
               className={i % 2 === 0 ? classes.recipientItem : classes.recipientItemColored}
+              data-test-id='recipient_list_item'
             >
               <Grid container justify='space-between'>
                 <Grid item>
@@ -87,8 +88,10 @@ class RecipientsComponent extends Component {
                       src={recipient.imageUrl}
                     />
                     <Box ml={1}>
-                      <Typography>{recipient.name}</Typography>
-                      <Typography variant='caption'>{recipient.email}</Typography>
+                      <Typography data-test-id='recipient_name'>{recipient.name}</Typography>
+                      <Typography variant='caption' data-test-id='recipient_email'>
+                        {recipient.email}
+                      </Typography>
                     </Box>
                   </Box>
                 </Grid>
@@ -137,9 +140,7 @@ class RecipientsComponent extends Component {
             height='100%'
           >
             <Typography variant='h2'>Manage Contacts</Typography>
-            <Typography className={classes.decText}>
-              Add contacts to use email transfer.
-            </Typography>
+            <Typography className={classes.decText}>Add contacts to use email transfer.</Typography>
             <Box display='flex' mt={2}>
               <Button variant='contained' color='primary' onClick={() => addRecipient()}>
                 Add Contacts
