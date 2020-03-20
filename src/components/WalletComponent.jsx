@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button'
 import Container from '@material-ui/core/Container'
 import Divider from '@material-ui/core/Divider'
 import Drawer from '@material-ui/core/Drawer'
+import EmptyStateImage from '../images/empty_state_01.png'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -22,7 +23,6 @@ import QRCode from '../images/qrcode.svg'
 import SendIcon from '@material-ui/icons/Send'
 import InfiniteScroll from 'react-infinite-scroller'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import EmptyStateImage from '../images/empty_state_01.png'
 import SwapVertIcon from '../images/swap.svg'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import ReceiptIcon from '@material-ui/icons/Receipt'
@@ -213,6 +213,7 @@ function WalletComponent (props: {
 
   const renderTxHistory = account => {
     let txHistory = txHistoryByAccount[account.id]
+    let allTxs = []
 
     if (txHistory) {
       // combine pending and confirmed txs
@@ -222,7 +223,7 @@ function WalletComponent (props: {
       })
 
       const confirmedTxs = txHistory.confirmedTxs
-      var allTxs = [...pendingTxs, ...confirmedTxs]
+      allTxs = [...pendingTxs, ...confirmedTxs]
     }
 
     return (
@@ -241,10 +242,9 @@ function WalletComponent (props: {
         loadMore={() => null}
         hasMore={false}
       >
-        {!actionsPending.getTxHistoryByAccount &&
-          txHistory &&
-          txHistory.history &&
-          txHistory.history.length === 0 && (
+        {!actionsPending.getTxHistoryByAccount && allTxs.length === 0 && (
+          <>
+            <Divider />
             <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
               <Box mb={2}>
                 <img src={EmptyStateImage} alt='Empty State' />
@@ -253,7 +253,8 @@ function WalletComponent (props: {
                 It seems you don't have any transactions yet
               </Typography>
             </Box>
-          )}
+          </>
+        )}
         {txHistory
           ? allTxs &&
             allTxs.map((tx, i) => (
