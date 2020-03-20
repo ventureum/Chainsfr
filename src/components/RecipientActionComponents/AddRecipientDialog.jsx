@@ -79,7 +79,7 @@ function AddRecipientDialog (props: Props) {
         </Box>
       </DialogTitle>
       <DialogContent>
-        <form noValidate>
+        <form noValidate data-test-id='add_recipient_form'>
           <TextField
             id='name'
             variant='outlined'
@@ -91,6 +91,7 @@ function AddRecipientDialog (props: Props) {
             error={!validName}
             disabled={loading}
             helperText={!validName ? 'Invalid contact name' : ''}
+            name='name'
           />
           <TextField
             id='email'
@@ -103,6 +104,7 @@ function AddRecipientDialog (props: Props) {
             value={email}
             onChange={handleChange('email')}
             helperText={!validEmail ? 'Invalid Email format' : ''}
+            name='email'
           />
         </form>
         {loading && <LinearProgress />}
@@ -115,6 +117,7 @@ function AddRecipientDialog (props: Props) {
             variant='outlined'
             color='secondary'
             id='cancel'
+            data-test-id='cancel'
           >
             Cancel
           </Button>
@@ -125,6 +128,7 @@ function AddRecipientDialog (props: Props) {
           onClick={handleSubmit}
           color='primary'
           id='add'
+          data-test-id='add'
         >
           Add
         </Button>
