@@ -64,6 +64,13 @@ export const themeChainsfr = createMuiTheme({
       color: headers.h4.color,
       textTransform: headers.h4.textTransform
     },
+    h5: {
+      fontSize: headers.h5.fontSize,
+      fontWeight: headers.h5.fontWeight,
+      lineHeight: headers.h5.lineHeight,
+      color: headers.h5.color,
+      textTransform: headers.h5.textTransform
+    },
     h6: {
       fontSize: headers.h6.fontSize,
       fontWeight: headers.h6.fontWeight,
@@ -143,6 +150,12 @@ export const themeChainsfr = createMuiTheme({
           '&:hover': {
             backgroundColor: uiColors.errorDark
           }
+        },
+
+        '&.profile-button': {
+          backgroundColor: uiColors.backgroundTintDarker,
+          paddingLeft: componentPaddings.buttons.extraSmall.paddingLeft,
+          paddingRight: componentPaddings.buttons.small.paddingRight
         }
       },
       text: {
@@ -219,6 +232,12 @@ export const themeChainsfr = createMuiTheme({
         paddingRight: componentPaddings.modal.title.paddingRight
       }
     },
+    MuiDrawer: {
+      paperAnchorDockedLeft: {
+        backgroundColor: '#ECECF2',
+        borderRight: 'none'
+      }
+    },
     MuiFormLabel: {
       root: {
         fontSize: 14
@@ -252,6 +271,23 @@ export const themeChainsfr = createMuiTheme({
         fontSize: textValues.default.fontSize
       }
     },
+    MuiListItem: {
+      button: {
+        '&:hover': {
+          backgroundColor: '#DADAE7'
+        }
+      }
+    },
+    MuiListItemIcon: {
+      root: {
+        minWidth: 32
+      }
+    },
+    MuiListItemText: {
+      primary: {
+        fontWeight: 600
+      }
+    },
     MuiMenuItem: {
       root: {
         fontSize: textValues.default.fontSize,
@@ -275,6 +311,9 @@ export const themeChainsfr = createMuiTheme({
     },
     MuiToolbar: {
       gutters: {
+        paddingLeft: componentPaddings.toolbar.small.paddingLeft,
+        paddingRight: componentPaddings.toolbar.small.paddingRight,
+
         '@media (min-width: 600px)': {
           paddingLeft: componentPaddings.toolbar.default.paddingLeft,
           paddingRight: componentPaddings.toolbar.default.paddingRight

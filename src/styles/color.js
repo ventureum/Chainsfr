@@ -8,6 +8,7 @@ export const uiColors = {
   border: baseColors.grey.g200,
   backgroundGrey: baseColors.grey.g100,
   backgroundTint: baseColors.purple.p100,
+  backgroundTintDarker: baseColors.purple.p300,
   backgroundDisabled: baseColors.grey.g200,
   white: baseColors.white,
   error: baseColors.red.r600,

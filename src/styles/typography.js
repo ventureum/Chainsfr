@@ -42,7 +42,14 @@ export const headers = {
     color: fontColors.primary,
     textTransform: textTransform.titleCase
   },
-
+  h5: {
+    fontFamily: fontFamily.fontFamily,
+    fontWeight: fontWeight.semiBold,
+    fontSize: fontSize.s.size,
+    lineHeight: fontSize.s.lineHeight,
+    color: fontColors.primary,
+    textTransform: textTransform.titleCase
+  },
   // table header
   h6: {
     fontFamily: fontFamily.fontFamily,
@@ -52,7 +59,6 @@ export const headers = {
     color: fontColors.secondary,
     textTransform: textTransform.titleCase
   }
-
 }
 
 // description is one level less than header (fontWeight, fontSize, lineHeight, color)
@@ -78,8 +84,8 @@ export const descriptions = {
   d3: {
     fontFamily: fontFamily.fontFamily,
     fontWeight: fontWeight.regular,
-    fontSize: fontSize.m.size,
-    lineHeight: fontSize.m.lineHeight,
+    fontSize: fontSize.s.size,
+    lineHeight: fontSize.s.lineHeight,
     color: fontColors.primary,
     textTransform: textTransform.default
   },
@@ -111,8 +117,7 @@ export const textValues = {
     lineHeight: fontSize.s.lineHeight,
     color: fontColors.primary
   },
-  large: {
-  },
+  large: {},
   small: {
     fontSize: fontSize.xs.size,
     lineHeight: fontSize.xs.lineHeight,
@@ -173,6 +178,6 @@ export const btnTexts = {
   },
   btnTextSmall: {
     fontSize: fontSize.xs.size,
-    lineHeight: fontSize.xs.lineHeight,
-  },
+    lineHeight: fontSize.xs.lineHeight
+  }
 }

@@ -21,7 +21,7 @@ import Tab from '@material-ui/core/Tab'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import UserAvatar from './MicroComponents/UserAvatar'
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@material-ui/core/useMediaQuery'
 import { useActionTracker } from '../hooksUtils'
 
 const ChangePasswordDialog = props => {
@@ -356,7 +356,7 @@ const Backup = props => {
 }
 
 const UserSettingComponent = props => {
-  const [currentTab, setCurrentTab] = useState(2)
+  const [currentTab, setCurrentTab] = useState(0)
   const tabContents = [<AccountInfo {...props} />, <Security {...props} />, <Backup {...props} />]
 
   const theme = useTheme()
