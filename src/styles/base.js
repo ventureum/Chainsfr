@@ -80,7 +80,7 @@ export const baseColors = {
     g900: '#111'
   },
   purple: {
-    p100: '#f5f5f9',
+    p100: '#fafbfe',
     p200: '#ebebf3',
     p300: '#dbdae7',
     p400: '#c4c4d8',
@@ -113,7 +113,7 @@ export const baseColors = {
     b900: '#0C2375'
   },
   green: {
-    g100: '#e6f1f0',
+    g100: '#ECF7F3',
     g200: '#9df6ba',
     g300: '#68e49e',
     g400: '#41ca8a',

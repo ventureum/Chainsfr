@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Alert from '@material-ui/lab/Alert'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
@@ -163,7 +164,7 @@ const accountInfoStyle = makeStyles({
 })
 
 const AccountInfo = props => {
-  const { profile, registerTime } = props
+  const { profile, registerTime, onLogout } = props
   if (!profile) return null
   const { profileObj } = profile
   const classes = accountInfoStyle(props)
@@ -173,22 +174,37 @@ const AccountInfo = props => {
     <Box display='flex' flexDirection='column'>
       <Box display='flex' alignItems='center'>
         <UserAvatar
-          style={{ width: 64, height: 64 }}
+          style={{ width: 48, height: 48 }}
           src={profileObj.imageUrl}
           name={profileObj.name}
         />
-        <Box ml={2} display='flex' flexDirection='column'>
+        <Box ml={1} display='flex' flexDirection='column'>
           <Typography variant='h3'>{profileObj.name}</Typography>
-          <Typography variant='h6'>{profileObj.email}</Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {profileObj.email}
+          </Typography>
         </Box>
       </Box>
       <Box display='flex' alignItems='center' mt={3}>
         <img src={GoogleIcon} style={{ width: 18, marginRight: 10 }} alt='googleIcon' />
-        <Typography variant='h6'>Connected with Google account</Typography>
+        <Typography variant='body2'>Connected with Google account</Typography>
       </Box>
       <Box display='flex' alignItems='center' mt={2}>
         <CalendarTodayIcon className={classes.icon} />
-        <Typography variant='h6'>Joined on {date}</Typography>
+        <Typography variant='body2'>Joined on {date}</Typography>
+      </Box>
+      <Box mt={3}>
+        <Button
+          variant='contained'
+          size='small'
+          color='default'
+          id='signout'
+          onClick={() => {
+            onLogout()
+          }}
+        >
+          Sign Out
+        </Button>
       </Box>
     </Box>
   )
@@ -198,9 +214,6 @@ const securityStyle = makeStyles({
   icon: {
     width: 20,
     marginRight: 10
-  },
-  lightbtn: {
-    backgroundColor: 'rgba(57, 51, 134, 0.05)'
   }
 })
 
@@ -235,7 +248,7 @@ const Security = props => {
           <Typography variant='h3'>Chainsfr Wallet Password</Typography>
         </Box>
         <Box mb={2}>
-          <Typography variant='h6'>
+          <Typography variant='body1' color='textSecondary'>
             The Security Password is set to encrypt the Wallet and transfer data in your Google
             drive. It CANNOT be recovered once it is lost. Make sure to keep it safe
           </Typography>
@@ -256,16 +269,18 @@ const Security = props => {
           <Typography variant='h3'>Two-Factor Authentication</Typography>
         </Box>
         <Box mb={2}>
-          <Typography variant='h6'>2FA description goes here...</Typography>
-          <Typography variant='h6'>
+          <Typography variant='body1' color='textSecondary'>
+            2FA description goes here...
+          </Typography>
+          <Typography variant='body1' color='textSecondary'>
             To learn more, please check the related topics our help center.
           </Typography>
         </Box>
         <Box>
           <Button
             target='_blank'
-            className={classes.lightbtn}
-            color='primary'
+            variant='contained'
+            color='default'
             href='https://support.google.com/accounts/answer/185839'
           >
             <LaunchRoundedIcon className={classes.icon} />
@@ -297,9 +312,6 @@ const backUpStyle = makeStyles({
     width: 20,
     color: '#43B384',
     marginRight: 10
-  },
-  lightbtn: {
-    backgroundColor: 'rgba(57, 51, 134, 0.05)'
   }
 })
 
@@ -313,36 +325,29 @@ const Backup = props => {
   }
   return (
     <Box maxWidth={640} display='flex' flexDirection='column'>
-      <Box mb={2}>
+      <Box mb={1}>
         <Typography variant='h3'>Google Drive Backup</Typography>
       </Box>
-      <Box
-        mb={2}
-        className={classes.greenBox}
-        padding={2}
-        display='flex'
-        alignItems='center'
-        maxWidth={480}
-      >
-        {lastModified ? (
-          <>
-            <CheckCircleIcon className={classes.greenIcon} />
-            <Typography variant='body2'>Your account was backed up on {lastModified}</Typography>
-          </>
-        ) : (
-          <CircularProgress className={classes.greenIcon} />
-        )}
-      </Box>
-      <Box mb={3} maxWidth={480}>
-        <Typography variant='h6'>
+      <Box mb={2} maxWidth={480}>
+        <Typography variant='body1' color='textSecondary'>
           All wallet data is automatically encrypted and backuped in you personal Google drive
           folder. To learn more, please check the related topics our help center
         </Typography>
       </Box>
+
+      <Box mb={3} display='flex' alignItems='center' maxWidth={480}>
+        {lastModified ? (
+          <Alert icon={<CheckCircleIcon />} severity='success'>
+            Your account was backed up on {lastModified}
+          </Alert>
+        ) : (
+          <CircularProgress className={classes.greenIcon} />
+        )}
+      </Box>
       <Box>
         <Button
-          color='primary'
-          className={classes.lightbtn}
+          variant='contained'
+          color='default'
           target='_blank'
           href={`https://drive.google.com/drive/folders/${fileId}`}
           disabled={!fileId}
@@ -368,16 +373,21 @@ const UserSettingComponent = props => {
   }, [])
 
   return (
-    <Box display='flex' flexDirection='column' padding={large ? 6 : 3}>
-      <Box borderBottom='1px solid #E9E9E9' width='100%'>
-        <SettingTabs
-          currentTab={currentTab}
-          handleChange={(event, newValue) => {
-            setCurrentTab(newValue)
-          }}
-        />
+    <Box>
+      <Box bgcolor='background.default' px={large ? 6 : 3} pt={6} pb={8}>
+        <Typography variant='h2'>Account Settings</Typography>
       </Box>
-      <Box pt={3}>{tabContents[currentTab]}</Box>
+      <Box display='flex' flexDirection='column' px={large ? 6 : 3} mt={-5}>
+        <Box borderBottom='1px solid #E9E9E9' width='100%'>
+          <SettingTabs
+            currentTab={currentTab}
+            handleChange={(event, newValue) => {
+              setCurrentTab(newValue)
+            }}
+          />
+        </Box>
+        <Box pt={3}>{tabContents[currentTab]}</Box>
+      </Box>
     </Box>
   )
 }

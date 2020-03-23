@@ -31,6 +31,17 @@ export const themeChainsfr = createMuiTheme({
       secondary: fontColors.secondary,
       disabled: fontColors.disabled,
       hint: fontColors.placeholder
+    },
+    success: {
+      light: '#ECF7F3',
+      main: '#4caf50'
+    },
+    info: {
+      light: '#ECF7F3',
+      main: '#666'
+    },
+    warning: {
+      main: '#333'
     }
   },
   typography: {
@@ -163,6 +174,15 @@ export const themeChainsfr = createMuiTheme({
         paddingBottom: componentPaddings.buttons.default.paddingBottom,
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
         paddingRight: componentPaddings.buttons.default.paddingRight
+      },
+      contained: {
+        // The following style is used for secondary button, variant='contained', color='default'
+        color: uiColors.primary,
+        boxShadow: 'none',
+        backgroundColor: uiColors.backgroundTintDark,
+        '&:hover': {
+          backgroundColor: uiColors.backgroundTintDarker
+        }
       },
       outlined: {
         paddingTop: componentPaddings.buttons.default.paddingTop,

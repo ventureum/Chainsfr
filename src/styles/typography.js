@@ -95,7 +95,7 @@ export const descriptions = {
     fontWeight: fontWeight.regular,
     fontSize: fontSize.s.size,
     lineHeight: fontSize.s.lineHeight,
-    color: fontColors.primary,
+    color: fontColors.secondary,
     textTransform: textTransform.default
   },
 
