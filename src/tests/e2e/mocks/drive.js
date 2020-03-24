@@ -3,7 +3,7 @@
 /*
  * Google Drive APIs
  */
-
+import { DEFAULT_TRANSFER_DATA } from './transfers'
 import env from '../../../typedEnv'
 
 const TEMP_SEND_FILE_NAME: string = `__temp_send_${env.REACT_APP_ENV}__.json`
@@ -54,7 +54,7 @@ var data = {
     [TEMP_SEND_FILE_NAME]: null
   },
   [HISTORY_FOLDER_NAME]: {
-    [HISTORY_FILE_NAME]: null
+    [HISTORY_FILE_NAME]: DEFAULT_TRANSFER_DATA.driveTransferHistory
   },
   [WALLET_FOLDER_NAME]: {
     [WALLET_FILE_NAME]: {
