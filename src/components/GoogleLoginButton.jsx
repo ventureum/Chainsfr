@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import env from '../typedEnv'
 
 // for testing only
-import { googleLoginAuthObj } from '../tests/e2e/mocks/user'
+import { GOOGLE_LOGIN_AUTH_OBJ } from '../tests/e2e/mocks/user'
 
 class GoogleLoginButton extends Component {
   gapiLoad = () => {
@@ -37,7 +37,7 @@ class GoogleLoginButton extends Component {
       if (env.REACT_APP_ENV === 'test' && env.REACT_APP_E2E_TEST_MOCK_USER) {
         // mock login
         console.log('Mocking login')
-        userInstance = googleLoginAuthObj
+        userInstance = GOOGLE_LOGIN_AUTH_OBJ
       } else {
         let googleAuth = await window.gapi.auth2.getAuthInstance()
         if (!googleAuth || !googleAuth.isSignedIn.get()) {

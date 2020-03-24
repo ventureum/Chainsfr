@@ -1,4 +1,4 @@
-const googleLoginAuthObj = {
+const GOOGLE_LOGIN_AUTH_OBJ = {
    "googleId":"116840519665671803638",
    "tokenObj":{
       "token_type":"Bearer",
@@ -29,4 +29,4 @@ const googleLoginAuthObj = {
    }
 }
 
-export { googleLoginAuthObj }
+export { GOOGLE_LOGIN_AUTH_OBJ }
