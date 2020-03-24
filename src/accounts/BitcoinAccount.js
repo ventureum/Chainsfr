@@ -13,7 +13,7 @@ import utils from '../utils'
 import url from '../url'
 import env from '../typedEnv'
 import { getCryptoDecimals } from '../tokens'
-import { getWalletTitle } from '../wallet'
+import { getWalletTitle, getWalletConfig } from '../wallet'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
@@ -79,8 +79,8 @@ export default class BitcoinAccount implements IAccount<AccountData> {
 
       connected: accountData.connected || false,
       verified: accountData.verified || false,
-      receivable: accountData.receivable || false,
-      sendable: accountData.sendable || false,
+      receivable: getWalletConfig(accountData.walletType).receivable,
+      sendable: getWalletConfig(accountData.walletType).sendable,
       status: accountStatus.initialized,
 
       privateKey: accountData.privateKey,

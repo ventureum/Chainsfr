@@ -83,7 +83,10 @@ function isSendable ({ status, walletType }: { status: Object, walletType: strin
     status.sendable = false
     status.disabledReason = status.disabledReason || 'Not supported in mobile device'
   }
-
+  if (walletType === 'coinbaseOAuthWallet') {
+    status.sendable = false
+    status.disabledReason = status.disabledReason || 'Send from coinbase wallet not supported'
+  }
   return { status, walletType }
 }
 

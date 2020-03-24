@@ -5,7 +5,7 @@ import utils from '../utils'
 import url from '../url'
 import ERC20 from '../ERC20'
 import { getCryptoDecimals } from '../tokens'
-import { getWalletTitle } from '../wallet'
+import { getWalletTitle, getWalletConfig } from '../wallet'
 import SimpleMultiSigContractArtifacts from '../contracts/SimpleMultiSig.json'
 import WalletUtils from '../wallets/utils'
 import env from '../typedEnv'
@@ -39,8 +39,8 @@ export default class EthereumAccount implements IAccount<AccountData> {
 
       connected: accountData.connected || false,
       verified: accountData.verified || false,
-      receivable: accountData.receivable || false,
-      sendable: accountData.sendable || false,
+      receivable: getWalletConfig(accountData.walletType).receivable,
+      sendable: getWalletConfig(accountData.walletType).sendable,
       status: accountStatus.initialized,
 
       privateKey: accountData.privateKey,
