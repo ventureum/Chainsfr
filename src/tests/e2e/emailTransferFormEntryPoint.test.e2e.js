@@ -3,6 +3,7 @@ import RecipientPage from './pages/recipients.page'
 import EmailTransferFormPage from './pages/emailTransferForm.page'
 import WalletPage from './pages/wallet.page'
 import LoginPage from './pages/login.page'
+import queryString from 'query-string'
 
 const timeout = 180000
 
@@ -79,10 +80,14 @@ describe('Email transfer form entry point tests', () => {
       const walletPage = new WalletPage()
       await walletPage.sendFromCrypto('ethereum')
       const emtPage = new EmailTransferFormPage()
-      //  field should be empty
-      await page.waitFor(2000)
-      // expect(await emtPage.formInputFieldToBe('recipient', { email: null })).toBe(true)
-      // expect(await emtPage.formInputFieldToBe('account', { account: null })).toBe(true)
+
+      const search = page.url().split('?')[1]
+      const urlParams = queryString.parse(search)
+      // const { walletSelection, platformType, cryptoType, address } = urlParams
+      
+      expect(await emtPage.formInputFieldToBe('recipient', { email: null })).toBe(true)
+      // await page.waitFor(1000)
+      expect(await emtPage.formInputFieldToBe('account', { account: urlParams })).toBe(true)
     },
     timeout
   )

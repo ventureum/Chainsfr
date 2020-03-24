@@ -275,7 +275,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                   name='Select Account'
                 />
               }
-              inputProps={{'data-test-id':'crypto_selection'}}
+              inputProps={{ 'data-test-id': 'crypto_selection' }}
               error={!!error}
               id='accountCryptoTypeSelection'
             >

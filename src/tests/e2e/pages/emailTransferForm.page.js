@@ -1,4 +1,3 @@
-import queryString from 'query-string'
 import log from 'loglevel'
 log.setDefaultLevel('info')
 
@@ -17,9 +16,26 @@ class EmailTransferFormPage {
       }
       case 'account': {
         const { account } = values
+        console.log('account', account)
         const accountSelectionElement = await page.$('[data-test-id="account_selection"]')
-        const value = await (await accountSelectionElement.getProperty('value')).jsonValue()
-        console.log('account value', value)
+
+        // const value = await (await accountSelectionElement.getProperty('value')).jsonValue()
+        // const value = JSON.stringify(await accountSelectionElement.getProperty('value'))
+        // const properties = await accountSelectionElement.getProperties()
+        // const value = properties.get('labelId')
+
+        const jsHandle = await accountSelectionElement.getProperty('value')
+        const value = await page.evaluate(value => {
+          // console.log('in value', value)
+          // await page.waitFor(10000)
+          // return value.jsonValue()
+          return value
+        }, jsHandle)
+
+        console.log('value', value)
+        console.log('account value', Object.keys(value))
+        console.log('account value', Object.values(value))
+        console.log('account value', Object.entries(value))
         if (!account) {
           return !value
         } else {

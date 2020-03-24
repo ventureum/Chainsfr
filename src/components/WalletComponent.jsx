@@ -361,7 +361,8 @@ function WalletComponent (props: {
                     <Button
                       color='primary'
                       classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
-                      onClick={() =>
+                      onClick={() => {
+                        console.log('clicked in ')
                         push(
                           `${path.transfer}` +
                             `?walletSelection=${account.walletType}` +
@@ -373,7 +374,7 @@ function WalletComponent (props: {
                                 : `&address=${account.address}`
                             }`
                         )
-                      }
+                      }}
                       data-test-id='send_from_btn'
                     >
                       <SendIcon className={classes.buttonIcon} />
