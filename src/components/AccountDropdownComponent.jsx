@@ -72,7 +72,20 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps: Props) {
-    const { groupedAccount, inputLabel } = this.props
+    const { groupedAccount, groupedCryptoAccounts, inputLabel } = this.props
+    if (
+      !groupedAccount &&
+      groupedCryptoAccounts &&
+      groupedCryptoAccounts.length === 1 &&
+      this.state.groupedAccount !== groupedCryptoAccounts[0]
+    ) {
+      // auto-select grouped account
+      this.setState({
+        groupedAccount: groupedCryptoAccounts[0]
+      })
+
+      this.autoSelectAccount(groupedCryptoAccounts[0])
+    }
     if (
       groupedAccount &&
       // deep object comparison
