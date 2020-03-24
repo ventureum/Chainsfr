@@ -1,59 +1,62 @@
 // @flow
 import React from 'react'
-import AccountBalanceIcon from '@material-ui/icons/AccountBalance'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import ChainsfrLogo from '../images/chainsfr_logo_white.svg'
+import ChainsfrLogo from '../images/logo_chainsfr_120@2x.png'
 import clsx from 'clsx'
-import ContactsIcon from '@material-ui/icons/Contacts'
 import Drawer from '@material-ui/core/Drawer'
-import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted'
-import GitHubIcon from '@material-ui/icons/GitHub'
+import IconButton from '@material-ui/core/IconButton'
 import { Link } from 'react-router-dom'
+import MuiLink from '@material-ui/core/Link'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import { ProfileButton } from './AppBarComponent'
 import path from '../Paths.js'
 import Typography from '@material-ui/core/Typography'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import { useTheme, makeStyles } from '@material-ui/core/styles'
-import WalletIcon from '../images/logo-white-square.svg'
+import UserAvatar from './MicroComponents/UserAvatar'
+
+// Icon
+import AccountIcon from '@material-ui/icons/CreditCardRounded'
+import CloseIcon from '@material-ui/icons/CloseRounded'
+import ContactsIcon from '@material-ui/icons/PeopleRounded'
+import GitHubIcon from '@material-ui/icons/GitHub'
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRightRounded'
+import TransferIcon from '@material-ui/icons/SwapHorizRounded'
+import WalletIcon from '@material-ui/icons/AccountBalanceWalletRounded'
 
 const NAV_BTNS = [
   {
-    name: 'Overview',
+    name: 'Transfer',
     id: 'overview',
     path: path.home,
-    icon: <FormatListBulletedIcon />
-  },
-  {
-    name: 'Accounts',
-    id: 'accounts',
-    path: path.accounts,
-    icon: <AccountBalanceIcon />
-  },
-  {
-    name: 'Contacts',
-    id: 'contacts',
-    path: path.contacts,
-    icon: <ContactsIcon />
+    icon: <TransferIcon color='primary' />
   },
   {
     name: 'Wallet',
     id: 'wallet',
     path: path.wallet,
-    icon: <img src={WalletIcon} width='100%' alt='wallet_icon'></img>
+    icon: <WalletIcon color='primary' />
+  },
+  {
+    name: 'Accounts',
+    id: 'accounts',
+    path: path.accounts,
+    icon: <AccountIcon color='primary' />
+  },
+  {
+    name: 'Contacts',
+    id: 'contacts',
+    path: path.contacts,
+    icon: <ContactsIcon color='primary' />
   }
 ]
 
 const useStyles = makeStyles(theme => ({
   drawer: {
     width: 240
-  },
-  desktopDrawerContainer: {
-    backgroundColor: '#45407E'
   },
   chainsfrLogo: {
     width: 110
@@ -64,20 +67,7 @@ const useStyles = makeStyles(theme => ({
     height: 57
   },
   listItemSelected: {
-    backgroundColor: '#396EC8'
-  },
-  listItemText: {
-    fontWeight: '600',
-    fontSize: '14px'
-  },
-  listItemIcon: {
-    width: 22,
-    height: 22,
-    minWidth: 22,
-    paddingRight: 10
-  },
-  baseListColor: {
-    color: '#ffffff'
+    backgroundColor: '#DADAE7'
   },
   copyright: {
     fontSize: '12px',
@@ -86,22 +76,10 @@ const useStyles = makeStyles(theme => ({
     color: '#ffffff',
     marginTop: '5px'
   },
-  buildText: {
-    fontSize: '12px',
-    color: '#ffffff'
-  },
   homeButton: {
     '&:hover': {
       backgroundColor: 'transparent'
     }
-  },
-  link: {
-    color: '#fff',
-    textDecoration: 'none',
-    fontSize: '12px',
-    fontFamily: 'Lato',
-    marginRight: 5,
-    marginLeft: 5
   }
 }))
 
@@ -110,7 +88,6 @@ type Props = {
   profile: Object,
   location: Object,
   handleDrawerToggle: Function,
-  onLogout: Function,
   onSetting: Function,
   backToHome: Function
 }
@@ -119,46 +96,57 @@ const NavDrawerComponent = (props: Props) => {
   const theme = useTheme()
   const match = useMediaQuery(theme.breakpoints.up('sm'))
 
-  const { backToHome, profile, onLogout, onSetting, location, open, handleDrawerToggle } = props
+  const { backToHome, profile, onSetting, location, open, handleDrawerToggle } = props
   const classes = useStyles()
+
+  if (!profile || !profile.profileObj) return null
+  const { profileObj } = profile
 
   return (
     <Box className={match ? classes.drawer : undefined}>
       <Drawer
         variant={match ? 'permanent' : 'temporary'}
         open={open || match}
+        anchor={match ? 'left' : 'right'}
         classes={{
           paper: classes.drawer
         }}
         onClose={handleDrawerToggle}
       >
-        <Box
-          height={1}
-          display='flex'
-          className={classes.desktopDrawerContainer}
-          flexDirection='column'
-          alignItems='stretch'
-        >
-          <Box
-            height='60px'
-            padding='0px 20px 0px 0px'
-            display='flex'
-            alignItems='center'
-            justifyContent='space-between'
-          >
-            <Button
-              classes={{ root: classes.homeButton }}
-              component={Link}
-              to={path.home}
-              onClick={() => {
-                backToHome()
-              }}
-              id='back'
+        <Box height={1} display='flex' flexDirection='column' alignItems='stretch'>
+          {match ? (
+            <Box
+              height='60px'
+              mx={0.5}
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
             >
+              <Button
+                classes={{ root: classes.homeButton }}
+                component={Link}
+                to={path.home}
+                onClick={() => {
+                  backToHome()
+                }}
+                id='back'
+              >
+                <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
+              </Button>
+            </Box>
+          ) : (
+            <Box display='flex' justifyContent='space-between' alignItems='center' ml={2}>
               <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
-            </Button>
-            {match && <ProfileButton profile={profile} onLogout={onLogout} onSetting={onSetting} />}
-          </Box>
+              <IconButton
+                color='secondary'
+                aria-label='Close'
+                edge='start'
+                onClick={handleDrawerToggle}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          )}
           <List style={{ flex: 1 }}>
             {NAV_BTNS.map((item, i) => {
               const selected = location.pathname === item.path
@@ -176,48 +164,64 @@ const NavDrawerComponent = (props: Props) => {
                   }}
                   data-test-id={`${item.id}_nav_btn`}
                 >
-                  <ListItemIcon className={clsx(classes.baseListColor, classes.listItemIcon)}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.name}
-                    primaryTypographyProps={{
-                      className: clsx(classes.baseListColor, classes.listItemText)
-                    }}
-                  />
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} className='nav' />
                 </ListItem>
               )
             })}
           </List>
-          <Box display='flex' flexDirection='column' alignItems='center'>
-            <Typography className={classes.copyright} data-test-id='copy_right'>
-              &copy; {'2018 - '}
-              {new Date().getFullYear()} Ventureum Inc.
+
+          <Box mx={1} mb={2}>
+            <Button
+              fullWidth='true'
+              className='profile-button'
+              onClick={() => {
+                handleDrawerToggle()
+                onSetting()
+              }}
+            >
+              <Box display='flex' justifyContent='space-between' flexGrow='1' alignItems='center'>
+                <Box display='flex' alignItems='center'>
+                  <Box display='inline' ml={1}>
+                    <UserAvatar
+                      src={profileObj.imageUrl}
+                      style={{
+                        width: '32px'
+                      }}
+                      name={profileObj.name}
+                    />
+                  </Box>
+                  <Box ml={1} display='inline'>
+                    <Typography variant='h5' color='textPrimary' display='inline'>
+                      {profileObj.name}
+                    </Typography>
+                  </Box>
+                </Box>
+                <KeyboardArrowRightIcon color='secondary' />
+              </Box>
+            </Button>
+          </Box>
+          <Box display='flex' flexDirection='column' alignItems='center' mb={match ? 2 : 10}>
+            <Typography variant='caption' color='textSecondary'>
+              <Box color='text.disabled' display='inline'>
+                &copy; {'2018-'}
+                {new Date().getFullYear()}
+                <MuiLink target='_blank' rel='noopener noreferrer' href='https://ventureum.io/'>
+                  <Box ml={0.5} color='text.disabled' display='inline'>
+                    Ventureum Inc.
+                  </Box>
+                </MuiLink>
+              </Box>
             </Typography>
-            <Box mt={1} mb={1} display='flex' alignItems='center'>
-              <a
-                target='_blank'
-                rel='noopener noreferrer'
-                href='https://help.chainsfr.com/en/'
-                className={classes.link}
-              >
-                Help Center
-              </a>
-              <Box borderLeft='0.5px solid #ffffff' width='1px' height='14px' />
-              <a
-                target='_blank'
-                rel='noopener noreferrer'
-                href='https://help.chainsfr.com/en/articles/3303336'
-                className={classes.link}
-              >
-                Terms
-              </a>
-            </Box>
-            <Box display='flex' flexDirection='row' alignItems='center'>
-              <GitHubIcon style={{ width: 12, color: '#ffffff', marginRight: 10 }} />
-              <Typography className={classes.buildText} data-test-id='build_version'>
-                Build {process.env.REACT_APP_VERSION}
-              </Typography>
+            <Box mx={1} display='flex' alignItems='center'>
+              <Box display='flex' alignItems='center'>
+                <GitHubIcon style={{ width: 12, color: '#c4c4c4', marginRight: 4 }} />
+                <Typography variant='caption'>
+                  <Box color='text.disabled' display='inline'>
+                    build: {process.env.REACT_APP_VERSION}
+                  </Box>
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Box>

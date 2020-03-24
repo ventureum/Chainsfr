@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import { changeChainsfrWalletPassword } from '../actions/walletActions'
-import { getUserCloudWalletFolderMeta, getUserRegisterTime } from '../actions/userActions'
+import { getUserCloudWalletFolderMeta, getUserRegisterTime, onLogout } from '../actions/userActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import UserSettingComponent from '../components/UserSettingComponent'
 
 class UserSettingContainer extends PureComponent {
-  render () {
+  render() {
     return <UserSettingComponent {...this.props} />
   }
 }
@@ -21,7 +21,8 @@ const mapDispatchToProps = dispatch => {
     changeChainsfrWalletPassword: (oldPassword, newPassword) =>
       dispatch(changeChainsfrWalletPassword(oldPassword, newPassword)),
     getUserCloudWalletFolderMeta: () => dispatch(getUserCloudWalletFolderMeta()),
-    getUserRegisterTime: () => dispatch(getUserRegisterTime())
+    getUserRegisterTime: () => dispatch(getUserRegisterTime()),
+    onLogout: () => dispatch(onLogout())
   }
 }
 const mapStateToProps = state => {

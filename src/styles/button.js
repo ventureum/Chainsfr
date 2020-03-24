@@ -32,7 +32,7 @@ export const buttons = {
     fontSize: btnTexts.btnTextPrimary.fontSize,
     lineHeight: btnTexts.btnTextPrimary.lineHeight,
     color: btnTexts.btnTextPrimary.color,
-    backgroundColor: uiColors.white,
+    backgroundColor: uiColors.backgroundTint,
     textTransform: 'capitalize',
     border: 'solid 1px',
     borderColor: uiColors.primary,

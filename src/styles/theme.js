@@ -31,6 +31,17 @@ export const themeChainsfr = createMuiTheme({
       secondary: fontColors.secondary,
       disabled: fontColors.disabled,
       hint: fontColors.placeholder
+    },
+    success: {
+      light: '#ECF7F3',
+      main: '#4caf50'
+    },
+    info: {
+      light: '#ECF7F3',
+      main: '#666'
+    },
+    warning: {
+      main: '#333'
     }
   },
   typography: {
@@ -63,6 +74,13 @@ export const themeChainsfr = createMuiTheme({
       lineHeight: headers.h4.lineHeight,
       color: headers.h4.color,
       textTransform: headers.h4.textTransform
+    },
+    h5: {
+      fontSize: headers.h5.fontSize,
+      fontWeight: headers.h5.fontWeight,
+      lineHeight: headers.h5.lineHeight,
+      color: headers.h5.color,
+      textTransform: headers.h5.textTransform
     },
     h6: {
       fontSize: headers.h6.fontSize,
@@ -143,6 +161,12 @@ export const themeChainsfr = createMuiTheme({
           '&:hover': {
             backgroundColor: uiColors.errorDark
           }
+        },
+
+        '&.profile-button': {
+          backgroundColor: uiColors.backgroundTintDarker,
+          paddingLeft: componentPaddings.buttons.extraSmall.paddingLeft,
+          paddingRight: componentPaddings.buttons.small.paddingRight
         }
       },
       text: {
@@ -150,6 +174,15 @@ export const themeChainsfr = createMuiTheme({
         paddingBottom: componentPaddings.buttons.default.paddingBottom,
         paddingLeft: componentPaddings.buttons.default.paddingLeft,
         paddingRight: componentPaddings.buttons.default.paddingRight
+      },
+      contained: {
+        // The following style is used for secondary button, variant='contained', color='default'
+        color: uiColors.primary,
+        boxShadow: 'none',
+        backgroundColor: uiColors.backgroundTintDark,
+        '&:hover': {
+          backgroundColor: uiColors.backgroundTintDarker
+        }
       },
       outlined: {
         paddingTop: componentPaddings.buttons.default.paddingTop,
@@ -219,6 +252,12 @@ export const themeChainsfr = createMuiTheme({
         paddingRight: componentPaddings.modal.title.paddingRight
       }
     },
+    MuiDrawer: {
+      paperAnchorDockedLeft: {
+        backgroundColor: '#ECECF2',
+        borderRight: 'none'
+      }
+    },
     MuiFormLabel: {
       root: {
         fontSize: 14
@@ -252,6 +291,23 @@ export const themeChainsfr = createMuiTheme({
         fontSize: textValues.default.fontSize
       }
     },
+    MuiListItem: {
+      button: {
+        '&:hover': {
+          backgroundColor: '#DADAE7'
+        }
+      }
+    },
+    MuiListItemIcon: {
+      root: {
+        minWidth: 32
+      }
+    },
+    MuiListItemText: {
+      primary: {
+        fontWeight: 600
+      }
+    },
     MuiMenuItem: {
       root: {
         fontSize: textValues.default.fontSize,
@@ -275,6 +331,9 @@ export const themeChainsfr = createMuiTheme({
     },
     MuiToolbar: {
       gutters: {
+        paddingLeft: componentPaddings.toolbar.small.paddingLeft,
+        paddingRight: componentPaddings.toolbar.small.paddingRight,
+
         '@media (min-width: 600px)': {
           paddingLeft: componentPaddings.toolbar.default.paddingLeft,
           paddingRight: componentPaddings.toolbar.default.paddingRight

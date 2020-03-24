@@ -38,6 +38,12 @@ export const componentMargins = {
 
 export const componentPaddings = {
   buttons: {
+    extraSmall: {
+      paddingTop: spacing.xs,
+      paddingBottom: spacing.xs,
+      paddingLeft: spacing.xs,
+      paddingRight: spacing.xs
+    },
     small: {
       paddingTop: spacing.xs,
       paddingBottom: spacing.xs,
@@ -107,6 +113,10 @@ export const componentPaddings = {
     default: {
       paddingLeft: spacing.xxl,
       paddingRight: spacing.xxl
+    },
+    small: {
+      paddingLeft: spacing.xs,
+      paddingRight: spacing.xs
     }
   }
 }

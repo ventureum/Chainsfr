@@ -3,29 +3,30 @@ import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
-import CloseIcon from '@material-ui/icons/Close'
 import Dialog from '@material-ui/core/Dialog'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
 import path from '../Paths.js'
-import ExitIcon from '@material-ui/icons/ExitToApp'
 import Typography from '@material-ui/core/Typography'
 import UserAvatar from './MicroComponents/UserAvatar'
 import Divider from '@material-ui/core/Divider'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChainsfrLogoSvg from '../images/chainsfr_logo.svg'
+import ChainsfrLogoPng from '../images/logo_chainsfr_120@2x.png'
 import Stepper from './Stepper'
-import SettingsIcon from '@material-ui/icons/Settings'
 import Popover from '@material-ui/core/Popover'
 import Paper from '@material-ui/core/Paper'
+
+// Icons
+import CloseIcon from '@material-ui/icons/Close'
+import ExitIcon from '@material-ui/icons/ExitToApp'
+import MenuIcon from '@material-ui/icons/Menu'
+import SettingsIcon from '@material-ui/icons/Settings'
 
 type Props = {
   disabled?: boolean,
   backToHome: Function,
-  onLogout: Function,
   profile: Object,
   location: Object,
   isolate: boolean,
@@ -36,9 +37,7 @@ type Props = {
 
 type ProfileButtonProps = {
   disabled?: boolean,
-  onLogout?: Function,
-  profile: Object,
-  onSetting?: Function
+  profile: Object
 }
 
 const profileBtnStyle = makeStyles({
@@ -89,18 +88,13 @@ const PaperComponent = props => {
 }
 const ProfileButton = (props: ProfileButtonProps) => {
   const classes = profileBtnStyle()
-  const { profile, disabled, onLogout, onSetting } = props
+  const { profile, disabled } = props
   const [anchorEl, setAnchorEl] = useState(null)
 
   if (!profile || !profile.profileObj) return null
   const { profileObj } = profile
 
   const handleClose = action => event => {
-    if (action === 'logout') {
-      onLogout && onLogout()
-    } else if (action === 'setting') {
-      onSetting && onSetting()
-    }
     setAnchorEl(null)
   }
 
@@ -118,7 +112,8 @@ const ProfileButton = (props: ProfileButtonProps) => {
         <UserAvatar
           src={profileObj.imageUrl}
           style={{
-            width: '32px'
+            width: '24px',
+            height: '24px'
           }}
           name={profileObj.name}
         />
@@ -202,7 +197,7 @@ const ChainsfrLogo = (props: ChainsfrLogoProps) => {
       id='back'
       disabled={disabled}
     >
-      <img className={classes.chainsfrLogo} src={ChainsfrLogoSvg} alt='Chainsfr Logo' />
+      <img className={classes.chainsfrLogo} src={ChainsfrLogoPng} alt='Chainsfr Logo' />
     </Button>
   )
 }
@@ -245,7 +240,7 @@ const IsolateAppBarContent = (props: Props) => {
 }
 
 const NormalAppBarContent = (props: Props) => {
-  const { handleDrawerToggle, profile, disabled, onLogout, onSetting, backToHome } = props
+  const { handleDrawerToggle, profile, disabled, backToHome } = props
   return (
     <Box
       display='flex'
@@ -254,26 +249,26 @@ const NormalAppBarContent = (props: Props) => {
       justifyContent='space-between'
       width='100%'
     >
-      <IconButton
-        color='secondary'
-        aria-label='Open drawer'
-        edge='start'
-        onClick={handleDrawerToggle}
-      >
-        <MenuIcon />
-      </IconButton>
-      <ChainsfrLogo
-        onClick={() => {
-          backToHome()
-        }}
-        disabled={disabled}
-      />
-      <ProfileButton
-        profile={profile}
-        disabled={disabled}
-        onLogout={onLogout}
-        onSetting={onSetting}
-      />
+      <Box ml={-1}>
+        <ChainsfrLogo
+          onClick={() => {
+            backToHome()
+          }}
+          disabled={disabled}
+        />
+      </Box>
+      <Box display='flex' align='items'>
+        <ProfileButton profile={profile} disabled />
+        <Box ml={1} mt={1} borderLeft='0.5px solid #A8A8A8' pr={1} height='24px' />
+        <IconButton
+          color='secondary'
+          aria-label='Open drawer'
+          edge='start'
+          onClick={handleDrawerToggle}
+        >
+          <MenuIcon />
+        </IconButton>
+      </Box>
     </Box>
   )
 }
@@ -282,10 +277,6 @@ const AppBarStyle = makeStyles({
   appBar: {
     backgroundColor: '#ffffff',
     boxShadow: `0px 2px 2px  rgba(51, 51, 51, 0.1)`
-  },
-  toolbar: {
-    paddingLeft: '20px',
-    paddingRight: '20px'
   }
 })
 
@@ -294,7 +285,7 @@ const AppBarComponent = (props: Props) => {
   const { isolate } = props
   return (
     <AppBar position='static' color='primary' className={classes.appBar}>
-      <Toolbar className={classes.toolbar}>
+      <Toolbar className={classes.toolbar} variant='dense'>
         {isolate ? <IsolateAppBarContent {...props} /> : <NormalAppBarContent {...props} />}
       </Toolbar>
     </AppBar>
