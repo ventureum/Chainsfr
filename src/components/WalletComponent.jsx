@@ -361,7 +361,7 @@ function WalletComponent (props: {
                     <Button
                       color='primary'
                       classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
-                      onClick={() =>
+                      onClick={() => {
                         push(
                           `${path.transfer}` +
                             `?walletSelection=${account.walletType}` +
@@ -373,7 +373,8 @@ function WalletComponent (props: {
                                 : `&address=${account.address}`
                             }`
                         )
-                      }
+                      }}
+                      data-test-id='send_from_btn'
                     >
                       <SendIcon className={classes.buttonIcon} />
                       Send
@@ -421,6 +422,9 @@ function WalletComponent (props: {
                   accountIdx: idx
                 })
               : null
+          }
+          data-test-id={
+            !account ? 'crypto_list_item_skeleton' : `crypto_list_item_${account.cryptoType}`
           }
         >
           <Grid container direction='row' alignItems='center'>

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { GOOGLE_LOGIN_AUTH_OBJ } from '../mocks/user.js'
-import { DEFAULT_DATA } from '../mocks/transfers'
+import { DEFAULT_TRANSFER_DATA } from '../mocks/transfers'
 import { RECIPIENTS } from '../mocks/recipients'
 import { ACCOUNTS } from '../mocks/accounts.js'
 
@@ -41,7 +41,8 @@ async function resetUserDefault () {
   await resetUser({
     recipients: RECIPIENTS,
     accounts: ACCOUNTS,
-    transfers: DEFAULT_DATA.transferDataList
+    transfers: DEFAULT_TRANSFER_DATA
+    .transferDataList
   })
 }
 

@@ -226,7 +226,7 @@ class AccountsManagementComponent extends Component {
     const { classes } = this.props
     const { windowWidth } = this.state
     const wide = windowWidth >= 800
-    
+
     return (
       <Box
         display='flex'
@@ -274,6 +274,7 @@ class AccountsManagementComponent extends Component {
           // the disable status
           disabled={!account.assets[0].sendable}
           classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
+          data-test-id='send_from_account_btn'
         >
           <SendIcon className={classes.buttonIcon} />
           Send
@@ -315,6 +316,7 @@ class AccountsManagementComponent extends Component {
                   hover
                   selected={expanded}
                   style={{ cursor: 'pointer' }}
+                  data-test-id={`account_list_item_${i}`}
                 >
                   <TableCell
                     align='left'
@@ -329,14 +331,16 @@ class AccountsManagementComponent extends Component {
 
                   <TableCell align='left' className={rowCellClassName}>
                     <Box>
-                      <Typography variant='body2'>{account.name}</Typography>
-                      <Typography variant='caption'>
+                      <Typography variant='body2' data-test-id='account_name'>
+                        {account.name}
+                      </Typography>
+                      <Typography variant='caption' data-test-id='wallet_platform'>
                         {getWalletTitle(account.walletType)}, {getCryptoTitle(account.platformType)}
                       </Typography>
                     </Box>
                   </TableCell>
 
-                  <TableCell align='left' className={rowCellClassName}>
+                  <TableCell align='left' className={rowCellClassName} data-test-id='assets_cell'>
                     {account.status === accountStatus.syncing ? (
                       <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
                     ) : account.assets.length === 1 ? (

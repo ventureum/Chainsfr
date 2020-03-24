@@ -51,6 +51,7 @@ export default function SecurityAnswer (props: Props) {
       helperText={formError.password || 'We recommend you to use auto-generated security answer.'}
       onChange={e => updatePassword(e.target.value)}
       value={password || ''}
+      data-test-id='security_answer'
       InputProps={{
         endAdornment: (
           <InputAdornment position='end'>
