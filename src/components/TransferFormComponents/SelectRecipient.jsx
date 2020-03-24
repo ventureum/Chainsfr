@@ -85,6 +85,7 @@ export default function SelectRecipient (props: Props) {
           }
           error={!!formError.destination}
           id={'destination'}
+          inputProps={{ 'data-test-id': 'destination' }}
         >
           {pending &&
             skeletonRecipients.map((recipient, idx) => {

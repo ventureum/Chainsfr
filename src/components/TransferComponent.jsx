@@ -22,6 +22,7 @@ type Props = {
 class TransferComponent extends React.Component<Props> {
   render () {
     const { classes, history, transferForm, online } = this.props
+    console.log('asd', history.location.search)
     const urlParams = queryString.parse(history.location.search)
     let step = urlParams.step
 

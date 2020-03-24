@@ -374,6 +374,7 @@ function WalletComponent (props: {
                             }`
                         )
                       }
+                      data-test-id='send_from_btn'
                     >
                       <SendIcon className={classes.buttonIcon} />
                       Send
@@ -421,6 +422,9 @@ function WalletComponent (props: {
                   accountIdx: idx
                 })
               : null
+          }
+          data-test-id={
+            skeletonOnly ? 'crypto_list_item_skeleton' : `crypto_list_item_${cryptoType}`
           }
         >
           <Grid container direction='row' alignItems='center'>

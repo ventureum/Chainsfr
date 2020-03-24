@@ -191,7 +191,7 @@ class AccountDropdownComponent extends Component<Props, State> {
     }
 
     const { groupedAccount } = this.state
-
+    console.log('groupedAccount', groupedAccount)
     return (
       <Grid container direction='column'>
         <FormControl variant='outlined' margin={hideCryptoDropdown ? 'none' : 'normal'}>
@@ -223,6 +223,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                 name={inputLabel}
               />
             }
+            inputProps={{ 'data-test-id': 'account_selection' }}
             error={!!error}
             id='groupedAccountSelection'
           >
@@ -274,6 +275,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                   name='Select Account'
                 />
               }
+              inputProps={{'data-test-id':'crypto_selection'}}
               error={!!error}
               id='accountCryptoTypeSelection'
             >
