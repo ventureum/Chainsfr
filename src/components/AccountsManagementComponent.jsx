@@ -226,7 +226,7 @@ class AccountsManagementComponent extends Component {
     const { classes } = this.props
     const { windowWidth } = this.state
     const wide = windowWidth >= 800
-
+    
     return (
       <Box
         display='flex'
@@ -270,6 +270,9 @@ class AccountsManagementComponent extends Component {
           onClick={() => {
             this.handleAccountAction(account, 'send')
           }}
+          // assuming all accounts under the same grouped account share
+          // the disable status
+          disabled={!account.assets[0].sendable}
           classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
         >
           <SendIcon className={classes.buttonIcon} />
