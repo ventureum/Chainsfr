@@ -1,5 +1,6 @@
 import React, { Component, useState } from 'react'
 import { AccountDropdown } from './TransferFormComponents'
+import Alert from '@material-ui/lab/Alert'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
@@ -179,11 +180,6 @@ const inputSectionStyle = theme => ({
   linearProgressContainer: {
     backgroundColor: 'rgba(66,133,244,0.05)',
     borderRadius: '8px'
-  },
-  checkIcon: {
-    width: 14,
-    color: '#43b384',
-    marginRight: 10
   }
 })
 
@@ -265,18 +261,9 @@ const InputSection = withStyles(inputSectionStyle)(props => {
       )}
       {passwordValidated && (
         <>
-          <Box
-            display='flex'
-            flexDirection='row'
-            alignItems='center'
-            padding={2}
-            style={{
-              backgroundColor: 'rgba(67, 179, 132, 0.1)'
-            }}
-          >
-            <CheckCircleIcon className={classes.checkIcon}></CheckCircleIcon>
-            <Typography variant='body2'>Security answer validated</Typography>
-          </Box>
+          <Alert severity='success' icon={<CheckCircleIcon />}>
+            Security answer validated
+          </Alert>
           <Box mt={3} mb={3}>
             <Typography variant='h3'>Select Account to Deposit</Typography>
           </Box>

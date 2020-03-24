@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react'
+import Alert from '@material-ui/lab/Alert'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -326,18 +327,20 @@ class ReceiptComponent extends Component<Props, State> {
         <Box display='flex' flexDirection='column' alignItems='stretch'>
           <Box display='flex' flexDirection='column' alignItems='center'>
             {titleIcon}
-            <Typography variant='h3'> {title} </Typography>
+            <Box mt={0.5}>
+              <Typography variant='h3'> {title} </Typography>
+            </Box>
           </Box>
 
           {messageBoxContent && (
-            <Box mt={4} padding={2} className={classes.reminder}>
-              <Typography variant='body2' align='left'>
+            <Box mt={2}>
+              <Alert severity='info' icon={false}>
                 {messageBoxContent}
-              </Typography>
+              </Alert>
             </Box>
           )}
 
-          <Box pt={6}>
+          <Box pt={3}>
             <Grid container style={{ width: '100%' }} direction='column' spacing={2}>
               <Grid item>
                 <TransferInfoCommon.FromAndToSection
@@ -577,31 +580,20 @@ class ReceiptComponent extends Component<Props, State> {
 const styles = theme => ({
   checkCircleIcon: {
     color: '#43B384',
-    fontSize: '48px',
-    marginBottom: '14px',
-    marginTop: '15px'
+    fontSize: '48px'
   },
   errorRoundedIcon: {
     color: '#F3A40A',
-    fontSize: '48px',
-    marginBottom: '14px',
-    marginTop: '15px'
+    fontSize: '48px'
   },
   cancelRoundedIcon: {
     color: '#A8A8A8',
-    fontSize: '48px',
-    marginBottom: '14px',
-    marginTop: '15px'
+    fontSize: '48px'
   },
   iconBtn: {
     padding: '0',
     marginLeft: '16px',
     marginRight: '16px'
-  },
-  reminder: {
-    padding: '20px',
-    backgroundColor: 'rgba(57, 51, 134, 0.1)',
-    borderRadius: '4px'
   },
   sectionContainer: {
     width: '100%',
