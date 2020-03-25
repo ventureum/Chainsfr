@@ -104,7 +104,11 @@ export default function SelectRecipient (props: Props) {
           {!pending &&
             recipients.map(recipient => {
               return (
-                <MenuItem key={recipient.name} value={recipient.email}>
+                <MenuItem
+                  key={recipient.name}
+                  value={recipient.email}
+                  data-test-id={`recipient_list_item_${recipient.email}`}
+                >
                   <Box display='flex' alignItems='flex-top'>
                     <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
                     <Box ml={1}>

@@ -113,7 +113,7 @@ export default function TransferAmountTextField (props: Props) {
     let cryptoAmountVal
     let currencyAmountVal
 
-    if (cryptoAmount === '' || currencyAmount ==='') {
+    if (cryptoAmount === '' || currencyAmount === '') {
       cryptoAmountVal = ''
       currencyAmountVal = ''
     }
@@ -131,7 +131,7 @@ export default function TransferAmountTextField (props: Props) {
     }
 
     let formContent = {}
-    
+
     if (cryptoAmountVal !== null) {
       formContent.transferAmount = { $set: cryptoAmountVal }
     }
@@ -196,7 +196,6 @@ export default function TransferAmountTextField (props: Props) {
           disabled={!accountSelection}
           onChange={e => updateAmount(e.target.value, null)}
           value={transferAmount}
-          data-test-id='crypto_amount'
           InputProps={{
             endAdornment: (
               <InputAdornment position='end'>
@@ -204,7 +203,8 @@ export default function TransferAmountTextField (props: Props) {
                   {(accountSelection && getCryptoSymbol(accountSelection.cryptoType)) || 'BTC'}
                 </Typography>
               </InputAdornment>
-            )
+            ),
+            'data-test-id': 'crypto_amount'
           }}
         />
       </Grid>
@@ -222,7 +222,6 @@ export default function TransferAmountTextField (props: Props) {
           error={!!formError.transferCurrencyAmount}
           helperText={formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`}
           type='number'
-          data-test-id='currency_amount'
           onWheel={event => {
             event.preventDefault()
           }}
@@ -237,7 +236,8 @@ export default function TransferAmountTextField (props: Props) {
                   {currency}
                 </Typography>
               </InputAdornment>
-            )
+            ),
+            'data-test-id': 'currency_amount'
           }}
         />
       </Grid>
