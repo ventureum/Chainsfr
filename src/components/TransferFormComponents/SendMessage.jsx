@@ -47,6 +47,7 @@ export default function SendMessage (props: {
       helperText={formError.sendMessage}
       onChange={e => updateSendMessage(e.target.value)}
       value={sendMessage || ''}
+      data-test-id='send_msg'
       inputProps={{ maxLength: 100 }} // message max length
     />
   )

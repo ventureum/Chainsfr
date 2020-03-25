@@ -107,7 +107,10 @@ class RecipientsComponent extends Component {
                   </Box>
                   <Box display='inline'>
                     <Tooltip title='Send to Contact'>
-                      <IconButton onClick={() => onSend(recipient)}>
+                      <IconButton
+                        onClick={() => onSend(recipient)}
+                        data-test-id={`send_to_recipient_${recipient.email}`}
+                      >
                         <SendIcon color='primary' id='sendBtn' />
                       </IconButton>
                     </Tooltip>

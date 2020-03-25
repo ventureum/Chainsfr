@@ -161,7 +161,9 @@ class AccountDropdownComponent extends Component<Props, State> {
           </Box>
           <Box>
             {/* name and wallet title*/}
-            <Typography variant='body2'>{getCryptoSymbol(account.cryptoType)}</Typography>
+            <Typography variant='body2' data-test-id='coin_symbol'>
+              {getCryptoSymbol(account.cryptoType)}
+            </Typography>
           </Box>
         </Box>
         {/* balance */}
@@ -169,11 +171,11 @@ class AccountDropdownComponent extends Component<Props, State> {
           {account.status === accountStatus.syncing ? (
             <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
           ) : (
-            <Typography variant='body2'>
+            <Typography variant='body2' data-test-id='crypto_balance_in_select'>
               {account.balanceInStandardUnit} {getCryptoSymbol(account.cryptoType)}
             </Typography>
           )}
-          <Typography variant='caption'>
+          <Typography variant='caption' data-test-id='currency_balance_in_select'>
             {this.props.toCurrencyAmount(account.balanceInStandardUnit, account.cryptoType)}
           </Typography>
         </Box>
@@ -236,6 +238,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                 name={inputLabel}
               />
             }
+            inputProps={{ 'data-test-id': 'account_selection' }}
             error={!!error}
             id='groupedAccountSelection'
           >
@@ -287,6 +290,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                   name='Select Account'
                 />
               }
+              inputProps={{ 'data-test-id': 'crypto_selection' }}
               error={!!error}
               id='accountCryptoTypeSelection'
             >
@@ -315,7 +319,9 @@ class AccountDropdownComponent extends Component<Props, State> {
             )}
             {account && account.status === accountStatus.synced && (
               <Box ml={1}>
-                <Typography variant='caption'>Address: {account.address}</Typography>
+                <Typography variant='caption' data-test-id='coin_address'>
+                  Address: {account.address}
+                </Typography>
               </Box>
             )}
           </FormControl>
