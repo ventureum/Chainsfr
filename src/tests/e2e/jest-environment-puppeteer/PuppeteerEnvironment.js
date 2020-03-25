@@ -121,6 +121,12 @@ class PuppeteerEnvironment extends NodeEnvironment {
           )
         }
         await this.global.jestPuppeteer.resetPage()
+        const client = await this.global.page.target().createCDPSession()
+        await client.send('Storage.clearDataForOrigin', { 
+         origin: process.env.E2E_TEST_URL, 
+         storageTypes: 'all', 
+       });
+        await client.send('Storage.clearCookies');
       }
     }
 

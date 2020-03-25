@@ -15,6 +15,7 @@ describe('Recipients Page', () => {
   let recipientsPage
   beforeAll(async done => {
     // we assume user has not logged in yet
+    await jestPuppeteer.resetBrowser()
     await page.goto(process.env.E2E_TEST_URL)
     loginPage = new LoginPage()
     recipientsPage = new RecipientsPage()

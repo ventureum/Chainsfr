@@ -10,6 +10,5 @@ module.exports = {
     defaultViewport: null,
     args: ['--no-sandbox', '--disable-web-security', '--disable-gpu', '--disable-setuid-sandbox']
   },
-  browser: 'chromium',
-  browserContext: 'incognito'
+  browser: 'chromium'
 }
