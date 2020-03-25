@@ -1,25 +1,82 @@
 /* eslint-disable no-console */
-import {
-  setup as setupServer,
-  teardown as teardownServer,
+const {
+  setup: setupServer,
+  teardown: teardownServer,
   ERROR_TIMEOUT,
   ERROR_NO_COMMAND
-} from 'jest-dev-server'
-import chalk from 'chalk'
-import { readConfig, getPuppeteer } from './readConfig'
+} = require('jest-dev-server')
+const chalk = require('chalk')
+const { readConfig, getPuppeteer } = require('./readConfig')
+const path = require('path')
+
+const dappeteer = require('dappeteer')
 
 let browser
 
 let didAlreadyRunInWatchMode = false
 
-export async function setup (jestConfig = {}) {
+async function setup (jestConfig = {}) {
   const config = await readConfig()
   const puppeteer = getPuppeteer(config)
+
   if (config.connect) {
     browser = await puppeteer.connect(config.connect)
   } else {
-    browser = await puppeteer.launch(config.launch)
+    if (process.env.E2E_TEST_METAMASK_PRIVATE_KEY) {
+      // setup dappeteer if E2E_TEST_METAMASK_PRIVATE_KEY is set
+      browser = await dappeteer.launch(puppeteer, config.launch)
+
+      // after ext installation, we are at ext welcome page
+      // must set all metamask configs here before
+      // navigating to any other pages
+      const metamask = await dappeteer.getMetamask(browser)
+      await metamask.importPK(process.env.E2E_TEST_METAMASK_PRIVATE_KEY)
+      await metamask.switchNetwork('rinkeby')
+
+      if (config.browserContext === 'incognito') {
+        // enable metmask in incognito mode
+        //
+        // currently, metamask ext popup shows blank page in incognito, thus this part is not being used
+        // might be fixed by updating metamask pkg
+        //
+        // due to the complexity of this part, the following code is reserved for future usage
+        //
+        // important: the following three steps must be executed in precisely the
+        // following order:
+        // (setBypassCSP, goto('chrome://extensions/?id=ogegpepdjhlgagkiimnlckeojobdjfgd'), addScriptTag)
+        //
+        // by pass CSP to avoid 'no inline script' error
+        // must be called before navigation
+        await page.setBypassCSP(true)
+        // the ext url is fixed, so we can safely hard code it here
+        await page.goto('chrome://extensions/?id=ogegpepdjhlgagkiimnlckeojobdjfgd')
+
+        // makes the library available in evaluate functions which run within the browser context
+        // must be called after navigation since we are evaluating the script on the ext management page
+        await page.addScriptTag({
+          path: path.join(
+            __dirname,
+            '../../../../node_modules/query-selector-shadow-dom/dist/querySelectorShadowDom.js'
+          )
+        })
+        
+        // the actual btn is in several layers of shadow doms, regular query does not work
+        // we must use the package querySelectorShadowDom to search for the entire dom tree
+        //
+        // find allow-incognito toggle btn and enable it
+        const btn = (
+          await page.waitForFunction(() => {
+            const btn = querySelectorShadowDom.querySelectorDeep('#allow-incognito')
+            return btn
+          })
+        ).asElement()
+        await btn.click()
+      }
+    } else {
+      browser = await puppeteer.launch(config.launch)
+    }
   }
+
   process.env.PUPPETEER_WS_ENDPOINT = browser.wsEndpoint()
 
   // If we are in watch mode, - only setupServer() once.
@@ -51,7 +108,7 @@ export async function setup (jestConfig = {}) {
   }
 }
 
-export async function teardown (jestConfig = {}) {
+async function teardown (jestConfig = {}) {
   const config = await readConfig()
 
   if (config.connect) {
@@ -64,3 +121,5 @@ export async function teardown (jestConfig = {}) {
     await teardownServer()
   }
 }
+
+module.exports = { setup, teardown }

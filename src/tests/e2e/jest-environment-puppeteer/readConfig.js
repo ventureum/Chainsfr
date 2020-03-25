@@ -53,8 +53,6 @@ function getPuppeteer (config) {
     case 'chromium':
       try {
         const puppeteer = require('puppeteer-extra')
-        const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-        puppeteer.use(StealthPlugin())
         return puppeteer
       } catch (e) {
         return require('puppeteer-core')
