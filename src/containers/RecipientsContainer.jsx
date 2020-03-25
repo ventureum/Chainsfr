@@ -46,7 +46,9 @@ class RecipientsContainer extends Component {
   }
 
   onSend = recipient => {
-    this.props.push(`${path.transfer}?destination=${recipient.email}&&receiverName=${recipient.name}`)
+    this.props.push(
+      `${path.transfer}?destination=${recipient.email}&&receiverName=${recipient.name}`
+    )
   }
 
   toggleAddRecipientDialog = () => {
@@ -76,7 +78,14 @@ class RecipientsContainer extends Component {
   }
 
   render () {
-    let { actionsPending, addRecipient, removeRecipient, editRecipient, online, ...others } = this.props
+    let {
+      actionsPending,
+      addRecipient,
+      removeRecipient,
+      editRecipient,
+      online,
+      ...others
+    } = this.props
     const {
       chosenRecipient,
       openAddRecipientDialog,
@@ -86,6 +95,7 @@ class RecipientsContainer extends Component {
     return (
       <>
         <RecipientsComponent
+          pending={actionsPending.getRecipients || actionsPending.getRecipients === null}
           onSend={this.onSend}
           {...others}
           addRecipient={this.toggleAddRecipientDialog}
@@ -167,7 +177,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RecipientsContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(RecipientsContainer)

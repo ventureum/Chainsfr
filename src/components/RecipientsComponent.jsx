@@ -59,9 +59,9 @@ class RecipientsComponent extends Component {
   }
 
   renderRecipientsList = () => {
-    const { classes, onSend, recipients, actionsPending } = this.props
+    const { classes, onSend, recipients, actionsPending, pending } = this.props
     const { moreMenu, chosenRecipient } = this.state
-    const skeletonOnly = actionsPending.getRecipients
+    const skeletonOnly = pending
     return (
       <Grid container direction='column'>
         {!actionsPending.getRecipients && recipients.length === 0 ? (
@@ -128,7 +128,10 @@ class RecipientsComponent extends Component {
                   <Box display='inline'>
                     {!skeletonOnly && (
                       <Tooltip title='Send to Contact'>
-                        <IconButton onClick={() => onSend(recipient)}>
+                        <IconButton
+                          onClick={() => onSend(recipient)}
+                          data-test-id={`send_to_recipient_${recipient.email}`}
+                        >
                           <SendIcon color='primary' id='sendBtn' />
                         </IconButton>
                       </Tooltip>
@@ -145,7 +148,7 @@ class RecipientsComponent extends Component {
   }
 
   renderUpperSection = props => {
-    const { classes, addRecipient } = this.props
+    const { classes, addRecipient, pending } = this.props
     return (
       <Box
         className={classes.coloredBackgrond}
@@ -164,7 +167,12 @@ class RecipientsComponent extends Component {
             <Typography variant='h2'>Manage Contacts</Typography>
             <Typography className={classes.decText}>Add contacts to use email transfer.</Typography>
             <Box display='flex' mt={2}>
-              <Button variant='contained' color='primary' onClick={() => addRecipient()}>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={() => addRecipient()}
+                disabled={pending}
+              >
                 Add Contacts
               </Button>
             </Box>
