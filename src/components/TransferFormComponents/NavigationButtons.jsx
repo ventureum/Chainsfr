@@ -33,6 +33,7 @@ export default function NavigationButtons (props: Props) {
           color='primary'
           onClick={onClickNext}
           disabled={!validated}
+          data-test-id='continue'
         >
           Continue
         </Button>

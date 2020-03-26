@@ -171,11 +171,11 @@ class AccountDropdownComponent extends Component<Props, State> {
           {account.status === accountStatus.syncing ? (
             <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
           ) : (
-            <Typography variant='body2' data-test-id='crypto_balance_in_select'>
+            <Typography variant='body2' data-test-id='coin_balance'>
               {account.balanceInStandardUnit} {getCryptoSymbol(account.cryptoType)}
             </Typography>
           )}
-          <Typography variant='caption' data-test-id='currency_balance_in_select'>
+          <Typography variant='caption' data-test-id='coin_currency_balance'>
             {this.props.toCurrencyAmount(account.balanceInStandardUnit, account.cryptoType)}
           </Typography>
         </Box>
@@ -257,6 +257,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                   disabled={
                     purpose === 'send' && !getWalletConfig(groupedAccountData.walletType).sendable
                   }
+                  data-test-id={`grouped_account_item_${groupedAccountData.walletType}_${groupedAccountData.platformType}`}
                 >
                   {this.renderGroupedAccountItem(groupedAccountData)}
                 </MenuItem>
@@ -303,6 +304,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                       disabled={
                         purpose === 'send' && !getWalletConfig(accountData.walletType).sendable
                       }
+                      data-test-id={`crypto_list_item_${accountData.cryptoType}`}
                     >
                       {this.renderGroupedAccountCryptoTypeItem(accountData)}
                     </MenuItem>
