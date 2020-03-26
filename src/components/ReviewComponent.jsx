@@ -9,12 +9,14 @@ import Divider from '@material-ui/core/Divider'
 import path from '../Paths.js'
 import * as TransferInfoCommon from './TransferInfoCommon'
 import type { AccountData } from '../types/account.flow'
+import type { Recipient } from '../types/transfer.flow.js'
 
 type Props = {
   submitTx: Function,
   push: Function,
   classes: Object,
   transferForm: Object,
+  recipients: Array<Recipient>,
   accountSelection: AccountData,
   receiveAccountSelection: AccountData,
   wallet: Object,
@@ -42,11 +44,13 @@ class ReviewComponent extends Component<Props> {
       currencyAmount,
       push,
       userProfile,
-      directTransfer
+      directTransfer,
+      recipients
     } = this.props
     const { transferAmount, password, sendMessage } = transferForm
     const { cryptoType } = accountSelection
 
+    const recipient = recipients.find(r => r.email === transferForm.destination)
     return (
       <Grid container direction='column'>
         <Grid item>
@@ -61,7 +65,8 @@ class ReviewComponent extends Component<Props> {
                   !directTransfer
                     ? {
                         name: transferForm.receiverName,
-                        email: transferForm.destination
+                        email: transferForm.destination,
+                        avatar: recipient && recipient.imageUrl
                       }
                     : null
                 }
@@ -78,7 +83,8 @@ class ReviewComponent extends Component<Props> {
                   !directTransfer
                     ? {
                         name: userProfile.name,
-                        email: userProfile.email
+                        email: userProfile.email,
+                        avatar: userProfile.imageUrl
                       }
                     : null
                 }

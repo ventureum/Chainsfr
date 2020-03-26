@@ -1,4 +1,4 @@
-const ACCOUNTS = [
+const CRYPTO_ACCOUNTS = [
   // cloud wallet's private keys match the keys in mocks/drive.js
   {
     addedAt: 1582577659,
@@ -156,4 +156,4 @@ const ACCOUNTS = [
   }
 ]
 
-export { ACCOUNTS }
+export { CRYPTO_ACCOUNTS }

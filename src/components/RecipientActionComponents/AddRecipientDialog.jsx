@@ -15,6 +15,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
 import { addRecipient } from '../../actions/userActions'
 import { useActionTracker } from '../../hooksUtils'
+import type { Recipient } from '../../types/transfer.flow'
 
 type Props = {
   open: boolean,
@@ -24,17 +25,11 @@ type Props = {
   online: boolean
 }
 
-type Recipient = {
-  name: string,
-  email: string,
-  validEmail: boolean,
-  validName: boolean,
-  imageUrl?: string
-}
-
 const defaultRecipient = {
   name: '',
   email: '',
+  imageUrl: null,
+  imageUrlUpdatedAt: null,
   validEmail: true,
   validName: true
 }

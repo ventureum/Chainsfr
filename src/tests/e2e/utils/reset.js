@@ -1,14 +1,8 @@
 import axios from 'axios'
-import {
-  GOOGLE_LOGIN_AUTH_OBJ,
-  REGISTER_TIME,
-  MASTER_KEY,
-  EMAIL,
-  PROFILE
-} from '../mocks/user.js'
+import { GOOGLE_LOGIN_AUTH_OBJ, REGISTER_TIME, MASTER_KEY, EMAIL, PROFILE } from '../mocks/user.js'
 import { DEFAULT_TRANSFER_DATA } from '../mocks/transfers'
 import { RECIPIENTS } from '../mocks/recipients'
-import { ACCOUNTS } from '../mocks/accounts.js'
+import { CRYPTO_ACCOUNTS } from '../mocks/cryptoAccounts.js'
 import { CLOUD_WALLET_FOLDER_META } from '../mocks/cloudWalletMeta.js'
 
 import type { BackEndCryptoAccountType } from '../../../types/account.flow'
@@ -39,7 +33,7 @@ async function resetUser (data: {
   masterKey: ?string,
   cloudWalletFolderMeta: ?CloudWalletFolderMetaType,
   recipients: ?Array<RecipientType>,
-  accounts: ?Array<BackEndCryptoAccountType>,
+  cryptoAccounts: ?Array<BackEndCryptoAccountType>,
   transfers: ?Array<TransferDataType>
 }) {
   await chainsferApi.post('/user', {
@@ -58,8 +52,8 @@ async function resetUserDefault () {
     masterKey: MASTER_KEY,
     cloudWalletFolderMeta: CLOUD_WALLET_FOLDER_META,
     recipients: RECIPIENTS,
-    accounts: ACCOUNTS,
-    transfers: DEFAULT_TRANSFER_DATA
+    cryptoAccounts: CRYPTO_ACCOUNTS,
+    transfers: DEFAULT_TRANSFER_DATA.transferDataList
   })
 }
 

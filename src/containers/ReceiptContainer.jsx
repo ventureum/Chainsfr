@@ -8,12 +8,14 @@ import { getTransfer, getTransferPassword } from '../actions/transferActions'
 import { backToHome } from '../actions/navigationActions'
 import queryString from 'query-string'
 import paths from '../Paths'
+import type { Recipient } from '../types/transfer.flow.js'
 
 type Props = {
   history: Object,
   location: Object,
   profile: Object,
   transfer: Object,
+  recipients: Array<Recipient>,
   receipt: Object,
   actionsPending: Object,
   cryptoPrice: Object,
@@ -72,7 +74,7 @@ class ReceiptContainer extends Component<Props, State> {
   }
 
   render () {
-    const { transfer, error, backToHome } = this.props
+    const { transfer, recipients, error, backToHome } = this.props
 
     if (transfer) {
       const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
@@ -89,6 +91,7 @@ class ReceiptContainer extends Component<Props, State> {
         sendTime={sendTime}
         receiveTime={receiveTime}
         cancelTime={cancelTime}
+        recipients={recipients}
         error={error}
         backToHome={backToHome}
       />
@@ -104,6 +107,7 @@ const mapStateToProps = state => {
   return {
     transfer: state.transferReducer.transfer,
     receipt: state.transferReducer.receipt,
+    recipients: state.userReducer.recipients,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     actionsPending: {

@@ -58,6 +58,7 @@ const mapStateToProps = state => {
   return {
     userProfile: state.userReducer.profile.profileObj,
     transferForm: state.formReducer.transferForm,
+    recipients: state.userReducer.recipients,
     accountSelection: state.accountReducer.cryptoAccounts.find(_account =>
       utils.accountsEqual(_account, { id: state.formReducer.transferForm.accountId })
     ),

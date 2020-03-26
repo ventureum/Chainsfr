@@ -21,7 +21,11 @@ export type TxEthereum = {
 
 export type Recipient = {
   name: string,
-  email: string
+  email: string,
+  imageUrl: ?string,
+  imageUrlUpdatedAt: ?number,
+  validEmail: ?boolean,
+  validName: ?boolean,
 }
 
 export type Signature = string
