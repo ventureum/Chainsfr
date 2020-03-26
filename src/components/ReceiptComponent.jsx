@@ -68,6 +68,10 @@ class ReceiptComponent extends Component<Props, State> {
       fiatType,
       destination,
       receiverName,
+      receiverAvatar,
+      sender,
+      senderName,
+      senderAvatar,
       sendMessage,
       receiveMessage,
       cancelMessage,
@@ -348,8 +352,9 @@ class ReceiptComponent extends Component<Props, State> {
                   user={
                     transferMethod === 'EMAIL_TRANSFER'
                       ? {
-                          name: receiverName,
-                          email: destination
+                          name: senderName,
+                          email: sender,
+                          avatar: senderAvatar
                         }
                       : null
                   }
@@ -366,7 +371,8 @@ class ReceiptComponent extends Component<Props, State> {
                     transferMethod === 'EMAIL_TRANSFER'
                       ? {
                           name: receiverName,
-                          email: destination
+                          email: destination,
+                          avatar: receiverAvatar
                         }
                       : null
                   }

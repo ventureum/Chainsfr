@@ -5,13 +5,13 @@ import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 import MenuItem from '@material-ui/core/MenuItem'
-import AccountCircle from '@material-ui/icons/AccountCircleRounded'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Divider from '@material-ui/core/Divider'
 import AddIcon from '@material-ui/icons/AddRounded'
 import Skeleton from '@material-ui/lab/Skeleton'
+import UserAvatar from '../MicroComponents/UserAvatar'
 import { AddRecipientDialog } from '../../components/RecipientActionComponents'
 import { useActionTracker } from '../../hooksUtils'
 import type { EmailType } from '../../types/user.flow'
@@ -106,7 +106,11 @@ export default function SelectRecipient (props: Props) {
               return (
                 <MenuItem key={recipient.name} value={recipient.email}>
                   <Box display='flex' alignItems='flex-top'>
-                    <AccountCircle fontSize='large' color='secondary' id='accountCircle' />
+                    <UserAvatar
+                      style={{ width: 32 }}
+                      name={recipient.name}
+                      src={recipient.imageUrl}
+                    />
                     <Box ml={1}>
                       <Typography variant='body2'>{recipient.name}</Typography>
                       <Typography variant='caption'>{recipient.email}</Typography>
