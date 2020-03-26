@@ -1,18 +1,16 @@
 // @flow
 import React, { useState, useEffect } from 'react'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { Avatar, Divider } from '@material-ui/core'
+import Avatar from '@material-ui/core/Avatar'
+import Alert from '@material-ui/lab/Alert'
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
-import CropFreeIcon from '@material-ui/icons/CropFree'
-import CloseIcon from '@material-ui/icons/Close'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
-import ErrorIcon from '@material-ui/icons/Error'
-import FileCopyIcon from '@material-ui/icons/FileCopy'
+import Divider from '@material-ui/core/Divider'
 import IconButton from '@material-ui/core/IconButton'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import List from '@material-ui/core/List'
@@ -46,6 +44,13 @@ import Radio from '@material-ui/core/Radio'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
 import { useActionTracker } from '../hooksUtils'
+
+// Icons
+import CheckCircleIcon from '@material-ui/icons/CheckCircleRounded'
+import CloseIcon from '@material-ui/icons/CloseRounded'
+import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
+import ErrorIcon from '@material-ui/icons/ErrorRounded'
+import FileCopyIcon from '@material-ui/icons/FileCopyRounded'
 
 const useStyles = makeStyles(theme => ({
   closeButton: {
@@ -109,18 +114,6 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
     marginRight: theme.spacing(1)
   },
-  successAlert: {
-    backgroundColor: '#EDF7ED'
-  },
-  errorAlert: {
-    backgroundColor: '#FFEEF0'
-  },
-  successText: {
-    color: '#1E4620'
-  },
-  errorText: {
-    color: '#F86D70'
-  },
   divider: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2)
@@ -173,7 +166,6 @@ type ErrorMessageProps = {
 
 const ErrorMessage = (props: ErrorMessageProps) => {
   const { walletType, errors, platformType } = props
-  const classes = useStyles()
   let errorInstruction
   if ((!errors.checkWalletConnection && !errors.newCryptoAccountsFromWallet) || !platformType) {
     return null
@@ -234,13 +226,10 @@ const ErrorMessage = (props: ErrorMessageProps) => {
       errorInstruction = 'Unknown error'
   }
   return (
-    <Box padding={1} className={classes.errorAlert} mb={1} display='flex' alignItems='center'>
-      <Box mr={1}>
-        <ErrorIcon className={classes.errorText} />
-      </Box>
-      <Typography variant='body2' className={classes.errorText}>
+    <Box mb={2}>
+      <Alert icon={<ErrorIcon />} severity='error'>
         {errorInstruction}
-      </Typography>
+      </Alert>
     </Box>
   )
 }
@@ -573,7 +562,6 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
   const { walletType, onNameChanged, name, newCryptoAccounts } = props
   const [toolipText, setTooltipText] = useState('Copy')
   const firstNewCryptoAccount = newCryptoAccounts[0]
-  const classes = useStyles()
   if (!firstNewCryptoAccount) return null
   useEffect(() => {
     if (
@@ -596,11 +584,11 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
   return (
     <Box display='flex' flexDirection='column'>
       <WalletBigIcon src={getWalletLogo(walletType)} name={getWalletDescText(walletType)} />
-      <Box pt={2} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
-        <Box padding={1} className={classes.successAlert} mb={1}>
-          <Typography variant='body2' className={classes.successText}>
+      <Box pt={1} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
+        <Box mb={2}>
+          <Alert severity='success' iconMapping={{ success: <CheckCircleIcon /> }}>
             {`${getWalletTitle(walletType)} connected`}
-          </Typography>
+          </Alert>
         </Box>
         <Box mt={1} width='100%'>
           <TextField

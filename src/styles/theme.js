@@ -138,6 +138,11 @@ export const themeChainsfr = createMuiTheme({
     color: uiColors.border
   },
   overrides: {
+    MuiAlert: {
+      standardInfo: {
+        color: fontColors.primary
+      }
+    },
     MuiAvatar: {
       root: {
         width: componentSizes.avatar.default.width,
@@ -278,7 +283,7 @@ export const themeChainsfr = createMuiTheme({
         fontSize: 12
       },
       fontSizeLarge: {
-        fontSize: 32
+        fontSize: 48
       }
     },
     MuiInputBase: {
@@ -321,7 +326,7 @@ export const themeChainsfr = createMuiTheme({
     },
     MuiSvgIcon: {
       fontSizeLarge: {
-        fontSize: 32
+        fontSize: 48
       }
     },
     MuiTextField: {
