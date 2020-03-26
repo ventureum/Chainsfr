@@ -99,6 +99,13 @@ class PuppeteerEnvironment extends NodeEnvironment {
           await this.global.browser.disconnect()
         }
 
+        // cannot be added to either readConfig.js since it is called twice
+        // causing redefine property error
+        //
+        // also cannot be added to global.js as it will be overwritten here
+        const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+        puppeteer.use(StealthPlugin())
+
         this.global.browser = await puppeteer.connect({
           ...config.connect,
           ...config.launch,
@@ -121,6 +128,16 @@ class PuppeteerEnvironment extends NodeEnvironment {
           )
         }
         await this.global.jestPuppeteer.resetPage()
+        const client = await this.global.page.target().createCDPSession()
+        await client.send('Storage.clearDataForOrigin', { 
+         origin: process.env.E2E_TEST_URL, 
+         storageTypes: 'all', 
+       });
+        await client.send('Storage.clearCookies');
+      },
+      getMetamask: async () => {
+        const dappeteer = require('dappeteer')
+        return dappeteer.getMetamask(this.global.browser)
       }
     }
 

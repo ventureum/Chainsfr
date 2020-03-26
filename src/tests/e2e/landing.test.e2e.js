@@ -7,6 +7,7 @@ const timeout = 180000
 
 describe('Landing page tests', () => {
   beforeAll(async () => {
+    await jestPuppeteer.resetBrowser()
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -15,10 +16,6 @@ describe('Landing page tests', () => {
       process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
       true
     )
-  }, timeout)
-
-  afterAll(async () => {
-    await jestPuppeteer.resetBrowser()
   })
 
   afterEach(async () => {

@@ -11,6 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Tooltip from '@material-ui/core/Tooltip'
 import EmptyStateImage from '../images/empty_state_01.png'
 import UserAvatar from './MicroComponents/UserAvatar'
+import Skeleton from '@material-ui/lab/Skeleton'
 
 class RecipientsComponent extends Component {
   state = {
@@ -58,8 +59,9 @@ class RecipientsComponent extends Component {
   }
 
   renderRecipientsList = () => {
-    const { classes, onSend, recipients, actionsPending } = this.props
+    const { classes, onSend, recipients, actionsPending, pending } = this.props
     const { moreMenu, chosenRecipient } = this.state
+    const skeletonOnly = pending
     return (
       <Grid container direction='column'>
         {!actionsPending.getRecipients && recipients.length === 0 ? (
@@ -82,38 +84,58 @@ class RecipientsComponent extends Component {
               <Grid container justify='space-between'>
                 <Grid item>
                   <Box display='flex' alignItems='center'>
-                    <UserAvatar
-                      style={{ width: 32 }}
-                      name={recipient.name}
-                      src={recipient.imageUrl}
-                    />
-                    <Box ml={1}>
-                      <Typography data-test-id='recipient_name'>{recipient.name}</Typography>
-                      <Typography variant='caption' data-test-id='recipient_email'>
-                        {recipient.email}
-                      </Typography>
-                    </Box>
+                    {!skeletonOnly ? (
+                      <UserAvatar
+                        style={{ width: 32 }}
+                        name={recipient.name}
+                        src={recipient.imageUrl}
+                      />
+                    ) : (
+                      <Skeleton
+                        variant='circle'
+                        width={32}
+                        height={32}
+                        className={classes.skeleton}
+                      />
+                    )}
+                    {!skeletonOnly ? (
+                      <Box ml={1}>
+                        <Typography data-test-id='recipient_name'>{recipient.name}</Typography>
+                        <Typography variant='caption' data-test-id='recipient_email'>
+                          {recipient.email}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box>
+                        <Skeleton width={50} height={20} className={classes.skeleton} />
+                        <Skeleton width={60} height={12} className={classes.skeleton} />
+                      </Box>
+                    )}
                   </Box>
                 </Grid>
                 <Grid item display='flex'>
                   <Box display='inline' mr={2}>
-                    <Tooltip title='More'>
-                      <IconButton
-                        onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
-                      >
-                        <MoreIcon color='secondary' id='moreBtn' />
-                      </IconButton>
-                    </Tooltip>
+                    {!skeletonOnly && (
+                      <Tooltip title='More'>
+                        <IconButton
+                          onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
+                        >
+                          <MoreIcon color='secondary' id='moreBtn' />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
                   <Box display='inline'>
-                    <Tooltip title='Send to Contact'>
-                      <IconButton
-                        onClick={() => onSend(recipient)}
-                        data-test-id={`send_to_recipient_${recipient.email}`}
-                      >
-                        <SendIcon color='primary' id='sendBtn' />
-                      </IconButton>
-                    </Tooltip>
+                    {!skeletonOnly && (
+                      <Tooltip title='Send to Contact'>
+                        <IconButton
+                          onClick={() => onSend(recipient)}
+                          data-test-id={`send_to_recipient_${recipient.email}`}
+                        >
+                          <SendIcon color='primary' id='sendBtn' />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
                 </Grid>
               </Grid>
@@ -126,7 +148,7 @@ class RecipientsComponent extends Component {
   }
 
   renderUpperSection = props => {
-    const { classes, addRecipient } = this.props
+    const { classes, addRecipient, pending } = this.props
     return (
       <Box
         className={classes.coloredBackgrond}
@@ -145,7 +167,12 @@ class RecipientsComponent extends Component {
             <Typography variant='h2'>Manage Contacts</Typography>
             <Typography className={classes.decText}>Add contacts to use email transfer.</Typography>
             <Box display='flex' mt={2}>
-              <Button variant='contained' color='primary' onClick={() => addRecipient()}>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={() => addRecipient()}
+                disabled={pending}
+              >
                 Add Contacts
               </Button>
             </Box>
@@ -198,6 +225,9 @@ const styles = theme => ({
       fontWeight: '600',
       color: '#777777'
     }
+  },
+  skeleton: {
+    margin: 5
   }
 })
 export default withStyles(styles)(RecipientsComponent)
