@@ -29,4 +29,16 @@ const GOOGLE_LOGIN_AUTH_OBJ = {
    }
 }
 
-export { GOOGLE_LOGIN_AUTH_OBJ }
+const REGISTER_TIME = 1584563835
+const MASTER_KEY = 'H@U"Ix[<3E~9xL{%'
+const EMAIL = 'chainsfre2etest@gmail.com'
+const PROFILE = {
+  familyName: 'test',
+  givenName: 'e2e',
+  googleId: '116840519665671803638',
+  imageUrl:
+    'https://lh4.googleusercontent.com/-23NNcYMLB9I/AAAAAAAAAAI/AAAAAAAAAAA/AKF05nAyjqK1EWJEGo5qD1lL8s0vZ77hEQ/s96-c/photo.jpg',
+  name: 'e2e test'
+}
+
+export { GOOGLE_LOGIN_AUTH_OBJ, REGISTER_TIME, MASTER_KEY, EMAIL, PROFILE }
