@@ -56,7 +56,9 @@ class ReviewComponent extends Component<Props> {
         <Grid item>
           <Grid container direction='column' spacing={2}>
             <Grid item>
-              <Typography variant='h3'>Review Details</Typography>
+              <Typography variant='h3' data-test-id='title'>
+                Review Details
+              </Typography>
             </Grid>
             <Grid item>
               <TransferInfoCommon.FromAndToSection
@@ -98,10 +100,14 @@ class ReviewComponent extends Component<Props> {
                 </Grid>
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
-                    <Typography variant='body2'>
+                    <Typography variant='body2' data-test-id='transfer_amount'>
                       {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
-                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                    <Typography
+                      style={{ marginLeft: '10px' }}
+                      variant='caption'
+                      data-test-id='currency_amount'
+                    >
                       ( ≈ {currencyAmount.transferAmount} )
                     </Typography>
                   </Grid>
@@ -118,11 +124,15 @@ class ReviewComponent extends Component<Props> {
                 </Grid>
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
-                    <Typography variant='body2'>
+                    <Typography variant='body2' data-test-id='tx_fee'>
                       {txFee && txFee.costInStandardUnit}{' '}
                       {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                     </Typography>
-                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                    <Typography
+                      style={{ marginLeft: '10px' }}
+                      variant='caption'
+                      data-test-id='currency_tx_fee'
+                    >
                       ( ≈ {currencyAmount.txFee} )
                     </Typography>
                   </Grid>
@@ -138,7 +148,9 @@ class ReviewComponent extends Component<Props> {
                   <Grid container direction='column' alignItems='flex-start'>
                     <Grid item>
                       <Typography variant='caption'>Security Answer</Typography>
-                      <Typography variant='body2'>{password}</Typography>
+                      <Typography variant='body2' data-test-id='security_answer'>
+                        {password}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -151,7 +163,9 @@ class ReviewComponent extends Component<Props> {
               <Grid container direction='column' alignItems='flex-start'>
                 <Grid item>
                   <Typography variant='caption'>Message</Typography>
-                  <Typography variant='body2'>{sendMessage || '(Not provided)'}</Typography>
+                  <Typography variant='body2' data-test-id='send_msg'>
+                    {sendMessage || '(Not provided)'}
+                  </Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -167,6 +181,7 @@ class ReviewComponent extends Component<Props> {
                 color='primary'
                 size='large'
                 onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}
+                data-test-id='back'
               >
                 Back to previous
               </Button>
@@ -181,6 +196,7 @@ class ReviewComponent extends Component<Props> {
                   onClick={() =>
                     push(`${directTransfer ? path.directTransfer : path.transfer}?step=2`)
                   }
+                  data-test-id='continue'
                 >
                   Continue
                 </Button>

@@ -30,7 +30,11 @@ class ReviewContainer extends Component<Props> {
   render () {
     const { cryptoPrice, txFee, transferForm, currency } = this.props
     const toCurrencyAmount = cryptoAmount =>
-      utils.toCurrencyAmount(cryptoAmount, cryptoPrice[transferForm.accountId.cryptoType], currency)
+      utils.toCurrencyAmount(
+        cryptoAmount,
+        cryptoPrice[JSON.parse(transferForm.accountId).cryptoType],
+        currency
+      )
     return (
       <Review
         {...this.props}
