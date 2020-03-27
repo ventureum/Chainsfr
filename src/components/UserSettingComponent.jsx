@@ -5,144 +5,144 @@ import Button from '@material-ui/core/Button'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-import CloseIcon from '@material-ui/icons/Close'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Divider from '@material-ui/core/Divider'
+// import CloseIcon from '@material-ui/icons/Close'
+// import Dialog from '@material-ui/core/Dialog'
+// import DialogActions from '@material-ui/core/DialogActions'
+// import DialogContent from '@material-ui/core/DialogContent'
+// import DialogTitle from '@material-ui/core/DialogTitle'
+// import Divider from '@material-ui/core/Divider'
 import GoogleIcon from '../images/google-icon.svg'
 import GoogleDrive from '../images/googleDrive.svg'
-import IconButton from '@material-ui/core/IconButton'
+// import IconButton from '@material-ui/core/IconButton'
 import LaunchRoundedIcon from '@material-ui/icons/LaunchRounded'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import moment from 'moment'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
-import TextField from '@material-ui/core/TextField'
+// import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
-import { useActionTracker } from '../hooksUtils'
+// import { useActionTracker } from '../hooksUtils'
 
-const ChangePasswordDialog = props => {
-  const { open, handleClose, handleSubmit, loading } = props
+// const ChangePasswordDialog = props => {
+//   const { open, handleClose, handleSubmit, loading } = props
 
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
-  const [newPasswordError, setNewPasswordError] = useState('')
+//   const [currentPassword, setCurrentPassword] = useState('')
+//   const [newPassword, setNewPassword] = useState('')
+//   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
+//   const [newPasswordError, setNewPasswordError] = useState('')
 
-  useEffect(() => {
-    if (!open) {
-      setCurrentPassword('')
-      setNewPassword('')
-      setNewPasswordConfirm('')
-    }
-  })
+//   useEffect(() => {
+//     if (!open) {
+//       setCurrentPassword('')
+//       setNewPassword('')
+//       setNewPasswordConfirm('')
+//     }
+//   })
 
-  const handleChange = action => event => {
-    if (action === 'currentPassword') {
-      setCurrentPassword(event.target.value)
-    } else if (action === 'newPassword') {
-      setNewPassword(event.target.value)
-    } else if (action === 'newPasswordConfirm') {
-      setNewPasswordConfirm(event.target.value)
-    }
-    setNewPasswordError('')
-  }
+//   const handleChange = action => event => {
+//     if (action === 'currentPassword') {
+//       setCurrentPassword(event.target.value)
+//     } else if (action === 'newPassword') {
+//       setNewPassword(event.target.value)
+//     } else if (action === 'newPasswordConfirm') {
+//       setNewPasswordConfirm(event.target.value)
+//     }
+//     setNewPasswordError('')
+//   }
 
-  const preSubmitCheck = (currentP, newP, newPC) => {
-    if (newP !== newPC) {
-      return setNewPasswordError('New password must match')
-    }
-    handleSubmit(currentP, newP)
-  }
+//   const preSubmitCheck = (currentP, newP, newPC) => {
+//     if (newP !== newPC) {
+//       return setNewPasswordError('New password must match')
+//     }
+//     handleSubmit(currentP, newP)
+//   }
 
-  return (
-    <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>
-        <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-          <Typography variant='h3'>Change Password</Typography>
-          <IconButton onClick={handleClose} disabled={loading}>
-            <CloseIcon fontSize='small' color='secondary' />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-      <DialogContent>
-        <Box mb={3}>
-          <Typography variant='h6'>Password description goes here</Typography>
-        </Box>
-        <form noValidate>
-          <TextField
-            id='currentPassword'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-            value={currentPassword}
-            onChange={handleChange('currentPassword')}
-            placeholder='Current Password'
-            label='Current Password'
-            type='password'
-            disabled={loading}
-          />
-          <TextField
-            id='newPassword'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-            value={newPassword}
-            onChange={handleChange('newPassword')}
-            placeholder='New Password'
-            label='New Password'
-            error={!!newPasswordError}
-            helperText={newPasswordError}
-            type='password'
-            disabled={loading}
-          />
-          <TextField
-            id='newPasswordConfirm'
-            variant='outlined'
-            fullWidth
-            margin='normal'
-            value={newPasswordConfirm}
-            onChange={handleChange('newPasswordConfirm')}
-            placeholder='Confirm New Password'
-            label='Confirm New Password'
-            error={!!newPasswordError}
-            helperText={newPasswordError}
-            type='password'
-            disabled={loading}
-          />
-        </form>
-      </DialogContent>
-      <DialogActions>
-        <Box mr={2}>
-          <Button
-            onClick={handleClose}
-            variant='outlined'
-            color='secondary'
-            id='cancel'
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-        </Box>
-        <Button
-          variant='contained'
-          onClick={() => {
-            preSubmitCheck(currentPassword, newPassword, newPasswordConfirm)
-          }}
-          color='primary'
-          id='add'
-          disabled={loading || !newPasswordConfirm || !currentPassword || !newPassword}
-        >
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
+//   return (
+//     <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
+//       <DialogTitle id='form-dialog-title'>
+//         <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
+//           <Typography variant='h3'>Change Password</Typography>
+//           <IconButton onClick={handleClose} disabled={loading}>
+//             <CloseIcon fontSize='small' color='secondary' />
+//           </IconButton>
+//         </Box>
+//       </DialogTitle>
+//       <DialogContent>
+//         <Box mb={3}>
+//           <Typography variant='h6'>Password description goes here</Typography>
+//         </Box>
+//         <form noValidate>
+//           <TextField
+//             id='currentPassword'
+//             variant='outlined'
+//             fullWidth
+//             margin='normal'
+//             value={currentPassword}
+//             onChange={handleChange('currentPassword')}
+//             placeholder='Current Password'
+//             label='Current Password'
+//             type='password'
+//             disabled={loading}
+//           />
+//           <TextField
+//             id='newPassword'
+//             variant='outlined'
+//             fullWidth
+//             margin='normal'
+//             value={newPassword}
+//             onChange={handleChange('newPassword')}
+//             placeholder='New Password'
+//             label='New Password'
+//             error={!!newPasswordError}
+//             helperText={newPasswordError}
+//             type='password'
+//             disabled={loading}
+//           />
+//           <TextField
+//             id='newPasswordConfirm'
+//             variant='outlined'
+//             fullWidth
+//             margin='normal'
+//             value={newPasswordConfirm}
+//             onChange={handleChange('newPasswordConfirm')}
+//             placeholder='Confirm New Password'
+//             label='Confirm New Password'
+//             error={!!newPasswordError}
+//             helperText={newPasswordError}
+//             type='password'
+//             disabled={loading}
+//           />
+//         </form>
+//       </DialogContent>
+//       <DialogActions>
+//         <Box mr={2}>
+//           <Button
+//             onClick={handleClose}
+//             variant='outlined'
+//             color='secondary'
+//             id='cancel'
+//             disabled={loading}
+//           >
+//             Cancel
+//           </Button>
+//         </Box>
+//         <Button
+//           variant='contained'
+//           onClick={() => {
+//             preSubmitCheck(currentPassword, newPassword, newPasswordConfirm)
+//           }}
+//           color='primary'
+//           id='add'
+//           disabled={loading || !newPasswordConfirm || !currentPassword || !newPassword}
+//         >
+//           Save
+//         </Button>
+//       </DialogActions>
+//     </Dialog>
+//   )
+// }
 
 const SettingTabs = props => {
   const { currentTab, handleChange } = props
@@ -218,33 +218,33 @@ const securityStyle = makeStyles({
 })
 
 const Security = props => {
-  const { changeChainsfrWalletPassword } = props
-  const [openChangePasswordDialog, setOpenChangePasswordDialog] = useState(false)
+  // const { changeChainsfrWalletPassword } = props
+  // const [openChangePasswordDialog, setOpenChangePasswordDialog] = useState(false)
 
-  const toggleDialog = currentValue => {
-    setOpenChangePasswordDialog(!currentValue)
-  }
+  // const toggleDialog = currentValue => {
+  //   setOpenChangePasswordDialog(!currentValue)
+  // }
 
-  const { actionsPending, actionsFulfilled, errors } = useActionTracker(
-    ['changeChainsfrWalletPassword'],
-    [['CHANGE_CHAINSFR_WALLET_PASSWORD']]
-  )
+  // const { actionsPending, actionsFulfilled, errors } = useActionTracker(
+  //   ['changeChainsfrWalletPassword'],
+  //   [['CHANGE_CHAINSFR_WALLET_PASSWORD']]
+  // )
 
-  const loading = actionsPending.changeChainsfrWalletPassword
-  const error = errors.changeChainsfrWalletPassword
+  // const loading = actionsPending.changeChainsfrWalletPassword
+  // const error = errors.changeChainsfrWalletPassword
 
-  useEffect(() => {
-    if (actionsFulfilled['changeChainsfrWalletPassword']) {
-      // close dialog
-      toggleDialog(openChangePasswordDialog)
-    }
-  })
+  // useEffect(() => {
+  //   if (actionsFulfilled['changeChainsfrWalletPassword']) {
+  //     // close dialog
+  //     toggleDialog(openChangePasswordDialog)
+  //   }
+  // })
 
   const classes = securityStyle()
   return (
     <>
       <Box maxWidth={640} display='flex' flexDirection='column'>
-        <Box mb={1}>
+        {/* <Box mb={1}>
           <Typography variant='h3'>Chainsfr Wallet Password</Typography>
         </Box>
         <Box mb={2}>
@@ -264,8 +264,8 @@ const Security = props => {
             Change Password
           </Button>
         </Box>
-        <Divider />
-        <Box mb={1} mt={3}>
+        <Divider /> */}
+        <Box mb={1}>
           <Typography variant='h3'>Two-Factor Authentication</Typography>
         </Box>
         <Box mb={2}>
@@ -288,7 +288,7 @@ const Security = props => {
           </Button>
         </Box>
       </Box>
-      <ChangePasswordDialog
+      {/* <ChangePasswordDialog
         open={openChangePasswordDialog}
         handleClose={() => {
           toggleDialog(openChangePasswordDialog)
@@ -299,7 +299,7 @@ const Security = props => {
         }}
         loading={loading}
         error={error}
-      />
+      /> */}
     </>
   )
 }
