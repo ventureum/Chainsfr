@@ -26,7 +26,7 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'drive',
     xpub:
-      'tpubDCJU5Qa4bbLyQH8jteCDJGnTzQSFLpqhCS6v3C3TqXmR3cMGC2Y5BcG6XZ5Sd6ZaJnNszf2kHxAnF3miN63QMLTPhEesVQWaoecbA4qxfCc'
+      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME'
   },
   // metamask
   {

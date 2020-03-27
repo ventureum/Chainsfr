@@ -5,6 +5,7 @@
  */
 import { DEFAULT_TRANSFER_DATA } from './transfers'
 import env from '../../../typedEnv'
+import { Base64 } from 'js-base64'
 
 const TEMP_SEND_FILE_NAME: string = `__temp_send_${env.REACT_APP_ENV}__.json`
 const TEMP_SEND_FOLDER_NAME: string = `TempSend_${env.REACT_APP_ENV}`
@@ -58,15 +59,21 @@ var data = {
   },
   [WALLET_FOLDER_NAME]: {
     [WALLET_FILE_NAME]: {
-      accounts: {
-        '0xb428Ca537F86a8375fF7FB35d9c58E58Adb85aC8': {
-          privateKey: '0x9ccba47adc95d13b565ce4beed9c1de5b909288cfa59ee7a8a15e4e227532d57'
-        },
-        tpubDCJU5Qa4bbLyQH8jteCDJGnTzQSFLpqhCS6v3C3TqXmR3cMGC2Y5BcG6XZ5Sd6ZaJnNszf2kHxAnF3miN63QMLTPhEesVQWaoecbA4qxfCc: {
-          privateKey: 'cRaKNmbcr99rqPCZjVvtYhGtC1eVc44AYeHHvFtJYhxXj9cAEGQZ',
-          address: '2N7WBvyKw2wegfjsW7riVhzfBaz8cJdjqRX'
-        }
-      }
+      accounts: Base64.encode(
+        JSON.stringify({
+          '0xb428Ca537F86a8375fF7FB35d9c58E58Adb85aC8': {
+            privateKey: '0x9ccba47adc95d13b565ce4beed9c1de5b909288cfa59ee7a8a15e4e227532d57'
+          },
+          tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME: {
+            hdWalletVariables: {
+              xpriv:
+                'tprv8ZgxMBicQKsPdXnbZJtwjK2a2C7P6BWT9xG2mWW26272dgJn8doNAx75omMTgukJnq6Mv9Fkq1XmuBFXKxFAUSyERgZYpEGf8jkzHuxtJTk'
+            },
+            privateKey: 'cVsMfbdy2rBeRh1Djyc8sqWC1e6zMNyZHUxdHvzjNFWSnjNB5WWu',
+            address: '2Mvn2Niwwqmr1XsNYepxeZ7gri6e7X92EUr'
+          }
+        })
+      )
     }
   }
 }
