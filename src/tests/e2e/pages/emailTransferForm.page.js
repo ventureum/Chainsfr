@@ -24,6 +24,26 @@ class EmailTransferFormPage {
     return coinList
   }
 
+  async dispatchFormActions (action) {
+    if (action === 'continue') {
+      await Promise.all([
+        page.click('[data-test-id="continue"]'),
+        page.waitForNavigation({
+          waitUntil: 'networkidle0'
+        })
+      ])
+    } else if (action === 'back') {
+      await Promise.all([
+        page.click('[data-test-id="back"]'),
+        page.waitForNavigation({
+          waitUntil: 'networkidle0'
+        })
+      ])
+    } else {
+      throw new Error(`Invalid action: ${action}`)
+    }
+  }
+
   async openSelect (field) {
     switch (field) {
       case 'recipient': {

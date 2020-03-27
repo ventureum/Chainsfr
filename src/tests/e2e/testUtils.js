@@ -42,4 +42,9 @@ const getNewPopupPage = async (browser, triggerFunction) => {
   return newPopup
 }
 
-export { sleep, runUntilEvaluateEquals, getNewPopupPage }
+async function getElementTextContent (elementHandle) {
+  const text = await (await elementHandle.getProperty('textContent')).jsonValue()
+  return text
+}
+
+export { sleep, runUntilEvaluateEquals, getNewPopupPage, getElementTextContent }

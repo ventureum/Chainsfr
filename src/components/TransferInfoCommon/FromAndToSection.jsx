@@ -15,7 +15,8 @@ import type { AccountData } from '../../types/account.flow'
 // row: Show address btn
 class AccountInfo extends Component<
   {
-    account: AccountData
+    account: AccountData,
+    directionLabel: string
   },
   {
     showAddress: boolean
@@ -26,7 +27,7 @@ class AccountInfo extends Component<
   }
 
   render () {
-    const { account } = this.props
+    const { account, directionLabel } = this.props
     const { showAddress } = this.state
 
     return (
@@ -39,10 +40,18 @@ class AccountInfo extends Component<
             ></Avatar>
           </Box>
           <Box>
-            <Typography variant='body2' id='senderName'>
+            <Typography
+              variant='body2'
+              id='senderName'
+              data-test-id={`${directionLabel.toLowerCase()}_account_name`}
+            >
               {account.name}
             </Typography>
-            <Typography variant='caption' id='sender'>
+            <Typography
+              variant='caption'
+              id='sender'
+              data-test-id={`${directionLabel.toLowerCase()}_wallet_platform`}
+            >
               {`${getWalletTitle(account.walletType)}, ${getCryptoTitle(account.platformType)}`}
             </Typography>
           </Box>
@@ -56,12 +65,15 @@ class AccountInfo extends Component<
           }}
           color='primary'
           onClick={() => this.setState({ showAddress: !showAddress })}
+          data-test-id={`show_${directionLabel.toLowerCase()}_address_btn`}
         >
           {showAddress ? 'Hide Address' : 'Show Address'}
         </Button>
         {showAddress && (
           <Box mt={1}>
-            <Typography variant='caption'>{account.address}</Typography>
+            <Typography variant='caption' data-test-id={`${directionLabel.toLowerCase()}_address`}>
+              {account.address}
+            </Typography>
           </Box>
         )}
       </Box>
@@ -72,11 +84,12 @@ class AccountInfo extends Component<
 export type UserInfoType = {
   name: string,
   email: string,
+  directionLabel: string,
   avatar?: string // optional avatar img
 }
 
 function UserInfo (props: UserInfoType) {
-  const { name, email, avatar } = props
+  const { name, email, avatar, directionLabel } = props
 
   return (
     <Box display='flex' flexDirection='row' alignItems='center'>
@@ -84,8 +97,12 @@ function UserInfo (props: UserInfoType) {
         <UserAvatar name={name} src={avatar} style={{ width: 32 }} />
       </Box>
       <Box>
-        <Typography variant='body2'>{name}</Typography>
-        <Typography variant='caption'>{email}</Typography>
+        <Typography variant='body2' data-test-id={`${directionLabel.toLowerCase()}_name`}>
+          {name}
+        </Typography>
+        <Typography variant='caption' data-test-id={`${directionLabel.toLowerCase()}_email`}>
+          {email}
+        </Typography>
       </Box>
     </Box>
   )
@@ -100,7 +117,7 @@ function FromAndToSection (props: {
   return (
     <Box display='flex' flexDirection='row' alignItems='flex-start' width='100%'>
       {/* transfer direction label */}
-      <Box mr={2} width='50px' mt={1}>
+      <Box mr={2} mt={1} width='60px'>
         <Typography
           variant='button'
           align='center'
@@ -118,14 +135,14 @@ function FromAndToSection (props: {
       </Box>
       {/* user info and account info (optional) shown in one column */}
       <Box display='flex' flexDirection='column' alignItems='flex-start' width='100%'>
-        {user && <UserInfo {...user} />}
+        {user && <UserInfo {...user} directionLabel={directionLabel} />}
         {/* separate user and account by a divider */}
         {user && account && (
           <Box pt={1} pb={1} width='100%'>
             <Divider />
           </Box>
         )}
-        {account && <AccountInfo account={account} />}
+        {account && <AccountInfo account={account} directionLabel={directionLabel} />}
       </Box>
     </Box>
   )

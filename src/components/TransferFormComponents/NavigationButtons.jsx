@@ -22,6 +22,7 @@ export default function NavigationButtons (props: Props) {
           variant='text'
           onClick={onClickPrevious}
           id='back'
+          data-test-id='back'
         >
           Back to Previous
         </Button>
