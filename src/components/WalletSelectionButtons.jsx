@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/styles'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
-import { spacing } from '../styles/base'
 import { walletSelections, walletDisabledByCrypto } from '../wallet'
 
 const basicWalletStyle = {
@@ -20,19 +19,14 @@ const basicWalletStyle = {
 const useStyles = makeStyles({
   walletLogo: {
     height: '64px',
-    alignSelf: 'center',
-    marginBottom: spacing.base
+    alignSelf: 'center'
   },
   walletCard: {
     ...basicWalletStyle,
     border: '1px solid transparent',
     boxShadow: 'none',
     marginBottom: '10px',
-    backgroundColor: 'transparent',
-    '&:hover': {
-      backgroundColor: 'rgba(66,133,244,0.1)',
-      cursor: 'pointer'
-    }
+    backgroundColor: 'transparent'
   },
   walletCardSelected: {
     ...basicWalletStyle,
@@ -69,9 +63,6 @@ export function WalletButton (props) {
       style={{ ...containerStyle }}
     >
       <img className={classes.walletLogo} src={wallet.logo} alt='wallet-logo' />
-      <Typography variant='body2' align='center'>
-        {wallet.title}
-      </Typography>
       {disabled && <Typography variant='caption'>{disabledReason}</Typography>}
     </Card>
   )
