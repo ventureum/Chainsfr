@@ -117,7 +117,7 @@ function FromAndToSection (props: {
   return (
     <Box display='flex' flexDirection='row' alignItems='flex-start' width='100%'>
       {/* transfer direction label */}
-      <Box mr={2} width='50px' mt={1}>
+      <Box mr={2} mt={1} width='60px'>
         <Typography
           variant='button'
           align='center'
