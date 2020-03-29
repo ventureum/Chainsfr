@@ -2,6 +2,7 @@ import log from 'loglevel'
 import { getWalletTitle } from '../../../wallet.js'
 import { getPlatformTitle } from '../../../platforms'
 import { getCryptoSymbol } from '../../../tokens.js'
+import ReduxTracker from '../utils/reduxTracker'
 
 log.setDefaultLevel('info')
 
@@ -63,6 +64,104 @@ class EmailTransferFormPage {
       }
     }
     await page.waitFor(500) // select animation
+  }
+
+  async fillForm (formInfo, checkError = false) {
+    const {
+      formPage,
+      recipient,
+      walletType,
+      platformType,
+      cryptoType,
+      currencyAmount,
+      cryptoAmount,
+      securityAnswer,
+      sendMessage
+    } = formInfo
+
+    const reduxTracker = new ReduxTracker()
+
+    await formPage.updateForm('recipient', { email: recipient })
+
+    if (checkError) expect(await formPage.formProceedable()).toBe(false)
+
+    await formPage.updateForm('account', { walletType: walletType, platformType: platformType })
+    if (checkError) expect(await formPage.formProceedable()).toBe(false)
+
+    await formPage.updateForm('coin', { cryptoType: cryptoType })
+    if (checkError) expect(await formPage.formProceedable()).toBe(false)
+
+    if (currencyAmount) {
+      if (checkError) {
+        await Promise.all([
+          reduxTracker.waitFor(
+            [
+              {
+                action: {
+                  type: 'GET_TX_COST_FULFILLED'
+                }
+              }
+            ],
+            [
+              // should not have any errors
+              {
+                action: {
+                  type: 'ENQUEUE_SNACKBAR',
+                  notification: {
+                    options: {
+                      variant: 'error'
+                    }
+                  }
+                }
+              }
+            ]
+          ),
+          formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+        ])
+      } else {
+        await formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+      }
+    }
+
+    if (cryptoAmount) {
+      if (checkError) {
+        await Promise.all([
+          reduxTracker.waitFor(
+            [
+              {
+                action: {
+                  type: 'GET_TX_COST_FULFILLED'
+                }
+              }
+            ],
+            [
+              // should not have any errors
+              {
+                action: {
+                  type: 'ENQUEUE_SNACKBAR',
+                  notification: {
+                    options: {
+                      variant: 'error'
+                    }
+                  }
+                }
+              }
+            ]
+          ),
+          formPage.updateForm('cryptoAmount', { cryptoAmount: cryptoAmount })
+        ])
+      } else {
+        await formPage.updateForm('cryptoAmount', { cryptoAmount: cryptoAmount })
+      }
+    }
+
+    if (checkError) expect(await formPage.formProceedable()).toBe(false)
+
+    await formPage.updateForm('securityAnswer', { securityAnswer: securityAnswer })
+    if (checkError) expect(await formPage.formProceedable()).toBe(true)
+
+    await formPage.updateForm('sendMessage', { sendMessage: sendMessage })
+    if (checkError) expect(await formPage.formProceedable()).toBe(true)
   }
 
   async updateForm (field, values) {
@@ -131,25 +230,34 @@ class EmailTransferFormPage {
     let helperTextElement
     let error
     let helperText
+    let text
     switch (field) {
       case 'currencyAmount': {
         textFieldElement = await page.$('[data-test-id="currency_amount"]')
         helperTextElement = await page.$('#currencyAmount-helper-text')
+        const cryptoAmountElement = await page.$('#currencyAmount')
+        text = await (await cryptoAmountElement.getProperty('value')).jsonValue()
         break
       }
       case 'cryptoAmount': {
         textFieldElement = await page.$('[data-test-id="crypto_amount"]')
         helperTextElement = await page.$('#cryptoAmount-helper-text')
+        const cryptoAmountElement = await page.$('#cryptoAmount')
+        text = await (await cryptoAmountElement.getProperty('value')).jsonValue()
         break
       }
       case 'securityAnswer': {
         textFieldElement = await page.$('[data-test-id="security_answer"]')
         helperTextElement = await page.$('#password-helper-text')
+        const cryptoAmountElement = await page.$('#password')
+        text = await (await cryptoAmountElement.getProperty('value')).jsonValue()
         break
       }
       case 'sendMessage': {
         textFieldElement = await page.$('#message-label')
         helperTextElement = await page.$('#message-helper-text')
+        const cryptoAmountElement = await page.$('#message')
+        text = await (await cryptoAmountElement.getProperty('value')).jsonValue()
         break
       }
       default: {
@@ -163,7 +271,7 @@ class EmailTransferFormPage {
     if (helperTextElement) {
       helperText = await (await helperTextElement.getProperty('textContent')).jsonValue()
     }
-    return { error, helperText }
+    return { error, helperText, text }
   }
 
   async formProceedable () {
@@ -286,6 +394,14 @@ class EmailTransferFormPage {
       default:
         throw new Error(`Invalid form field received: ${field}`)
     }
+  }
+
+  async getAccountAddress () {
+    const addressElement = await page.$('[data-test-id="coin_address"]')
+    const text = await (await addressElement.getProperty('textContent')).jsonValue()
+
+    // format "address: [address]"
+    return text.split(': ')[1]
   }
 }
 

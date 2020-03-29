@@ -25,7 +25,7 @@ const RECIPIENTS = [
   },
   {
     addedAt: 1584499597,
-    email: 'e2e-user@gmail.com',
+    email: 'chainsfre2etest@gmail.com',
     name: 'e2e-user',
     updatedAt: 1584499597,
     validEmail: true,
