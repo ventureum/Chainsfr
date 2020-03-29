@@ -65,7 +65,7 @@ export default function TransferAmountTextField (props: Props) {
     const decimals = getCryptoDecimals(cryptoType)
     if (
       !validator.isFloat(value, {
-        min: 0.001,
+        min: 0.0001,
         max: parseFloat(accountSelection.balanceInStandardUnit)
       })
     ) {
