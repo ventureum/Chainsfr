@@ -44,7 +44,7 @@ class ReduxTracker {
       }
     }
     const nonTrueIdx = found.findIndex(item => !item)
-    // all actions in the includedStateChanges should appear in ithe action list
+    // all actions in the includedStateChanges should appear in the action list
     // if not, return false, and continue polling
     // otherwise, mark validation as "passed" and stop
     if (nonTrueIdx === -1) {
@@ -54,22 +54,31 @@ class ReduxTracker {
   }
 
   async collectReduxLogs (msg: any) {
-    const args = await msg.args()
-    let _args = []
-    for (let arg of args) {
-      const val = await arg.jsonValue()
-      _args.push(val)
-    }
-    if (_args[0] === '%c prev state') {
-      this.stateChanges.push({
-        prevState: _args[2],
-        action: null,
-        nextState: null
-      })
-    } else if (_args[0] === '%c action    ') {
-      this.stateChanges[this.stateChanges.length - 1].action = _args[2]
-    } else if (_args[0] === '%c next state') {
-      this.stateChanges[this.stateChanges.length - 1].nextState = _args[2]
+    try {
+      const args = await msg.args()
+      let _args = []
+      for (let arg of args) {
+        const val = await arg.jsonValue()
+        _args.push(val)
+      }
+      if (_args[0] === '%c prev state') {
+        this.stateChanges.push({
+          prevState: _args[2],
+          action: null,
+          nextState: null
+        })
+      } else if (_args[0] === '%c action    ') {
+        this.stateChanges[this.stateChanges.length - 1].action = _args[2]
+      } else if (_args[0] === '%c next state') {
+        this.stateChanges[this.stateChanges.length - 1].nextState = _args[2]
+      }
+    } catch (e) {
+      if (e.message && e.message.includes('Target closed')) {
+        // ignore target closed error
+        // browser may be closed before listener is removed
+      } else {
+        throw e
+      }
     }
   }
 

@@ -254,7 +254,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <TextField
           margin='normal'
           fullWidth
-          id='cryptoAmount'
+          id='allowance'
           variant='outlined'
           type='number'
           onChange={event => this.handleSetTokenAllowanceAmount(event.target.value)}
