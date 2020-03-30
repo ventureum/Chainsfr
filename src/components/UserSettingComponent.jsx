@@ -148,9 +148,9 @@ const SettingTabs = props => {
   const { currentTab, handleChange } = props
   return (
     <Tabs value={currentTab} onChange={handleChange} indicatorColor='primary' textColor='primary'>
-      <Tab label='Account Info' />
-      <Tab label='Security' />
-      <Tab label='Backup' />
+      <Tab label='Account Info' data-test-td='account_info' />
+      <Tab label='Security' data-test-id='security' />
+      <Tab label='Backup' data-test-id='backup' />
     </Tabs>
   )
 }
@@ -179,8 +179,10 @@ const AccountInfo = props => {
           name={profileObj.name}
         />
         <Box ml={1} display='flex' flexDirection='column'>
-          <Typography variant='h3'>{profileObj.name}</Typography>
-          <Typography variant='body2' color='textSecondary'>
+          <Typography variant='h3' data-test-id='user_name'>
+            {profileObj.name}
+          </Typography>
+          <Typography variant='body2' color='textSecondary' data-test-id='user_email'>
             {profileObj.email}
           </Typography>
         </Box>
@@ -191,7 +193,9 @@ const AccountInfo = props => {
       </Box>
       <Box display='flex' alignItems='center' mt={2}>
         <CalendarTodayIcon className={classes.icon} />
-        <Typography variant='body2'>Joined on {date}</Typography>
+        <Typography variant='body2' data-test-id='join_date'>
+          Joined on {date}
+        </Typography>
       </Box>
       <Box mt={3}>
         <Button
@@ -202,6 +206,7 @@ const AccountInfo = props => {
           onClick={() => {
             onLogout()
           }}
+          data-test-id='sign_out_btn'
         >
           Sign Out
         </Button>
@@ -282,6 +287,7 @@ const Security = props => {
             variant='contained'
             color='default'
             href='https://support.google.com/accounts/answer/185839'
+            data-test-id='google_two_factor_auth_btn'
           >
             <LaunchRoundedIcon className={classes.icon} />
             Google Two-Factor Authentication
@@ -337,7 +343,7 @@ const Backup = props => {
 
       <Box mb={3} display='flex' alignItems='center' maxWidth={480}>
         {lastModified ? (
-          <Alert icon={<CheckCircleIcon />} severity='success'>
+          <Alert icon={<CheckCircleIcon />} severity='success' data-test-id='backup_date'>
             Your account was backed up on {lastModified}
           </Alert>
         ) : (
@@ -351,6 +357,7 @@ const Backup = props => {
           target='_blank'
           href={`https://drive.google.com/drive/folders/${fileId}`}
           disabled={!fileId}
+          data-test-id='backup_folder_btn'
         >
           <img src={GoogleDrive} style={{ width: 22, marginRight: 10 }} alt='driveIcon' />
           Go to Backup Folder

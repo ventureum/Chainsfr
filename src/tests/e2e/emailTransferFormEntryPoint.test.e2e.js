@@ -6,7 +6,6 @@ import WalletPage from './pages/wallet.page'
 import LoginPage from './pages/login.page'
 import queryString from 'query-string'
 import { resetUserDefault } from './utils/reset.js'
-import { ACCOUNTS } from './mocks/accounts'
 
 const timeout = 180000
 
