@@ -381,7 +381,7 @@ class ReceiptComponent extends Component<Props, State> {
                   account={
                     transferMethod === 'DIRECT_TRANSFER'
                       ? destinationAccount
-                      : transferMethod === 'EMAIL_TRANSFER' && transferType === 'receiver'
+                      : transferMethod === 'EMAIL_TRANSFER' && transferType === 'RECEIVER'
                       ? receiverAccount
                       : null
                   }
