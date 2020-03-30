@@ -74,7 +74,7 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'ledger',
     xpub:
-      'tpubDCJU5Qa4bbLyQH8jteCDJGnTzQSFLpqhCS6v3C3TqXmR3cMGC2Y5BcG6XZ5Sd6ZaJnNszf2kHxAnF3miN63QMLTPhEesVQWaoecbA4qxfCc'
+      "tpubDDJyEqmpGqgcXoVcs94neUx2dQ3tEacznobgN69ZPpnmMXMjHqtzqjbLJmtRfXYyucjJ9LE4jJ9MZYkVZuXzJePKMU9sqLe2zBc1sZ5nTG8"
   },
   // coinbaseWalletLink
   {
