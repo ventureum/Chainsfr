@@ -135,7 +135,7 @@ class ReceiptComponent extends Component<Props, State> {
         } else {
           title = 'Transfer Accepted'
           messageBoxContent = (
-            <>
+            <Typography>
               It may take some time to update your account balance. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -145,7 +145,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               .
-            </>
+            </Typography>
           )
         }
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
@@ -159,7 +159,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Accept Failed'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               Something went wrong while sending your transfer. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -169,7 +169,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               . Please contact us for help.
-            </>
+            </Typography>
           )
         }
         break
@@ -184,7 +184,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Accept Failed'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               Something went wrong while sending your transfer. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -194,7 +194,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               . Please contact us for help.
-            </>
+            </Typography>
           )
         }
         break
@@ -224,7 +224,7 @@ class ReceiptComponent extends Component<Props, State> {
         if (transferType === 'SENDER') {
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               It may take some time to update your account balance. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -234,7 +234,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               .
-            </>
+            </Typography>
           )
         } else {
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
@@ -245,7 +245,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Transfer Reclaimed'
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               It may take some time to update your account balance. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -255,7 +255,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               .
-            </>
+            </Typography>
           )
         } else {
           title = 'Transfer Expired'
@@ -284,7 +284,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Cancel Failed'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               Something went wrong while cancelling your transfer. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -294,7 +294,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               . Please contact us for help.
-            </>
+            </Typography>
           )
         } else {
           title = 'Transfer Cancelled'
@@ -306,7 +306,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Reclaim Failed'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
-            <>
+            <Typography>
               Something went wrong while cancelling your transfer. You can track the transaction
               <MuiLink
                 target='_blank'
@@ -316,7 +316,7 @@ class ReceiptComponent extends Component<Props, State> {
                 {' here'}
               </MuiLink>
               . Please contact us for help.
-            </>
+            </Typography>
           )
         } else {
           title = 'Transfer Expired'
@@ -381,7 +381,7 @@ class ReceiptComponent extends Component<Props, State> {
                   account={
                     transferMethod === 'DIRECT_TRANSFER'
                       ? destinationAccount
-                      : transferMethod === 'EMAIL_TRANSFER' && transferType === 'receiver'
+                      : transferMethod === 'EMAIL_TRANSFER' && transferType === 'RECEIVER'
                       ? receiverAccount
                       : null
                   }

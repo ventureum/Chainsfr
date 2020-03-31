@@ -81,6 +81,8 @@ const TRANSFER_DATA_BASE = {
   receiverName: 'timothy',
   senderAvatar:
     'https://lh4.googleusercontent.com/-23NNcYMLB9I/AAAAAAAAAAI/AAAAAAAAAAA/AKF05nAyjqK1EWJEGo5qD1lL8s0vZ77hEQ/s96-c/photo.jpg',
+  receiverAvatar:
+    'https://lh6.googleusercontent.com/-WMURVoUdqZI/AAAAAAAAAAI/AAAAAAAAAAA/AKF05nCdGteZf4gKxzVgAdJVDuUMyIBVGw/s96-c/photo.jpg',
   updated: 1584994884,
   walletId: '0xde25b1306d4311eaa2a5d50e6714fe18de25b1316d4311eaa2a5d50e6714fe18'
 }
@@ -199,7 +201,8 @@ const DEFAULT_TRANSFER_DATA = {
     {
       state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED',
       cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
     }
   ])
 }
