@@ -616,11 +616,16 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
           />
         </Box>
         <Box mt={1} display='flex' alignItems='center' justifyContent='space-between'>
-          <Typography variant='caption'>
-            {firstNewCryptoAccount.hdWalletVariables && firstNewCryptoAccount.hdWalletVariables.xpub
-              ? `xpub: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`
-              : `Address: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`}
-          </Typography>
+          {firstNewCryptoAccount.hdWalletVariables &&
+          firstNewCryptoAccount.hdWalletVariables.xpub ? (
+            <Typography variant='caption'>
+              {`Xpub: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`}
+            </Typography>
+          ) : (
+            <Typography variant='caption'>
+              {`Address: ${addressInfo.slice(0, 12)}...${addressInfo.slice(-18)}`}
+            </Typography>
+          )}
           <CopyToClipboard
             text={addressInfo}
             onCopy={() => {
