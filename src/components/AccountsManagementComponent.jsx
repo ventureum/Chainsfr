@@ -132,6 +132,7 @@ class AccountsManagementComponent extends Component {
               this.toggleDeleteConfirmModal()
             }}
             className={classes.deleteBtn}
+            data-test-id='delete_confirm_btn'
           >
             Delete
           </Button>
@@ -168,6 +169,7 @@ class AccountsManagementComponent extends Component {
               this.handleNewAccountNameChange(event.target.value)
             }}
             value={newAccountName || ''}
+            data-test-id='new_name_text_field'
           />
         </DialogContent>
         <DialogActions className={classes.dialogAction}>
@@ -180,6 +182,7 @@ class AccountsManagementComponent extends Component {
             }}
             variant='contained'
             color='primary'
+            data-test-id='rename_confirm_btn'
           >
             Change
           </Button>
@@ -241,6 +244,7 @@ class AccountsManagementComponent extends Component {
           }}
           color='primary'
           classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
+          data-test-id='edit_account_btn'
         >
           <EditIcon className={classes.buttonIcon} />
           Edit
@@ -251,6 +255,7 @@ class AccountsManagementComponent extends Component {
           }}
           classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
           color='primary'
+          data-test-id='delete_account_btn'
         >
           <DeleteIcon className={classes.buttonIcon} />
           Delete
@@ -261,6 +266,7 @@ class AccountsManagementComponent extends Component {
           }}
           classes={{ label: classes.actionBtnLabel, root: classes.actionBtnBase }}
           color='primary'
+          data-test-id='address_qr_code'
         >
           <img src={QRCode} alt='' width='18' height='18' />
           Address
@@ -575,6 +581,7 @@ class AccountsManagementComponent extends Component {
                     }}
                     variant='contained'
                     color='primary'
+                    data-test-id='connect_account_btn'
                   >
                     Connect to Your Account
                   </Button>
