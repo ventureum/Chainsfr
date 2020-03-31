@@ -116,13 +116,11 @@ class RecipientsComponent extends Component {
                 <Grid item display='flex'>
                   <Box display='inline' mr={2}>
                     {!skeletonOnly && (
-                      <Tooltip title='More'>
-                        <IconButton
-                          onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
-                        >
-                          <MoreIcon color='secondary' id='moreBtn' />
-                        </IconButton>
-                      </Tooltip>
+                      <IconButton
+                        onClick={event => this.toggleMoreMenu(event.currentTarget, recipient)}
+                      >
+                        <MoreIcon color='secondary' id='moreBtn' />
+                      </IconButton>
                     )}
                   </Box>
                   <Box display='inline'>
