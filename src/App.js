@@ -93,6 +93,8 @@ const LoginLayout = ({ component: Component, ...rest }) => {
   )
 }
 
+let offlineNotification = null
+
 const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   // isolate flag is used to toggle leftside navigation drawer
   // while isolate is true, users are not allow to navigate between paths
@@ -107,14 +109,17 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
         <Detector
           render={({ online }) => {
             if (!online) {
-              store.dispatch(
-                enqueueSnackbar({
-                  message: 'No Internet connection',
-                  key: 'offline',
-                  options: { variant: 'error', persist: true }
-                })
-              )
+              offlineNotification = setTimeout(() => {
+                store.dispatch(
+                  enqueueSnackbar({
+                    message: 'No Internet connection',
+                    key: 'offline',
+                    options: { variant: 'error', persist: true }
+                  })
+                )
+              }, 3000)
             } else {
+              clearTimeout(offlineNotification)
               store.dispatch(closeSnackbar('offline'))
             }
             if (isolate) {
@@ -185,10 +190,9 @@ class App extends Component {
   preload = async () => {
     const { profile } = store.getState().userReducer
     if (profile.isAuthenticated) {
-      
       // check if access token has expired
       // note that tokenObj.expires_at is in milliseconds
-      const accessTokenExpiresAt = profile.tokenObj.expires_at/1000.0
+      const accessTokenExpiresAt = profile.tokenObj.expires_at / 1000.0
       let validLogin = moment().unix() < accessTokenExpiresAt
       if (!validLogin) {
         await store.dispatch(onLogout())
