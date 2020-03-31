@@ -10,6 +10,7 @@ import CancelRoundedIcon from '@material-ui/icons/CancelRounded'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
+import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { getCryptoSymbol, getCryptoPlatformType } from '../tokens'
@@ -82,7 +83,8 @@ class ReceiptComponent extends Component<Props, State> {
       txFeeCurrencyAmount,
       receiverAccount,
       destinationAccount, // for direct transfer
-      senderAccount
+      senderAccount,
+      sendTxHash
     } = transfer
     const id = transferType === 'SENDER' ? transferId : receivingId
 
@@ -528,17 +530,47 @@ class ReceiptComponent extends Component<Props, State> {
                 <Grid container direction='column' spacing={1}>
                   {sendTime && (
                     <Grid item>
-                      <Typography variant='caption'>Sent on {sendTime}</Typography>
+                      <Box display='flex' flexDirection='row' alignItems='center'>
+                        <Typography variant='caption'>Sent on {sendTime}</Typography>
+                        <IconButton
+                          target='_blank'
+                          rel='noopener'
+                          href={url.getExplorerTx(cryptoType, sendTxHash)}
+                          className={classes.iconBtn}
+                        >
+                          <OpenInNewIcon />
+                        </IconButton>
+                      </Box>
                     </Grid>
                   )}
                   {receiveTime && (
                     <Grid item>
-                      <Typography variant='caption'>Received on {receiveTime}</Typography>
+                      <Box display='flex' flexDirection='row' alignItems='center'>
+                        <Typography variant='caption'>Received on {receiveTime}</Typography>
+                        <IconButton
+                          target='_blank'
+                          rel='noopener'
+                          href={url.getExplorerTx(cryptoType, receiveTxHash)}
+                          className={classes.iconBtn}
+                        >
+                          <OpenInNewIcon />
+                        </IconButton>
+                      </Box>
                     </Grid>
                   )}
                   {cancelTime && (
                     <Grid item>
-                      <Typography variant='caption'>Cancelled on {cancelTime}</Typography>
+                      <Box display='flex' flexDirection='row' alignItems='center'>
+                        <Typography variant='caption'>Cancelled on {cancelTime}</Typography>
+                        <IconButton
+                          target='_blank'
+                          rel='noopener'
+                          href={url.getExplorerTx(cryptoType, cancelTxHash)}
+                          className={classes.iconBtn}
+                        >
+                          <OpenInNewIcon />
+                        </IconButton>
+                      </Box>
                     </Grid>
                   )}
                   <Grid item>
