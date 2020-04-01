@@ -100,7 +100,10 @@ export default function DirectTransferFormContainer (props: Props) {
   useEffect(() => {
     let selectedCryptoType
     let accountIdType
-    if (prevIsSendingFromDriveWallet && prevIsSendingFromDriveWallet !== isSendingFromDriveWallet) {
+    if (
+      prevIsSendingFromDriveWallet !== null &&
+      prevIsSendingFromDriveWallet !== isSendingFromDriveWallet
+    ) {
       // swap sendAccount and receiveAccount
       updateForm({
         // $FlowFixMe
@@ -149,7 +152,7 @@ export default function DirectTransferFormContainer (props: Props) {
         })
       }
     }
-  }, [isSendingFromDriveWallet, receiveAccountId, accountId, cryptoAccounts])
+  }, [isSendingFromDriveWallet, receiveAccountId, accountId])
 
   // helper functions for converting currency
   const toCurrencyAmount = (cryptoAmount, cryptoType) =>
@@ -213,6 +216,12 @@ export default function DirectTransferFormContainer (props: Props) {
           formError={formError}
           getTxFee={txRequest => dispatch(getTxFee(txRequest))}
           updateForm={updateForm}
+          disabled={
+            !sendAccountSelection ||
+            !receiveAccountSelection ||
+            sendAccountSelection.status !== 'SYNCED' ||
+            receiveAccountSelection.status !== 'SYNCED'
+          }
           {...{ actionsPending, actionsFulfilled }}
         />
       </Grid>

@@ -178,6 +178,7 @@ export default function EmailTransferFormContainer (props: Props) {
           formError={formError}
           getTxFee={txRequest => dispatch(getTxFee(txRequest))}
           updateForm={updateForm}
+          disabled={!accountSelection || accountSelection.status !== 'SYNCED'}
           {...{ actionsPending, actionsFulfilled }}
         />
       </Grid>
