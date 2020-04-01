@@ -283,7 +283,7 @@ export const themeChainsfr = createMuiTheme({
         fontSize: 12
       },
       fontSizeLarge: {
-        fontSize: 48
+        fontSize: 32
       }
     },
     MuiInputBase: {
@@ -326,7 +326,7 @@ export const themeChainsfr = createMuiTheme({
     },
     MuiSvgIcon: {
       fontSizeLarge: {
-        fontSize: 48
+        fontSize: 32
       }
     },
     MuiTextField: {
@@ -343,6 +343,14 @@ export const themeChainsfr = createMuiTheme({
           paddingLeft: componentPaddings.toolbar.default.paddingLeft,
           paddingRight: componentPaddings.toolbar.default.paddingRight
         }
+      }
+    },
+    MuiTooltip: {
+      tooltip: {
+        backgroundColor: fontColors.primary
+      },
+      arrow: {
+        color: fontColors.primary
       }
     }
   },

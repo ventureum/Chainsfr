@@ -557,7 +557,6 @@ class ReceiptComponent extends Component<Props, State> {
                   fullWidth
                   variant='contained'
                   color='primary'
-                  size='large'
                   component={Link}
                   to={Paths.home}
                   onClick={backToHome}

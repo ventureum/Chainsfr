@@ -1,7 +1,7 @@
 // @flow
 import React from 'react'
+import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 
 type Props = {
@@ -11,41 +11,37 @@ type Props = {
 }
 
 export default function NavigationButtons (props: Props) {
-  const classes = useStyles()
   const { validated, onClickNext, onClickPrevious } = props
 
   return (
-    <Grid container direction='row' justify='center' spacing={2} className={classes.btnSection}>
+    <Grid container direction='row' justify='center' spacing={2}>
       <Grid item>
-        <Button
-          color='primary'
-          variant='text'
-          onClick={onClickPrevious}
-          id='back'
-          data-test-id='back'
-        >
-          Back to Previous
-        </Button>
+        <Box my={3}>
+          <Button
+            color='primary'
+            variant='text'
+            onClick={onClickPrevious}
+            id='back'
+            data-test-id='back'
+          >
+            Cancel
+          </Button>
+        </Box>
       </Grid>
       <Grid item>
-        <Button
-          id='continue'
-          variant='contained'
-          color='primary'
-          onClick={onClickNext}
-          disabled={!validated}
-          data-test-id='continue'
-        >
-          Continue
-        </Button>
+        <Box my={3}>
+          <Button
+            id='continue'
+            variant='contained'
+            color='primary'
+            onClick={onClickNext}
+            disabled={!validated}
+            data-test-id='continue'
+          >
+            Continue
+          </Button>
+        </Box>
       </Grid>
     </Grid>
   )
 }
-
-const useStyles = makeStyles({
-  btnSection: {
-    marginTop: 30,
-    marginBottom: 30
-  }
-})

@@ -2,21 +2,17 @@
 import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
+import Alert from '@material-ui/lab/Alert'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import CropFreeIcon from '@material-ui/icons/CropFree'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import TextField from '@material-ui/core/TextField'
 import LinearProgress from '@material-ui/core/LinearProgress'
-import UsbIcon from '@material-ui/icons/Usb'
-import LockOpenIcon from '@material-ui/icons/LockOpen'
 import { WalletButton } from './WalletSelectionButtons'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Tooltip from '@material-ui/core/Tooltip'
 import WalletErrors from '../wallets/walletErrors'
-import ReplayIcon from '@material-ui/icons/Replay'
 import { getWalletTitle } from '../wallet'
 import path from '../Paths.js'
 import { getCryptoSymbol, getCryptoDecimals, isERC20 } from '../tokens'
@@ -24,6 +20,13 @@ import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
 import BN from 'bn.js'
+
+// Icons
+import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
+import HelpIcon from '@material-ui/icons/InfoRounded'
+import OpenInBrowser from '@material-ui/icons/OpenInBrowserRounded'
+import ResetIcon from '@material-ui/icons/ReplayRounded'
+import UsbIcon from '@material-ui/icons/UsbRounded'
 
 type Props = {
   classes: Object,
@@ -93,77 +96,56 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   renderWalletConnectSteps = (walletType: string) => {
     const { checkWalletConnection, actionsPending, online } = this.props
     return (
-      <Grid container direction='column' spacing={2}>
-        <Grid item>
-          <Typography variant='body1'>
-            Connect your wallet via {getWalletTitle(walletType)}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Button
-            disabled={actionsPending.submitTx || !online}
-            onClick={() => {
-              checkWalletConnection()
-            }}
-            color='primary'
-          >
-            <CropFreeIcon />
-            Connect to {getWalletTitle(walletType)}
-          </Button>
-        </Grid>
-      </Grid>
+      <Tooltip title={'Connect via ' + getWalletTitle(walletType)} arrow>
+        <Button
+          disabled={actionsPending.submitTx || !online}
+          onClick={() => {
+            checkWalletConnection()
+          }}
+          variant='contained'
+          color='primary'
+          startIcon={<CropFreeIcon />}
+        >
+          Connect to Authorize
+        </Button>
+      </Tooltip>
     )
   }
 
   renderDriveConnectSteps = () => {
     const { checkWalletConnection, actionsPending, online } = this.props
     return (
-      <Grid container direction='column' spacing={2}>
-        <Grid item>
-          <Typography variant='body1'>Connect Drive Wallet</Typography>
-        </Grid>
-        <Grid item>
-          <Button
-            disabled={actionsPending.submitTx || !online}
-            onClick={() => {
-              checkWalletConnection()
-            }}
-            color='primary'
-          >
-            <LockOpenIcon />
-            Connect
-          </Button>
-        </Grid>
-      </Grid>
+      <Button
+        disabled={actionsPending.submitTx || !online}
+        onClick={() => {
+          checkWalletConnection()
+        }}
+        variant='contained'
+        color='primary'
+      >
+        Connect to Authorize
+      </Button>
     )
   }
 
   renderLedgerConnectSteps = () => {
     const { checkWalletConnection, accountSelection, actionsPending, online } = this.props
     return (
-      <Grid container spacing={2} direction='column'>
-        {!accountSelection.connected && (
-          <Grid item>
-            <Grid container direction='column'>
-              <Grid item>
-                <Typography variant='body1'>Connect your wallet via Ledger Device</Typography>
-              </Grid>
-              <Grid item>
-                <Button
-                  disabled={actionsPending.submitTx || !online}
-                  onClick={() => {
-                    checkWalletConnection()
-                  }}
-                  color='primary'
-                >
-                  <UsbIcon />
-                  Connect to Ledger
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        )}
-      </Grid>
+      !accountSelection.connected && (
+        <Tooltip title='Connect via Ledger device' arrow>
+          <Button
+            disabled={actionsPending.submitTx || !online}
+            onClick={() => {
+              checkWalletConnection()
+            }}
+            variant='contained'
+            color='primary'
+            startIcon={<UsbIcon />}
+          >
+            Connect to Ledger
+          </Button>
+        </Tooltip>
+      )
     )
   }
 
@@ -171,53 +153,43 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     const { checkWalletConnection, actionsPending, online } = this.props
 
     return (
-      <Grid container direction='column'>
-        <Grid item>
-          <Typography variant='body1'>Connect your wallet via browser extension</Typography>
-        </Grid>
-        <Grid item>
-          <Button
-            disabled={actionsPending.submitTx || !online}
-            onClick={() => {
-              checkWalletConnection()
-            }}
-            color='primary'
-          >
-            <OpenInBrowser />
-            Connect to MetaMask
-          </Button>
-        </Grid>
-      </Grid>
+      <Tooltip title='Connect via browser extension' arrow>
+        <Button
+          disabled={actionsPending.submitTx || !online}
+          onClick={() => {
+            checkWalletConnection()
+          }}
+          variant='contained'
+          color='primary'
+          startIcon={<OpenInBrowser />}
+        >
+          Connect to Authorize
+        </Button>
+      </Tooltip>
     )
   }
 
   renderCoinbaseWalletLinkConnectSteps = () => {
     const { checkWalletConnection, actionsPending, online } = this.props
     return (
-      <Grid container direction='column' spacing={2}>
-        <Grid item>
-          <Typography variant='body1'>
-            Connect your wallet via Coinbase WalletLink Mobile App
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Button
-            color='primary'
-            disabled={actionsPending.submitTx || !online}
-            onClick={() => {
-              checkWalletConnection()
-            }}
-          >
-            <CropFreeIcon />
-            Connect to Coinbase WalletLink
-          </Button>
-        </Grid>
-      </Grid>
+      <Tooltip title='Connect via Coinbase WalletLink mobile app' arrow>
+        <Button
+          disabled={actionsPending.submitTx || !online}
+          onClick={() => {
+            checkWalletConnection()
+          }}
+          variant='contained'
+          color='primary'
+          startIcon={<CropFreeIcon />}
+        >
+          Connect to Authorize
+        </Button>
+      </Tooltip>
     )
   }
 
   renderSetTokenAllowanceSection = () => {
-    const { classes, accountSelection, actionsPending } = this.props
+    const { accountSelection, actionsPending } = this.props
     const { tokenAllowanceAmount, tokenAllowanceError } = this.state
 
     const disabled =
@@ -228,30 +200,30 @@ class WalletAuthorizationComponent extends Component<Props, State> {
 
     return (
       <>
-        <Box
-          mb={4}
-          style={{
-            backgroundColor: 'rgba(57, 51, 134, 0.05)',
-            borderRadius: '4px',
-            padding: '20px'
-          }}
-        >
-          <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
-            Please approve a transaction limit before being able to continue. Learn more about the
-            approve process
-            <MuiLink
-              target='_blank'
-              rel='noopener'
-              href={'https://help.chainsfr.com/en/articles/3651983-erc20-approve'}
-            >
-              {' here.'}
-            </MuiLink>
-          </Typography>
+        <Box mb={3}>
+          <Alert
+            severity='info'
+            icon={false}
+            action={
+              <MuiLink
+                target='_blank'
+                rel='noopener'
+                href={'https://help.chainsfr.com/en/articles/3651983-erc20-approve'}
+              >
+                <Tooltip title='Learn more'>
+                  <HelpIcon />
+                </Tooltip>
+              </MuiLink>
+            }
+          >
+            Please approve a transaction limit to continue.
+          </Alert>
         </Box>
-        <Typography variant='body2'>
-          {accountSelection && getCryptoSymbol(accountSelection.cryptoType)} Approve Transfer Limit
-        </Typography>
         <TextField
+          label={
+            (accountSelection && getCryptoSymbol(accountSelection.cryptoType)) +
+            ' Approve Transfer Limit'
+          }
           margin='normal'
           fullWidth
           id='allowance'
@@ -265,16 +237,15 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           InputProps={{
             endAdornment: (
               <InputAdornment position='end'>
-                <Tooltip title='Generate Security Answer' position='left'>
+                <Tooltip title='Reset to minimum' position='bottom' arrow>
                   <Button
-                    className={classes.setTokenAllowanceBtn}
-                    color='primary'
                     disabled={disabled}
                     onClick={() =>
                       this.handleSetTokenAllowanceAmount(this.state.minTokenAllowanceAmount)
                     }
+                    color='primary'
+                    startIcon={<ResetIcon />}
                   >
-                    <ReplayIcon className={classes.setTokenAllowanceBtnIcon} />
                     Reset
                   </Button>
                 </Tooltip>
@@ -300,7 +271,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
       .toHumanReadableUnit(multiSigAllowance, getCryptoDecimals(accountSelection.cryptoType))
       .toString()
     let instruction = ''
-    let walletSteps
     let errorInstruction
     switch (walletType) {
       case 'metamask':
@@ -309,7 +279,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (actionsPending.verifyAccount) {
           instruction = 'Waiting for authorization...'
         }
-        walletSteps = this.renderMetamaskConnectSteps()
         if (errors.checkWalletConnection === WalletErrors.metamask.extendsionNotFound) {
           errorInstruction = 'MetaMask extension is not available'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectAccount) {
@@ -327,7 +296,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (actionsPending.verifyAccount) {
           instruction = `Please scan the QR code with the ${getWalletTitle(walletType)}...`
         }
-        walletSteps = this.renderWalletConnectSteps(walletType)
         if (errors.checkWalletConnection) {
           errorInstruction = 'WalletConnect loading failed'
         } else if (errors.verifyAccount === WalletErrors.metamaskWalletConnect.incorrectAccount) {
@@ -340,7 +308,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (actionsPending.verifyAccount) {
           instruction = 'Please navigate to selected crypto app on your Ledger device...'
         }
-        walletSteps = this.renderLedgerConnectSteps()
         if (errors.checkWalletConnection === WalletErrors.ledger.deviceNotConnected) {
           errorInstruction = 'Ledger device is not connected'
         } else if (errors.verifyAccount === WalletErrors.ledger.ledgerAppCommunicationFailed) {
@@ -357,7 +324,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (actionsPending.verifyAccount) {
           instruction = 'Verifying account...'
         }
-        walletSteps = this.renderDriveConnectSteps()
         break
       case 'coinbaseWalletLink':
         if (actionsPending.checkWalletConnection) {
@@ -371,7 +337,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (errors.verifyAccount === WalletErrors.coinbaseWalletLink.incorrectAccount) {
           errorInstruction = `Incorrect WalletLink account, please switch to the correct account`
         }
-        walletSteps = this.renderCoinbaseWalletLinkConnectSteps()
         break
       default:
         return null
@@ -382,7 +347,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <>
           Approving your account, waiting for the transaction to confirm
           <br />
-          {setTokenAllowanceTxHash && (
+          {setTokenAllowanceTxHash || (
             <>
               You can track the transaction
               <MuiLink
@@ -401,7 +366,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     return (
       <Grid container spacing={2} direction='column'>
         {insufficientAllowance && <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>}
-        {!accountSelection.connected && <Grid item>{walletSteps}</Grid>}
         {accountSelection.connected && (
           <Grid item>
             <Typography variant='body2'>Wallet connected</Typography>
@@ -413,47 +377,45 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           </Grid>
         )}
 
-        {(errors.checkWalletConnection ||
+        {errors.checkWalletConnection ||
           errors.verifyAccount ||
           errors.setTokenAllowance ||
-          errors.setTokenAllowanceWaitForConfirmation) && (
-          <Grid item>
-            <Box
-              style={{
-                backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                borderRadius: '4px',
-                padding: '20px'
-              }}
-            >
-              <Typography variant='body2' color='error'>
-                {errorInstruction}
-              </Typography>
-            </Box>
-          </Grid>
-        )}
-        {(actionsPending.submitTx ||
+          (errors.setTokenAllowanceWaitForConfirmation && (
+            <Grid item>
+              <Alert severity='error'>{errorInstruction}</Alert>
+            </Grid>
+          ))}
+        {actionsPending.submitTx ||
           actionsPending.checkWalletConnection ||
           actionsPending.verifyAccount ||
           actionsPending.setTokenAllowance ||
-          actionsPending.setTokenAllowanceWaitForConfirmation) && (
-          <Grid item>
-            <Box
-              style={{
-                backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                borderRadius: '4px',
-                padding: '20px'
-              }}
-            >
-              <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
-                {instruction}
-              </Typography>
-              <LinearProgress style={{ marginTop: '10px' }} />
-            </Box>
-          </Grid>
-        )}
+          (actionsPending.setTokenAllowanceWaitForConfirmation && (
+            <Grid item>
+              <Box
+                mb={2}
+                style={{
+                  backgroundColor: 'rgba(57, 51, 134, 0.05)',
+                  borderRadius: '4px',
+                  padding: '20px'
+                }}
+              >
+                <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
+                  {instruction}
+                </Typography>
+                <LinearProgress style={{ marginTop: '10px' }} />
+              </Box>
+
+              <Alert severity='info' icon={false}>
+                {instruction} instrauction
+              </Alert>
+              <Box mt={2}>
+                <LinearProgress />
+              </Box>
+            </Grid>
+          ))}
         {!insufficientAllowance && isERC20(accountSelection.cryptoType) && !directTransfer && (
           <Grid item>
-            <Typography variant='body2'>
+            <Typography variant='body1'>
               {`Your remaining authorized ${getCryptoSymbol(
                 accountSelection.cryptoType
               )} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
@@ -464,54 +426,87 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     )
   }
 
+  renderConnectToWalletButton = () => {
+    const { accountSelection } = this.props
+    const { walletType } = accountSelection
+    let walletSteps
+    switch (walletType) {
+      case 'metamask':
+        walletSteps = this.renderMetamaskConnectSteps()
+        break
+      case 'trustWalletConnect':
+      case 'metamaskWalletConnect':
+        walletSteps = this.renderWalletConnectSteps(walletType)
+        break
+      case 'ledger':
+        walletSteps = this.renderLedgerConnectSteps()
+        break
+      case 'drive':
+        walletSteps = this.renderDriveConnectSteps()
+        break
+      case 'coinbaseWalletLink':
+        walletSteps = this.renderCoinbaseWalletLinkConnectSteps()
+        break
+      default:
+        return null
+    }
+    return <Box>{walletSteps}</Box>
+  }
+
   render () {
     const { accountSelection, actionsPending, push, directTransfer } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
         <Grid item>
-          <Typography variant='h3'>Wallet Authorization</Typography>
+          <Typography variant='h3' display='inline'>
+            Wallet Authorization
+          </Typography>
         </Grid>
 
         <Grid item>
-          <Grid container direction='row' spacing={5}>
-            <Grid item xs={4}>
-              <Grid container direction='column' alignItems='center'>
-                <Grid item style={{ width: '100%' }}>
-                  <WalletButton walletType={accountSelection.walletType} />
-                </Grid>
-                <Grid item>
-                  <Typography variant='body2'>{accountSelection.displayName}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant='caption'>
-                    {`${accountSelection.address.slice(0, 10)}...${accountSelection.address.slice(
-                      -10
-                    )}`}
-                  </Typography>
-                </Grid>
-                <Grid item style={{ marginTop: '30px' }}>
-                  <Button
-                    onClick={() =>
-                      push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
-                    }
-                    color='primary'
-                    disabled={
-                      actionsPending.submitDirectTransferTx ||
-                      actionsPending.submitTx ||
-                      actionsPending.verifyAccount ||
-                      actionsPending.checkWalletConnection ||
-                      actionsPending.setTokenAllowance
-                    }
-                  >
-                    Back to Previous
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
+          <Box display='flex' alignItems='center' my={-4}>
+            <Box>
+              <WalletButton walletType={accountSelection.walletType} />
+            </Box>
+            <Box ml={2}>
+              <Typography variant='h4' display='block'>
+                {accountSelection.displayName}
+              </Typography>
+              <Typography variant='caption' display='block'>
+                {`${accountSelection.address.slice(0, 10)}...${accountSelection.address.slice(
+                  -10
+                )}`}
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
 
-            <Grid item xs>
-              {this.renderWalletAuthorizationSteps()}
+        <Grid item>{this.renderWalletAuthorizationSteps()}</Grid>
+
+        <Grid item>
+          <Grid container direction='row' justify='center' spacing={2}>
+            <Grid item>
+              <Box my={3}>
+                <Button
+                  onClick={() =>
+                    push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
+                  }
+                  color='primary'
+                  disabled={
+                    actionsPending.submitDirectTransferTx ||
+                    actionsPending.submitTx ||
+                    actionsPending.verifyAccount ||
+                    actionsPending.checkWalletConnection ||
+                    actionsPending.setTokenAllowance
+                  }
+                >
+                  Back
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item>
+              <Box my={3}>{this.renderConnectToWalletButton()}</Box>
             </Grid>
           </Grid>
         </Grid>
@@ -520,17 +515,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 }
 
-const styles = theme => ({
-  setTokenAllowanceBtn: {
-    borderRadis: '4px',
-    fontSize: '14px',
-    padding: '6px 10px 6px 10px',
-    margin: '0px 2px 0px 2px'
-  },
-  setTokenAllowanceBtnIcon: {
-    height: '15px',
-    width: '15px'
-  }
-})
+const styles = theme => ({})
 
 export default withStyles(styles)(WalletAuthorizationComponent)

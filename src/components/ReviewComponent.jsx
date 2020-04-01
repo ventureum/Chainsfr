@@ -1,8 +1,8 @@
 // @flow
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { getCryptoSymbol, getTxFeesCryptoType } from '../tokens'
 import Divider from '@material-ui/core/Divider'
@@ -14,7 +14,6 @@ import type { Recipient } from '../types/transfer.flow.js'
 type Props = {
   submitTx: Function,
   push: Function,
-  classes: Object,
   transferForm: Object,
   recipients: Array<Recipient>,
   accountSelection: AccountData,
@@ -35,7 +34,6 @@ type Props = {
 class ReviewComponent extends Component<Props> {
   render () {
     const {
-      classes,
       transferForm,
       accountSelection,
       receiveAccountSelection,
@@ -174,32 +172,35 @@ class ReviewComponent extends Component<Props> {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item className={classes.btnSection}>
-          <Grid container direction='row' justify='center' spacing={3}>
+        <Grid item>
+          <Grid container direction='row' justify='center' spacing={2}>
             <Grid item>
-              <Button
-                color='primary'
-                size='large'
-                onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}
-                data-test-id='back'
-              >
-                Back to previous
-              </Button>
+              <Box mt={6} mb={3}>
+                <Button
+                  color='primary'
+                  variant='text'
+                  onClick={() => push(`${directTransfer ? path.directTransfer : path.transfer}`)}
+                  data-test-id='back'
+                >
+                  Back
+                </Button>
+              </Box>
             </Grid>
             {!actionsPending.submitTx && (
               <Grid item>
-                <Button
-                  fullWidth
-                  variant='contained'
-                  color='primary'
-                  size='large'
-                  onClick={() =>
-                    push(`${directTransfer ? path.directTransfer : path.transfer}?step=2`)
-                  }
-                  data-test-id='continue'
-                >
-                  Continue
-                </Button>
+                <Box mt={6} mb={3}>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    color='primary'
+                    onClick={() =>
+                      push(`${directTransfer ? path.directTransfer : path.transfer}?step=2`)
+                    }
+                    data-test-id='continue'
+                  >
+                    Continue
+                  </Button>
+                </Box>
               </Grid>
             )}
           </Grid>
@@ -209,14 +210,4 @@ class ReviewComponent extends Component<Props> {
   }
 }
 
-const styles = theme => ({
-  btnSection: {
-    marginTop: '60px',
-    marginBottom: '150px'
-  },
-  linearProgress: {
-    marginTop: '20px'
-  }
-})
-
-export default withStyles(styles)(ReviewComponent)
+export default (ReviewComponent)

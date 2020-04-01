@@ -94,7 +94,7 @@ const styles = theme => ({
   },
   walletAuthorizationContainer: {
     width: '100%',
-    maxWidth: '750px',
+    maxWidth: '550px',
     margin: '0px 0px 16px 0px',
     padding: '30px'
   },
