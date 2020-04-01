@@ -14,7 +14,6 @@ import type { Recipient } from '../types/transfer.flow.js'
 type Props = {
   submitTx: Function,
   push: Function,
-  classes: Object,
   transferForm: Object,
   recipients: Array<Recipient>,
   accountSelection: AccountData,

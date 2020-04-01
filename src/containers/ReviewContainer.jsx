@@ -7,6 +7,7 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import type { AccountData } from '../types/account.flow'
+import type { Recipient } from '../types/transfer.flow.js'
 
 type Props = {
   submitTx: Function,
@@ -23,7 +24,10 @@ type Props = {
     submitTx: boolean,
     getTxFee: boolean
   },
-  error: any
+  error: any,
+  userProfile: Object ,
+  recipients: Array<Recipient>,
+  push: Function,
 }
 
 class ReviewContainer extends Component<Props> {

@@ -212,18 +212,18 @@ const IsolateAppBarContent = (props: Props) => {
       justifyContent='space-between'
       width='100%'
     >
-      <Box display='flex' flexDirection='row' alignItems='center' flex='1'>
+      <Box display='flex' flexDirection='row' alignItems='center'>
         <ChainsfrLogo disabled onClick={() => {}} />
         {/* vertical divider does not work in our Material UI version */}
-        <Box borderLeft='0.5px solid #A8A8A8' pr={2} height='24px' />
+        <Box borderLeft='0.5px solid #e9e9e9' pr={2} height='24px' />
         <ProfileButton profile={profile} disabled />
       </Box>
       <Hidden only={['xs', 'sm']}>
-        <Box flex='2'>
+        <Box flexGrow={1} maxWidth={660} justifyContent='center'>
           {location.pathname === path.transfer && <Stepper actionType='transfer' step={step} />}
         </Box>
       </Hidden>
-      <Box flex='1' display='flex' justifyContent='flex-end'>
+      <Box width={204} display='flex' justifyContent='flex-end'>
         <IconButton
           onClick={() => {
             backToHome()
