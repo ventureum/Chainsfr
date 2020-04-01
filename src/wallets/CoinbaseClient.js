@@ -20,6 +20,7 @@ const authUrl =
 let windowObjectReference = null
 const errors = walletErrors.coinbaseOAuthWallet
 let previousCallback = null
+let accessDataRetrieved = false
 
 export type CoinBaseAccessObject = {
   access_token: string,
@@ -90,14 +91,31 @@ export async function getAccessObject (cryptoType) {
   // storing the access object causing users unable to switch cryptoType
   // pop up oauth window everytime while adding a new account
   const accessObject = await new Promise((resolve, reject) => {
+    accessDataRetrieved = false
     const callback = async event => {
       if (event.data && event.data.type === 'coinbase_auth') {
+        accessDataRetrieved = true
         const urlParams = queryString.parse(event.data.params)
         const rv = await API.getCoinbaseAccessObject(urlParams.code)
         resolve(rv)
       }
     }
     openSignInWindow(callback)
+    window.onpopstate = function (event) {
+      // close popup on navigation change
+      if (windowObjectReference) {
+        windowObjectReference.close()
+      }
+    }
+    var pollTimer = window.setInterval(function () {
+      if (windowObjectReference.closed !== false) {
+        // !== is required for compatibility with Opera
+        window.clearInterval(pollTimer)
+        if (!accessDataRetrieved) {
+          reject(new Error(errors.popupClosed))
+        }
+      }
+    }, 500)
   })
   if (accessObject.error) throw new Error(accessObject.error_description)
   store.dispatch(setCoinbaseAccessObject({ cryptoType: cryptoType, ...accessObject }))
