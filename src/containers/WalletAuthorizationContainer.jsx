@@ -14,8 +14,10 @@ import path from '../Paths.js'
 import { getCryptoDecimals, isERC20 } from '../tokens'
 import BN from 'bn.js'
 import { setTokenAllowance } from '../actions/transferActions'
+import type { Recipient } from '../types/transfer.flow'
 
 type Props = {
+  recipients: Array<Recipient>,
   transferForm: Object,
   actionsPending: Object,
   verifyAccount: Function,
@@ -69,6 +71,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
 
   componentDidUpdate (prevProps) {
     const {
+      recipients,
       transferForm,
       submitTx,
       currency,
@@ -108,6 +111,9 @@ class WalletAuthorizationContainer extends Component<Props, State> {
         })
       } else {
         // submit tx
+
+        // find recipient data
+        const _recipient = recipients.find(r => r.email === destination)
         submitTx({
           fromAccount: accountSelection,
           transferAmount: transferAmount,
@@ -116,6 +122,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
           // receiver
           destination: destination,
           receiverName: receiverName,
+          receiverAvatar: _recipient ? _recipient.imageUrl: null,
           // sender
           senderName: senderName,
           senderAvatar: userProfile.imageUrl,
@@ -229,6 +236,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     userProfile: state.userReducer.profile.profileObj,
+    recipients: state.userReducer.recipients,
     currency: state.cryptoPriceReducer.currency,
     txFee: state.transferReducer.txFee,
     setTokenAllowanceTxHash: state.transferReducer.setTokenAllowanceTxHash,

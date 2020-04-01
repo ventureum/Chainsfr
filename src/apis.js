@@ -50,6 +50,7 @@ async function transfer (request: {|
   senderAccount: string,
   destination: string,
   receiverName: string,
+  receiverAvatar: ?string,
   transferAmount: string,
   transferFiatAmountSpot: string,
   fiatType: string,

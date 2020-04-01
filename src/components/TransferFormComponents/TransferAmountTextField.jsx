@@ -26,6 +26,7 @@ type Props = {
   toCryptoAmount: Function,
   updateForm: Function,
   formError: Object,
+  disabled: Boolean,
   actionsPending: Object,
   actionsFulfilled: Object
 }
@@ -43,10 +44,12 @@ export default function TransferAmountTextField (props: Props) {
     toCryptoAmount,
     updateForm,
     formError,
+    disabled,
     actionsFulfilled
   } = props
 
   const prevTransferAmount = usePrevious(transferAmount)
+  const prevAccountSelection = usePrevious(accountSelection)
 
   let balanceCurrencyAmount = '0'
 
@@ -63,6 +66,14 @@ export default function TransferAmountTextField (props: Props) {
     const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
     const decimals = getCryptoDecimals(cryptoType)
+
+    // if the value has been set to '', either
+    // caused by account changes, or by deleting all chars
+    // in the text field by the user
+    //
+    // treat it as correct value in this case
+    if (value === '') return
+
     if (
       !validator.isFloat(value, {
         min: 0.001,
@@ -174,6 +185,29 @@ export default function TransferAmountTextField (props: Props) {
     }
   }, [transferAmount, txFee])
 
+  // on account changes
+  // clear transferAmount and transferCurrencyAmount
+  useEffect(() => {
+    if (prevAccountSelection && prevAccountSelection.id !== accountSelection.id) {
+      updateForm({
+        transferAmount: {
+          $set: ''
+        },
+        transferCurrencyAmount: {
+          $set: ''
+        },
+        formError: {
+          transferAmount: {
+            $set: null
+          },
+          transferCurrencyAmount: {
+            $set: null
+          }
+        }
+      })
+    }
+  }, [accountSelection])
+  
   return (
     <Grid container direction='row' justify='center' alignItems='stretch'>
       <Grid item xs={5}>
@@ -193,7 +227,7 @@ export default function TransferAmountTextField (props: Props) {
                 )}`
               : 'Balance: 0.00')
           }
-          disabled={!accountSelection}
+          disabled={disabled}
           onChange={e => updateAmount(e.target.value, null)}
           value={transferAmount}
           InputProps={{
@@ -226,7 +260,7 @@ export default function TransferAmountTextField (props: Props) {
             event.preventDefault()
           }}
           placeholder='Amount'
-          disabled={!accountSelection}
+          disabled={disabled}
           onChange={e => updateAmount(null, e.target.value)}
           value={transferCurrencyAmount}
           InputProps={{

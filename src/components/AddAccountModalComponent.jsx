@@ -218,6 +218,8 @@ const ErrorMessage = (props: ErrorMessageProps) => {
         errorInstruction = `Please select the proper account in the Coinbase pop window`
       } else if (error === walletErrors.coinbaseOAuthWallet.noAddress) {
         errorInstruction = `No address is available from Coinbase`
+      } else if (error === walletErrors.coinbaseOAuthWallet.popupClosed) {
+        errorInstruction = `User denied account authorization`
       } else {
         errorInstruction = error
       }

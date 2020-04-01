@@ -135,6 +135,7 @@ async function _submitTx (txRequest: {
   fiatType: string,
   destination: string,
   receiverName: string,
+  receiverAvatar: ?string,
   senderName: string,
   senderAvatar: string,
   sender: string,
@@ -154,6 +155,7 @@ async function _submitTx (txRequest: {
     sendMessage,
     destination,
     receiverName,
+    receiverAvatar,
     txFee
   } = txRequest
 
@@ -204,6 +206,7 @@ async function _submitTx (txRequest: {
       sendMessage,
       destination,
       receiverName,
+      receiverAvatar,
       data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
       cryptoType: cryptoType,
       // we do not have txHash yet
@@ -262,6 +265,7 @@ async function _transactionHashRetrieved (txRequest: {|
   senderAccountId: string,
   destination: string,
   receiverName: string,
+  receiverAvatar: ?string,
   cryptoType: string,
   sendMessage: ?string,
   data: string,
@@ -1184,6 +1188,7 @@ function submitTx (txRequest: {
   fiatType: string,
   destination: string,
   receiverName: string,
+  receiverAvatar: ?string,
   senderName: string,
   senderAvatar: string,
   sender: string,
