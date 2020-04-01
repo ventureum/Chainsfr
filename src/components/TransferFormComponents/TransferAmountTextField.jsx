@@ -63,6 +63,14 @@ export default function TransferAmountTextField (props: Props) {
     const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
     const decimals = getCryptoDecimals(cryptoType)
+
+    // if the value has been set to '', either
+    // caused by account changes, or by deleting all chars
+    // in the text field by the user
+    //
+    // treat it as correct value in this case
+    if (value === '') return
+
     if (
       !validator.isFloat(value, {
         min: 0.001,
@@ -173,6 +181,27 @@ export default function TransferAmountTextField (props: Props) {
       }
     }
   }, [transferAmount, txFee])
+
+  // on account changes
+  // clear transferAmount and transferCurrencyAmount
+  useEffect(() => {
+    updateForm({
+      transferAmount: {
+        $set: ''
+      },
+      transferCurrencyAmount: {
+        $set: ''
+      },
+      formError: {
+        transferAmount: {
+          $set: null
+        },
+        transferCurrencyAmount: {
+          $set: null
+        }
+      }
+    })
+  }, [accountSelection])
 
   return (
     <Grid container direction='row' justify='center' alignItems='stretch'>
