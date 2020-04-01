@@ -312,7 +312,13 @@ class AccountDropdownComponent extends Component<Props, State> {
                 })}
             </Select>
             {account && account.status === accountStatus.syncing && (
-              <Box mt={1} p={2} bgcolor='background.default' borderRadius={4}>
+              <Box
+                mt={1}
+                p={2}
+                bgcolor='background.default'
+                borderRadius={4}
+                data-test-id='syncing'
+              >
                 <Typography variant='body2' style={{ marginBottom: '10px' }}>
                   Checking your account
                 </Typography>
