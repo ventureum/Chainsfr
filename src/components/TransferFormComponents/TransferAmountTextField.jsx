@@ -188,7 +188,11 @@ export default function TransferAmountTextField (props: Props) {
   // on account changes
   // clear transferAmount and transferCurrencyAmount
   useEffect(() => {
-    if (prevAccountSelection && prevAccountSelection.id !== accountSelection.id) {
+    if (
+      prevAccountSelection &&
+      accountSelection &&
+      prevAccountSelection.id !== accountSelection.id
+    ) {
       updateForm({
         transferAmount: {
           $set: ''
@@ -207,7 +211,6 @@ export default function TransferAmountTextField (props: Props) {
       })
     }
   }, [accountSelection])
-  
   return (
     <Grid container direction='row' justify='center' alignItems='stretch'>
       <Grid item xs={5}>

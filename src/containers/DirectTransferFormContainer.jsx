@@ -101,7 +101,7 @@ export default function DirectTransferFormContainer (props: Props) {
     let selectedCryptoType
     let accountIdType
     if (
-      prevIsSendingFromDriveWallet !== null &&
+      prevIsSendingFromDriveWallet !== undefined &&
       prevIsSendingFromDriveWallet !== isSendingFromDriveWallet
     ) {
       // swap sendAccount and receiveAccount
