@@ -16,6 +16,7 @@ export default function AccountSwitch (props: { transferOut: boolean, onChange: 
         exclusive
         aria-label='text alignment'
         classes={{ grouped: classes.grouped }}
+        data-test-id='account_switch'
       >
         <ToggleButton
           value={false}
@@ -26,6 +27,7 @@ export default function AccountSwitch (props: { transferOut: boolean, onChange: 
             borderBottomLeftRadius: '5em'
           }}
           className={classes.toggleBtn}
+          data-test-id='transfer_in'
         >
           Transfer In
         </ToggleButton>
@@ -38,6 +40,7 @@ export default function AccountSwitch (props: { transferOut: boolean, onChange: 
             borderBottomRightRadius: '5em'
           }}
           className={classes.toggleBtn}
+          data-test-id='transfer_out'
         >
           Transfer Out
         </ToggleButton>

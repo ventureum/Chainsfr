@@ -25,26 +25,35 @@ type Props = {
     getTxFee: boolean
   },
   error: any,
-  userProfile: Object ,
+  userProfile: Object,
   recipients: Array<Recipient>,
-  push: Function,
+  push: Function
 }
 
 class ReviewContainer extends Component<Props> {
   render () {
     const { cryptoPrice, txFee, transferForm, currency } = this.props
-    const toCurrencyAmount = cryptoAmount =>
-      utils.toCurrencyAmount(
-        cryptoAmount,
-        cryptoPrice[JSON.parse(transferForm.accountId).cryptoType],
-        currency
-      )
+    const toCurrencyAmount = (cryptoAmount: string, usePlatformType?: boolean) => {
+      // usePlatformType flag decision whether to use platformType or cryptoType
+      // This is intended for getting txFee for ERC20 tokens
+      return usePlatformType
+        ? utils.toCurrencyAmount(
+            cryptoAmount,
+            cryptoPrice[JSON.parse(transferForm.accountId).platformType],
+            currency
+          )
+        : utils.toCurrencyAmount(
+            cryptoAmount,
+            cryptoPrice[JSON.parse(transferForm.accountId).cryptoType],
+            currency
+          )
+    }
     return (
       <Review
         {...this.props}
         currencyAmount={{
           transferAmount: transferForm && toCurrencyAmount(transferForm.transferAmount),
-          txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit)
+          txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit, true)
         }}
       />
     )

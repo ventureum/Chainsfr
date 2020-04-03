@@ -17,6 +17,7 @@ import Typography from '@material-ui/core/Typography'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import { useTheme, makeStyles } from '@material-ui/core/styles'
 import UserAvatar from './MicroComponents/UserAvatar'
+import env from '../typedEnv'
 
 // Icon
 import AccountIcon from '@material-ui/icons/CreditCardRounded'
@@ -101,7 +102,15 @@ const NavDrawerComponent = (props: Props) => {
 
   if (!profile || !profile.profileObj) return null
   const { profileObj } = profile
-
+  const gitDescribe = env.REACT_APP_VERSION.split('-')
+  let versionPart = gitDescribe.slice(0, gitDescribe.length - 2)
+  let version = versionPart[0]
+  if (versionPart.length > 1) {
+    for (let i = 1; i < versionPart.length; i++) {
+      version = version + '-' + versionPart[i]
+    }
+  }
+  const commit = gitDescribe[gitDescribe.length - 1]
   return (
     <Box className={match ? classes.drawer : undefined}>
       <Drawer
@@ -218,7 +227,7 @@ const NavDrawerComponent = (props: Props) => {
                 <GitHubIcon style={{ width: 12, color: '#c4c4c4', marginRight: 4 }} />
                 <Typography variant='caption'>
                   <Box color='text.disabled' display='inline'>
-                    build: {process.env.REACT_APP_VERSION}
+                    build: {version}-{commit}
                   </Box>
                 </Typography>
               </Box>

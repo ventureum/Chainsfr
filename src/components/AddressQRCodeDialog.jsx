@@ -47,7 +47,12 @@ const Title = withStyles(titleStyles)(props => {
         </Box>
         <Typography variant='h6'></Typography>
       </Box>
-      <IconButton aria-label='close' className={classes.closeButton} onClick={onClose}>
+      <IconButton
+        aria-label='close'
+        className={classes.closeButton}
+        onClick={onClose}
+        data-test-id='close_qr_code'
+      >
         <CloseIcon />
       </IconButton>
     </DialogTitle>
@@ -72,12 +77,12 @@ const Content = withStyles(contentStyle)(props => {
     <DialogContent className={classes.root}>
       <Paper elevation={1} className={classes.paper}>
         <Box padding={2} mt={2} mb={2} display='flex' alignItems='center' justifyContent='center'>
-          <QRCode value={address} size={fullScreen ? 275 : 225} />
+          <QRCode value={address} size={fullScreen ? 275 : 225} data-test-id='qr_code_img' />
         </Box>
       </Paper>
       <Box display='flex' flexDirection='column' alignItems='center'>
         <Typography variant='body1'>Wallet Address</Typography>
-        <Typography variant='caption' style={{ marginTop: 10 }}>
+        <Typography variant='caption' style={{ marginTop: 10 }} data-test-id='address'>
           {address}
         </Typography>
       </Box>

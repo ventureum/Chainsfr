@@ -15,11 +15,11 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
 
   const inputLabelRef = useRef()
 
-  useEffect(()=>{
-    if (inputLabelRef.current){
+  useEffect(() => {
+    if (inputLabelRef.current) {
       setInputLabelWidth(inputLabelRef.current.offsetWidth)
     }
-  },[props.inputLabel])
+  }, [props.inputLabel])
 
   const renderAccountItem = () => {
     return (
@@ -30,15 +30,23 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
         </Box>
         <Box>
           {/* name and wallet title*/}
-          <Typography variant='body2'>Wallet</Typography>
-          <Typography variant='caption'>{getWalletTitle('drive')}</Typography>
+          <Typography variant='body2' data-test-id='drive_wallet_name'>
+            Wallet
+          </Typography>
+          <Typography variant='caption' data-test-id='drive_wallet_title'>
+            {getWalletTitle('drive')}
+          </Typography>
         </Box>
       </Box>
     )
   }
   return (
     <FormControl variant='outlined' fullWidth margin='normal'>
-      <InputLabel ref={inputLabelRef} id='mockDriveWalletInputLabel'>
+      <InputLabel
+        ref={inputLabelRef}
+        id='mockDriveWalletInputLabel'
+        data-test-id='drive_wallet_label'
+      >
         {props.inputLabel}
       </InputLabel>
       <Select
@@ -47,12 +55,8 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
         renderValue={renderAccountItem}
         value={{}}
         // must have outlinedInput for complete dropdown mock
-        input={
-          <OutlinedInput
-            labelWidth={inputLabelWidth}
-            name='Select Account'
-          />
-        }
+        input={<OutlinedInput labelWidth={inputLabelWidth} name='Select Account' />}
+        inputProps={{ 'data-test-id': 'drive_select' }}
       >
         {/* Must have a single menu item since the select is not disabled */}
         <MenuItem key={1} value={{}}>

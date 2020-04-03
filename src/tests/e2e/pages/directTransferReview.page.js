@@ -1,5 +1,6 @@
 import { getElementTextContent } from '../testUtils'
-class SendReviewPage {
+
+class DirectTransferReviewPage {
   async dispatchFormActions (action) {
     if (action === 'continue') {
       await Promise.all([
@@ -31,20 +32,6 @@ class SendReviewPage {
         const title = await getElementTextContent(titleElement)
         return title
       }
-      case 'sender': {
-        const senderNameElement = await page.$('[data-test-id="from_name"]')
-        const senderEmailElement = await page.$('[data-test-id="from_email"]')
-        const name = await getElementTextContent(senderNameElement)
-        const email = await getElementTextContent(senderEmailElement)
-        return { name, email }
-      }
-      case 'recipient': {
-        const recipientNameElement = await page.$('[data-test-id="to_name"]')
-        const recipientEmailElement = await page.$('[data-test-id="to_email"]')
-        const name = await getElementTextContent(recipientNameElement)
-        const email = await getElementTextContent(recipientEmailElement)
-        return { name, email }
-      }
       case 'senderAccount': {
         const senderAccountNameElement = await page.$('[data-test-id="from_account_name"]')
         const accountWalletPlatformTypeElement = await page.$(
@@ -70,7 +57,7 @@ class SendReviewPage {
           await getElementTextContent(accountWalletPlatformTypeElement)
         ).split(', ')
 
-        await this.dispatchFormActions('showReceiverAddress')
+        await this.dispatchFormActions('showSenderAddress')
         const addressElement = await page.$('[data-test-id="to_address"]')
         const address = await getElementTextContent(addressElement)
 

@@ -166,7 +166,7 @@ export default function TransferAmountTextField (props: Props) {
 
   useEffect(() => {
     if (accountSelection) {
-      if (prevTransferAmount !== transferAmount) {
+      if (prevTransferAmount !== transferAmount && !formError.transferAmount) {
         // if transfer amount changed, update tx fee
         getTxFee({
           fromAccount: accountSelection,

@@ -57,11 +57,11 @@ function isBrowserCompatible ({ status, walletType }: { status: Object, walletTy
       status.addable = false
       status.disabledReason = 'Chrome version 73 or above needed'
     }
-  } else if (browser && browser.name !== 'chrome') {
+  } else if (browser && !['chrome', 'ios', 'crios'].includes(browser.name)) {
     status.sendable = false
     status.receivable = false
     status.addable = false
-    status.disabledReason = 'Chrome browser needed'
+    status.disabledReason = 'Browser is not supported'
   }
 
   return { status, walletType }
