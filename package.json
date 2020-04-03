@@ -92,7 +92,8 @@
     "eslint": "eslint \"./src/**/*.js\"",
     "snapshots:unzip": "unzip src/tests/__snapshots__",
     "snapshots:zip": "zip -r src/tests/__snapshots__.zip src/tests/__snapshots__ -x \"*.DS_Store\"",
-    "snapshots:clean": "rm -fr src/tests/__snapshots__"
+    "snapshots:clean": "rm -fr src/tests/__snapshots__",
+    "resetUser": "env-cmd .env npx babel-node src/tests/e2e/resetUser.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -104,6 +105,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-flow": "^7.8.3",
     "async-captcha": "^1.0.4",

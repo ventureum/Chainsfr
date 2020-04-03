@@ -1,4 +1,5 @@
 import axios from 'axios'
+import log from 'loglevel'
 import { GOOGLE_LOGIN_AUTH_OBJ, REGISTER_TIME, MASTER_KEY, EMAIL, PROFILE } from '../mocks/user.js'
 import { DEFAULT_TRANSFER_DATA } from '../mocks/transfers'
 import { RECIPIENTS } from '../mocks/recipients'
@@ -9,6 +10,8 @@ import type { BackEndCryptoAccountType } from '../../../types/account.flow'
 import type { RecipientType } from '../../../types/recipients.flow'
 import type { TransferDataType } from '../../../types/transfer.flow'
 import type { CloudWalletFolderMetaType, UserProfile } from '../../../types/user.flow'
+
+log.setDefaultLevel('info')
 
 const chainsferApi = axios.create({
   baseURL: process.env.REACT_APP_CHAINSFER_API_ENDPOINT,
@@ -42,6 +45,7 @@ async function resetUser (data: {
     idToken: GOOGLE_LOGIN_AUTH_OBJ.idToken,
     data
   })
+  log.info('User data reset successfully!')
 }
 
 async function resetUserDefault () {

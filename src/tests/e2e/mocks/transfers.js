@@ -143,7 +143,7 @@ function generateData (
         transferData.inEscrow = 0
         transferData.expired = false
         break
-      case 'SEND_CONFIRMED_RECEIVE_PENDING':
+      case 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED':
         transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
         transferData.transferStage = 'SenderToChainsfer'
         transferData.senderToChainsfer = {
@@ -153,9 +153,37 @@ function generateData (
         transferData.inEscrow = 1
         transferData.expired = false
         break
-      case 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED':
+      case 'SEND_CONFIRMED_RECEIVE_PENDING':
         transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
-        transferData.transferStage = 'chainsfrToReceiver'
+        transferData.transferStage = 'ChainsferToReceiver'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToReceiver = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Pending'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = false
+        break
+      case 'SEND_CONFIRMED_RECEIVE_FAILURE':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToReceiver'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToReceiver = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Failed'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = false
+        break
+      case 'SEND_CONFIRMED_RECEIVE_CONFIRMED':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToReceiver'
         transferData.senderToChainsfer = {
           ...TX_HASH[transfer.cryptoType],
           txState: 'Confirmed'
@@ -166,6 +194,103 @@ function generateData (
         }
         transferData.inEscrow = 0
         transferData.expired = false
+        break
+
+      // cancellation
+      case 'SEND_CONFIRMED_CANCEL_PENDING':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToSender'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToSender = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Pending'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = false
+        break
+      case 'SEND_CONFIRMED_CANCEL_CONFIRMED':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToSender'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToSender = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.inEscrow = 0
+        transferData.expired = false
+        break
+      case 'SEND_CONFIRMED_CANCEL_FAILURE':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToSender'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToSender = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Failed'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = false
+        break
+
+      case 'SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'SenderToChainsfer'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = true
+        break
+      case 'SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToReceiver'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToReceiver = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Pending'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = true
+        break
+      case 'SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToReceiver'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToReceiver = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Failed'
+        }
+        transferData.inEscrow = 1
+        transferData.expired = true
+        break
+      case 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED':
+        transferData.sendTxHash = TX_HASH[transfer.cryptoType].txHash
+        transferData.transferStage = 'ChainsferToReceiver'
+        transferData.senderToChainsfer = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.chainsferToReceiver = {
+          ...TX_HASH[transfer.cryptoType],
+          txState: 'Confirmed'
+        }
+        transferData.inEscrow = 0
+        transferData.expired = true
         break
       // TODO: support more states
       default:
@@ -188,8 +313,14 @@ function generateData (
 
 const DEFAULT_TRANSFER_DATA = {
   ...generateData([
+    // before expiration
     {
       state: 'SEND_PENDING',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
       cryptoType: 'ethereum',
       senderAccountType: 'METAMASK_ETH'
     },
@@ -197,6 +328,55 @@ const DEFAULT_TRANSFER_DATA = {
       state: 'SEND_CONFIRMED_RECEIVE_PENDING',
       cryptoType: 'ethereum',
       senderAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_RECEIVE_FAILURE',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
+    },
+
+    // before expiration, cancellation
+    {
+      state: 'SEND_CONFIRMED_CANCEL_PENDING',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_CANCEL_FAILURE',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
+    },
+
+    // after expiration
+    {
+      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH'
+    },
+    {
+      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE',
+      cryptoType: 'ethereum',
+      senderAccountType: 'METAMASK_ETH',
+      receiverAccountType: 'METAMASK_ETH'
     },
     {
       state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED',

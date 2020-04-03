@@ -457,7 +457,7 @@ export function UserRecentTransactions (props) {
             </Grid>
           </Grid>
         </Grid>
-        <Grid style={{ minHeight: '300px', maxHeight: '500px', overflow: 'auto' }}>
+        <Grid>
           <InfiniteScroll
             loader={
               actionsPending.getTransferHistory && (
@@ -473,7 +473,7 @@ export function UserRecentTransactions (props) {
                 loadMoreTransferHistory(transferHistory.history.length)
               }
             }}
-            useWindow={false}
+            useWindow
             hasMore={transferHistory.hasMore}
             initialLoad={false}
           >
