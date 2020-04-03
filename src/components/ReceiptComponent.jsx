@@ -560,7 +560,7 @@ class ReceiptComponent extends Component<Props, State> {
                           className={classes.iconBtn}
                           data-test-id='send_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
@@ -578,7 +578,7 @@ class ReceiptComponent extends Component<Props, State> {
                           className={classes.iconBtn}
                           data-test-id='receive_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
@@ -596,7 +596,7 @@ class ReceiptComponent extends Component<Props, State> {
                           className={classes.iconBtn}
                           data-test-id='cancel_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
