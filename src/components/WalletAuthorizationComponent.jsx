@@ -20,6 +20,7 @@ import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
 import BN from 'bn.js'
+import { Prompt } from 'react-router'
 
 // Icons
 import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
@@ -41,20 +42,20 @@ type Props = {
   errors: Object,
   push: Function,
   online: boolean,
-  directTransfer: boolean
+  directTransfer: boolean,
 }
 
 type State = {
   tokenAllowanceAmount: string,
   minTokenAllowanceAmount: string,
-  tokenAllowanceError: ?string
+  tokenAllowanceError: ?string,
 }
 
 class WalletAuthorizationComponent extends Component<Props, State> {
   state = {
     tokenAllowanceAmount: '0',
     minTokenAllowanceAmount: '0',
-    tokenAllowanceError: null
+    tokenAllowanceError: null,
   }
 
   componentDidMount () {
@@ -65,7 +66,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         const modifiedTransferAmount = parseFloat(transferAmount).toString()
         this.setState({
           tokenAllowanceAmount: modifiedTransferAmount,
-          minTokenAllowanceAmount: modifiedTransferAmount
+          minTokenAllowanceAmount: modifiedTransferAmount,
         })
         // update container state
         this.props.setTokenAllowanceAmount(modifiedTransferAmount)
@@ -229,7 +230,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           id='allowance'
           variant='outlined'
           type='number'
-          onChange={event => this.handleSetTokenAllowanceAmount(event.target.value)}
+          onChange={(event) => this.handleSetTokenAllowanceAmount(event.target.value)}
           value={tokenAllowanceAmount}
           disabled={disabled}
           error={tokenAllowanceError}
@@ -250,7 +251,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                   </Button>
                 </Tooltip>
               </InputAdornment>
-            )
+            ),
           }}
         />
       </>
@@ -264,7 +265,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
       errors,
       insufficientAllowance,
       setTokenAllowanceTxHash,
-      directTransfer
+      directTransfer,
     } = this.props
     const { walletType, cryptoType, multiSigAllowance } = accountSelection
     const multiSigAllowanceStandardTokenUnit = utils
@@ -396,7 +397,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                 style={{
                   backgroundColor: 'rgba(57, 51, 134, 0.05)',
                   borderRadius: '4px',
-                  padding: '20px'
+                  padding: '20px',
                 }}
               >
                 <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
@@ -457,64 +458,79 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     const { accountSelection, actionsPending, push, directTransfer } = this.props
 
     return (
-      <Grid container direction='column' spacing={3}>
-        <Grid item>
-          <Typography variant='h3' display='inline'>
-            Wallet Authorization
-          </Typography>
-        </Grid>
+      <>
+        <Prompt
+          when={
+            actionsPending.submitDirectTransferTx ||
+            actionsPending.submitTx ||
+            actionsPending.verifyAccount ||
+            actionsPending.checkWalletConnection ||
+            actionsPending.setTokenAllowance
+          }
+          message={
+            'You are currently confirming your transaction. Rejecting the transaction on your device or the popup window' +
+            ' to cancel the transaction.'
+          }
+        />
+        <Grid container direction='column' spacing={3}>
+          <Grid item>
+            <Typography variant='h3' display='inline'>
+              Wallet Authorization
+            </Typography>
+          </Grid>
 
-        <Grid item>
-          <Box display='flex' alignItems='center' my={-4}>
-            <Box>
-              <WalletButton walletType={accountSelection.walletType} />
-            </Box>
-            <Box ml={2}>
-              <Typography variant='h4' display='block'>
-                {accountSelection.displayName}
-              </Typography>
-              <Typography variant='caption' display='block'>
-                {`${accountSelection.address.slice(0, 10)}...${accountSelection.address.slice(
-                  -10
-                )}`}
-              </Typography>
-            </Box>
-          </Box>
-        </Grid>
-
-        <Grid item>{this.renderWalletAuthorizationSteps()}</Grid>
-
-        <Grid item>
-          <Grid container direction='row' justify='center' spacing={2}>
-            <Grid item>
-              <Box my={3}>
-                <Button
-                  onClick={() =>
-                    push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
-                  }
-                  color='primary'
-                  disabled={
-                    actionsPending.submitDirectTransferTx ||
-                    actionsPending.submitTx ||
-                    actionsPending.verifyAccount ||
-                    actionsPending.checkWalletConnection ||
-                    actionsPending.setTokenAllowance
-                  }
-                >
-                  Back
-                </Button>
+          <Grid item>
+            <Box display='flex' alignItems='center' my={-4}>
+              <Box>
+                <WalletButton walletType={accountSelection.walletType} />
               </Box>
-            </Grid>
-            <Grid item>
-              <Box my={3}>{this.renderConnectToWalletButton()}</Box>
+              <Box ml={2}>
+                <Typography variant='h4' display='block'>
+                  {accountSelection.displayName}
+                </Typography>
+                <Typography variant='caption' display='block'>
+                  {`${accountSelection.address.slice(0, 10)}...${accountSelection.address.slice(
+                    -10
+                  )}`}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item>{this.renderWalletAuthorizationSteps()}</Grid>
+
+          <Grid item>
+            <Grid container direction='row' justify='center' spacing={2}>
+              <Grid item>
+                <Box my={3}>
+                  <Button
+                    onClick={() =>
+                      push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
+                    }
+                    color='primary'
+                    disabled={
+                      actionsPending.submitDirectTransferTx ||
+                      actionsPending.submitTx ||
+                      actionsPending.verifyAccount ||
+                      actionsPending.checkWalletConnection ||
+                      actionsPending.setTokenAllowance
+                    }
+                  >
+                    Back
+                  </Button>
+                </Box>
+              </Grid>
+              <Grid item>
+                <Box my={3}>{this.renderConnectToWalletButton()}</Box>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </>
     )
   }
 }
 
-const styles = theme => ({})
+const styles = (theme) => ({})
 
 export default withStyles(styles)(WalletAuthorizationComponent)
