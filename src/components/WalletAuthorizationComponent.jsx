@@ -274,7 +274,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
             0,
             10
-          )}...${accountSelection.address.slice(-10)})`
+          )}...${accountSelection.address.slice(-10)}`
         } else if (errors.verifyAccount === WalletErrors.metamask.authorizationDenied) {
           errorInstruction = 'MetaMask authorization denied'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectNetwork) {
@@ -294,7 +294,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
             0,
             10
-          )}...${accountSelection.address.slice(-10)})`
+          )}...${accountSelection.address.slice(-10)}`
         }
         break
       case 'ledger':
@@ -308,10 +308,14 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (errors.verifyAccount === WalletErrors.ledger.ledgerAppCommunicationFailed) {
           errorInstruction = `Ledger ${cryptoType} app is not available`
         } else if (errors.verifyAccount === WalletErrors.ledger.incorrectAccount) {
-          errorInstruction = `Incorrect account connected. Please connect to the correct Ledger device: \n ${accountSelection.address.slice(
-            0,
-            10
-          )}...${accountSelection.address.slice(-10)})`
+          let address = ''
+          if (accountSelection.platformType === 'ethereum') {
+            address = accountSelection.address
+          } else if (accountSelection.platformType === 'bitcoin') {
+            address = accountSelection.hdWalletVariables.xpub
+          }
+          errorInstruction = `Incorrect account connected. Please connect to the correct Ledger device: \n 
+          ${address.slice(0, 10)}...${address.slice(-10)}`
         } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
           errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
         }
@@ -333,10 +337,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = 'WalletLink loading failed'
         }
         if (errors.verifyAccount === WalletErrors.coinbaseWalletLink.incorrectAccount) {
-          errorInstruction = `Incorrect account connected. Please connect to the correct Ledger device: \n ${accountSelection.address.slice(
+          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
             0,
             10
-          )}...${accountSelection.address.slice(-10)})`
+          )}...${accountSelection.address.slice(-10)}`
         }
         break
       default:
@@ -348,52 +352,23 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <>
           Approving your account, waiting for the transaction to confirm
           <br />
-          {setTokenAllowanceTxHash || (
-            <>
+          {setTokenAllowanceTxHash && (
+            <Typography display='inline'>
               You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
                 href={url.getExplorerTx(cryptoType, setTokenAllowanceTxHash)}
               >
-                {' here'}
+                {' here.'}
               </MuiLink>
-            </>
+            </Typography>
           )}
         </>
       )
     }
-
     return (
       <Grid container spacing={2} direction='column'>
-        {insufficientAllowance && !accountSelection.connected && (
-          <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>
-        )}
-        {accountSelection.connected && (
-          <Grid item>
-            <Alert severity='success'>Wallet connected</Alert>
-          </Grid>
-        )}
-        {errors.checkWalletConnection ||
-          errors.verifyAccount ||
-          errors.setTokenAllowance ||
-          (errors.setTokenAllowanceWaitForConfirmation && (
-            <Grid item>
-              <Alert severity='error'>{errorInstruction}</Alert>
-            </Grid>
-          ))}
-        {actionsPending.submitTx ||
-          actionsPending.checkWalletConnection ||
-          actionsPending.verifyAccount ||
-          actionsPending.setTokenAllowance ||
-          (actionsPending.setTokenAllowanceWaitForConfirmation && (
-            <Grid item>
-              <Alert severity='info'>{instruction}</Alert>
-              <Box mt={2}>
-                <LinearProgress />
-              </Box>
-            </Grid>
-          ))}
         {!insufficientAllowance &&
           !accountSelection.connected &&
           isERC20(accountSelection.cryptoType) &&
@@ -406,6 +381,36 @@ class WalletAuthorizationComponent extends Component<Props, State> {
               </Alert>
             </Grid>
           )}
+        {insufficientAllowance && !accountSelection.connected && (
+          <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>
+        )}
+        {accountSelection.connected && (
+          <Grid item>
+            <Alert severity='success'>Wallet connected</Alert>
+          </Grid>
+        )}
+        {(errors.checkWalletConnection ||
+          errors.verifyAccount ||
+          errors.setTokenAllowance ||
+          errors.setTokenAllowanceWaitForConfirmation) && (
+          <Grid item>
+            <Alert severity='error'>{errorInstruction}</Alert>
+          </Grid>
+        )}
+        {(actionsPending.submitTx ||
+          actionsPending.checkWalletConnection ||
+          actionsPending.verifyAccount ||
+          actionsPending.setTokenAllowance ||
+          actionsPending.setTokenAllowanceWaitForConfirmation) && (
+          <Grid item>
+            <Alert severity='info'>
+              {instruction}
+              <Box mt={1}>
+                <LinearProgress />
+              </Box>
+            </Alert>
+          </Grid>
+        )}
       </Grid>
     )
   }
