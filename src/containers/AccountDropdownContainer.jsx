@@ -25,7 +25,8 @@ type Props = {
   cryptoAccounts: Array<Object>,
   actionsPending: Object,
   error: Object,
-  online: boolean
+  online: boolean,
+  disableAccountSelect: boolean
 }
 
 type State = {
@@ -100,7 +101,8 @@ class AccountDropdownContainer extends Component<Props, State> {
       inputLabel,
       purpose,
       online,
-      hideCryptoDropdown
+      hideCryptoDropdown,
+      disableAccountSelect
     } = this.props
     const { openAddAccountModal, accountsFetchStarted } = this.state
     let { filterCriteria } = this.props
@@ -176,6 +178,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           error={error}
           inputLabel={inputLabel ? inputLabel : 'Select Account'}
           hideCryptoDropdown={hideCryptoDropdown}
+          disableAccountSelect={disableAccountSelect}
         />
         {openAddAccountModal && (
           <AddAccountModal

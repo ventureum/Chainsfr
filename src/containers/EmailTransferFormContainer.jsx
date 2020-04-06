@@ -162,6 +162,9 @@ export default function EmailTransferFormContainer (props: Props) {
                 (accountData.hdWalletVariables &&
                   accountData.hdWalletVariables.xpub === xpubPrefilled)))
           }
+          disableAccountSelect={
+            walletSelectionPrefilled && platformTypePrefilled && (addressPrefilled || xpubPrefilled)
+          }
           updateForm={updateForm}
           online={online}
         />
