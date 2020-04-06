@@ -334,7 +334,9 @@ class ReceiptComponent extends Component<Props, State> {
           <Box display='flex' flexDirection='column' alignItems='center'>
             {titleIcon}
             <Box mt={0.5}>
-              <Typography variant='h3'> {title} </Typography>
+              <Typography variant='h3' data-test-id='title'>
+                {title}
+              </Typography>
             </Box>
           </Box>
 
@@ -399,10 +401,14 @@ class ReceiptComponent extends Component<Props, State> {
                   </Grid>
                   <Grid item>
                     <Grid container direction='row' alignItems='center'>
-                      <Typography variant='body2'>
+                      <Typography variant='body2' data-test-id='transfer_amount'>
                         {transferAmount} {getCryptoSymbol(cryptoType)}
                       </Typography>
-                      <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      <Typography
+                        style={{ marginLeft: '10px' }}
+                        variant='caption'
+                        data-test-id='currency_amount'
+                      >
                         ( ≈ {transferFiatAmountSpot} {fiatType} )
                       </Typography>
                     </Grid>
@@ -421,10 +427,14 @@ class ReceiptComponent extends Component<Props, State> {
                       </Grid>
                       <Grid item>
                         <Grid container direction='row' alignItems='center'>
-                          <Typography variant='body2'>
+                          <Typography variant='body2' data-test-id='tx_fee'>
                             {txFee.costInStandardUnit} {getCryptoSymbol(cryptoType)}
                           </Typography>
-                          <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                          <Typography
+                            style={{ marginLeft: '10px' }}
+                            variant='caption'
+                            data-test-id='currency_tx_fee'
+                          >
                             ( ≈ {txFeeCurrencyAmount} )
                           </Typography>
                         </Grid>
@@ -445,7 +455,9 @@ class ReceiptComponent extends Component<Props, State> {
                         <Grid container justify='space-between' direction='row' alignItems='center'>
                           {password ? (
                             <>
-                              <Typography variant='body2'>{password}</Typography>
+                              <Typography variant='body2' data-test-id='security_answer'>
+                                {password}
+                              </Typography>
                               <CopyToClipboard
                                 text={password}
                                 onCopy={() => {
@@ -459,6 +471,7 @@ class ReceiptComponent extends Component<Props, State> {
                                     disableRipple
                                     color='primary'
                                     className={classes.iconBtn}
+                                    data-test-id='copy_security_answer_btn'
                                   >
                                     <FileCopyIcon fontSize='small' />
                                   </IconButton>
@@ -487,7 +500,9 @@ class ReceiptComponent extends Component<Props, State> {
                     <Grid container direction='column' alignItems='flex-start'>
                       <Grid item>
                         <Typography variant='caption'>Sender Message</Typography>
-                        <Typography variant='body2'>{sendMessage}</Typography>
+                        <Typography variant='body2' data-test-id='send_msg'>
+                          {sendMessage}
+                        </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -502,7 +517,9 @@ class ReceiptComponent extends Component<Props, State> {
                     <Grid container direction='column' alignItems='flex-start'>
                       <Grid item>
                         <Typography variant='caption'>Receiver Message</Typography>
-                        <Typography variant='body2'>{receiveMessage}</Typography>
+                        <Typography variant='body2' data-test-id='receive_msg'>
+                          {receiveMessage}
+                        </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -517,7 +534,9 @@ class ReceiptComponent extends Component<Props, State> {
                     <Grid container direction='column' alignItems='flex-start'>
                       <Grid item>
                         <Typography variant='caption'>Cancellation Reason</Typography>
-                        <Typography variant='body2'>{cancelMessage}</Typography>
+                        <Typography variant='body2' data-test-id='cancel_msg'>
+                          {cancelMessage}
+                        </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -531,14 +550,17 @@ class ReceiptComponent extends Component<Props, State> {
                   {sendTime && (
                     <Grid item>
                       <Box display='flex' flexDirection='row' alignItems='center'>
-                        <Typography variant='caption'>Sent on {sendTime}</Typography>
+                        <Typography variant='caption' data-test-id='send_on'>
+                          Sent on {sendTime}
+                        </Typography>
                         <IconButton
                           target='_blank'
                           rel='noopener'
                           href={url.getExplorerTx(cryptoType, sendTxHash)}
                           className={classes.iconBtn}
+                          data-test-id='send_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
@@ -546,14 +568,17 @@ class ReceiptComponent extends Component<Props, State> {
                   {receiveTime && (
                     <Grid item>
                       <Box display='flex' flexDirection='row' alignItems='center'>
-                        <Typography variant='caption'>Received on {receiveTime}</Typography>
+                        <Typography variant='caption' data-test-id='receive_on'>
+                          Received on {receiveTime}
+                        </Typography>
                         <IconButton
                           target='_blank'
                           rel='noopener'
                           href={url.getExplorerTx(cryptoType, receiveTxHash)}
                           className={classes.iconBtn}
+                          data-test-id='receive_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
@@ -561,20 +586,25 @@ class ReceiptComponent extends Component<Props, State> {
                   {cancelTime && (
                     <Grid item>
                       <Box display='flex' flexDirection='row' alignItems='center'>
-                        <Typography variant='caption'>Cancelled on {cancelTime}</Typography>
+                        <Typography variant='caption' data-test-id='cancel_on'>
+                          Cancelled on {cancelTime}
+                        </Typography>
                         <IconButton
                           target='_blank'
                           rel='noopener'
                           href={url.getExplorerTx(cryptoType, cancelTxHash)}
                           className={classes.iconBtn}
+                          data-test-id='cancel_explorer_btn'
                         >
-                          <OpenInNewIcon />
+                          <OpenInNewIcon style={{ fontSize: '18px' }} />
                         </IconButton>
                       </Box>
                     </Grid>
                   )}
                   <Grid item>
-                    <Typography variant='caption'>Transfer ID: {id}</Typography>
+                    <Typography variant='caption' data-test-id='transfer_id'>
+                      Transfer ID: {id}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Grid>
