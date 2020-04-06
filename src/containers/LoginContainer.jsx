@@ -25,7 +25,7 @@ class LoginContainer extends Component {
         getTransfer(null, receivingId)
         this.setState({ renderReceiveLogin: true })
       }
-      if (redirect && redirect.includes('/receipt?')) {
+      if (redirect && redirect.includes('/receipt')) {
         // get transfer data for receipt login page rendering
         const { transferId, receivingId } = queryString.parse(value.redirect.slice(8))
         getTransfer(transferId, receivingId)
