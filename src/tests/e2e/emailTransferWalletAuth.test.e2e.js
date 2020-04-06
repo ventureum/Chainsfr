@@ -1,6 +1,7 @@
 import LoginPage from './pages/login.page'
 import EmailTransferFormPage from './pages/emailTransferForm.page'
 import EmailTransferAuthPage from './pages/emailTransferAuth.page'
+import DisconnectPage from './pages/disconnect.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
 import ERC20_ABI from '../../contracts/ERC20.js'
@@ -22,6 +23,8 @@ describe('Transfer Auth Tests', () => {
   const reduxTracker = new ReduxTracker()
   const emtPage = new EmailTransferFormPage()
   const emtAuthPage = new EmailTransferAuthPage()
+  const disconnectPage = new DisconnectPage()
+
   const FORM_BASE = {
     formPage: emtPage,
     recipient: 'chainsfre2etest@gmail.com',
@@ -152,7 +155,7 @@ describe('Transfer Auth Tests', () => {
             }
           ]
         ),
-        expect(page).toClick('button', { text: 'Connect' })
+        emtAuthPage.connect()
       ])
     },
     timeout
@@ -198,7 +201,7 @@ describe('Transfer Auth Tests', () => {
       await gotoAuthPage()
 
       await expect(page).toMatch(
-        'Please approve a transaction limit before being able to continue. Learn more about the approve process'
+        'Please approve a transaction limit to continue.'
       )
       const allowance = await emtAuthPage.getAllowance()
 
@@ -392,6 +395,211 @@ describe('Transfer Auth Tests', () => {
           ]
         ),
         emtAuthPage.connect()
+      ])
+    },
+    timeout
+  )
+
+  test(
+    'Send ETH from metamask extension',
+    async () => {
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'ethereum'
+      })
+
+      await gotoAuthPage()
+
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SUBMIT_TX_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        emtAuthPage.connect('metamask', 'ethereum')
+      ])
+    },
+    timeout
+  )
+
+  test(
+    'Send DAI from metamask wallet (insufficient allowance)',
+    async () => {
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`)
+
+      // dai has decimals of 18
+      await disconnectPage.setAllowanceWithMetamask('0')
+      log.info(`Reset allowance to 0 successfully`)
+
+      // go back to transfer form
+      await page.goto(`${process.env.E2E_TEST_URL}/send`)
+
+      const CRYPTO_AMOUNT = '1'
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        cryptoAmount: CRYPTO_AMOUNT,
+        currencyAmount: null,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'dai'
+      })
+
+      await gotoAuthPage()
+
+      await expect(page).toMatch(
+        'Please approve a transaction limit to continue.'
+      )
+      const allowance = await emtAuthPage.getAllowance()
+
+      // allowance should match transfer crypto amount exactly
+      expect(allowance).toBe(CRYPTO_AMOUNT)
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SET_TOKEN_ALLOWANCE_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SET_TOKEN_ALLOWANCE_WAIT_FOR_CONFIRMATION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SUBMIT_TX_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        emtAuthPage.connect('metamask', 'dai', true)
+      ])
+    },
+    timeout
+  )
+
+  test(
+    'Send DAI from metamask wallet (sufficient allowance)',
+    async () => {
+      const CRYPTO_AMOUNT = '1'
+
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`)
+
+      // dai has decimals of 18
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+
+      await disconnectPage.setAllowanceWithMetamask(cryptoAmountBasicTokenUnit)
+
+      log.info(`Reset allowance to ${CRYPTO_AMOUNT} successfully`)
+
+      // go back to transfer form
+      await page.goto(`${process.env.E2E_TEST_URL}/send`)
+
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        cryptoAmount: CRYPTO_AMOUNT,
+        currencyAmount: null,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'dai'
+      })
+
+      await gotoAuthPage()
+
+      await expect(page).toMatch(`Your remaining authorized DAI transfer limit is ${CRYPTO_AMOUNT}`)
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SUBMIT_TX_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        emtAuthPage.connect('metamask', 'dai', false)
       ])
     },
     timeout

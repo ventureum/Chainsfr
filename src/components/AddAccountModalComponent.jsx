@@ -44,6 +44,7 @@ import Radio from '@material-ui/core/Radio'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
 import { useActionTracker } from '../hooksUtils'
+import MuiLink from '@material-ui/core/Link'
 
 // Icons
 import CheckCircleIcon from '@material-ui/icons/CheckCircleRounded'
@@ -491,6 +492,9 @@ type ConnectWalletProps = {
   setCryptoType: Function
 }
 
+const LEDGER_CONNECT_USB_DRIVER_INSTRUCTION = `For windows users, you may need to install a third-party USB 
+driver in order to connect a Ledger device thorough Chrome browser.`
+
 const ConnectWallet = (props: ConnectWalletProps) => {
   const {
     walletType,
@@ -508,6 +512,17 @@ const ConnectWallet = (props: ConnectWalletProps) => {
       <Box display='flex' flexDirection='column'>
         <WalletBigIcon src={getWalletLogo(walletType)} name={getWalletDescText(walletType)} />
         <Box pt={2} pr={3} pb={2} pl={3} display='flex' flexDirection='column'>
+          {/* We need to add extra instruction for ledger */}
+          {walletType === 'ledger' && (
+            <Box mb={2}>
+              <Alert severity='info'>
+                <Typography display='inline' style={{ whiteSpace: 'pre-line' }}>
+                  {LEDGER_CONNECT_USB_DRIVER_INSTRUCTION}
+                  <MuiLink>{`\n How to install?`}</MuiLink>
+                </Typography>
+              </Alert>
+            </Box>
+          )}
           <ErrorMessage errors={errors} walletType={walletType} platformType={platformType} />
           <SelectPlateform
             walletType={walletType}

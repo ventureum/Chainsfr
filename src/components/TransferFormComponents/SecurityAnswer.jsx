@@ -47,7 +47,13 @@ export default function SecurityAnswer (props: Props) {
       margin='normal'
       variant='outlined'
       error={!!formError.password}
-      helperText={formError.password || 'We recommend you to use auto-generated security answer.'}
+      helperText={
+        formError.password || (
+          <Button size='small' color='primary' variant='text' className={classes.passwordFaqBtn}>
+            What's Security Answer?
+          </Button>
+        )
+      }
       onChange={e => updatePassword(e.target.value)}
       value={password || ''}
       InputProps={{
@@ -76,5 +82,8 @@ const useStyles = makeStyles({
     borderRadis: '4px',
     fontSize: '12px',
     padding: '6px 10px 6px 10px'
+  },
+  passwordFaqBtn: {
+    padding: 0
   }
 })
