@@ -159,7 +159,7 @@ const baseRecentTransferItemTransferStatus = {
   borderRadius: '100px',
   color: 'white',
   padding: '5px',
-  width: '86px',
+  width: '100px',
   height: '14px',
   display: 'flex',
   flexDirection: 'column',
