@@ -31,7 +31,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
-import { postLoginPreparation, onLogout } from './actions/userActions'
+import { onLogout, refreshAccessToken } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
@@ -189,17 +189,29 @@ class App extends Component {
   // once it's finished, it sets preloadFinished flag to true.
   preload = async () => {
     const { profile } = store.getState().userReducer
+
     if (profile.isAuthenticated) {
       // check if access token has expired
       // note that tokenObj.expires_at is in milliseconds
       const accessTokenExpiresAt = profile.tokenObj.expires_at / 1000.0
-      let validLogin = moment().unix() < accessTokenExpiresAt
-      if (!validLogin) {
+      if (moment().unix() > accessTokenExpiresAt) {
+        // if access token expires, logout
         await store.dispatch(onLogout())
       } else {
-        store.dispatch(postLoginPreparation(profile))
+        // if access token is still valid
+        // refresh access token to make sure it is valid in the next one hour
+        await store.dispatch(refreshAccessToken())
+        // if timer exist, cancel it
+        if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
+        // refresh in 50 mins
+        // use interval instead of timeout to avoid
+        // in some cases token is not refreshed
+        window.tokenRefreshTimer = setInterval(() => {
+          store.dispatch(refreshAccessToken())
+        }, 1000 * 60 * 50)
       }
     }
+
     this.setState({ preloadFinished: true })
   }
 

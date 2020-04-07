@@ -1,4 +1,5 @@
 // @flow
+import { gapiLoad } from '../drive'
 import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
 import type { UserProfile } from '../types/user.flow.js'
@@ -6,12 +7,32 @@ import { enqueueSnackbar } from './notificationActions.js'
 import { getCryptoAccounts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
+import env from '../typedEnv'
 import { getWallet, deleteWallet } from '../drive.js'
 import { createCloudWallet, clearCloudWalletCryptoAccounts } from './walletActions'
+import { GOOGLE_LOGIN_AUTH_OBJ } from '../tests/e2e/mocks/user'
 import moment from 'moment'
 
 function clearError () {
   return { type: 'CLEAR_ERROR' }
+}
+
+function refreshAccessToken () {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'REFRESH_ACCESS_TOKEN',
+      payload: _refreshAccessToken()
+    })
+      .catch(error => {
+        console.warn('Refresh login session failed')
+        console.warn(error)
+        // logout user
+        dispatch(onLogout())
+      })
+      .then(() => {
+        dispatch(getCryptoAccounts())
+      })
+  }
 }
 
 function onGoogleLoginReturn (loginData: any) {
@@ -22,7 +43,45 @@ function onGoogleLoginReturn (loginData: any) {
       type: 'ON_GOOGLE_LOGIN_RETURN',
       payload: loginData
     })
+    if (window.tokenRefreshTimer) clearInterval(window.tokenRefreshTimer)
+    // refresh in 50 mins
+    window.tokenRefreshTimer = setInterval(() => {
+      dispatch(refreshAccessToken())
+    }, 1000 * 60 * 50)
   }
+}
+
+async function _refreshAccessToken () {
+  if (env.REACT_APP_ENV === 'test' && env.REACT_APP_E2E_TEST_MOCK_USER) {
+    // mock login
+    console.log('Mocking login')
+    return GOOGLE_LOGIN_AUTH_OBJ
+  }
+  if (!window.gapi || !window.gapi.auth2) {
+    await gapiLoad()
+  }
+  await window.gapi.auth2.init({
+    clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+    scope: process.env.REACT_APP_GOOGLE_API_SCOPE,
+    discoveryDocs: process.env.REACT_APP_GOOGLE_API_DISCOVERY_DOCS
+  })
+  let instance = await window.gapi.auth2.getAuthInstance()
+  const googleUser = instance.currentUser.get()
+  const basicProfile = googleUser.getBasicProfile()
+  const authResponse = await googleUser.reloadAuthResponse()
+  googleUser.googleId = basicProfile.getId()
+  googleUser.tokenObj = authResponse
+  googleUser.idToken = authResponse.id_token
+  googleUser.accessToken = authResponse.access_token
+  googleUser.profileObj = {
+    googleId: basicProfile.getId(),
+    imageUrl: basicProfile.getImageUrl(),
+    email: basicProfile.getEmail(),
+    name: basicProfile.getName(),
+    givenName: basicProfile.getGivenName(),
+    familyName: basicProfile.getFamilyName()
+  }
+  return googleUser
 }
 
 function register (idToken: string, userProfile: UserProfile) {
@@ -215,6 +274,7 @@ export {
   clearError,
   register,
   onGoogleLoginReturn,
+  refreshAccessToken,
   onLogout,
   setNewUserTag,
   getRecipients,
