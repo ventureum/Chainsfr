@@ -141,6 +141,9 @@ export const themeChainsfr = createMuiTheme({
     MuiAlert: {
       standardInfo: {
         color: fontColors.primary
+      },
+      message: {
+        width: '100%'
       }
     },
     MuiAvatar: {

@@ -15,7 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import WalletErrors from '../wallets/walletErrors'
 import { getWalletTitle } from '../wallet'
 import path from '../Paths.js'
-import { getCryptoSymbol, getCryptoDecimals, isERC20 } from '../tokens'
+import { getCryptoSymbol, getCryptoDecimals, getCryptoTitle, isERC20 } from '../tokens'
 import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
@@ -24,7 +24,6 @@ import { Prompt } from 'react-router'
 
 // Icons
 import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
-import HelpIcon from '@material-ui/icons/InfoRounded'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowserRounded'
 import ResetIcon from '@material-ui/icons/ReplayRounded'
 import UsbIcon from '@material-ui/icons/UsbRounded'
@@ -42,20 +41,20 @@ type Props = {
   errors: Object,
   push: Function,
   online: boolean,
-  directTransfer: boolean,
+  directTransfer: boolean
 }
 
 type State = {
   tokenAllowanceAmount: string,
   minTokenAllowanceAmount: string,
-  tokenAllowanceError: ?string,
+  tokenAllowanceError: ?string
 }
 
 class WalletAuthorizationComponent extends Component<Props, State> {
   state = {
     tokenAllowanceAmount: '0',
     minTokenAllowanceAmount: '0',
-    tokenAllowanceError: null,
+    tokenAllowanceError: null
   }
 
   componentDidMount () {
@@ -66,7 +65,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         const modifiedTransferAmount = parseFloat(transferAmount).toString()
         this.setState({
           tokenAllowanceAmount: modifiedTransferAmount,
-          minTokenAllowanceAmount: modifiedTransferAmount,
+          minTokenAllowanceAmount: modifiedTransferAmount
         })
         // update container state
         this.props.setTokenAllowanceAmount(modifiedTransferAmount)
@@ -202,35 +201,24 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     return (
       <>
         <Box mb={3}>
-          <Alert
-            severity='info'
-            icon={false}
-            action={
-              <MuiLink
-                target='_blank'
-                rel='noopener'
-                href={'https://help.chainsfr.com/en/articles/3651983-erc20-approve'}
-              >
-                <Tooltip title='Learn more'>
-                  <HelpIcon />
-                </Tooltip>
-              </MuiLink>
-            }
-          >
-            Please approve a transaction limit to continue.
+          <Alert severity='info'>
+            <Typography display='inline' style={{ whiteSpace: 'pre-line' }}>
+              Insufficient transaction limit to complete the transaction.
+              <MuiLink>{`\n What's Transaction Limit?`}</MuiLink>
+            </Typography>
           </Alert>
         </Box>
         <TextField
           label={
             (accountSelection && getCryptoSymbol(accountSelection.cryptoType)) +
-            ' Approve Transfer Limit'
+            ' Transaction Limit'
           }
           margin='normal'
           fullWidth
           id='allowance'
           variant='outlined'
           type='number'
-          onChange={(event) => this.handleSetTokenAllowanceAmount(event.target.value)}
+          onChange={event => this.handleSetTokenAllowanceAmount(event.target.value)}
           value={tokenAllowanceAmount}
           disabled={disabled}
           error={tokenAllowanceError}
@@ -251,7 +239,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                   </Button>
                 </Tooltip>
               </InputAdornment>
-            ),
+            )
           }}
         />
       </>
@@ -265,7 +253,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
       errors,
       insufficientAllowance,
       setTokenAllowanceTxHash,
-      directTransfer,
+      directTransfer
     } = this.props
     const { walletType, cryptoType, multiSigAllowance } = accountSelection
     const multiSigAllowanceStandardTokenUnit = utils
@@ -283,7 +271,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (errors.checkWalletConnection === WalletErrors.metamask.extendsionNotFound) {
           errorInstruction = 'MetaMask extension is not available'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectAccount) {
-          errorInstruction = 'Wrong account, please switch to the correct account'
+          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+            0,
+            10
+          )}...${accountSelection.address.slice(-10)}`
         } else if (errors.verifyAccount === WalletErrors.metamask.authorizationDenied) {
           errorInstruction = 'MetaMask authorization denied'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectNetwork) {
@@ -300,7 +291,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (errors.checkWalletConnection) {
           errorInstruction = 'WalletConnect loading failed'
         } else if (errors.verifyAccount === WalletErrors.metamaskWalletConnect.incorrectAccount) {
-          errorInstruction = 'Wrong account, please switch to the correct account'
+          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+            0,
+            10
+          )}...${accountSelection.address.slice(-10)}`
         }
         break
       case 'ledger':
@@ -314,7 +308,14 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (errors.verifyAccount === WalletErrors.ledger.ledgerAppCommunicationFailed) {
           errorInstruction = `Ledger ${cryptoType} app is not available`
         } else if (errors.verifyAccount === WalletErrors.ledger.incorrectAccount) {
-          errorInstruction = 'Wrong Ledger account, please connect the correct Ledger device'
+          let address = ''
+          if (accountSelection.platformType === 'ethereum') {
+            address = accountSelection.address
+          } else if (accountSelection.platformType === 'bitcoin') {
+            address = accountSelection.hdWalletVariables.xpub
+          }
+          errorInstruction = `Incorrect account connected. Please connect to the correct Ledger device: \n 
+          ${address.slice(0, 10)}...${address.slice(-10)}`
         } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
           errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
         }
@@ -336,7 +337,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = 'WalletLink loading failed'
         }
         if (errors.verifyAccount === WalletErrors.coinbaseWalletLink.incorrectAccount) {
-          errorInstruction = `Incorrect WalletLink account, please switch to the correct account`
+          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+            0,
+            10
+          )}...${accountSelection.address.slice(-10)}`
         }
         break
       default:
@@ -348,79 +352,63 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         <>
           Approving your account, waiting for the transaction to confirm
           <br />
-          {setTokenAllowanceTxHash || (
-            <>
+          {setTokenAllowanceTxHash && (
+            <Typography display='inline'>
               You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
                 href={url.getExplorerTx(cryptoType, setTokenAllowanceTxHash)}
               >
-                {' here'}
+                {' here.'}
               </MuiLink>
-            </>
+            </Typography>
           )}
         </>
       )
     }
-
     return (
       <Grid container spacing={2} direction='column'>
-        {insufficientAllowance && <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>}
+        {!insufficientAllowance &&
+          !accountSelection.connected &&
+          isERC20(accountSelection.cryptoType) &&
+          !directTransfer && (
+            <Grid item>
+              <Alert severity='info'>
+                {`Your remaining ${getCryptoSymbol(
+                  accountSelection.cryptoType
+                )} transaction limit is ${multiSigAllowanceStandardTokenUnit}.`}
+              </Alert>
+            </Grid>
+          )}
+        {insufficientAllowance && !accountSelection.connected && (
+          <Grid item>{this.renderSetTokenAllowanceSection()}</Grid>
+        )}
         {accountSelection.connected && (
           <Grid item>
-            <Typography variant='body2'>Wallet connected</Typography>
-            {accountSelection.address ? (
-              <Typography variant='caption'>Wallet address: {accountSelection.address}</Typography>
-            ) : (
-              <Typography>Account xpub: {accountSelection.hdWalletVariables.xpub}</Typography>
-            )}
+            <Alert severity='success'>Wallet connected</Alert>
           </Grid>
         )}
-
-        {errors.checkWalletConnection ||
+        {(errors.checkWalletConnection ||
           errors.verifyAccount ||
           errors.setTokenAllowance ||
-          (errors.setTokenAllowanceWaitForConfirmation && (
-            <Grid item>
-              <Alert severity='error'>{errorInstruction}</Alert>
-            </Grid>
-          ))}
-        {actionsPending.submitTx ||
+          errors.setTokenAllowanceWaitForConfirmation) && (
+          <Grid item>
+            <Alert severity='error'>{errorInstruction}</Alert>
+          </Grid>
+        )}
+        {(actionsPending.submitTx ||
           actionsPending.checkWalletConnection ||
           actionsPending.verifyAccount ||
           actionsPending.setTokenAllowance ||
-          (actionsPending.setTokenAllowanceWaitForConfirmation && (
-            <Grid item>
-              <Box
-                mb={2}
-                style={{
-                  backgroundColor: 'rgba(57, 51, 134, 0.05)',
-                  borderRadius: '4px',
-                  padding: '20px',
-                }}
-              >
-                <Typography variant='body2' style={{ whiteSpace: 'pre-line' }}>
-                  {instruction}
-                </Typography>
-                <LinearProgress style={{ marginTop: '10px' }} />
-              </Box>
-
-              <Alert severity='info' icon={false}>
-                {instruction} instrauction
-              </Alert>
-              <Box mt={2}>
+          actionsPending.setTokenAllowanceWaitForConfirmation) && (
+          <Grid item>
+            <Alert severity='info'>
+              {instruction}
+              <Box mt={1}>
                 <LinearProgress />
               </Box>
-            </Grid>
-          ))}
-        {!insufficientAllowance && isERC20(accountSelection.cryptoType) && !directTransfer && (
-          <Grid item>
-            <Typography variant='body1'>
-              {`Your remaining authorized ${getCryptoSymbol(
-                accountSelection.cryptoType
-              )} transfer limit is ${multiSigAllowanceStandardTokenUnit}`}
-            </Typography>
+            </Alert>
           </Grid>
         )}
       </Grid>
@@ -485,12 +473,12 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                 <WalletButton walletType={accountSelection.walletType} />
               </Box>
               <Box ml={2}>
-                <Typography variant='h4' display='block'>
-                  {accountSelection.displayName}
+                <Typography variant='body1' display='block'>
+                  {accountSelection.name}
                 </Typography>
-                <Typography variant='caption' display='block'>
-                  {`${accountSelection.address.slice(0, 10)}...${accountSelection.address.slice(
-                    -10
+                <Typography variant='caption'>
+                  {`${getWalletTitle(accountSelection.walletType)}, ${getCryptoTitle(
+                    accountSelection.platformType
                   )}`}
                 </Typography>
               </Box>
@@ -531,6 +519,6 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 }
 
-const styles = (theme) => ({})
+const styles = theme => ({})
 
 export default withStyles(styles)(WalletAuthorizationComponent)
