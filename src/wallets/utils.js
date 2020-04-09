@@ -8,6 +8,8 @@ import url from '../url'
 import SimpleMultiSig from '../SimpleMultiSig'
 import { isERC20 } from '../tokens'
 import ERC20 from '../ERC20'
+import metamaskController from '../metamaskController'
+import Web3 from 'web3'
 
 import type { TxHash } from '../types/transfer.flow'
 import type { BasicTokenUnit, Address } from '../types/token.flow'
@@ -31,6 +33,31 @@ async function _web3SendTransactionPromise (web3Function: Function, txObj: Objec
 
 async function web3SendTransactions (web3Function: Function, txObj: Object) {
   return _web3SendTransactionPromise(web3Function, txObj)
+}
+
+async function web3SendTransactionsWithMetamaskController (accountData: Object,  txObj: Object) {
+  const account = metamaskController.web3.eth.accounts.wallet.add(accountData.privateKey)
+  metamaskController.web3.eth.defaultAccount = accountData.address
+  metamaskController.txController.signEthTx = async (txParams) => account.signTransaction(txParams)
+  metamaskController.txController.getWeb3Account = () => account
+
+  // txObj.[value, gas, gasPrice] must be hex
+  txObj.value = Web3.utils.toHex(txObj.value)
+
+  // due to unknown reason, setting gas to the exact estimated value
+  // causing out of gas error
+  // see https://rinkeby.etherscan.io/tx/0x6d1bad13b0809bdc5f7dbbecb3dc70ffd0f21221a516b2cdfb39a71c6538b5a2
+  // even if gas 133,134 is not needed for txs which executed successfully
+  // e.g. https://rinkeby.etherscan.io/tx/0x84352dca2dad5f799fa3f3fb4e5c71903967eb5b582304ace626a7c54965d4b5
+  // which only uses gas 118,146 (44.37%)
+  //
+  // as a temporary solution, 1.5x the gas estimation to
+  // avoid out-of-gas error
+  txObj.gas = Web3.utils.toHex(Math.floor(Number(txObj.gas)*1.5))
+
+  txObj.gasPrice = Web3.utils.toHex(txObj.gasPrice)
+
+  return metamaskController.txController.newUnapprovedTransactionAndApprove(txObj)
 }
 
 const getBufferFromHex = (hex: string) => {
@@ -244,6 +271,7 @@ export default {
   broadcastBtcRawTx,
   networkIdMap,
   web3SendTransactions,
+  web3SendTransactionsWithMetamaskController,
   getUtxoDetails,
   getSignTransactionObject,
   calculateChainIdFromV,

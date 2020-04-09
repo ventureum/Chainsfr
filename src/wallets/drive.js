@@ -283,7 +283,8 @@ export default class DriveWallet implements IWallet<AccountData> {
         gas: txFee.gas,
         gasPrice: txFee.price
       }
-      return { txHash: await WalletUtils.web3SendTransactions(_web3.eth.sendTransaction, txObj) }
+
+      return { txHash: await WalletUtils.web3SendTransactionsWithMetamaskController(accountData, txObj) }
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
@@ -338,7 +339,7 @@ export default class DriveWallet implements IWallet<AccountData> {
     // add private key
     _web3.eth.accounts.wallet.add(accountData.privateKey)
     // boardcast tx
-    return WalletUtils.web3SendTransactions(_web3.eth.sendTransaction, txObj)
+    return WalletUtils.web3SendTransactionsWithMetamaskController(accountData, txObj)
   }
 
   _xPrivSigner = (

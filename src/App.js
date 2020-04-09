@@ -36,6 +36,11 @@ import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
 import moment from 'moment'
+import metamaskController from './metamaskController'
+
+// currently, this does nothing
+// will be updated in the future
+metamaskController.init()
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
