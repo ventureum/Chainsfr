@@ -20,6 +20,7 @@ import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import { getAccountXPub } from './addressFinderUtils'
 import WalletErrors from './walletErrors'
+import { erc20TokensList } from '../erc20Tokens'
 
 const ledgerErrors = WalletErrors.ledger
 const baseEtherPath = "44'/60'/0'/0"
@@ -43,6 +44,9 @@ export default class LedgerWallet implements IWallet<AccountData> {
     if (accountData && accountData.cryptoType) {
       switch (accountData.cryptoType) {
         case 'dai':
+        case 'tether':
+        case 'usd-coin':
+        case 'true-usd':
         case 'ethereum':
           this.account = new EthereumAccount(accountData)
           break
@@ -215,7 +219,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['dai', 'bitcoin', 'ethereum'].includes(cryptoType)) {
+    if (['bitcoin', 'ethereum', ...erc20TokensList].includes(cryptoType)) {
       if (cryptoType !== 'bitcoin') {
         return this._newEthereumAccount(name, cryptoType, options)
       } else {
@@ -239,7 +243,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
         accountData.connected = false
         throw new Error(ledgerErrors.incorrectAccount)
       }
-    } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
+    } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
       let address = await this._getEthAddress(DEFAULT_ACCOUNT)
       if (address !== accountData.address) {
         accountData.connected = false
@@ -271,7 +275,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
     const { cryptoType } = accountData
     if (!txFee) throw new Error('Missing txFee')
-    if (['dai', 'ethereum'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       // init web3
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
@@ -279,7 +283,12 @@ export default class LedgerWallet implements IWallet<AccountData> {
       let txObj
       if (options.directTransfer) {
         // direct transfer to another address
-        txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
+        txObj = await WalletUtils.getDirectTransferTxObj(
+          accountData.address,
+          to,
+          value,
+          accountData.cryptoType
+        )
       } else {
         // transfer to escrow wallet
         let { multisig } = options

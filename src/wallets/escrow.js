@@ -16,6 +16,7 @@ import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import WalletErrors from './walletErrors'
+import { erc20TokensList } from '../erc20Tokens'
 
 const escrowErrors = WalletErrors.escrow
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
@@ -33,6 +34,9 @@ export default class EscrowWallet implements IWallet<AccountData> {
     if (accountData && accountData.cryptoType) {
       switch (accountData.cryptoType) {
         case 'dai':
+        case 'tether':
+        case 'usd-coin':
+        case 'true-usd':
         case 'ethereum':
           this.account = new EthereumAccount(accountData)
           break
@@ -156,7 +160,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['dai', 'bitcoin', 'ethereum'].includes(cryptoType)) {
+    if (['bitcoin', 'ethereum', ...erc20TokensList].includes(cryptoType)) {
       if (cryptoType !== 'bitcoin') {
         return this._newEthereumAccount(name, cryptoType, options)
       } else {
@@ -201,7 +205,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
           accountData.connected = false
           throw new Error(escrowErrors.keyPairDoesNotMatch)
         }
-      } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
+      } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
         let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         const web3Account = _web3.eth.accounts.privateKeyToAccount(accountData.privateKey)
         if (web3Account.address !== accountData.address) {
@@ -240,7 +244,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
 
     let clientSig
 
-    if (['dai', 'ethereum'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       if (!options.multiSig) throw new Error(escrowErrors.noMultiSig)
       if (!accountData.privateKey) throw new Error(escrowErrors.noPrivateKeyInAccount)
       clientSig = await options.multiSig.sendFromEscrow(accountData.privateKey, to)
@@ -276,7 +280,7 @@ export default class EscrowWallet implements IWallet<AccountData> {
         value,
         addressesPool: accountData.hdWalletVariables.addresses
       })
-    } else if (['ethereum', 'dai'].includes(accountData.cryptoType)) {
+    } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
       // send from escrow incurs no tx fees for eth
       return {
         price: '0',

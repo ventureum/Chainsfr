@@ -16,16 +16,25 @@ export const walletCryptoSupports = {
   drive: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
     { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' }
+    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   metamask: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   ledger: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
     { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' }
+    { cryptoType: 'bitcoin', disabled: false, platformType: 'bitcoin' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' }],
   metamaskWalletConnect: [
@@ -122,8 +131,12 @@ export function getWalletStatus (walletType: string) {
   }
 
   // compose from right to left
-  return compose(isAddable, isReceivable, isSendable, isBrowserCompatible)({ status, walletType })
-    .status
+  return compose(
+    isAddable,
+    isReceivable,
+    isSendable,
+    isBrowserCompatible
+  )({ status, walletType }).status
 }
 
 export const walletSelections = [

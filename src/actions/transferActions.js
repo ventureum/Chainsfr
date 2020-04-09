@@ -21,6 +21,7 @@ import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
 import env from '../typedEnv'
+import { erc20TokensList } from '../erc20Tokens'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -178,9 +179,9 @@ async function _submitTx (txRequest: {
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  if (['ethereum', 'bitcoin', 'dai', 'libra'].includes(cryptoType)) {
+  if (['ethereum', 'bitcoin', 'libra', ...erc20TokensList].includes(cryptoType)) {
     let multisig
-    if (['ethereum', 'dai'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       walletId = new SimpleMultiSig().createWalletId()
       multisig = new SimpleMultiSig({ walletId })
     }
@@ -245,12 +246,11 @@ async function _submitTx (txRequest: {
       transferId,
       senderAccountId: fromAccount.id,
       sendTxHash: txHash,
-      password: Base64.encode(password),
+      password: Base64.encode(password)
     })
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
-
 }
 
 async function _transactionHashRetrieved (txRequest: {|
@@ -329,7 +329,7 @@ async function _acceptTransfer (txRequest: {
 
   let multiSig
 
-  if (['ethereum', 'dai'].includes(cryptoType)) {
+  if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
     // ethereum based coins
     multiSig = new SimpleMultiSig({
       walletId,
@@ -421,7 +421,7 @@ async function _cancelTransfer (txRequest: {
 
   if (cryptoType === 'bitcoin') {
     senderAddress = await getFirstFromAddress(sendTxHash)
-  } else if (['ethereum', 'dai'].includes(cryptoType)) {
+  } else if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
     // ethereum based coins
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
@@ -498,7 +498,7 @@ function getTransferState (transferData: Object): string {
         break
       }
       // expired state
-      const EXPIRED_STATE = expired ? '_EXPIRED': ''
+      const EXPIRED_STATE = expired ? '_EXPIRED' : ''
       switch (receiveTxState) {
         // SEND_CONFIRMED_RECEIVE_PENDING
         case 'Pending':
@@ -528,7 +528,7 @@ function getTransferState (transferData: Object): string {
           break
         // SEND_CONFIRMED_CANCEL_CONFIRMED
         case 'Confirmed':
-          // SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED is equivalent to reclaimed 
+          // SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED is equivalent to reclaimed
           state = transferStates[`SEND_CONFIRMED${EXPIRED_STATE}_CANCEL_CONFIRMED`]
           break
         // SEND_CONFIRMED_CANCEL_FAILURE
@@ -670,13 +670,17 @@ async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
       // eth tx
       // 1. gather normal tx
       let response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${
+          account.address
+        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsNormal = response.data.result
 
       // 2. gather internal tx (sent from a contract)
       response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${
+          account.address
+        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsInternal = response.data.result
 
@@ -1091,12 +1095,10 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = (
-    await API.getBatchTransfers({
-      transferIds: transferIds,
-      receivingIds: receivingIds
-    })
-  )
+  let transferData = (await API.getBatchTransfers({
+    transferIds: transferIds,
+    receivingIds: receivingIds
+  }))
     .map(item => {
       // classify transferMethod
       return {
@@ -1325,7 +1327,7 @@ async function _getTxFeeForTransfer (transferData) {
           .toHumanReadableUnit(rv.fees.toString(), getCryptoDecimals('bitcoin'), 8)
           .toString()
       }
-    } else if (['ethereum', 'dai'].includes(cryptoType)) {
+    } else if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       const rv = await axios.post(url.INFURA_API_URL, {
         method: 'eth_getTransactionByHash',

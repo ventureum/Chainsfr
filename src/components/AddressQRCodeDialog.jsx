@@ -4,6 +4,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import ClickableAddress from './MicroComponents/ClickableAddress'
 import CloseIcon from '@material-ui/icons/Close'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -82,9 +83,14 @@ const Content = withStyles(contentStyle)(props => {
       </Paper>
       <Box display='flex' flexDirection='column' alignItems='center'>
         <Typography variant='body1'>Wallet Address</Typography>
-        <Typography variant='caption' style={{ marginTop: 10 }} data-test-id='address'>
+        <ClickableAddress
+          typographyProps={{
+            variant: 'caption',
+            'data-test-id': 'address'
+          }}
+        >
           {address}
-        </Typography>
+        </ClickableAddress>
       </Box>
     </DialogContent>
   )

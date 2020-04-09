@@ -1,8 +1,8 @@
 import env from './typedEnv'
 
-const INFURA_API_URL = `https://${
-  env.REACT_APP_ETHEREUM_NETWORK
-}.infura.io/v3/${env.REACT_APP_INFURA_API_KEY}`
+const INFURA_API_URL = `https://${env.REACT_APP_ETHEREUM_NETWORK}.infura.io/v3/${
+  env.REACT_APP_INFURA_API_KEY
+}`
 
 const LEDGER_API_URL =
   env.REACT_APP_BTC_NETWORK === 'mainnet'
@@ -15,10 +15,11 @@ const ETHEREUM_EXPLORER_BASE_URL =
     : `https://${env.REACT_APP_ETHEREUM_NETWORK}.etherscan.io/`
 
 const ETHERSCAN_API_URL =
-  env.REACT_APP_BTC_NETWORK === 'mainnet' ? 'https://api.etherscan.io' : 'https://api-rinkeby.etherscan.io'
+  env.REACT_APP_BTC_NETWORK === 'mainnet'
+    ? 'https://api.etherscan.io'
+    : 'https://api-rinkeby.etherscan.io'
 
-const ETHEREUM_EXPLORER_ADDRESS_BASE_URL =
-  ETHEREUM_EXPLORER_BASE_URL + 'address/'
+const ETHEREUM_EXPLORER_ADDRESS_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'address/'
 const ETHEREUM_EXPLORER_TOKEN_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'token/'
 const ETHEREUM_EXPLORER_TX_BASE_URL = ETHEREUM_EXPLORER_BASE_URL + 'tx/'
 
@@ -31,7 +32,6 @@ const BITCOIN_EXPLORER_BASE_URL =
 
 const BITCOIN_EXPLORER_ADDRESS_BASE_URL = BITCOIN_EXPLORER_BASE_URL + 'address/'
 const BITCOIN_EXPLORER_TX_BASE_URL = BITCOIN_EXPLORER_BASE_URL + 'tx/'
-
 
 const BTC_FEE_ENDPOINT = 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
 
@@ -70,6 +70,9 @@ function getExplorerTx (cryptoType, txHash) {
   switch (cryptoType) {
     case 'ethereum':
     case 'dai':
+    case 'tether':
+    case 'usd-coin':
+    case 'true-usd':
       return getEthExplorerTx(txHash)
     case 'bitcoin':
       return getBtcExplorerTx(txHash)
@@ -85,6 +88,9 @@ function getExplorerAddress (cryptoType, address) {
     case 'ethereum':
       return getEthExplorerAddress(address)
     case 'dai':
+    case 'tether':
+    case 'usd-coin':
+    case 'true-usd':
       return getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, address)
     case 'bitcoin':
       return getBtcExplorerAddress(address)
@@ -109,5 +115,5 @@ export default {
   getLibraExplorerAddress,
   getLibraExplorerTx,
   getExplorerTx,
-  getExplorerAddress,
+  getExplorerAddress
 }

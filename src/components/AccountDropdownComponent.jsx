@@ -33,7 +33,8 @@ type Props = {
   onChange: Function,
   addAccount: Function,
   toCurrencyAmount: Function,
-  inputLabel: string
+  inputLabel: string,
+  disableAccountSelect: boolean
 }
 
 type State = {
@@ -193,7 +194,8 @@ class AccountDropdownComponent extends Component<Props, State> {
       pending,
       error,
       inputLabel,
-      hideCryptoDropdown
+      hideCryptoDropdown,
+      disableAccountSelect
     } = this.props
 
     let skeletonCryptoAccounts = []
@@ -209,7 +211,11 @@ class AccountDropdownComponent extends Component<Props, State> {
 
     return (
       <Grid container direction='column'>
-        <FormControl variant='outlined' margin={hideCryptoDropdown ? 'none' : 'normal'}>
+        <FormControl
+          variant='outlined'
+          margin={hideCryptoDropdown ? 'none' : 'normal'}
+          disabled={disableAccountSelect}
+        >
           <InputLabel ref={this.groupedAccountSelectionLabelRef} id='groupedAccountSelectionLabel'>
             {inputLabel}
           </InputLabel>
