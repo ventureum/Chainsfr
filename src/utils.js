@@ -12,12 +12,12 @@ import type { AccountData } from './types/account.flow.js'
  * @param val string, assuming smallest token unit
  * @return float number of val/(10**decimals) with precision [precision]
  */
-function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 6) {
+function toHumanReadableUnit (val: any, decimals: number = 18, precision: number = 6): any {
   if (decimals === 0) return parseFloat(val)
   let base = new BN(10).pow(new BN(decimals - precision))
   let precisionBase = new BN(10).pow(new BN(precision))
   let rv = new BN(val).div(base)
-  return rv.toNumber() / precisionBase.toNumber()
+  return parseFloat(rv.toString()) / parseFloat(precisionBase)
 }
 
 /*

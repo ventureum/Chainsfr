@@ -9,6 +9,7 @@ import { enqueueSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
 import { createAccount } from '../accounts/AccountFactory.js'
+import { erc20TokensList } from '../erc20Tokens'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
@@ -27,7 +28,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
         let accountData
         let _wallet = createWallet({ walletType: 'drive' })
 
-        if (ethereumBasedAccountData && ['ethereum', 'dai'].includes(cryptoType)) {
+        if (ethereumBasedAccountData && ['ethereum', ...erc20TokensList].includes(cryptoType)) {
           // share the same privateKey for ethereum based coins
           await _wallet.newAccount('Wallet', cryptoType, {
             privateKey: ethereumBasedAccountData.privateKey
@@ -40,7 +41,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
           })
           account = _wallet.getAccount()
           accountData = account.getAccountData()
-          if (['ethereum', 'dai'].includes(cryptoType)) {
+          if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
             ethereumBasedAccountData = JSON.parse(JSON.stringify(accountData))
           }
         }

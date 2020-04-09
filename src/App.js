@@ -37,6 +37,7 @@ import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
 import moment from 'moment'
 import metamaskController from './metamaskController'
+import { erc20TokensList } from './erc20Tokens'
 
 // currently, this does nothing
 // will be updated in the future
@@ -224,9 +225,12 @@ class App extends Component {
     this.preload()
 
     // refresh price immediately
-    store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai']))
+    store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', ...erc20TokensList]))
     // refresh price every 60 seconds
-    setInterval(() => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', 'dai'])), 60000)
+    setInterval(
+      () => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', ...erc20TokensList])),
+      60000
+    )
   }
 
   render () {

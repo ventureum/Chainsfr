@@ -10,7 +10,7 @@ import ERC20 from '../ERC20'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import WalletErrors from './walletErrors'
-
+import { erc20TokensList } from '../erc20Tokens'
 const metamaskErrors = WalletErrors.metamask
 const DEFAULT_ACCOUNT = 0
 
@@ -23,6 +23,9 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     if (accountData && accountData.cryptoType) {
       switch (accountData.cryptoType) {
         case 'dai':
+        case 'tether':
+        case 'usd-coin':
+        case 'true-usd':
         case 'ethereum':
           this.account = new EthereumAccount(accountData)
           break
@@ -93,7 +96,7 @@ export default class MetamaskWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['dai', 'ethereum'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       return this._newEthereumAccount(name, cryptoType, options)
     } else {
       throw new Error('Invalid crypto type')
@@ -143,7 +146,12 @@ export default class MetamaskWallet implements IWallet<AccountData> {
     let txObj
     if (options.directTransfer) {
       // direct transfer to another address
-      txObj = await WalletUtils.getDirectTransferTxObj(accountData.address, to, value, accountData.cryptoType)
+      txObj = await WalletUtils.getDirectTransferTxObj(
+        accountData.address,
+        to,
+        value,
+        accountData.cryptoType
+      )
     } else {
       // transfer to escrow wallet
       let { multisig } = options

@@ -9,6 +9,7 @@ import _WalletConnect from '@walletconnect/browser'
 import WalletConnectQRCodeModal from '@walletconnect/qrcode-modal'
 import WalletUtils from './utils.js'
 import ERC20 from '../ERC20'
+import { erc20TokensList } from '../erc20Tokens'
 
 const DEFAULT_ACCOUNT = 0
 
@@ -28,6 +29,9 @@ export default class WalletConnect implements IWallet<AccountData> {
     if (accountData && accountData.cryptoType) {
       switch (accountData.cryptoType) {
         case 'dai':
+        case 'tether':
+        case 'usd-coin':
+        case 'true-usd':
         case 'ethereum':
           this.account = new EthereumAccount(accountData)
           break
@@ -86,7 +90,7 @@ export default class WalletConnect implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['dai', 'ethereum'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       return this._newEthereumAccount(name, cryptoType, options)
     } else {
       throw new Error('Invalid crypto type')

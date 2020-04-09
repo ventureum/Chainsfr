@@ -19,6 +19,7 @@ import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import WalletErrors from './walletErrors'
+import { erc20TokensList } from '../erc20Tokens'
 
 const driveErrors = WalletErrors.drive
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
@@ -35,6 +36,9 @@ export default class DriveWallet implements IWallet<AccountData> {
     if (accountData && accountData.cryptoType) {
       switch (accountData.cryptoType) {
         case 'dai':
+        case 'tether':
+        case 'usd-coin':
+        case 'true-usd':
         case 'ethereum':
           this.account = new EthereumAccount(accountData)
           break
@@ -160,7 +164,7 @@ export default class DriveWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['dai', 'bitcoin', 'ethereum'].includes(cryptoType)) {
+    if (['bitcoin', 'ethereum', ...erc20TokensList].includes(cryptoType)) {
       if (cryptoType !== 'bitcoin') {
         return this._newEthereumAccount(name, cryptoType, options)
       } else {
@@ -213,7 +217,7 @@ export default class DriveWallet implements IWallet<AccountData> {
           accountData.connected = false
           throw new Error(driveErrors.keyPairDoesNotMatch)
         }
-      } else if (['dai', 'ethereum'].includes(accountData.cryptoType)) {
+      } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
         let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         const web3Account = _web3.eth.accounts.privateKeyToAccount(accountData.privateKey)
         if (web3Account.address !== accountData.address) {
@@ -249,7 +253,7 @@ export default class DriveWallet implements IWallet<AccountData> {
 
     const { cryptoType } = accountData
     if (!txFee) throw new Error('Missing txFee')
-    if (['dai', 'ethereum'].includes(cryptoType)) {
+    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       // init web3
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
@@ -284,7 +288,9 @@ export default class DriveWallet implements IWallet<AccountData> {
         gasPrice: txFee.price
       }
 
-      return { txHash: await WalletUtils.web3SendTransactionsWithMetamaskController(accountData, txObj) }
+      return {
+        txHash: await WalletUtils.web3SendTransactionsWithMetamaskController(accountData, txObj)
+      }
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))

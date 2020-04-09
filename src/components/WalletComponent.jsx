@@ -94,7 +94,7 @@ function WalletComponent (props: {
           transferIn = true
           title = from.slice(0, 6) + '...' + to.slice(-4)
         }
-        transferAmount = utils.toHumanReadableUnit(value, getCryptoDecimals(cryptoType))
+        transferAmount = utils.toHumanReadableUnit(value, getCryptoDecimals(cryptoType)).toString()
         transferFiatAmount = utils.toCurrencyAmount(transferAmount, cryptoPrice[cryptoType])
         receiptIcon = <OpenInNewIcon color='primary' />
         receiptLink = url.getExplorerTx(cryptoType, txHash)
@@ -276,10 +276,9 @@ function WalletComponent (props: {
   const renderAccountDrawer = () => {
     if (drawerState.open) {
       var account = cloudWalletAccounts[drawerState.accountIdx]
-      var balanceStandardTokenUnit = utils.toHumanReadableUnit(
-        account.balance,
-        getCryptoDecimals(account.cryptoType)
-      )
+      var balanceStandardTokenUnit = utils
+        .toHumanReadableUnit(account.balance, getCryptoDecimals(account.cryptoType))
+        .toString()
     }
     return (
       <>
@@ -321,7 +320,7 @@ function WalletComponent (props: {
                           <Avatar
                             style={{ height: '32px', borderRadius: '2px' }}
                             src={getCryptoLogo(account.cryptoType)}
-                          ></Avatar>
+                          />
                         </Box>
                         <Typography variant='body2'>
                           {getCryptoTitle(account.cryptoType)}
@@ -403,10 +402,9 @@ function WalletComponent (props: {
 
     if (account) {
       var { cryptoType, balance } = account
-      var balanceStandardTokenUnit = utils.toHumanReadableUnit(
-        balance,
-        getCryptoDecimals(cryptoType)
-      )
+      var balanceStandardTokenUnit = utils
+        .toHumanReadableUnit(balance, getCryptoDecimals(cryptoType))
+        .toString()
     }
 
     return (
@@ -436,7 +434,7 @@ function WalletComponent (props: {
                     <Avatar
                       style={{ height: '32px', borderRadius: '2px' }}
                       src={getCryptoLogo(cryptoType)}
-                    ></Avatar>
+                    />
                   ) : (
                     <Skeleton
                       variant='circle'
