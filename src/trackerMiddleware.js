@@ -12,7 +12,7 @@ export const initTracker = () => {
   ReactGA.initialize(env.REACT_APP_GA_TRACKING_ID, { debug: env.REACT_APP_ENV === 'test' })
 }
 
-export const trackPage = (page) => {
+export const trackPage = page => {
   if (!GA_ENABLED) return
   ReactGA.set({
     page,
@@ -31,7 +31,7 @@ export const trackEvent = ({ category, action, label, value }) => {
   })
 }
 
-export const trackUser = (userId) => {
+export const trackUser = userId => {
   if (!GA_ENABLED) return
   ReactGA.set({ userId })
 }
@@ -76,7 +76,8 @@ export const trackerMiddleware = store => next => action => {
       initTracker()
       intercomBoot()
       if (currentUserId === null) {
-        const profile = action.payload && action.payload.userReducer && action.payload.userReducer.profile
+        const profile =
+          action.payload && action.payload.userReducer && action.payload.userReducer.profile
         if (profile && profile.googleId) {
           currentUserId = profile.googleId
           trackUser(currentUserId)
@@ -91,6 +92,7 @@ export const trackerMiddleware = store => next => action => {
         currentPage = nextPage
         trackPage(nextPage)
       }
+      window.Intercom('update', { last_request_at: parseInt(new Date().getTime() / 1000) })
       break
     case 'ON_GOOGLE_LOGIN_RETURN':
       currentUserId = action.payload.googleId
@@ -124,7 +126,7 @@ export const trackerMiddleware = store => next => action => {
   } else {
     // report all async errors
     return next(action).catch(error => {
-      const errorMsg = (typeof error === 'string') ? error : error.message
+      const errorMsg = typeof error === 'string' ? error : error.message
       trackException({ description: `[${action.type}] ${errorMsg}` })
       throw error
     })
