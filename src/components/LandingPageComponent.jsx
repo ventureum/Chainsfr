@@ -536,9 +536,8 @@ class LandingPageComponent extends Component {
               <Box display='flex' justifyContent='center' height='225px' width='100%'>
                 <iframe
                   width='100%'
-                  maxWidth='400px'
                   src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameborder='0'
+                  frameBorder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='landingFrame'
                   allowFullScreen
