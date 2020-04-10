@@ -22,7 +22,7 @@ const {
   TRANSACTION_TYPE_CANCEL,
   TRANSACTION_TYPE_RETRY,
   TRANSACTION_TYPE_STANDARD,
-  TRANSACTION_STATUS_APPROVED,
+  TRANSACTION_STATUS_APPROVED
 } = require('./enums')
 
 const { hexToBn, bnToHex, BnMultiplyByFraction } = require('./lib/util')
@@ -72,7 +72,7 @@ export default class TransactionController extends EventEmitter {
     this.txStateManager = new TransactionStateManager({
       initState: opts.initState,
       txHistoryLimit: opts.txHistoryLimit,
-      getNetwork: this.getNetwork.bind(this),
+      getNetwork: this.getNetwork.bind(this)
     })
     this._onBootCleanUp()
 
@@ -83,13 +83,13 @@ export default class TransactionController extends EventEmitter {
       getPendingTransactions: this.txStateManager.getPendingTransactions.bind(this.txStateManager),
       getConfirmedTransactions: this.txStateManager.getConfirmedTransactions.bind(
         this.txStateManager
-      ),
+      )
     })
 
     this.pendingTxTracker = new PendingTransactionTracker({
       provider: this.provider,
       nonceTracker: this.nonceTracker,
-      publishTransaction: (rawTx) => this.query.sendRawTransaction(rawTx),
+      publishTransaction: rawTx => this.query.sendRawTransaction(rawTx),
       getPendingTransactions: () => {
         const pending = this.txStateManager.getPendingTransactions()
         const approved = this.txStateManager.getApprovedTransactions()
@@ -98,7 +98,7 @@ export default class TransactionController extends EventEmitter {
       approveTransaction: this.approveTransaction.bind(this),
       getCompletedTransactions: this.txStateManager.getConfirmedTransactions.bind(
         this.txStateManager
-      ),
+      )
     })
 
     this.txStateManager.store.subscribe(() => this.emit('update:badge'))
@@ -152,7 +152,7 @@ export default class TransactionController extends EventEmitter {
     return new Promise((resolve, reject) => {
       // approve tx
       this.approveTransaction(initialTxMeta.id)
-      this.txStateManager.once(`${initialTxMeta.id}:finished`, (finishedTxMeta) => {
+      this.txStateManager.once(`${initialTxMeta.id}:finished`, finishedTxMeta => {
         switch (finishedTxMeta.status) {
           case 'submitted':
             return resolve(finishedTxMeta.hash)
@@ -186,7 +186,7 @@ export default class TransactionController extends EventEmitter {
     this.txStateManager.updateTx(initialTxMeta, '#newUnapprovedTransaction - adding the origin')
     // listen for tx completion (success, fail)
     return new Promise((resolve, reject) => {
-      this.txStateManager.once(`${initialTxMeta.id}:finished`, (finishedTxMeta) => {
+      this.txStateManager.once(`${initialTxMeta.id}:finished`, finishedTxMeta => {
         switch (finishedTxMeta.status) {
           case 'submitted':
             return resolve(finishedTxMeta.hash)
@@ -232,7 +232,7 @@ export default class TransactionController extends EventEmitter {
     */
     let txMeta = this.txStateManager.generateTxMeta({
       txParams: normalizedTxParams,
-      type: TRANSACTION_TYPE_STANDARD,
+      type: TRANSACTION_TYPE_STANDARD
     })
     const { transactionCategory, getCodeResponse } = await this._determineTransactionCategory(
       txParams
@@ -307,7 +307,7 @@ export default class TransactionController extends EventEmitter {
       txParams: originalTxMeta.txParams,
       lastGasPrice,
       loadingDefaults: false,
-      type: TRANSACTION_TYPE_RETRY,
+      type: TRANSACTION_TYPE_RETRY
     })
     this.addTx(txMeta)
     this.emit('newUnapprovedTx', txMeta)
@@ -336,12 +336,12 @@ export default class TransactionController extends EventEmitter {
         nonce,
         gas: '0x5208',
         value: '0x0',
-        gasPrice: newGasPrice,
+        gasPrice: newGasPrice
       },
       lastGasPrice,
       loadingDefaults: false,
       status: TRANSACTION_STATUS_APPROVED,
-      type: TRANSACTION_TYPE_CANCEL,
+      type: TRANSACTION_TYPE_CANCEL
     })
 
     this.addTx(newTxMeta)
@@ -370,12 +370,12 @@ export default class TransactionController extends EventEmitter {
     const newTxMeta = this.txStateManager.generateTxMeta({
       txParams: {
         ...txParams,
-        gasPrice: newGasPrice,
+        gasPrice: newGasPrice
       },
       lastGasPrice,
       loadingDefaults: false,
       status: TRANSACTION_STATUS_APPROVED,
-      type: TRANSACTION_TYPE_RETRY,
+      type: TRANSACTION_TYPE_RETRY
     })
 
     if (customGasLimit) {
@@ -484,7 +484,7 @@ export default class TransactionController extends EventEmitter {
       data: txMeta.txParams.data,
       value: txMeta.txParams.value,
       gasPrice: txMeta.txParams.gasPrice,
-      gas: txMeta.txParams.gas,
+      gas: txMeta.txParams.gas
     }
 
     const signedTx = await this.signEthTx(txObj)
@@ -519,8 +519,12 @@ export default class TransactionController extends EventEmitter {
       // original implementation use eth-query to broadcast
       // we continue using web3.eth.sendSignedTransaction to be compatible
       // with our wallet design
-      const receipt = await this.web3.eth.sendSignedTransaction(rawTx)
-      txHash = receipt.transactionHash
+      txHash = await new Promise((resolve, reject) => {
+        this.web3.eth
+          .sendSignedTransaction(rawTx)
+          .on('transactionHash', hash => resolve(hash))
+          .on('error', error => reject(error))
+      })
     } catch (error) {
       if (error.message.toLowerCase().includes('known transaction')) {
         txHash = ethUtil.sha3(ethUtil.addHexPrefix(rawTx)).toString('hex')
@@ -559,7 +563,7 @@ export default class TransactionController extends EventEmitter {
 
       txMeta.txReceipt = {
         ...txReceipt,
-        gasUsed,
+        gasUsed
       }
 
       this.txStateManager.updateTx(txMeta, 'transactions#confirmTransaction - add txReceipt')
@@ -609,9 +613,9 @@ export default class TransactionController extends EventEmitter {
       @returns a number that represents how many transactions have the status submitted
       @param account {String} - hex prefixed account
     */
-    this.getPendingTxCount = (account) => this.txStateManager.getPendingTransactions(account).length
+    this.getPendingTxCount = account => this.txStateManager.getPendingTransactions(account).length
     /** see txStateManager */
-    this.getFilteredTxList = (opts) => this.txStateManager.getFilteredTxList(opts)
+    this.getFilteredTxList = opts => this.txStateManager.getFilteredTxList(opts)
   }
 
   // called once on startup
@@ -632,15 +636,15 @@ export default class TransactionController extends EventEmitter {
     this.txStateManager
       .getFilteredTxList({
         status: 'unapproved',
-        loadingDefaults: true,
+        loadingDefaults: true
       })
-      .forEach((tx) => {
+      .forEach(tx => {
         this.addTxGasDefaults(tx)
-          .then((txMeta) => {
+          .then(txMeta => {
             txMeta.loadingDefaults = false
             this.txStateManager.updateTx(txMeta, 'transactions: gas estimation for tx on boot')
           })
-          .catch((error) => {
+          .catch(error => {
             tx.loadingDefaults = false
             this.txStateManager.updateTx(tx, 'failed to estimate gas during boot cleanup.')
             this.txStateManager.setTxStatusFailed(tx.id, error)
@@ -649,9 +653,9 @@ export default class TransactionController extends EventEmitter {
 
     this.txStateManager
       .getFilteredTxList({
-        status: TRANSACTION_STATUS_APPROVED,
+        status: TRANSACTION_STATUS_APPROVED
       })
-      .forEach((txMeta) => {
+      .forEach(txMeta => {
         const txSignError = new Error(
           'Transaction found as "approved" during boot - possibly stuck during signing'
         )
@@ -666,14 +670,14 @@ export default class TransactionController extends EventEmitter {
   _setupListeners () {
     this.txStateManager.on('tx:status-update', this.emit.bind(this, 'tx:status-update'))
     this._setupBlockTrackerListener()
-    this.pendingTxTracker.on('tx:warning', (txMeta) => {
+    this.pendingTxTracker.on('tx:warning', txMeta => {
       this.txStateManager.updateTx(txMeta, 'transactions/pending-tx-tracker#event: tx:warning')
     })
     this.pendingTxTracker.on(
       'tx:failed',
       this.txStateManager.setTxStatusFailed.bind(this.txStateManager)
     )
-    this.pendingTxTracker.on('tx:confirmed', (txId) => this.confirmTransaction(txId))
+    this.pendingTxTracker.on('tx:confirmed', txId => this.confirmTransaction(txId))
     this.pendingTxTracker.on(
       'tx:dropped',
       this.txStateManager.setTxStatusDropped.bind(this.txStateManager)
@@ -687,7 +691,7 @@ export default class TransactionController extends EventEmitter {
         )
       }
     })
-    this.pendingTxTracker.on('tx:retry', (txMeta) => {
+    this.pendingTxTracker.on('tx:retry', txMeta => {
       if (!('retryCount' in txMeta)) txMeta.retryCount = 0
       txMeta.retryCount++
       this.txStateManager.updateTx(txMeta, 'transactions/pending-tx-tracker#event: tx:retry')
@@ -704,8 +708,8 @@ export default class TransactionController extends EventEmitter {
     const tokenMethodName = [
       TOKEN_METHOD_APPROVE,
       TOKEN_METHOD_TRANSFER,
-      TOKEN_METHOD_TRANSFER_FROM,
-    ].find((tokenMethodName) => tokenMethodName === name && name.toLowerCase())
+      TOKEN_METHOD_TRANSFER_FROM
+    ].find(tokenMethodName => tokenMethodName === name && name.toLowerCase())
 
     let result
     if (txParams.data && tokenMethodName) {
@@ -744,7 +748,7 @@ export default class TransactionController extends EventEmitter {
     const sameNonceTxs = this.txStateManager.getFilteredTxList({ nonce, from })
     if (!sameNonceTxs.length) return
     // mark all same nonce transactions as dropped and give i a replacedBy hash
-    sameNonceTxs.forEach((otherTxMeta) => {
+    sameNonceTxs.forEach(otherTxMeta => {
       if (otherTxMeta.id === txId) return
       otherTxMeta.replacedBy = txMeta.hash
       this.txStateManager.updateTx(
@@ -797,7 +801,7 @@ export default class TransactionController extends EventEmitter {
     const unapprovedTxs = this.txStateManager.getUnapprovedTxList()
     const selectedAddressTxList = this.txStateManager.getFilteredTxList({
       from: this.getSelectedAddress(),
-      metamaskNetworkId: this.getNetwork(),
+      metamaskNetworkId: this.getNetwork()
     })
     this.memStore.updateState({ unapprovedTxs, selectedAddressTxList })
   }
