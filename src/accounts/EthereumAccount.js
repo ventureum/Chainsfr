@@ -41,7 +41,7 @@ export default class EthereumAccount implements IAccount<AccountData> {
       verified: accountData.verified || false,
       receivable: getWalletConfig(accountData.walletType).receivable,
       sendable: getWalletConfig(accountData.walletType).sendable,
-      status: accountStatus.initialized,
+      status: accountData.status || accountStatus.initialized,
 
       privateKey: accountData.privateKey,
       encryptedPrivateKey: accountData.encryptedPrivateKey
