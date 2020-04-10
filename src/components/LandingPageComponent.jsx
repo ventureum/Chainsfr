@@ -448,15 +448,6 @@ export function UserRecentTransactions (props) {
   return (
     <Container className={classes.container}>
       <Grid container direction='column' justify='center' alignItems='stretch'>
-        <Grid item>
-          <Grid container direction='row'>
-            <Grid item>
-              <Typography variant='h2' data-test-id='rt_title'>
-                Recent Transactions
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
         <Grid>
           <InfiniteScroll
             loader={
