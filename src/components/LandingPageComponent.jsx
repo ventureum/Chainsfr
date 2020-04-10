@@ -17,8 +17,6 @@ import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
 import path from '../Paths.js'
 import Divider from '@material-ui/core/Divider'
-import MuiLink from '@material-ui/core/Link'
-import url from '../url'
 import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import EmptyStateImage from '../images/empty_state_01.png'
@@ -270,7 +268,6 @@ export function UserRecentTransactions (props) {
       expirationTime = moment.unix(transfer.expiresAt).format('M/D/Y HH:mm')
     }
 
-    const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
     return (
       <ExpansionPanel
         key={i + 1}
@@ -408,20 +405,6 @@ export function UserRecentTransactions (props) {
               <Grid item>
                 <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
                   Expiration: {expirationTime}
-                </Typography>
-              </Grid>
-            )}
-            {toUserReadableState[transfer.transferType][transfer.state].action === 'TRACK_TX' && (
-              <Grid item>
-                <Typography variant='caption'>
-                  You can track the Transaction
-                  <MuiLink
-                    target='_blank'
-                    rel='noopener'
-                    href={url.getExplorerTx(transfer.cryptoType, txHash)}
-                  >
-                    {' here'}
-                  </MuiLink>
                 </Typography>
               </Grid>
             )}
