@@ -257,9 +257,9 @@ export function UserRecentTransactions (props) {
 
     // show timestamp of the first action by either sender or receiver
     if (transfer.transferType === 'SENDER') {
-      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
+      secondaryDesc = moment.unix(transfer.sendTimestamp).format('M/D/Y HH:mm')
     } else if (transfer.transferType === 'RECEIVER') {
-      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
+      secondaryDesc = moment.unix(transfer.receiveTimestamp).format('M/D/Y HH:mm')
     }
 
     const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
