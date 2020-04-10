@@ -570,8 +570,7 @@ class AccountsManagementComponent extends Component {
               >
                 <Typography variant='h2'>Manage Accounts</Typography>
                 <Typography className={classes.decText}>
-                  Chainsfr supports major platforms, including hardware wallets, mobile wallets,
-                  exchanges.
+                  Native supports for popular exchanges, mobile and hardware wallets
                 </Typography>
                 <Box display='flex' mt={2}>
                   <Button

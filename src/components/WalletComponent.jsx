@@ -550,8 +550,7 @@ function WalletComponent (props: {
               >
                 <Typography variant='h2'>My Wallet</Typography>
                 <Typography className={classes.decText}>
-                  Transfer your balance between your Chainsfr wallet and connected accounts. It's
-                  fast and easy.
+                  Transfer your balance between your Chainsfr wallet and connected accounts.
                 </Typography>
                 <Box display='flex' mt={2}>
                   <Button

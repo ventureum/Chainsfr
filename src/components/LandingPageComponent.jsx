@@ -563,7 +563,8 @@ class LandingPageComponent extends Component {
                   Email Transfer
                 </Typography>
                 <Typography className={classes.descText} data-test-id='emt_subtitle'>
-                  Description goes here...
+                  Send Crypto payments to any Email address.
+                  No more cryptic address.
                 </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>
