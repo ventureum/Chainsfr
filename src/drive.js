@@ -438,12 +438,6 @@ async function backupData (rootFolderId: FileId) {
         fileId: files[0].id,
         name: `${folderName}_Backup_${timestamp}`
       })
-      if (folderName === WALLET_FOLDER_NAME) {
-        await API.updateUserCloudWalletFolderMeta({
-          fileId: files[0].id,
-          lastModified: moment().unix()
-        })
-      }
     }
   }
 }
@@ -471,6 +465,17 @@ async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
     name: 'Readme.txt',
     content: ''
   })
+  
+  files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
+
+  if (files.length > 0) {
+    await API.updateUserCloudWalletFolderMeta({
+      fileId: files[0].id,
+      lastModified: moment().unix()
+    })
+  } else {
+    throw new Error('Cannot not find root folder in drive')
+  }
 }
 
 /*
