@@ -262,6 +262,14 @@ export function UserRecentTransactions (props) {
       secondaryDesc = moment.unix(transfer.receiveTimestamp).format('M/D/Y HH:mm')
     }
 
+    // format expiration timestamp (if available)
+    // note that default expiresAt = 0, in which case, it is treated
+    // as non-existence
+    let expirationTime
+    if (transfer.expiresAt) {
+      expirationTime = moment.unix(transfer.expiresAt).format('M/D/Y HH:mm')
+    }
+
     const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
     return (
       <ExpansionPanel
@@ -393,6 +401,13 @@ export function UserRecentTransactions (props) {
               <Grid item>
                 <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
                   Cancellation Reason: {transfer.cancelMessage}
+                </Typography>
+              </Grid>
+            )}
+            {expirationTime && (
+              <Grid item>
+                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
+                  Expiration: {expirationTime}
                 </Typography>
               </Grid>
             )}
