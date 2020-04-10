@@ -55,9 +55,9 @@ class ReceiptPage {
         const accountWalletPlatformTypeElement = await page.$(
           '[data-test-id="from_wallet_platform"]'
         )
-        const WalletPlatform = (
-          await getElementTextContent(accountWalletPlatformTypeElement)
-        ).split(', ')
+        const WalletPlatform = (await getElementTextContent(
+          accountWalletPlatformTypeElement
+        )).split(', ')
 
         await this.dispatchActions('showSenderAddress')
         const addressElement = await page.$('[data-test-id="from_address"]')
@@ -70,9 +70,9 @@ class ReceiptPage {
       case 'receiverAccount': {
         const senderAccountNameElement = await page.$('[data-test-id="to_account_name"]')
         const accountWalletPlatformTypeElement = await page.$('[data-test-id="to_wallet_platform"]')
-        const WalletPlatform = (
-          await getElementTextContent(accountWalletPlatformTypeElement)
-        ).split(', ')
+        const WalletPlatform = (await getElementTextContent(
+          accountWalletPlatformTypeElement
+        )).split(', ')
 
         await this.dispatchActions('showReceiverAddress')
         const addressElement = await page.$('[data-test-id="to_address"]')
@@ -109,18 +109,42 @@ class ReceiptPage {
         const sendOnElement = await page.$('[data-test-id="send_on"]')
         if (!sendOnElement) return null
         const sendOn = await getElementTextContent(sendOnElement)
-        return { sendOn }
+
+        const sendOnExplorerBtnElement = await page.$('[data-test-id="send_explorer_btn"]')
+        let sendOnExplorerLink
+        if (sendOnExplorerBtnElement) {
+          sendOnExplorerLink = await (await sendOnExplorerBtnElement.getProperty(
+            'href'
+          )).jsonValue()
+        }
+        return { sendOn, sendOnExplorerLink }
       }
       case 'receiveOn': {
         const receiveOnElement = await page.$('[data-test-id="receive_on"]')
         if (!receiveOnElement) return null
         const receiveOn = await getElementTextContent(receiveOnElement)
-        return { receiveOn }
+
+        const sendOnExplorerBtnElement = await page.$('[data-test-id="receive_explorer_btn"]')
+        let receiveOnExplorerLink
+        if (receiveOnExplorerBtnElement) {
+          receiveOnExplorerLink = await (await receiveOnExplorerBtnElement.getProperty(
+            'href'
+          )).jsonValue()
+        }
+        return { receiveOn, receiveOnExplorerLink }
       }
       case 'cancelOn': {
         const cancelOnElement = await page.$('[data-test-id="cancel_on"]')
         const cancelOn = await getElementTextContent(cancelOnElement)
-        return { cancelOn }
+
+        const cancelOnExplorerBtnElement = await page.$('[data-test-id="cancel_explorer_btn"]')
+        let cancelOnExplorerLink
+        if (cancelOnExplorerBtnElement) {
+          cancelOnExplorerLink = await (await cancelOnExplorerBtnElement.getProperty(
+            'href'
+          )).jsonValue()
+        }
+        return { cancelOn, cancelOnExplorerLink }
       }
       case 'sendMessage': {
         const messageElement = await page.$('[data-test-id="send_msg"]')
