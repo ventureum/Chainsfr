@@ -58,6 +58,7 @@ describe('Direct Transfer Auth Tests', () => {
 
   afterAll(async () => {
     // wait till all txs are either confirmed or failed
+    log.info('Wait till all pending txs are mined...')
     await pWaitFor(
       async () => {
         let _remainingPendingTxs = []
@@ -268,6 +269,132 @@ describe('Direct Transfer Auth Tests', () => {
         ),
         dtAuthPage.connect()
       ])
+    },
+    timeout
+  )
+
+  test(
+    'Send ETH from drive wallet to metamask wallet',
+    async () => {
+      await dtPage.dispatchFormActions('transferIn')
+
+      await dtPage.fillForm({
+        ...FORM_BASE,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'ethereum'
+      })
+
+      await gotoAuthPage()
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'DIRECT_TRANSFER_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        dtAuthPage.connect('metamask', 'ethereum')
+      ])
+
+      await appendTxHash()
+    },
+    timeout
+  )
+
+  test(
+    'Send DAI from metamask wallet to drive wallet',
+    async () => {
+      const CRYPTO_AMOUNT = '1'
+
+      await dtPage.dispatchFormActions('transferIn')
+
+      await dtPage.fillForm({
+        ...FORM_BASE,
+        cryptoAmount: CRYPTO_AMOUNT,
+        currencyAmount: null,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'dai'
+      })
+
+      await gotoAuthPage()
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'DIRECT_TRANSFER_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        dtAuthPage.connect('metamask', 'dai')
+      ])
+
+      await appendTxHash()
     },
     timeout
   )
