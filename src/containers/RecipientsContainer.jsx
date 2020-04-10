@@ -19,10 +19,6 @@ class RecipientsContainer extends Component {
     chosenRecipient: null
   }
 
-  componentDidMount () {
-    this.props.getRecipients()
-  }
-
   componentDidUpdate (prevProps) {
     if (
       prevProps.actionsPending.addRecipient &&
