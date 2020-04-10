@@ -22,7 +22,7 @@ import AppBar from './containers/AppBarContainer'
 import NavDrawer from './containers/NavDrawerContainer'
 import paths from './Paths'
 import { ThemeProvider } from '@material-ui/styles'
-import { store, history } from './configureStore'
+import { store, history, persistor } from './configureStore'
 import LandingPage from './containers/LandingPageContainer'
 import { SnackbarProvider } from 'notistack'
 import NotifierComponent from './components/NotifierComponent'
@@ -35,13 +35,9 @@ import { onLogout, refreshAccessToken } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
+import { PersistGate } from 'redux-persist/integration/react'
 import moment from 'moment'
-import metamaskController from './metamaskController'
 import { erc20TokensList } from './erc20Tokens'
-
-// currently, this does nothing
-// will be updated in the future
-metamaskController.init()
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -241,6 +237,7 @@ class App extends Component {
     return (
       <ThemeProvider theme={themeChainsfr}>
         <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
           <SnackbarProvider
             action={[
               <IconButton key='close' aria-label='Close' color='inherit'>
@@ -315,6 +312,7 @@ class App extends Component {
               </Switch>
             </ConnectedRouter>
           </SnackbarProvider>
+          </PersistGate>
         </Provider>
       </ThemeProvider>
     )

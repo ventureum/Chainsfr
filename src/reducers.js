@@ -9,7 +9,7 @@ import loadingReducer from './reducers/loadingReducer.js'
 import errorReducer from './reducers/errorReducer.js'
 import notificationReducer from './reducers/notificationReducer.js'
 import cryptoPriceReducer from './reducers/cryptoPriceReducer.js'
-
+import txControllerReducer from './reducers/txControllerReducer.js'
 export default history =>
   combineReducers({
     router: connectRouter(history),
@@ -21,5 +21,6 @@ export default history =>
     loadingReducer,
     errorReducer,
     notificationReducer,
-    cryptoPriceReducer
+    cryptoPriceReducer,
+    txControllerReducer
   })

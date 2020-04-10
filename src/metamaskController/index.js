@@ -35,29 +35,24 @@ class MetamaskController extends EventEmitter {
 
     // tx mgmt
     this.txController = new TransactionController({
-      initState: {},
+      initState: opts.transactionInitState,
       web3: this.web3,
       txHistoryLimit: 40,
       signTransaction: this.web3.eth.signTransaction,
       provider: this.provider,
       blockTracker: this.blockTracker,
-      getGasPrice: this.getGasPrice.bind(this),
+      getGasPrice: this.getGasPrice.bind(this)
     })
-    this.txController.on('newUnapprovedTx', (txMeta) => this.emit(txMeta))
+    this.txController.on('newUnapprovedTx', txMeta => this.emit(txMeta))
 
     this.store.updateStructure({
-      TransactionController: this.txController.store,
+      TransactionController: this.txController.store
     })
 
     this.memStore = new ComposableObservableStore(null, {
-      TxController: this.txController.memStore,
+      TxController: this.txController.memStore
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
-  }
-
-  init (opts) {
-    // TODO: Init controllers after redux has been rehydrated
-    // pass
   }
 
   /**
@@ -67,7 +62,7 @@ class MetamaskController extends EventEmitter {
    */
   getState () {
     return {
-      ...this.memStore.getFlatState(),
+      ...this.memStore.getFlatState()
     }
   }
 
@@ -96,18 +91,18 @@ class MetamaskController extends EventEmitter {
     }
 
     const lowestPrices = recentBlocks
-      .map((block) => {
+      .map(block => {
         if (!block.gasPrices || block.gasPrices.length < 1) {
           return GWEI_BN
         }
         return block.gasPrices
-          .map((hexPrefix) => hexPrefix.substr(2))
-          .map((hex) => new BN(hex, 16))
+          .map(hexPrefix => hexPrefix.substr(2))
+          .map(hex => new BN(hex, 16))
           .sort((a, b) => {
             return a.gt(b) ? 1 : -1
           })[0]
       })
-      .map((number) => number.div(GWEI_BN).toNumber())
+      .map(number => number.div(GWEI_BN).toNumber())
 
     const percentileNum = percentile(65, lowestPrices)
     const percentileNumBn = new BN(percentileNum)
@@ -143,5 +138,10 @@ class MetamaskController extends EventEmitter {
   }
 }
 
-const metamaskController = new MetamaskController()
-export default metamaskController
+var metamaskController
+
+function initMetamaskController (transactionInitState) {
+  metamaskController = new MetamaskController({ transactionInitState })
+}
+
+export { initMetamaskController, metamaskController }

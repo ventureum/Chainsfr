@@ -8,7 +8,7 @@ import url from '../url'
 import SimpleMultiSig from '../SimpleMultiSig'
 import { isERC20 } from '../tokens'
 import ERC20 from '../ERC20'
-import metamaskController from '../metamaskController'
+import { metamaskController } from '../metamaskController'
 import Web3 from 'web3'
 
 import type { TxHash } from '../types/transfer.flow'

@@ -1,3 +1,5 @@
+import { store } from '../../../configureStore'
+import { txControllerUpdateTransactions } from '../../../actions/txControllerActions'
 const extend = require('xtend')
 const EventEmitter = require('safe-event-emitter')
 const ObservableStore = require('obs-store')
@@ -39,8 +41,14 @@ export default class TransactionStateManager extends EventEmitter {
         initState
       )
     )
+
     this.txHistoryLimit = txHistoryLimit
     this.getNetwork = getNetwork
+
+    // bridge store to redux
+    this.store.subscribe((value) => {
+      store.dispatch(txControllerUpdateTransactions(value))
+    })
   }
 
   /**
