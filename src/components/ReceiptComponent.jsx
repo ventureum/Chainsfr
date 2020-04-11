@@ -13,7 +13,7 @@ import IconButton from '@material-ui/core/IconButton'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 import Button from '@material-ui/core/Button'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { getCryptoSymbol, getCryptoPlatformType } from '../tokens'
+import { getCryptoSymbol, getCryptoPlatformType, getTxFeesCryptoType } from '../tokens'
 import Paths from '../Paths.js'
 import { Link } from 'react-router-dom'
 import Divider from '@material-ui/core/Divider'
@@ -428,7 +428,8 @@ class ReceiptComponent extends Component<Props, State> {
                       <Grid item>
                         <Grid container direction='row' alignItems='center'>
                           <Typography variant='body2' data-test-id='tx_fee'>
-                            {txFee.costInStandardUnit} {getCryptoSymbol(cryptoType)}
+                            {txFee.costInStandardUnit}{' '}
+                            {getCryptoSymbol(getTxFeesCryptoType(cryptoType))}
                           </Typography>
                           <Typography
                             style={{ marginLeft: '10px' }}
