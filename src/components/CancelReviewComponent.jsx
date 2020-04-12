@@ -101,6 +101,7 @@ class CancelReviewComponent extends Component {
                     disabled={actionsPending.cancelTransfer || actionsPending.getTxFee}
                     onClick={this.handleReviewNext}
                     id='confirmCancel'
+                    data-test-id='modal_cancel_btn'
                   >
                     Cancel Transfer
                   </Button>
@@ -161,7 +162,11 @@ class CancelReviewComponent extends Component {
       return (
         <Grid container direction='column' justify='center' alignItems='center'>
           <Grid item>
-            <CircularProgress color='primary' className={classes.transferProgress} />
+            <CircularProgress
+              color='primary'
+              className={classes.transferProgress}
+              data-test-id='cancel_review_loading'
+            />
           </Grid>
         </Grid>
       )
@@ -216,10 +221,14 @@ class CancelReviewComponent extends Component {
                 </Grid>
                 <Grid item>
                   <Grid container direction='row' alignItems='center'>
-                    <Typography variant='body2' id='transferAmount'>
+                    <Typography variant='body2' id='transferAmount' data-test-id='transfer_amount'>
                       {transferAmount} {getCryptoSymbol(cryptoType)}
                     </Typography>
-                    <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                    <Typography
+                      style={{ marginLeft: '10px' }}
+                      variant='caption'
+                      data-test-id='currency_amount'
+                    >
                       ( ≈ {toCurrencyAmount(transferAmount)} )
                     </Typography>
                   </Grid>
@@ -237,12 +246,16 @@ class CancelReviewComponent extends Component {
                 <Grid item>
                   {!actionsPending.getTxFee && txFee ? (
                     <Grid container direction='row' alignItems='center'>
-                      <Typography variant='body2'>
+                      <Typography variant='body2' data-test-id='tx_fee'>
                         {`${numeral(txFee.costInStandardUnit).format('0.000000')} ${getCryptoSymbol(
                           getTxFeesCryptoType(cryptoType)
                         )}`}
                       </Typography>
-                      <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                      <Typography
+                        style={{ marginLeft: '10px' }}
+                        variant='caption'
+                        data-test-id='currency_tx_fee'
+                      >
                         ( ≈ {toCurrencyAmount(txFee.costInStandardUnit)})
                       </Typography>
                     </Grid>
@@ -291,7 +304,9 @@ class CancelReviewComponent extends Component {
                   <Grid container direction='column' alignItems='flex-start'>
                     <Grid item>
                       <Typography variant='caption'>Message</Typography>
-                      <Typography variant='body2'>{sendMessage}</Typography>
+                      <Typography variant='body2' data-test-id='send_msg'>
+                        {sendMessage}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -334,6 +349,7 @@ class CancelReviewComponent extends Component {
                   size='large'
                   onClick={this.handleModalOpen}
                   id='cancel'
+                  data-test-id='review_cancel_btn'
                 >
                   Cancel Transfer
                 </Button>
