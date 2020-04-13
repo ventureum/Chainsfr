@@ -78,6 +78,13 @@ var data = {
   }
 }
 
+var storage = window.localStorage
+
+if (!storage.getItem('data')) {
+  // prevent refresh from clearing data
+  storage.setItem('data', JSON.stringify(data))
+}
+
 // gapi.load does not support promise
 // convert it into a promise
 function gapiLoad (): Promise<any> {
@@ -106,8 +113,10 @@ function gapiLoad (): Promise<any> {
  * see the object definition at the top
  */
 async function saveTempSendFile (transferData: TempTransferData) {
+  let data = JSON.parse(storage.getItem('data'))
   // save a new temp send file
   data[TEMP_SEND_FOLDER_NAME][TEMP_SEND_FILE_NAME] = transferData
+  storage.setItem('data', JSON.stringify(data))
 }
 
 /*
@@ -117,6 +126,7 @@ async function saveTempSendFile (transferData: TempTransferData) {
  * see the object definition at the top
  */
 async function saveHistoryFile (transferData: TransferData) {
+  let data = JSON.parse(storage.getItem('data'))
   let transfers = data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME]
   let id = transferData.transferId ? transferData.transferId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
@@ -133,11 +143,14 @@ async function saveHistoryFile (transferData: TransferData) {
 
   // update the send file with new content
   data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME] = transfers
+  storage.setItem('data', JSON.stringify(data))
 }
 
 async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
+  let data = JSON.parse(storage.getItem('data'))
   // update the wallet
   data[WALLET_FOLDER_NAME][WALLET_FILE_NAME] = walletDataList
+  storage.setItem('data', JSON.stringify(data))
 }
 
 /*
@@ -148,6 +161,7 @@ async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
  * see the object definition at the top
  */
 async function getTransferData (id: string): Promise<TransferData> {
+  let data = JSON.parse(storage.getItem('data'))
   let transfers: ?{ [string]: TransferData } = data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME]
   if (transfers) {
     return transfers[id]
@@ -157,15 +171,19 @@ async function getTransferData (id: string): Promise<TransferData> {
 }
 
 async function getAllTransfers (): Promise<{ [string]: TransferData }> {
+  let data = JSON.parse(storage.getItem('data'))
   return data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME]
 }
 
 async function getWallet (): Promise<any> {
+  let data = JSON.parse(storage.getItem('data'))
   return data[WALLET_FOLDER_NAME][WALLET_FILE_NAME]
 }
 
 async function deleteWallet (): Promise<any> {
+  let data = JSON.parse(storage.getItem('data'))
   delete data[WALLET_FOLDER_NAME][WALLET_FILE_NAME]
+  storage.removeItem('data')
 }
 
 export {
