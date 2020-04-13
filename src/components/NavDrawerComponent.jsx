@@ -182,7 +182,7 @@ const NavDrawerComponent = (props: Props) => {
 
           <Box mx={1} mb={2}>
             <Button
-              fullWidth='true'
+              fullWidth
               className='profile-button'
               onClick={() => {
                 handleDrawerToggle()

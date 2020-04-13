@@ -31,7 +31,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
 import { getCryptoPrice } from './actions/cryptoPriceActions'
-import { onLogout, refreshAccessToken } from './actions/userActions'
+import { onLogout, refreshAccessToken, postLoginPreparation } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden } from '@material-ui/core'
@@ -200,6 +200,7 @@ class App extends Component {
         // if access token expires, logout
         await store.dispatch(onLogout())
       } else {
+        store.dispatch(postLoginPreparation(profile))
         // if access token is still valid
         // refresh access token to make sure it is valid in the next one hour
         await store.dispatch(refreshAccessToken())

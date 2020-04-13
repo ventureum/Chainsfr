@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'jest-puppeteer',
   testRegex: './*\\.test\\.e2e\\.js$',
-  setupTestFrameworkScriptFile: 'expect-puppeteer',
+  setupTestFrameworkScriptFile: './jest-environment-puppeteer/custom.setup.js',
   globalSetup: './jest-environment-puppeteer/setup.js',
   globalTeardown: './jest-environment-puppeteer/teardown.js',
   testEnvironment: './jest-environment-puppeteer/PuppeteerEnvironment.js',

@@ -47,6 +47,33 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'metamask'
   },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'usd-coin',
+    name: 'Metamask USDC',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamask'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'tether',
+    name: 'Metamask Tether',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamask'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'true-usd',
+    name: 'Metamask TUSD',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamask'
+  },
   // ledger
   {
     addedAt: 1583802157,
@@ -67,6 +94,33 @@ const CRYPTO_ACCOUNTS = [
     walletType: 'ledger'
   },
   {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'usd-coin',
+    name: 'Ledger USDC',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'ledger'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'tether',
+    name: 'Ledger Tether',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'ledger'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'true-usd',
+    name: 'Ledger TUSD',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'ledger'
+  },
+  {
     addedAt: 1582577659,
     cryptoType: 'bitcoin',
     name: 'Ledger BTC',
@@ -74,7 +128,7 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'ledger',
     xpub:
-      "tpubDDJyEqmpGqgcXoVcs94neUx2dQ3tEacznobgN69ZPpnmMXMjHqtzqjbLJmtRfXYyucjJ9LE4jJ9MZYkVZuXzJePKMU9sqLe2zBc1sZ5nTG8"
+      'tpubDDJyEqmpGqgcXoVcs94neUx2dQ3tEacznobgN69ZPpnmMXMjHqtzqjbLJmtRfXYyucjJ9LE4jJ9MZYkVZuXzJePKMU9sqLe2zBc1sZ5nTG8'
   },
   // coinbaseWalletLink
   {
@@ -91,6 +145,33 @@ const CRYPTO_ACCOUNTS = [
     address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
     cryptoType: 'dai',
     name: 'CoinbaseWalletLink DAI',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'coinbaseWalletLink'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'usd-coin',
+    name: 'CoinbaseWalletLink USDC',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'coinbaseWalletLink'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'tether',
+    name: 'CoinbaseWalletLink Tether',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'coinbaseWalletLink'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'true-usd',
+    name: 'CoinbaseWalletLink TUSD',
     updatedAt: 1583802157,
     verified: true,
     walletType: 'coinbaseWalletLink'
@@ -114,6 +195,33 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'metamaskWalletConnect'
   },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'usd-coin',
+    name: 'MetamaskWalletConnect USDC',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamaskWalletConnect'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'tether',
+    name: 'MetamaskWalletConnect Tether',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamaskWalletConnect'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'true-usd',
+    name: 'MetamaskWalletConnect TUSD',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'metamaskWalletConnect'
+  },
   // trustWalletConnect
   {
     addedAt: 1583802157,
@@ -129,6 +237,33 @@ const CRYPTO_ACCOUNTS = [
     address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
     cryptoType: 'dai',
     name: 'TrustWalletConnect DAI',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'trustWalletConnect'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'usd-coin',
+    name: 'TrustWalletConnect USDC',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'trustWalletConnect'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'tether',
+    name: 'TrustWalletConnect Tether',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'trustWalletConnect'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    cryptoType: 'true-usd',
+    name: 'TrustWalletConnect TUSD',
     updatedAt: 1583802157,
     verified: true,
     walletType: 'trustWalletConnect'

@@ -88,7 +88,7 @@
     "ua-parser-js": "^0.7.21",
     "uuid": "^3.3.2",
     "validator": "^10.11.0",
-    "walletlink": "^1.0.0",
+    "walletlink": "^2.0.2",
     "web3": "^1.2.2",
     "wif": "^2.0.6"
   },

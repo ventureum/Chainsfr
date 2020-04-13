@@ -17,8 +17,6 @@ import moment from 'moment'
 import { getCryptoSymbol } from '../tokens'
 import path from '../Paths.js'
 import Divider from '@material-ui/core/Divider'
-import MuiLink from '@material-ui/core/Link'
-import url from '../url'
 import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import EmptyStateImage from '../images/empty_state_01.png'
@@ -257,12 +255,19 @@ export function UserRecentTransactions (props) {
 
     // show timestamp of the first action by either sender or receiver
     if (transfer.transferType === 'SENDER') {
-      secondaryDesc = 'on ' + moment.unix(transfer.sendTimestamp).format('MMM Do YYYY, HH:mm')
+      secondaryDesc = moment.unix(transfer.sendTimestamp).format('M/D/Y HH:mm')
     } else if (transfer.transferType === 'RECEIVER') {
-      secondaryDesc = 'on ' + moment.unix(transfer.receiveTimestamp).format('MMM Do YYYY, HH:mm')
+      secondaryDesc = moment.unix(transfer.receiveTimestamp).format('M/D/Y HH:mm')
     }
 
-    const txHash = transfer.cancelTxHash ? transfer.cancelTxHash : transfer.sendTxHash
+    // format expiration timestamp (if available)
+    // note that default expiresAt = 0, in which case, it is treated
+    // as non-existence
+    let expirationTime
+    if (transfer.expiresAt) {
+      expirationTime = moment.unix(transfer.expiresAt).format('M/D/Y HH:mm')
+    }
+
     return (
       <ExpansionPanel
         key={i + 1}
@@ -396,17 +401,10 @@ export function UserRecentTransactions (props) {
                 </Typography>
               </Grid>
             )}
-            {toUserReadableState[transfer.transferType][transfer.state].action === 'TRACK_TX' && (
+            {expirationTime && (
               <Grid item>
-                <Typography variant='caption'>
-                  You can track the Transaction
-                  <MuiLink
-                    target='_blank'
-                    rel='noopener'
-                    href={url.getExplorerTx(transfer.cryptoType, txHash)}
-                  >
-                    {' here'}
-                  </MuiLink>
+                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
+                  Expiration: {expirationTime}
                 </Typography>
               </Grid>
             )}
@@ -448,15 +446,6 @@ export function UserRecentTransactions (props) {
   return (
     <Container className={classes.container}>
       <Grid container direction='column' justify='center' alignItems='stretch'>
-        <Grid item>
-          <Grid container direction='row'>
-            <Grid item>
-              <Typography variant='h2' data-test-id='rt_title'>
-                Recent Transactions
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
         <Grid>
           <InfiniteScroll
             loader={
@@ -536,9 +525,8 @@ class LandingPageComponent extends Component {
               <Box display='flex' justifyContent='center' height='225px' width='100%'>
                 <iframe
                   width='100%'
-                  maxWidth='400px'
                   src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameborder='0'
+                  frameBorder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='landingFrame'
                   allowFullScreen
@@ -558,7 +546,8 @@ class LandingPageComponent extends Component {
                   Email Transfer
                 </Typography>
                 <Typography className={classes.descText} data-test-id='emt_subtitle'>
-                  Description goes here...
+                  Send Crypto payments to any Email address.
+                  No more cryptic address.
                 </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>

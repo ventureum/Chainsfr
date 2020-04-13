@@ -15,7 +15,7 @@ import GoogleIcon from '../images/google-icon.svg'
 import GoogleDrive from '../images/googleDrive.svg'
 // import IconButton from '@material-ui/core/IconButton'
 import LaunchRoundedIcon from '@material-ui/icons/LaunchRounded'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
 import moment from 'moment'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
@@ -246,6 +246,13 @@ const Security = props => {
   // })
 
   const classes = securityStyle()
+
+  const TextButton = withStyles({
+    root: {
+      padding: 0
+    }
+  })(Button)
+
   return (
     <>
       <Box maxWidth={640} display='flex' flexDirection='column'>
@@ -275,11 +282,17 @@ const Security = props => {
         </Box>
         <Box mb={2}>
           <Typography variant='body1' color='textSecondary'>
-            2FA description goes here...
+            Chainsfr is deeply integrated with Google service. Your google account is crucial for
+            the security of your assets in chainsfr Wallet and payments. With Google Two-Factor
+            Authentication, you’ll protect your Google account with both your password and your
+            phone.
           </Typography>
-          <Typography variant='body1' color='textSecondary'>
-            To learn more, please check the related topics our help center.
-          </Typography>
+          <Box mt={1}>
+            <Typography variant='body1' color='textSecondary'>
+              To learn more, please check the related topics at our{' '}
+              <TextButton color='primary'>help center.</TextButton>
+            </Typography>
+          </Box>
         </Box>
         <Box>
           <Button

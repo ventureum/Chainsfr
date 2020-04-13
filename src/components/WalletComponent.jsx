@@ -532,9 +532,8 @@ function WalletComponent (props: {
               <Box display='flex' justifyContent='center' height='225px' width='100%'>
                 <iframe
                   width='100%'
-                  maxWidth='400px'
                   src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameborder='0'
+                  frameBorder='0'
                   allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
                   title='walletFrame'
                   allowFullScreen
@@ -551,8 +550,7 @@ function WalletComponent (props: {
               >
                 <Typography variant='h2'>My Wallet</Typography>
                 <Typography className={classes.decText}>
-                  Transfer your balance between your Chainsfr wallet and connected accounts. It's
-                  fast and easy.
+                  Transfer your balance between your Chainsfr wallet and connected accounts.
                 </Typography>
                 <Box display='flex' mt={2}>
                   <Button

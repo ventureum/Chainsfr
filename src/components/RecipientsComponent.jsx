@@ -163,7 +163,6 @@ class RecipientsComponent extends Component {
             height='100%'
           >
             <Typography variant='h2'>Manage Contacts</Typography>
-            <Typography className={classes.decText}>Add contacts to use email transfer.</Typography>
             <Box display='flex' mt={2}>
               <Button
                 variant='contained'

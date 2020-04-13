@@ -264,6 +264,7 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           await dispatch(createCloudWallet(masterKey))
         }
         await dispatch(getCryptoAccounts())
+        await dispatch(getRecipients())
         resolve()
       })
     })

@@ -5,6 +5,8 @@ import { createLoadingSelector, createErrorSelector } from '../selectors'
 import AccountDropdownComponent from '../components/AccountDropdownComponent'
 import AddAccountModal from './AddAccountModalContainer'
 import utils from '../utils'
+import { syncWithNetwork } from '../actions/accountActions'
+import { accountStatus } from '../types/account.flow'
 
 import type { AccountData } from '../types/account.flow'
 
@@ -26,7 +28,8 @@ type Props = {
   actionsPending: Object,
   error: Object,
   online: boolean,
-  disableAccountSelect: boolean
+  disableAccountSelect: boolean,
+  syncWithNetwork: Function
 }
 
 type State = {
@@ -72,7 +75,7 @@ class AccountDropdownContainer extends Component<Props, State> {
   }
 
   componentDidUpdate (prevProps) {
-    const { cryptoAccounts, actionsPending, error } = this.props
+    const { cryptoAccounts, actionsPending, accountSelection, syncWithNetwork, error } = this.props
 
     if (prevProps.actionsPending.addCryptoAccounts && !actionsPending.addCryptoAccounts && !error) {
       // just added an account
@@ -87,6 +90,13 @@ class AccountDropdownContainer extends Component<Props, State> {
       // case 2. accounts already fetched on other page
       // use !!cryptoAccounts to determine fetch status
       this.setState({ accountsFetchStarted: true })
+    }
+
+    if (
+      accountSelection &&
+      [accountStatus.dirty, accountStatus.initialized].includes(accountSelection.status)
+    ) {
+      syncWithNetwork(accountSelection)
     }
   }
 
@@ -209,4 +219,13 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps)(AccountDropdownContainer)
+const mapDispatchToProps = dispatch => {
+  return {
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AccountDropdownContainer)
