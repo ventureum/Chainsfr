@@ -23,12 +23,7 @@ describe('Direct transfer form tests', () => {
   })
 
   beforeEach(async () => {
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
-    ])
+    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
   })
 
   it(

@@ -5,16 +5,12 @@ export default class DirectTransferFormPage {
     if (action === 'continue') {
       await Promise.all([
         page.click('[data-test-id="continue"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
+        page.waitForNavigation()
       ])
     } else if (action === 'back') {
       await Promise.all([
         page.click('[data-test-id="back"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
+        page.waitForNavigation()
       ])
     } else if (action === 'transferIn') {
       await page.click('[data-test-id="transfer_in"]')
