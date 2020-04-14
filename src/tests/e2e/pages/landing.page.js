@@ -1,4 +1,4 @@
-import { sleep, runUntilEvaluateEquals, getNewPopupPage } from '../testUtils'
+import { sleep, runUntilEvaluateEquals, getNewPopupPage, getElementTextContent } from '../testUtils'
 
 class LandingPage {
   async startEmailTransfer () {
@@ -105,6 +105,25 @@ class LandingPage {
     const element = await page.$('[data-test-id="video_embed"]')
     const src = await (await element.getProperty('src')).jsonValue()
     expect(src).toEqual('https://www.youtube.com/embed/TeHbsQ0-wmM')
+  }
+
+  async expandTxHistoryItem (index) {
+    await page.$eval(`[data-test-id="tx_history_${index}"]`, elem => elem.click())
+    await page.waitFor(500) // animation
+  }
+
+  async cancelTx (txIndex) {
+    await page.click(`[data-test-id="cancel_btn_${txIndex}"]`)
+  }
+
+  async waitUntilTransferHistoryLoaded () {
+    while (true) {
+      const loading = await page.waitForSelector('[data-test-id="tx_history_loading"]', {
+        hidden: true
+      })
+      if (loading === null) break
+      await page.waitFor(200)
+    }
   }
 }
 

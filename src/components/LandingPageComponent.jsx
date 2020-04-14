@@ -277,7 +277,7 @@ export function UserRecentTransactions (props) {
           expanded: classes.expansionPanelExpanded
         }}
       >
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} data-test-id={`tx_history_${i}`}>
           <Grid container direction='row' alignItems='center'>
             <Grid xs={7} md={7} item>
               <Grid container alignItems='center' spacing={1}>
@@ -417,6 +417,7 @@ export function UserRecentTransactions (props) {
                   rel='noopener'
                   to={`cancel?id=${transfer.transferId}`}
                   className={classes.recentTransferItemCancelBtn}
+                  data-test-id={`cancel_btn_${i}`}
                 >
                   Cancel Transfer
                 </Button>
@@ -451,7 +452,11 @@ export function UserRecentTransactions (props) {
             loader={
               actionsPending.getTransferHistory && (
                 <Grid container direction='row' justify='center' key={0} alignItems='center'>
-                  <CircularProgress color='primary' style={{ marginTop: '30px' }} />
+                  <CircularProgress
+                    color='primary'
+                    style={{ marginTop: '30px' }}
+                    data-test-id='tx_history_loading'
+                  />
                 </Grid>
               )
             }

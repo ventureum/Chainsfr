@@ -225,6 +225,9 @@ const InputSection = withStyles(inputSectionStyle)(props => {
             onChange={event => {
               onChange(event.target.value)
             }}
+            InputProps={{
+              'data-test-id': 'security_answer'
+            }}
             value={password || ''}
             onKeyPress={ev => {
               if (ev.key === 'Enter') {
@@ -254,6 +257,7 @@ const InputSection = withStyles(inputSectionStyle)(props => {
               onPasswordSubmit(password)
             }}
             disabled={!password}
+            data-test-id='validate_btn'
           >
             Validate Security Answer
           </Button>
@@ -316,6 +320,7 @@ const InputSection = withStyles(inputSectionStyle)(props => {
               actionsPending.getTxFee ||
               !accountSelection
             }
+            data-test-id='deposit_btn'
           >
             Deposit to Account
           </Button>
