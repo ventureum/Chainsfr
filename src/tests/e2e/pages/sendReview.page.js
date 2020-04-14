@@ -24,6 +24,10 @@ class SendReviewPage {
     }
   }
 
+  async waitTillReady () {
+    await page.waitFor('[data-test-id="title"]')
+  }
+
   async getReviewFormInfo (field) {
     switch (field) {
       case 'title': {
@@ -55,6 +59,7 @@ class SendReviewPage {
         ).split(', ')
 
         await this.dispatchFormActions('showSenderAddress')
+        await page.waitFor('[data-test-id="from_address"]')
         const addressElement = await page.$('[data-test-id="from_address"]')
         const address = await getElementTextContent(addressElement)
 
@@ -71,6 +76,7 @@ class SendReviewPage {
         ).split(', ')
 
         await this.dispatchFormActions('showReceiverAddress')
+        await page.waitFor('[data-test-id="from_address"]')
         const addressElement = await page.$('[data-test-id="to_address"]')
         const address = await getElementTextContent(addressElement)
 

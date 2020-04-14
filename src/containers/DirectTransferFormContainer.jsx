@@ -60,6 +60,7 @@ export default function DirectTransferFormContainer (props: Props) {
       !!transferForm.senderName &&
       !!transferForm.sender &&
       !!transferForm.transferAmount &&
+      !!txFee &&
       !transferForm.formError.senderName &&
       !transferForm.formError.sender &&
       !transferForm.formError.transferAmount &&
@@ -234,7 +235,7 @@ export default function DirectTransferFormContainer (props: Props) {
       </Grid>
       <Grid item>
         <TransferFormComponents.NavigationButtons
-          validated={transferForm.validated || actionsPending.getTxFee || !online}
+          validated={transferForm.validated && !actionsPending.getTxFee && online}
           onClickPrevious={() => dispatch(push(path.wallet))}
           onClickNext={() => dispatch(push(`${path.directTransfer}?step=1`))}
         />

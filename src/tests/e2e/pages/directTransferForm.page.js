@@ -1,12 +1,11 @@
 import ReduxTracker from '../utils/reduxTracker'
+import pWaitFor from 'p-wait-for'
 
 export default class DirectTransferFormPage {
   async dispatchFormActions (action) {
     if (action === 'continue') {
-      await Promise.all([
-        page.click('[data-test-id="continue"]'),
-        page.waitForNavigation()
-      ])
+      await pWaitFor(this.formProceedable)
+      await page.click('[data-test-id="continue"]')
     } else if (action === 'back') {
       await Promise.all([
         page.click('[data-test-id="back"]'),

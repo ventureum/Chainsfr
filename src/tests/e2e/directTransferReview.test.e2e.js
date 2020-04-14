@@ -29,12 +29,7 @@ describe('Direct transfer review tests', () => {
   })
 
   beforeEach(async () => {
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
-    ])
+    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
   })
 
   it(
@@ -59,6 +54,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
@@ -110,6 +106,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
@@ -161,6 +158,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
@@ -213,6 +211,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
@@ -265,6 +264,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
@@ -315,6 +315,7 @@ describe('Direct transfer review tests', () => {
       await formPage.dispatchFormActions('continue')
 
       const reviewPage = new ReviewPage()
+      await reviewPage.waitTillReady()
 
       expect(await reviewPage.getReviewFormInfo('title')).toEqual('Review Details')
 
