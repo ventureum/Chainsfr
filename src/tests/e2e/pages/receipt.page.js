@@ -142,7 +142,7 @@ class ReceiptPage {
         if (!receiveOnElement) return null
         const receiveOn = await getElementTextContent(receiveOnElement)
 
-        const sendOnExplorerBtnElement = await page.$('[data-test-id="receive_explorer_btn"]')
+        const receiveOnExplorerBtnElement = await page.$('[data-test-id="receive_explorer_btn"]')
         let receiveOnExplorerLink
         if (receiveOnExplorerBtnElement) {
           receiveOnExplorerLink = await (await receiveOnExplorerBtnElement.getProperty(
