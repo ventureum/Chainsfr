@@ -212,7 +212,7 @@ const NavDrawerComponent = (props: Props) => {
           </Box>
           <Box display='flex' flexDirection='column' alignItems='center' mb={match ? 2 : 10}>
             <Typography variant='caption' color='textSecondary'>
-              <Box color='text.disabled' display='inline'>
+              <Box color='text.disabled' display='inline' data-test-id='copy_right'>
                 &copy; {'2018-'}
                 {new Date().getFullYear()}
                 <MuiLink target='_blank' rel='noopener noreferrer' href='https://ventureum.io/'>
@@ -226,8 +226,8 @@ const NavDrawerComponent = (props: Props) => {
               <Box display='flex' alignItems='center'>
                 <GitHubIcon style={{ width: 12, color: '#c4c4c4', marginRight: 4 }} />
                 <Typography variant='caption'>
-                  <Box color='text.disabled' display='inline'>
-                    build: {version}-{commit}
+                  <Box color='text.disabled' display='inline' data-test-id='build_version'>
+                    Build: {version}-{commit}
                   </Box>
                 </Typography>
               </Box>

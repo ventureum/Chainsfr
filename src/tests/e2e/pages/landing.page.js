@@ -56,26 +56,11 @@ class LandingPage {
     expect(newPopup.url()).toEqual(process.env.REACT_APP_FAQ_URL)
   }
 
-  async clickHelpCenter () {
-    const newPopup = await getNewPopupPage(browser, async () => {
-      await expect(page).toClick('a', { text: 'Help Center' })
-    })
-    expect(newPopup.url()).toEqual(process.env.REACT_APP_FAQ_URL)
-    await newPopup.close()
-  }
-
-  async clickTerms () {
-    const newPopup = await getNewPopupPage(browser, async () => {
-      await expect(page).toClick('a', { text: 'Terms' })
-    })
-    expect(newPopup.url()).toEqual(process.env.REACT_APP_TERMS_URL)
-    await newPopup.close()
-  }
-
   async checkCopyRight () {
     const element = await page.$('[data-test-id="copy_right"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
-    expect(text).toEqual(`© 2018 - ${new Date().getFullYear()} Ventureum Inc.`)
+    // note that there is no space between "2020" and "Ventureum"
+    expect(text).toEqual(`© 2018-${new Date().getFullYear()}Ventureum Inc.`)
   }
 
   async checkBuild () {
@@ -93,7 +78,7 @@ class LandingPage {
   async checkEmailTransferTitleSubtitle () {
     const element = await page.$('[data-test-id="emt_subtitle"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
-    expect(text).toEqual('Description goes here...')
+    expect(text).toEqual('Send Crypto payments to any Email address. No more cryptic address.')
   }
 
   async checkEmptyImg () {
