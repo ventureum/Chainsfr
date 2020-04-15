@@ -311,80 +311,84 @@ function generateData (
   return { transferDataList, driveTransferHistory }
 }
 
+const DEFAULT_TRANSFER_DATA_CONFIG = [
+  // before expiration
+  {
+    state: 'SEND_PENDING',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_RECEIVE_PENDING',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_RECEIVE_FAILURE',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+
+  // before expiration, cancellation
+  {
+    state: 'SEND_CONFIRMED_CANCEL_PENDING',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_CANCEL_FAILURE',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+
+  // after expiration
+  {
+    state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  },
+  {
+    state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED',
+    cryptoType: 'ethereum',
+    senderAccountType: 'METAMASK_ETH',
+    receiverAccountType: 'METAMASK_ETH'
+  }
+]
+
 const DEFAULT_TRANSFER_DATA = {
-  ...generateData([
-    // before expiration
-    {
-      state: 'SEND_PENDING',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_RECEIVE_PENDING',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_RECEIVE_FAILURE',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_RECEIVE_CONFIRMED',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    },
-
-    // before expiration, cancellation
-    {
-      state: 'SEND_CONFIRMED_CANCEL_PENDING',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_CANCEL_CONFIRMED',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_CANCEL_FAILURE',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    },
-
-    // after expiration
-    {
-      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    },
-    {
-      state: 'SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED',
-      cryptoType: 'ethereum',
-      senderAccountType: 'METAMASK_ETH',
-      receiverAccountType: 'METAMASK_ETH'
-    }
-  ])
+  ...generateData(DEFAULT_TRANSFER_DATA_CONFIG)
 }
 
-export { generateData, DEFAULT_TRANSFER_DATA }
+export { generateData, DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG }

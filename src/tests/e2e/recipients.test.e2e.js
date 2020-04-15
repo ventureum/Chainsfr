@@ -1,6 +1,8 @@
 import LoginPage from './pages/login.page'
 import RecipientsPage from './pages/recipients.page'
 import paths from '../../Paths'
+import { RECIPIENTS } from './mocks/recipients'
+import { resetUserDefault } from './utils/reset'
 import log from 'loglevel'
 log.setDefaultLevel('info')
 
@@ -34,27 +36,12 @@ describe('Recipients Page', () => {
   }, timeout)
 
   beforeEach(async () => {
-    // TODO: reset recipient list using backend api before each test
-    // temp solution to reset:
-    await page.waitFor(1000)
-    let userExist = await recipientsPage.toHave(CONTACT_NAME, CONTACT_EMAIL)
-    if (userExist) {
-      log.info('Removing exist user e2e-user')
-      await recipientsPage.removeRecipient(CONTACT_NAME, CONTACT_EMAIL)
-      await page.waitFor(1000)
-    }
-
-    userExist = await recipientsPage.toHave(CONTACT_NAME_EDITED, CONTACT_EMAIL_EDITED)
-    if (userExist) {
-      log.info('Removing exist user e2e-user-edited')
-      await recipientsPage.removeRecipient(CONTACT_NAME_EDITED, CONTACT_EMAIL_EDITED)
-      await page.waitFor(1000)
-    }
+    await resetUserDefault()
   })
 
-  test('Show empty recipient list', async () => {
+  test('Show init recipient list', async () => {
     const recipientList = await recipientsPage.getRecipientList()
-    expect(recipientList).toHaveLength(0)
+    expect(recipientList).toHaveLength(RECIPIENTS.length)
   })
 
   test(

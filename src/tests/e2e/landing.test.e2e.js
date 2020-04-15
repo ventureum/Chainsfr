@@ -39,9 +39,6 @@ describe('Landing page tests', () => {
       await landingPage.navigateToContacts()
       await landingPage.navigateToWallet()
       await landingPage.navigateToOverview()
-
-      await landingPage.clickHelpCenter()
-      await landingPage.clickTerms()
       await landingPage.checkCopyRight()
       await landingPage.checkBuild()
     },
