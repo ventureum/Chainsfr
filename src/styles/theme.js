@@ -138,6 +138,17 @@ export const themeChainsfr = createMuiTheme({
     color: uiColors.border
   },
   overrides: {
+    MuiTab: {
+      root: {
+        '@media (min-width: 600px)': {
+          // overwrite default behavior
+          minWidth: 0
+        },
+        '@media (min-width: 960px)': {
+          minWidth: 160
+        }
+      }
+    },
     MuiAlert: {
       standardInfo: {
         color: fontColors.primary
