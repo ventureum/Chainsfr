@@ -24,7 +24,8 @@ export default {
     deviceNotConnected: 'Acquire Ledger device connection failed',
     ledgerAppCommunicationFailed: 'Unabled to fetch account from Ledger',
     incorrectAccount: 'Ledger device holds different account',
-    contractDataDisabled: 'Please enable Contract data on the Ethereum app Settings'
+    contractDataDisabled: 'Please enable Contract data on the Ethereum app Settings',
+    incorrectSigningKey:'Ledger App does not have the correct signing keys'
   },
   metamaskWalletConnect: {
     incorrectAccount: 'MetaMask WalletConnect holds different account',
