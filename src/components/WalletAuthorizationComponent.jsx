@@ -318,6 +318,9 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           ${address.slice(0, 10)}...${address.slice(-10)}`
         } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
           errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
+        } else if (errors.submitTx === WalletErrors.ledger.incorrectSigningKey) {
+          errorInstruction = `Please make sure you have selected the correct 
+          ${getCryptoTitle(cryptoType)} network`
         }
         break
       case 'drive':
@@ -392,7 +395,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         {(errors.checkWalletConnection ||
           errors.verifyAccount ||
           errors.setTokenAllowance ||
-          errors.setTokenAllowanceWaitForConfirmation) && (
+          errors.setTokenAllowanceWaitForConfirmation ||
+          errors.submitTx) && (
           <Grid item>
             <Alert severity='error'>{errorInstruction}</Alert>
           </Grid>

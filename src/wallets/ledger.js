@@ -315,13 +315,22 @@ export default class LedgerWallet implements IWallet<AccountData> {
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
-      let signedTxRaw = await this._createNewBtcPaymentTransaction(
-        utxosCollected,
-        to,
-        Number(value), // actual value to be sent
-        Number(fee),
-        accountData.hdWalletVariables.nextChangeIndex
-      )
+      let signedTxRaw = ''
+      try {
+        signedTxRaw = await this._createNewBtcPaymentTransaction(
+          utxosCollected,
+          to,
+          Number(value), // actual value to be sent
+          Number(fee),
+          accountData.hdWalletVariables.nextChangeIndex
+        )
+      } catch (e) {
+        if (e.message.match(/has no matching Script/)) {
+          // This error happens when the signing private key does
+          // not match the address/pubkey
+          throw new Error(ledgerErrors.incorrectSigningKey)
+        }
+      }
       return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
     } else {
       throw new Error('Invalid crypto type')

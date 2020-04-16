@@ -146,8 +146,17 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 
 const SettingTabs = props => {
   const { currentTab, handleChange } = props
+  const theme = useTheme()
+  const large = useMediaQuery(theme.breakpoints.up('md'))
+
   return (
-    <Tabs value={currentTab} onChange={handleChange} indicatorColor='primary' textColor='primary'>
+    <Tabs
+      value={currentTab}
+      onChange={handleChange}
+      indicatorColor='primary'
+      textColor='primary'
+      variant={large ? 'standard' : 'fullWidth'}
+    >
       <Tab label='Account Info' data-test-td='account_info' />
       <Tab label='Security' data-test-id='security' />
       <Tab label='Backup' data-test-id='backup' />
@@ -398,7 +407,7 @@ const UserSettingComponent = props => {
         <Typography variant='h2'>Account Settings</Typography>
       </Box>
       <Box display='flex' flexDirection='column' px={large ? 6 : 3} mt={-5}>
-        <Box borderBottom='1px solid #E9E9E9' width='100%'>
+        <Box borderBottom='1px solid #E9E9E9'>
           <SettingTabs
             currentTab={currentTab}
             handleChange={(event, newValue) => {

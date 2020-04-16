@@ -1,6 +1,9 @@
-import { getElementTextContent } from '../testUtils'
+import { getElementTextContent, getNewPopupPage } from '../testUtils'
+import transferStates from '../../../transferStates'
 import log from 'loglevel'
-
+import { Base64 } from 'js-base64'
+import moment from 'moment'
+import { getCryptoPlatformType, getCryptoSymbol } from '../../../tokens'
 log.setDefaultLevel('info')
 
 class ReceiptPage {
@@ -48,10 +51,10 @@ class ReceiptPage {
         const title = await getElementTextContent(titleElement)
         return title
       }
-      case 'description': {
-        const titleElement = await this.page.$('[data-test-id="title"]')
-        const title = await getElementTextContent(titleElement)
-        return title
+      case 'messageBox': {
+        const messageBoxElement = await this.page.$('.MuiAlert-message')
+        const messageBox = await getElementTextContent(messageBoxElement)
+        return messageBox
       }
       case 'sender': {
         const senderNameElement = await this.page.$('[data-test-id="from_name"]')
@@ -121,7 +124,7 @@ class ReceiptPage {
         const securityAnswerElement = await this.page.$('[data-test-id="security_answer"]')
         if (!securityAnswerElement) return null
         const securityAnswer = await getElementTextContent(securityAnswerElement)
-        return { securityAnswer }
+        return securityAnswer
       }
       case 'sendOn': {
         const sendOnElement = await this.page.$('[data-test-id="send_on"]')
@@ -189,6 +192,251 @@ class ReceiptPage {
 
   async waitUntilReceiptLoaded () {
     await this.page.waitForSelector('[data-test-id="transfer_id"]', { visible: true })
+  }
+
+  async receiptCheck (transfer, userType) {
+    const { state, receiverName, cryptoType } = transfer
+    let platFormType = ''
+    platFormType = getCryptoPlatformType(cryptoType)
+    platFormType = platFormType.charAt(0).toUpperCase() + platFormType.substring(1)
+
+    let expectedTitle
+    let expectedMessageBoxContent
+    let received
+    let cancelled
+    switch (state) {
+      case transferStates.SEND_PENDING:
+        expectedTitle = 'Transfer Arranged'
+        expectedMessageBoxContent =
+          `${platFormType} network is processing your transaction. ` +
+          `${receiverName} will receive an email notification to ` +
+          `accept your transfer shortly`
+        break
+      case transferStates.SEND_DIRECT_TRANSFER_PENDING:
+        expectedTitle = 'Transfer Arranged'
+        expectedMessageBoxContent = `${platFormType} network is processing your transaction. `
+        break
+      case transferStates.SEND_FAILURE:
+      case transferStates.SEND_DIRECT_TRANSFER_FAILURE:
+        expectedTitle = 'Transfer Delayed'
+        expectedMessageBoxContent =
+          'Your transfer is experiencing longer than usual time to ' +
+          'be processed by the network. To learn more, visit our Help Center.'
+        break
+      case transferStates.SEND_DIRECT_TRANSFER_CONFIRMED:
+        expectedTitle = 'Transfer Completed'
+        break
+      case transferStates.SEND_CONFIRMED_RECEIVE_PENDING:
+      case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Sent'
+          expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
+        } else {
+          expectedTitle = 'Transfer Accepted'
+          expectedMessageBoxContent =
+            'It may take some time to update your account balance. You can track the transaction here.'
+        }
+        received = true
+        break
+      case transferStates.SEND_CONFIRMED_RECEIVE_FAILURE:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Sent'
+          expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
+        } else {
+          expectedTitle = 'Accept Failed'
+          expectedMessageBoxContent =
+            'Something went wrong while sending your transfer. ' +
+            'You can track the transaction here. Please contact us for help.'
+        }
+        received = true
+        break
+      case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Expired'
+          expectedMessageBoxContent = `Transfer has expired. Please cancel the transfer.`
+          break
+        } else {
+          expectedTitle = 'Accept Failed'
+          expectedMessageBoxContent =
+            'Something went wrong while sending your transfer. ' +
+            'You can track the transaction here. Please contact us for help.'
+        }
+        received = true
+        break
+      case transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED:
+      case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED:
+        expectedTitle = 'Transfer Completed'
+        break
+      case transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Sent'
+          expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
+        } else {
+          expectedTitle = 'Pending to Receive'
+        }
+        break
+      case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED:
+        expectedTitle = 'Transfer Expired'
+        if (userType === 'SENDER') {
+          expectedMessageBoxContent = `Transfer has expired. Please cancel the transfer.`
+        }
+        break
+      case transferStates.SEND_CONFIRMED_CANCEL_PENDING:
+        expectedTitle = 'Transfer Cancelled'
+        if (userType === 'SENDER') {
+          expectedMessageBoxContent =
+            'It may take some time to update your account balance. You can track the transaction here.'
+        }
+        cancelled = true
+        break
+      case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_PENDING:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Reclaimed'
+          expectedMessageBoxContent =
+            'It may take some time to update your account balance. You can track the transaction here.'
+        } else {
+          expectedTitle = 'Transfer Expired'
+        }
+        cancelled = true
+        break
+      case transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED:
+        expectedTitle = 'Transfer Cancelled'
+        cancelled = true
+        break
+      case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Transfer Reclaimed'
+        } else {
+          expectedTitle = 'Transfer Expired'
+        }
+        cancelled = true
+        break
+      case transferStates.SEND_CONFIRMED_CANCEL_FAILURE:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Cancel Failed'
+          expectedMessageBoxContent =
+            'Something went wrong while cancelling your transfer. ' +
+            'You can track the transaction here. Please contact us for help.'
+        } else {
+          expectedTitle = 'Transfer Cancelled'
+        }
+        cancelled = true
+        break
+      case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_FAILURE:
+        if (userType === 'SENDER') {
+          expectedTitle = 'Reclaim Failed'
+          expectedMessageBoxContent =
+            'Something went wrong while cancelling your transfer. ' +
+            'You can track the transaction here. Please contact us for help.'
+        } else {
+          expectedTitle = 'Transfer Expired'
+        }
+        cancelled = true
+        break
+      default:
+        throw new Error(`Unknown transfer state: ${state}`)
+    }
+
+    // title
+    if (expectedTitle) {
+      const title = await this.getReceiptFormInfo('title')
+      expect(title).toEqual(expectedTitle)
+    }
+    if (expectedMessageBoxContent) {
+      const messageBox = await this.getReceiptFormInfo('messageBox')
+      expect(messageBox).toEqual(expectedMessageBoxContent)
+    }
+
+    const sender = await this.getReceiptFormInfo('sender')
+    expect(sender.name).toEqual(transfer.senderName)
+    expect(sender.email).toEqual(transfer.sender)
+
+    const recipient = await this.getReceiptFormInfo('recipient')
+    expect(recipient.name).toEqual(transfer.receiverName)
+    expect(recipient.email).toEqual(transfer.destination)
+
+    if (userType === 'SENDER') {
+      const senderAccount = await this.getReceiptFormInfo('senderAccount')
+      const receiptSenderAccount = JSON.parse(transfer.senderAccount)
+      expect(senderAccount.walletType.toLowerCase()).toEqual(receiptSenderAccount.walletType)
+      expect(senderAccount.platformType.toLowerCase()).toEqual(receiptSenderAccount.platformType)
+      expect(senderAccount.address).toEqual(receiptSenderAccount.address)
+    }
+    if (userType === 'RECEIVER' && received) {
+      const receiverAccount = await this.getReceiptFormInfo('receiverAccount')
+      const receiptReceiverAccount = JSON.parse(transfer.receiverAccount)
+      expect(receiverAccount.walletType.toLowerCase()).toEqual(receiptReceiverAccount.walletType)
+      expect(receiverAccount.platformType.toLowerCase()).toEqual(
+        receiptReceiverAccount.platformType
+      )
+      expect(receiverAccount.address).toEqual(receiptReceiverAccount.address)
+    }
+
+    const transferAmount = await this.getReceiptFormInfo('transferAmount')
+    expect(transferAmount.transferAmount).toEqual(transfer.transferAmount)
+    expect(transferAmount.currencyAmount).toEqual(transfer.transferFiatAmountSpot)
+    expect(transferAmount.symbol).toEqual(getCryptoSymbol(transfer.cryptoType))
+
+    const securityAnswer = await this.getReceiptFormInfo('securityAnswer')
+    if (userType === 'SENDER') {
+      expect(securityAnswer).toEqual(Base64.decode(transfer.password))
+    } else {
+      expect(securityAnswer).toBeNull()
+    }
+
+    const sendMessage = (await this.getReceiptFormInfo('sendMessage')).message
+    expect(sendMessage).toEqual(transfer.sendMessage)
+    const sendTime = (await this.getReceiptFormInfo('sendOn')).sendOn
+    const expectSendTime = moment
+      .unix(transfer.senderToChainsfer.txTimestamp)
+      .format('MMM Do YYYY, HH:mm:ss')
+    expect(sendTime).toEqual(`Sent on ${expectSendTime}`)
+    const sendExplorerPage = await getNewPopupPage(browser, async () => {
+      await this.dispatchActions('openSendExplorer')
+    })
+    expect(sendExplorerPage.url()).toEqual(`https://rinkeby.etherscan.io/tx/${transfer.sendTxHash}`)
+    await sendExplorerPage.close()
+
+    if (received) {
+      const receiveMessage = (await this.getReceiptFormInfo('receiveMessage')).message
+      expect(receiveMessage).toEqual(transfer.receiveMessage)
+      const receiveTime = (await this.getReceiptFormInfo('receiveOn')).receiveOn
+      const expectReceiveTime = moment
+        .unix(transfer.chainsferToReceiver.txTimestamp)
+        .format('MMM Do YYYY, HH:mm:ss')
+      expect(receiveTime).toEqual(`Received on ${expectReceiveTime}`)
+      const receiveExplorerPage = await getNewPopupPage(browser, async () => {
+        await this.dispatchActions('openReceiveExplorer')
+      })
+      expect(receiveExplorerPage.url()).toEqual(
+        `https://rinkeby.etherscan.io/tx/${transfer.chainsferToReceiver.txHash}`
+      )
+      await receiveExplorerPage.close()
+    }
+
+    if (cancelled) {
+      const cancelMessage = (await this.getReceiptFormInfo('cancelMessage')).message
+      expect(cancelMessage).toEqual(transfer.cancelMessage)
+      const cancelTime = (await this.getReceiptFormInfo('cancelOn')).cancelOn
+      const expectCancelTime = moment
+        .unix(transfer.chainsferToSender.txTimestamp)
+        .format('MMM Do YYYY, HH:mm:ss')
+      expect(cancelTime).toEqual(`Cancelled on ${expectCancelTime}`)
+      const cancelExplorerPage = await getNewPopupPage(browser, async () => {
+        await this.dispatchActions('openCancelExplorer')
+      })
+      expect(cancelExplorerPage.url()).toEqual(
+        `https://rinkeby.etherscan.io/tx/${transfer.chainsferToSender.txHash}`
+      )
+      await cancelExplorerPage.close()
+    }
+
+    const { transferId } = await this.getReceiptFormInfo('transferId')
+    if (userType === 'SENDER') {
+      expect(transferId).toEqual(transfer.transferId)
+    } else {
+      expect(transferId).toEqual(transfer.receivingId)
+    }
   }
 }
 
