@@ -38,6 +38,8 @@ import { Hidden } from '@material-ui/core'
 import { PersistGate } from 'redux-persist/integration/react'
 import moment from 'moment'
 import { erc20TokensList } from './erc20Tokens'
+import { usePageVisibility } from 'react-page-visibility'
+import env from './typedEnv'
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
@@ -104,13 +106,17 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   const handleDrawerToggle = () => {
     setOpenDrawer(previous => !previous)
   }
+
+  const isVisible = env.NODE_ENV === 'development' ? true : usePageVisibility()
+
   return (
     <Route
       {...rest}
       render={matchProps => (
         <Detector
+          polling
           render={({ online }) => {
-            if (!online) {
+            if (!online && isVisible) {
               offlineNotification = setTimeout(() => {
                 store.dispatch(
                   enqueueSnackbar({
