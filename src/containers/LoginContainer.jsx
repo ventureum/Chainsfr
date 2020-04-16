@@ -39,13 +39,7 @@ class LoginContainer extends Component {
   }
 
   render () {
-    let {
-      transfer,
-      actionsPending,
-      cryptoPrice,
-      currency,
-      push
-    } = this.props
+    let { transfer, actionsPending, cryptoPrice, currency, push } = this.props
 
     if (actionsPending.postLoginPreparation) {
       return <PreloadingComponent actionsPending={actionsPending} />
@@ -124,4 +118,7 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LoginContainer)

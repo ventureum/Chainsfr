@@ -116,7 +116,12 @@ class GoogleLoginButton extends Component {
           >
             <img src={GoogleIcon} style={{ width: 16 }} alt='googleIcon' />
           </Box>
-          <Typography variant='button' style={{ flex: 1 }} align='center'>
+          <Typography
+            variant='button'
+            className={classes.loginBtnText}
+            style={{ flex: 1 }}
+            align='center'
+          >
             Sign in with Google
           </Typography>
         </Button>
@@ -130,6 +135,9 @@ class GoogleLoginButton extends Component {
 }
 
 const style = theme => ({
+  loginBtnText: {
+    fontFamily: 'Poppins'
+  },
   loginBtnRoot: {
     padding: '8px',
     maxWidth: '300px'
