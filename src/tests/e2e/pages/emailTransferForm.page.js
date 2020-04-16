@@ -9,16 +9,26 @@ log.setDefaultLevel('info')
 class EmailTransferFormPage {
   async getGroupedAccountList () {}
 
+  async waitForCoinListToBeSynced () {
+    // assume coin list dropdown has been opened
+    await page.waitFor(
+      () => document.querySelectorAll('[data-test-id="account_sync_skeleton"]').length === 0
+    )
+  }
+
   async getCoinList () {
     // This works only when the grouped account has been selected
     await this.openSelect('coin')
-
+    await this.waitForCoinListToBeSynced()
     let coinList = await page.$$eval(`[data-test-id^="crypto_list_item"]`, nodes => {
       return nodes.map(node => {
+        const cryptoSymbolEl = node.querySelector('[data-test-id="coin_symbol"]')
+        const balanceEl = node.querySelector('[data-test-id="coin_balance"]')
+        const currencyBalanceEl = node.querySelector('[data-test-id="coin_currency_balance"]')
         return {
-          cryptoSymbol: node.querySelector('[data-test-id="coin_symbol"]').textContent,
-          balance: node.querySelector('[data-test-id="coin_balance"]').textContent,
-          currencyBalance: node.querySelector('[data-test-id="coin_currency_balance"]').textContent
+          cryptoSymbol: cryptoSymbolEl && cryptoSymbolEl.textContent,
+          balance: balanceEl && balanceEl.textContent,
+          currencyBalance: currencyBalanceEl && currencyBalanceEl.textContent
         }
       })
     })
@@ -183,6 +193,7 @@ class EmailTransferFormPage {
       case 'coin': {
         const { cryptoType } = values
         await this.openSelect('coin')
+        await this.waitForCoinListToBeSynced()
         await page.click(`[data-test-id="crypto_list_item_${cryptoType}"]`)
         await page.waitFor(500) // select animation
         break
@@ -351,7 +362,7 @@ class EmailTransferFormPage {
         // use existOnly flag to check if the currencyAmount exist (without matching)
         const { currencyAmount, existOnly } = values
 
-        const currencyAmountElement = await page.$('#curencyAmount')
+        const currencyAmountElement = await page.$('#currencyAmount')
         const value = await (await currencyAmountElement.getProperty('value')).jsonValue()
         if (existOnly) return !!value
         if (currencyAmount) {

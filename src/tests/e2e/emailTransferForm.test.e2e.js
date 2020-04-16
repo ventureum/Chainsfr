@@ -216,7 +216,7 @@ describe('Email transfer form tests', () => {
   )
 
   it(
-    'Ethereum account should have two coins',
+    'Ethereum account should have 5 coins',
     async () => {
       const emtPage = new EmailTransferFormPage()
       const walletType = 'metamask'
@@ -224,7 +224,7 @@ describe('Email transfer form tests', () => {
 
       await emtPage.updateForm('account', { walletType: walletType, platformType: platformType })
       const coinList = await emtPage.getCoinList()
-      expect(coinList.length).toEqual(2)
+      expect(coinList.length).toEqual(5)
     },
     timeout
   )
@@ -277,9 +277,9 @@ describe('Email transfer form tests', () => {
 
       // amount is invalid
       await emtPage.updateForm('currencyAmount', { currencyAmount: '.' })
-      expect(await emtPage.formInputFieldToBe('cryptoAmount', { existOnly: true })).toBe(false)
-      expect((await emtPage.getTextFieldStatus('cryptoAmount')).error).toBe(true)
-      expect((await emtPage.getTextFieldStatus('cryptoAmount')).helperText).toMatch(
+      expect(await emtPage.formInputFieldToBe('currencyAmount', { existOnly: true })).toBe(true)
+      expect((await emtPage.getTextFieldStatus('currencyAmount')).error).toBe(true)
+      expect((await emtPage.getTextFieldStatus('currencyAmount')).helperText).toMatch(
         /Please enter a valid amount/
       )
     },
@@ -339,7 +339,7 @@ describe('Email transfer form tests', () => {
 
       expect((await emtPage.getTextFieldStatus('securityAnswer')).error).toBe(false)
       expect((await emtPage.getTextFieldStatus('securityAnswer')).helperText).toMatch(
-        /We recommend you to use auto-generated security answer/
+        /What's Security Answer?/
       )
     },
     timeout
