@@ -95,6 +95,13 @@
   "scripts": {
     "start": "REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired start",
     "start:mock-user": "REACT_APP_E2E_TEST_MOCK_USER=true REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired start",
+
+    "@comment start:no-hot-load": "start server without hot-loader, necessary for running e2e tests to prevent navigation timeout",
+    "start:no-hot-load": "REACT_APP_HOT_LOADING=false REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired start",
+
+    "@comment start:no-hot-load:mock-user": "start server with mock user, without hot-loader, necessary for running e2e tests to prevent navigation timeout",
+    "start:no-hot-load:mock-user": "REACT_APP_HOT_LOADING=false REACT_APP_E2E_TEST_MOCK_USER=true REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired start",
+    
     "build": "REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired build",
     "build:test": "env-cmd .env.test npm run build",
     "build:staging": "env-cmd .env.staging npm run build",

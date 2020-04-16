@@ -11,20 +11,22 @@ import { routerMiddleware } from 'connected-react-router'
 import { createBrowserHistory } from 'history'
 import { trackerMiddleware } from './trackerMiddleware'
 import { BN } from 'ethereumjs-util'
+import env from './typedEnv'
 
 const history = createBrowserHistory()
 
 function configureStore (reducers) {
   const middlewares = [
     routerMiddleware(history),
-    trackerMiddleware,
     errorMiddleware,
     promiseMiddleware(),
     thunk
   ]
 
-  if (process.env.NODE_ENV === `development`) {
+  if (env.REACT_APP_ENV === `test`) {
     middlewares.push(logger)
+  } else if (env.REACT_APP_ENV === 'prod' || env.REACT_APP_ENV === 'staging') {
+    middlewares.push(trackerMiddleware)
   }
 
   const enhancer = compose(applyMiddleware(...middlewares))
