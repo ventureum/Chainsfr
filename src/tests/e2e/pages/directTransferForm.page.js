@@ -39,6 +39,13 @@ export default class DirectTransferFormPage {
     await page.waitFor(500) // select animation
   }
 
+  async waitForCoinListToBeSynced () {
+    // assume coin list dropdown has been opened
+    await page.waitFor(() => 
+      document.querySelectorAll('[data-test-id="account_sync_skeleton"]').length === 0
+    )
+  }
+
   async updateForm (field, values) {
     switch (field) {
       case 'account': {
@@ -51,6 +58,7 @@ export default class DirectTransferFormPage {
       case 'coin': {
         const { cryptoType } = values
         await this.openSelect('coin')
+        await this.waitForCoinListToBeSynced()
         await page.click(`[data-test-id="crypto_list_item_${cryptoType}"]`)
         await page.waitFor(500) // select animation
         let syncing = !!(await page.$('[data-test-id="syncing"]'))
