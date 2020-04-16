@@ -8,7 +8,7 @@ import utils from '../utils'
 import { syncWithNetwork } from '../actions/accountActions'
 import { accountStatus } from '../types/account.flow'
 
-import type { AccountData } from '../types/account.flow'
+import type { AccountData, GroupedAccountType } from '../types/account.flow'
 
 type Props = {
   // param passed in
@@ -124,7 +124,7 @@ class AccountDropdownContainer extends Component<Props, State> {
     let filteredCryptoAccounts = cryptoAccounts.filter(filterCriteria)
 
     // group accounts by walletType, platformType
-    let groupedCryptoAccounts = filteredCryptoAccounts.reduce((rv, account) => {
+    const groupedCryptoAccountsMap = filteredCryptoAccounts.reduce((rv, account) => {
       let key
       if (account.walletType === 'coinbaseOAuthWallet') {
         key = JSON.stringify({ walletType: account.walletType, email: account.email })
@@ -136,7 +136,9 @@ class AccountDropdownContainer extends Component<Props, State> {
     }, {})
 
     // convert obj to array
-    groupedCryptoAccounts = Object.entries(groupedCryptoAccounts).map(([key, value]) => {
+    const groupedCryptoAccounts: Array<GroupedAccountType> = Object.entries(
+      groupedCryptoAccountsMap
+    ).map(([key, value]) => {
       const { walletType, platformType } = JSON.parse(key)
 
       return {
@@ -146,7 +148,7 @@ class AccountDropdownContainer extends Component<Props, State> {
         name: value.length > 0 ? value[0].name : '',
         walletType,
         platformType,
-        accounts: value
+        accounts: (value: AccountData)
       }
     })
 
