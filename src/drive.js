@@ -463,7 +463,33 @@ async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
 
   await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
     name: 'Readme.txt',
-    content: ''
+    content: `
+      __wallet__ JSON file contains encrypted Chainsfr wallet.
+
+      Chainsfr Wallet Private Keys Recovery (Manual Method):
+        1. Decrypt "accounts" value using Base64 decoder
+        2. You will receive a JSON object from step 1
+        3. Search for "encryptedPrivateKey" of the account you
+           want to recovery
+        4. Using the code at 
+           https://github.com/ventureum/Chainsfr/blob/f89bc5466fd7140b85ac9ae691c462a0ad712c9d/src/utils.js#L168
+           to decrypt the encryptedPrivateKey.encryptedMessage with your master password
+        5. You will either get an ethereum private key of 64 characters,
+           or a bitcoin Private Extended Key starting with "xprv" 
+           (see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki for details)
+        6. For ethereum private keys, you can import it with MetaMask or any of your favourite wallets
+           For bitcoin Private Extended Key, go to https://iancoleman.io/bip39/
+              * Select BTC-bitcoin in Coin dropdown
+              * Paste Private Extended Key into BIP32 Root Key field
+              * You will see a list of addresses and the corresponding private keys
+                under "Derived Addresses" at the bottom part of the page
+       
+      Chainsfr Wallet Private Keys Recovery (Automatic Method):
+        1. Go to https://app.chainsfr.com/tools
+        2. Upload __wallet__ JSON file
+        3. A list of private keys and the corresponding accound will
+           be shown
+    `
   })
   
   files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
