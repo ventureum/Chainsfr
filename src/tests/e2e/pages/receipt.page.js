@@ -391,11 +391,9 @@ class ReceiptPage {
       .unix(transfer.senderToChainsfer.txTimestamp)
       .format('MMM Do YYYY, HH:mm:ss')
     expect(sendTime).toEqual(`Sent on ${expectSendTime}`)
-    const sendExplorerPage = await getNewPopupPage(browser, async () => {
-      await this.dispatchActions('openSendExplorer')
-    })
-    expect(sendExplorerPage.url()).toEqual(`https://rinkeby.etherscan.io/tx/${transfer.sendTxHash}`)
-    await sendExplorerPage.close()
+
+    const sendLink = (await this.getReceiptFormInfo('sendOn')).sendOnExplorerLink
+    expect(sendLink).toEqual(`https://rinkeby.etherscan.io/tx/${transfer.senderToChainsfer.txHash}`)
 
     if (received) {
       const receiveMessage = (await this.getReceiptFormInfo('receiveMessage')).message
@@ -405,13 +403,11 @@ class ReceiptPage {
         .unix(transfer.chainsferToReceiver.txTimestamp)
         .format('MMM Do YYYY, HH:mm:ss')
       expect(receiveTime).toEqual(`Received on ${expectReceiveTime}`)
-      const receiveExplorerPage = await getNewPopupPage(browser, async () => {
-        await this.dispatchActions('openReceiveExplorer')
-      })
-      expect(receiveExplorerPage.url()).toEqual(
+
+      const receiveLink = (await this.getReceiptFormInfo('receiveOn')).receiveOnExplorerLink
+      expect(receiveLink).toEqual(
         `https://rinkeby.etherscan.io/tx/${transfer.chainsferToReceiver.txHash}`
       )
-      await receiveExplorerPage.close()
     }
 
     if (cancelled) {
@@ -422,13 +418,11 @@ class ReceiptPage {
         .unix(transfer.chainsferToSender.txTimestamp)
         .format('MMM Do YYYY, HH:mm:ss')
       expect(cancelTime).toEqual(`Cancelled on ${expectCancelTime}`)
-      const cancelExplorerPage = await getNewPopupPage(browser, async () => {
-        await this.dispatchActions('openCancelExplorer')
-      })
-      expect(cancelExplorerPage.url()).toEqual(
+
+      const cancelLink = (await this.getReceiptFormInfo('cancelOn')).cancelOnExplorerLink
+      expect(cancelLink).toEqual(
         `https://rinkeby.etherscan.io/tx/${transfer.chainsferToSender.txHash}`
       )
-      await cancelExplorerPage.close()
     }
 
     const { transferId } = await this.getReceiptFormInfo('transferId')
