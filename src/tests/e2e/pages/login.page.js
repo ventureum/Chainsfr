@@ -69,8 +69,6 @@ class LoginPage {
 
       await Promise.all([googleLoginPromise(), page.waitForSelector('[data-test-id="loading"]')])
 
-      await expect(page).toMatchElement('p', { text: 'Loading...', timeout: 10000 })
-
       if (newUser) {
         // new user would get a authorization page
         await expect(page).toMatchElement('p', {

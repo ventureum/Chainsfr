@@ -112,7 +112,7 @@ const Wave = props => {
         viewBox='4 0 80 60'
         className='waveSvg'
       >
-        <path id='wave' fill='none' stroke='#f89c35' strokeWidth='6' strokeLinecap='round'></path>
+        <path id='wave' fill='none' stroke='#f89c35' strokeWidth='6' strokeLinecap='round' />
       </svg>
     </div>
   )
@@ -137,27 +137,16 @@ const PreloadingComponent = props => {
       flexDirection='column'
     >
       <Wave />
-      <Box mt={2} display='flex' alignItems='center' flexDirection='column'>
-        {actionsPending.createCloudWallet ? (
-          <>
-            <Typography variant='body2' color='primary' className={classes.text}>
-              Setting up your account...
-            </Typography>
-            <Typography variant='body2' color='primary' className={classes.text}>
-              It won't take long.
-            </Typography>
-          </>
-        ) : (
-          <Typography
-            variant='body2'
-            color='primary'
-            className={classes.text}
-            data-test-id='loading'
-          >
-            Loading...
+      {actionsPending.createCloudWallet && (
+        <Box mt={2} display='flex' alignItems='center' flexDirection='column'>
+          <Typography variant='body2' color='primary' className={classes.text}>
+            Setting up your account...
           </Typography>
-        )}
-      </Box>
+          <Typography variant='body2' color='primary' className={classes.text}>
+            It won't take long.
+          </Typography>
+        </Box>
+      )}
     </Box>
   )
 }
