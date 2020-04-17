@@ -96,4 +96,4 @@ class DirectTransferReviewPage {
   }
 }
 
-export default SendReviewPage
+export default DirectTransferReviewPage
