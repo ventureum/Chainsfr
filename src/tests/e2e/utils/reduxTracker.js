@@ -68,9 +68,29 @@ class ReduxTracker {
           nextState: null
         })
       } else if (_args[0] === '%c action    ') {
-        this.stateChanges[this.stateChanges.length - 1].action = _args[2]
+        if (this.stateChanges.length == 0) {
+          // may receive incomplete state logs
+          // should not crash in this case
+          this.stateChanges.push({
+            prevState: null,
+            action: _args[2],
+            nextState: null
+          })
+        } else {
+          this.stateChanges[this.stateChanges.length - 1].action = _args[2]
+        }
       } else if (_args[0] === '%c next state') {
-        this.stateChanges[this.stateChanges.length - 1].nextState = _args[2]
+        if (this.stateChanges.length == 0) {
+          // may receive incomplete state logs
+          // should not crash in this case
+          this.stateChanges.push({
+            prevState: null,
+            action: null,
+            nextState: _args[2]
+          })
+        } else {
+          this.stateChanges[this.stateChanges.length - 1].nextState = _args[2]
+        }
       }
     } catch (e) {
       if (e.message && e.message.includes('Target closed')) {
@@ -89,11 +109,13 @@ class ReduxTracker {
   ) {
     this.status = null
     this.stateChanges = []
-    // monitor console log
-    page.on('console', this.collectReduxLogs.bind(this))
-    log.info('ReduxTracker started')
+
+    const listener = this.collectReduxLogs.bind(this)
 
     try {
+      // monitor console log
+      page.on('console', listener)
+      log.info('ReduxTracker started')
       // wait till validation process finishes
       await pWaitFor(() => this.validate(includedStateChanges, excludedStateChanges), {
         timeout: timeout,
@@ -105,8 +127,9 @@ class ReduxTracker {
       } else {
         throw e
       }
+    } finally {
+      page.removeListener('console', listener)
     }
-    page.removeListener('console', this.collectReduxLogs)
 
     if (this.status === 'FAILED') {
       log.error(
