@@ -1,3 +1,4 @@
+import MetamaskPage from './metamask.page'
 import { getElementTextContent, getNewPopupPage } from '../testUtils'
 
 class AccountsManagementPage {
@@ -61,14 +62,14 @@ class AccountsManagementPage {
   }
 
   async addMetaMaskAccount (name) {
+    const metamaskPage = new MetamaskPage()
     await page.click('[data-test-id="connect_account_btn"]')
     await page.waitFor(500) // animation
     await page.click('[data-test-id="wallet_item_metamask"]')
-    const metamaskPopUp = await getNewPopupPage(browser, async () => {
-      await page.click('[data-test-id="authorize_btn"]')
-    })
-    await expect(metamaskPopUp).toClick('button', { text: 'Connect', timeout: 10000 })
-    await expect(page).toMatch('Metamask connected', { timeout: 10000 })
+    await page.click('[data-test-id="authorize_btn"]')
+    await metamaskPage.connect()
+
+    await page.waitFor('[data-test-id="new_accounts_name_text_field"]')
     // click three times and backspace to clear any default value
     await page.click('[data-test-id="new_accounts_name_text_field"]', { clickCount: 3 })
     await page.keyboard.press('Backspace')
