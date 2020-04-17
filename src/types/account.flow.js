@@ -137,3 +137,12 @@ export interface IAccount<AccountData> {
   decryptAccount(password: string): Promise<void>;
   syncWithNetwork(): Promise<void>;
 }
+
+// used in account dropdown
+export type GroupedAccountType = {
+    name: string,
+    walletType: string,
+    email?: string,
+    platformType?: string,
+    accounts: Array<AccountData>
+}

@@ -61,18 +61,18 @@ export default function TransferAmountTextField (props: Props) {
     )
   }
 
-  const validate = value => {
+  const validateCryptoAmount = value => {
     const { cryptoType, balance } = accountSelection
     const INSUFFICIENT_FUNDS_FOR_TX_FEES = 'Insufficient funds for paying transaction fees'
 
     const decimals = getCryptoDecimals(cryptoType)
 
-    // if the value has been set to '', either
+    // if the value has been set to '' or null, either
     // caused by account changes, or by deleting all chars
     // in the text field by the user
     //
     // treat it as correct value in this case
-    if (value === '') return
+    if (!value) return
 
     if (
       !validator.isFloat(value, {
@@ -120,6 +120,26 @@ export default function TransferAmountTextField (props: Props) {
     }
   }
 
+  const validateCurrencyAmount = value => {
+    // if the value has been set to '' or null, either
+    // caused by account changes, or by deleting all chars
+    // in the text field by the user
+    //
+    // treat it as correct value in this case
+    if (!value) return
+
+    // special case not handled by the validator
+    // '.xxx' is treated as a valid value in validator
+    // but it is an error in our case
+    if (value.startsWith('.')) {
+      return 'Please enter a valid amount'
+    }
+
+    if (!validator.isFloat(value)) {
+      return 'Please enter a valid amount'
+    }
+  }
+
   const updateAmount = (cryptoAmount, currencyAmount) => {
     let cryptoAmountVal
     let currencyAmountVal
@@ -129,15 +149,19 @@ export default function TransferAmountTextField (props: Props) {
       currencyAmountVal = ''
     }
 
-    if (cryptoAmount && !cryptoAmount.endsWith('.') && cryptoAmount !== '') {
+    if (cryptoAmount && cryptoAmount !== '') {
       // convert only for valid string
-      currencyAmountVal = toCurrencyAmount(cryptoAmount, accountSelection.cryptoType)
+      if (!cryptoAmount.endsWith('.')) {
+        currencyAmountVal = toCurrencyAmount(cryptoAmount, accountSelection.cryptoType)
+      }
       cryptoAmountVal = cryptoAmount
     }
 
-    if (currencyAmount && !currencyAmount.endsWith('.') && currencyAmount !== '') {
+    if (currencyAmount && currencyAmount !== '') {
       // convert only for valid string
-      cryptoAmountVal = toCryptoAmount(currencyAmount, accountSelection.cryptoType)
+      if (!currencyAmount.endsWith('.')) {
+        cryptoAmountVal = toCryptoAmount(currencyAmount, accountSelection.cryptoType)
+      }
       currencyAmountVal = currencyAmount
     }
 
@@ -151,11 +175,12 @@ export default function TransferAmountTextField (props: Props) {
       formContent.transferCurrencyAmount = { $set: currencyAmountVal }
     }
 
-    if (cryptoAmountVal !== null) {
-      formContent.formError = {
-        transferAmount: {
-          $set: validate(cryptoAmountVal)
-        }
+    formContent.formError = {
+      transferAmount: {
+        $set: validateCryptoAmount(cryptoAmountVal)
+      },
+      transferCurrencyAmount: {
+        $set: validateCurrencyAmount(currencyAmountVal)
       }
     }
 
@@ -177,7 +202,7 @@ export default function TransferAmountTextField (props: Props) {
         updateForm({
           formError: {
             transferAmount: {
-              $set: validate(transferAmount)
+              $set: validateCryptoAmount(transferAmount)
             }
           }
         })
@@ -220,7 +245,6 @@ export default function TransferAmountTextField (props: Props) {
           id='cryptoAmount'
           variant='outlined'
           error={!!formError.transferAmount}
-          type='number'
           placeholder='Amount'
           helperText={
             formError.transferAmount ||
@@ -258,7 +282,6 @@ export default function TransferAmountTextField (props: Props) {
           variant='outlined'
           error={!!formError.transferCurrencyAmount}
           helperText={formError.transferCurrencyAmount || `Balance: ${balanceCurrencyAmount}`}
-          type='number'
           onWheel={event => {
             event.preventDefault()
           }}

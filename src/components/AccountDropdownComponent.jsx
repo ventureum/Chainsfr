@@ -15,7 +15,7 @@ import Typography from '@material-ui/core/Typography'
 import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
 import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
-import type { AccountData } from '../types/account.flow'
+import type { AccountData, GroupedAccountType } from '../types/account.flow'
 import { getWalletLogo, getWalletTitle, getWalletConfig } from '../wallet'
 import { getPlatformTitle } from '../platforms'
 
@@ -24,7 +24,7 @@ import AddIcon from '@material-ui/icons/AddRounded'
 
 type Props = {
   account: ?AccountData,
-  groupedAccount: ?Object,
+  groupedAccount: ?GroupedAccountType,
   groupedCryptoAccounts: Array<Object>,
   purpose: string,
   pending: boolean,
@@ -38,7 +38,7 @@ type Props = {
 }
 
 type State = {
-  groupedAccount: ?Object,
+  groupedAccount: ?GroupedAccountType,
   accountCryptoTypeSelectionLabelWidth: number,
   groupedAccountSelectionLabelWidth: number
 }
@@ -95,6 +95,31 @@ class AccountDropdownComponent extends Component<Props, State> {
       this.setState({ groupedAccount: groupedAccount })
       this.autoSelectAccount(groupedAccount)
     }
+
+    // update selected groupedAccount accountData if groupedCryptoAccounts have
+    // been updated (e.g. sync status, balance value)
+    if (this.state.groupedAccount && groupedCryptoAccounts) {
+      const _groupedAccount = this.state.groupedAccount
+      // find corresponding groupedAccount in groupedCryptoAccounts list
+      const targetGroupedAccount = groupedCryptoAccounts.find(ga => {
+        if (ga.walletType === 'coinbaseOAuthWallet') {
+          return ga.walletType === _groupedAccount.walletType && ga.email === _groupedAccount.email
+        } else {
+          return (
+            ga.walletType === _groupedAccount.walletType &&
+            ga.platformType === _groupedAccount.platformType
+          )
+        }
+      })
+
+      // check if at least one of accountData items have changed
+      // e.g. sync status, balance updates
+      // using deep object comparison to check
+      if (JSON.stringify(this.state.groupedAccount) !== JSON.stringify(targetGroupedAccount)) {
+        this.setState({ groupedAccount: targetGroupedAccount })
+      }
+    }
+
     if (prevProps.inputLabel !== inputLabel) {
       if (this.accountCryptoTypeSelectionLabelRef.current) {
         this.setState({
@@ -135,7 +160,7 @@ class AccountDropdownComponent extends Component<Props, State> {
       <Box display='flex' flexDirection='row' alignItems='center'>
         <Box mr={1} display='inline'>
           {/* wallet icon */}
-          <Avatar style={{ borderRadius: '2px' }} src={getWalletLogo(item.walletType)}></Avatar>
+          <Avatar style={{ borderRadius: '2px' }} src={getWalletLogo(item.walletType)} />
         </Box>
         <Box>
           {/* name and wallet title*/}
@@ -155,10 +180,7 @@ class AccountDropdownComponent extends Component<Props, State> {
         <Box display='flex' flexDirection='row' alignItems='center'>
           <Box mr={1} display='inline'>
             {/* wallet icon */}
-            <Avatar
-              style={{ borderRadius: '2px' }}
-              src={getCryptoLogo(account.cryptoType)}
-            ></Avatar>
+            <Avatar style={{ borderRadius: '2px' }} src={getCryptoLogo(account.cryptoType)} />
           </Box>
           <Box>
             {/* name and wallet title*/}
@@ -170,7 +192,10 @@ class AccountDropdownComponent extends Component<Props, State> {
         {/* balance */}
         <Box display='flex' flexDirection='column' alignItems='flex-end'>
           {account.status === accountStatus.syncing ? (
-            <Skeleton style={{ margin: '0px', width: '100%', minWidth: '100px' }} />
+            <Skeleton
+              style={{ margin: '0px', width: '100%', minWidth: '100px' }}
+              data-test-id='account_sync_skeleton'
+            />
           ) : (
             <Typography variant='body2' data-test-id='coin_balance'>
               {account.balanceInStandardUnit} {getCryptoSymbol(account.cryptoType)}
@@ -263,7 +288,9 @@ class AccountDropdownComponent extends Component<Props, State> {
                   disabled={
                     purpose === 'send' && !getWalletConfig(groupedAccountData.walletType).sendable
                   }
-                  data-test-id={`grouped_account_item_${groupedAccountData.walletType}_${groupedAccountData.platformType}`}
+                  data-test-id={`grouped_account_item_${groupedAccountData.walletType}_${
+                    groupedAccountData.platformType
+                  }`}
                 >
                   {this.renderGroupedAccountItem(groupedAccountData)}
                 </MenuItem>

@@ -8,6 +8,12 @@ module.exports = {
     // ...add your webpack config
     // suppress grpc warnings
     config.module.exprContextCritical = false
+
+    // remove hot-loader
+    if (process.env.REACT_APP_HOT_LOADING === 'false') {
+      config.entry = config.entry.filter(e => !e.endsWith('webpackHotDevClient.js'))
+    }
+
     if (!config.plugins) {
       config.plugins = [];
     }

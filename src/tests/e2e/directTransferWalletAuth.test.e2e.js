@@ -1,5 +1,6 @@
 import LoginPage from './pages/login.page'
 import DirectTransferFormPage from './pages/directTransferForm.page'
+import DirectTransferReviewPage from './pages/directTransferReview.page'
 import DirectTransferAuthPage from './pages/directTransferAuth.page'
 import ReceiptPage from './pages/receipt.page'
 import ReduxTracker from './utils/reduxTracker'
@@ -18,6 +19,7 @@ describe('Direct Transfer Auth Tests', () => {
   let loginPage
   const reduxTracker = new ReduxTracker()
   const dtPage = new DirectTransferFormPage()
+  const dtReviewPage = new DirectTransferReviewPage()
   const dtAuthPage = new DirectTransferAuthPage()
   const receiptPage = new ReceiptPage()
   const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
@@ -87,10 +89,10 @@ describe('Direct Transfer Auth Tests', () => {
 
   const gotoAuthPage = async () => {
     // go to review page
-    await expect(page).toClick('button', { text: 'Continue' })
+    await dtPage.dispatchFormActions('continue')
 
     // go to auth page
-    await expect(page).toClick('button', { text: 'Continue' })
+    await dtReviewPage.dispatchFormActions('continue')
   }
 
   test(
