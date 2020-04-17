@@ -2,7 +2,6 @@ import AccountManagementPage from './pages/accounts.page'
 import LoginPage from './pages/login.page'
 import { resetUserDefault } from './utils/reset.js'
 import ReduxTracker from './utils/reduxTracker'
-import { deleteWallet } from './mocks/drive'
 
 const timeout = 180000
 const reduxTracker = new ReduxTracker()
