@@ -13,7 +13,8 @@ import UserAvatar from './MicroComponents/UserAvatar'
 import Divider from '@material-ui/core/Divider'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
-import ChainsfrLogoPng from '../images/logo_chainsfr_120@2x.png'
+import ChainsfrLogoSVG from '../images/logo_chainsfr_617_128.svg'
+import ChainsfrLogoDemoSVG from '../images/logo_chainsfr_demo_852_128.svg'
 import Stepper from './Stepper'
 import Popover from '@material-ui/core/Popover'
 import Paper from '@material-ui/core/Paper'
@@ -32,7 +33,8 @@ type Props = {
   isolate: boolean,
   step: number,
   handleDrawerToggle: Function,
-  onSetting: Function
+  onSetting: Function,
+  isMainNet: boolean
 }
 
 type ProfileButtonProps = {
@@ -174,17 +176,18 @@ const ProfileButton = (props: ProfileButtonProps) => {
 
 const ChainsfrLogoStyle = makeStyles({
   chainsfrLogo: {
-    width: 120
+    height: 24
   }
 })
 
 type ChainsfrLogoProps = {
   disabled: ?boolean,
-  onClick: Function
+  onClick: Function,
+  isMainNet: boolean
 }
 
 const ChainsfrLogo = (props: ChainsfrLogoProps) => {
-  const { onClick, disabled } = props
+  const { onClick, disabled, isMainNet } = props
   const classes = ChainsfrLogoStyle()
   return (
     <Button
@@ -197,13 +200,17 @@ const ChainsfrLogo = (props: ChainsfrLogoProps) => {
       id='back'
       disabled={disabled}
     >
-      <img className={classes.chainsfrLogo} src={ChainsfrLogoPng} alt='Chainsfr Logo' />
+      <img
+        className={classes.chainsfrLogo}
+        src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+        alt='Chainsfr Logo'
+      />
     </Button>
   )
 }
 
 const IsolateAppBarContent = (props: Props) => {
-  const { profile, disabled, backToHome, step, location } = props
+  const { profile, disabled, backToHome, step, location, isMainNet } = props
   return (
     <Box
       display='flex'
@@ -213,7 +220,7 @@ const IsolateAppBarContent = (props: Props) => {
       width='100%'
     >
       <Box display='flex' flexDirection='row' alignItems='center'>
-        <ChainsfrLogo disabled onClick={() => {}} />
+        <ChainsfrLogo disabled onClick={() => {}} isMainNet={isMainNet} />
         {/* vertical divider does not work in our Material UI version */}
         <Box borderLeft='0.5px solid #e9e9e9' pr={2} height='24px' />
         <ProfileButton profile={profile} disabled />
@@ -240,7 +247,7 @@ const IsolateAppBarContent = (props: Props) => {
 }
 
 const NormalAppBarContent = (props: Props) => {
-  const { handleDrawerToggle, profile, disabled, backToHome } = props
+  const { handleDrawerToggle, profile, disabled, backToHome, isMainNet } = props
   return (
     <Box
       display='flex'
@@ -255,6 +262,7 @@ const NormalAppBarContent = (props: Props) => {
             backToHome()
           }}
           disabled={disabled}
+          isMainNet={isMainNet}
         />
       </Box>
       <Box display='flex' align='items'>

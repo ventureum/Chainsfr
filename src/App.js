@@ -108,6 +108,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   }
 
   const isVisible = env.NODE_ENV === 'development' ? true : usePageVisibility()
+  const isMainNet = env.REACT_APP_ENV === 'prod'
 
   return (
     <Route
@@ -133,7 +134,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
             if (isolate) {
               return (
                 <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
-                  <AppBar {...matchProps} online={online} isolate={isolate} />
+                  <AppBar {...matchProps} online={online} isolate={isolate} isMainNet={isMainNet}/>
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -149,6 +150,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   online={online}
                   open={openDrawer}
                   handleDrawerToggle={handleDrawerToggle}
+                  isMainNet={isMainNet}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
                   <Hidden only={['sm', 'md', 'lg', 'xl']}>
@@ -156,6 +158,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                       {...matchProps}
                       online={online}
                       handleDrawerToggle={handleDrawerToggle}
+                      isMainNet={isMainNet}
                     />
                   </Hidden>
                   <Box>
