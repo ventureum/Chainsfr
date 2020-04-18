@@ -15,7 +15,8 @@ type Props = {
   open: boolean,
   push: Function,
   handleDrawerToggle: Function,
-  backToHome: Function
+  backToHome: Function,
+  isMainNet: boolean
 }
 
 class NaviDrawerContainer extends PureComponent<Props> {
@@ -24,7 +25,15 @@ class NaviDrawerContainer extends PureComponent<Props> {
   }
 
   render () {
-    let { location, profile, onLogout, open, handleDrawerToggle, backToHome } = this.props
+    let {
+      location,
+      profile,
+      onLogout,
+      open,
+      handleDrawerToggle,
+      backToHome,
+      isMainNet
+    } = this.props
     return (
       <NavDrawerComponent
         onSetting={this.onSetting}
@@ -34,6 +43,7 @@ class NaviDrawerContainer extends PureComponent<Props> {
         profile={profile}
         open={open}
         handleDrawerToggle={handleDrawerToggle}
+        isMainNet={isMainNet}
       />
     )
   }
@@ -53,4 +63,7 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NaviDrawerContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NaviDrawerContainer)

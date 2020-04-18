@@ -2,7 +2,6 @@
 import React from 'react'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import ChainsfrLogo from '../images/logo_chainsfr_120@2x.png'
 import clsx from 'clsx'
 import Drawer from '@material-ui/core/Drawer'
 import IconButton from '@material-ui/core/IconButton'
@@ -27,6 +26,10 @@ import GitHubIcon from '@material-ui/icons/GitHub'
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRightRounded'
 import TransferIcon from '@material-ui/icons/SwapHorizRounded'
 import WalletIcon from '@material-ui/icons/AccountBalanceWalletRounded'
+
+//Assets
+import ChainsfrLogoSVG from '../images/logo_chainsfr_617_128.svg'
+import ChainsfrLogoDemoSVG from '../images/logo_chainsfr_demo_852_128.svg'
 
 const NAV_BTNS = [
   {
@@ -56,11 +59,15 @@ const NAV_BTNS = [
 ]
 
 const useStyles = makeStyles(theme => ({
-  drawer: {
+  drawerPermanent: {
     width: 240
   },
+  drawerTemporary: {
+    width: '100%',
+    height: '100%'
+  },
   chainsfrLogo: {
-    width: 110
+    height: 24
   },
   listItem: {
     padding: '0px 0px 0px 25px',
@@ -90,14 +97,15 @@ type Props = {
   location: Object,
   handleDrawerToggle: Function,
   onSetting: Function,
-  backToHome: Function
+  backToHome: Function,
+  isMainNet: boolean
 }
 
 const NavDrawerComponent = (props: Props) => {
   const theme = useTheme()
   const match = useMediaQuery(theme.breakpoints.up('sm'))
 
-  const { backToHome, profile, onSetting, location, open, handleDrawerToggle } = props
+  const { isMainNet, backToHome, profile, onSetting, location, open, handleDrawerToggle } = props
   const classes = useStyles()
 
   if (!profile || !profile.profileObj) return null
@@ -112,13 +120,13 @@ const NavDrawerComponent = (props: Props) => {
   }
   const commit = gitDescribe[gitDescribe.length - 1]
   return (
-    <Box className={match ? classes.drawer : undefined}>
+    <Box className={match ? classes.drawerPermanent : undefined}>
       <Drawer
         variant={match ? 'permanent' : 'temporary'}
         open={open || match}
-        anchor={match ? 'left' : 'right'}
+        anchor={match ? 'left' : 'top'}
         classes={{
-          paper: classes.drawer
+          paper: (match ? classes.drawerPermanent : classes.drawerTemporary)
         }}
         onClose={handleDrawerToggle}
       >
@@ -140,12 +148,12 @@ const NavDrawerComponent = (props: Props) => {
                 }}
                 id='back'
               >
-                <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
+                <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG} alt='Chainsfr Logo' />
               </Button>
             </Box>
           ) : (
-            <Box display='flex' justifyContent='space-between' alignItems='center' ml={2}>
-              <img className={classes.chainsfrLogo} src={ChainsfrLogo} alt='Chainsfr Logo' />
+            <Box display='flex' justifyContent='space-between' alignItems='center' ml={2} mt={1}>
+              <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG} alt='Chainsfr Logo' />
               <IconButton
                 color='secondary'
                 aria-label='Close'
@@ -210,7 +218,7 @@ const NavDrawerComponent = (props: Props) => {
               </Box>
             </Button>
           </Box>
-          <Box display='flex' flexDirection='column' alignItems='center' mb={match ? 2 : 10}>
+          <Box display='flex' flexDirection='column' alignItems='center' mb={match ? 2 : 3}>
             <Typography variant='caption' color='textSecondary'>
               <Box color='text.disabled' display='inline' data-test-id='copy_right'>
                 &copy; {'2018-'}

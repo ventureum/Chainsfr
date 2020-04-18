@@ -18,7 +18,8 @@ type Props = {|
   isolate: boolean,
   handleDrawerToggle: Function,
   backToHome: Function,
-  push: Function
+  push: Function,
+  isMainNet: boolean
 |}
 
 class AppBarContainer extends Component<Props> {
@@ -75,4 +76,7 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppBarContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AppBarContainer)
