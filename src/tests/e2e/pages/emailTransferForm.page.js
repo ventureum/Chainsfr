@@ -3,6 +3,7 @@ import { getWalletTitle } from '../../../wallet.js'
 import { getPlatformTitle } from '../../../platforms'
 import { getCryptoSymbol } from '../../../tokens.js'
 import ReduxTracker from '../utils/reduxTracker'
+import pWaitFor from 'p-wait-for'
 
 log.setDefaultLevel('info')
 
@@ -37,19 +38,10 @@ class EmailTransferFormPage {
 
   async dispatchFormActions (action) {
     if (action === 'continue') {
-      await Promise.all([
-        page.click('[data-test-id="continue"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
-      ])
+      await pWaitFor(this.formProceedable)
+      await page.click('[data-test-id="continue"]')
     } else if (action === 'back') {
-      await Promise.all([
-        page.click('[data-test-id="back"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
-      ])
+      await page.click('[data-test-id="back"]')
     } else {
       throw new Error(`Invalid action: ${action}`)
     }
@@ -179,6 +171,7 @@ class EmailTransferFormPage {
       case 'recipient': {
         const { email } = values
         await this.openSelect('recipient')
+        await page.waitFor(`[data-test-id="recipient_list_item_${email}"]`)
         await page.click(`[data-test-id="recipient_list_item_${email}"]`)
         await page.waitFor(500) // select animation
         break
@@ -186,6 +179,7 @@ class EmailTransferFormPage {
       case 'account': {
         const { walletType, platformType } = values
         await this.openSelect('account')
+        await page.waitFor(`[data-test-id="grouped_account_item_${walletType}_${platformType}"]`)
         await page.click(`[data-test-id="grouped_account_item_${walletType}_${platformType}"]`)
         await page.waitFor(500) // select animation
         break

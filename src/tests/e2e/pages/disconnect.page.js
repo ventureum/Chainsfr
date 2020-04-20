@@ -9,13 +9,15 @@ class DisconnectPage {
     await page.waitForNavigation()
   }
 
-  async setAllowanceWithMetamask (amount) {
+  async setAllowance (amount, walletType) {
     const metamaskPage = new MetamaskPage()
     await expect(page).toFillForm('[data-test-id="set_erc20_allowance"]', {
         allowance: amount
       })
-    await expect(page).toClick('button', { text: 'Set Allowance' })
-    await metamaskPage.approve(false)
+    await expect(page).toClick('button', { text: `Set Allowance ${walletType}`})
+    if (walletType === 'metamask') {
+      await metamaskPage.approve(false)
+    }
     log.info('Sending out tx to reset allowance, wait for confirmation...')
     await page.waitFor('[data-test-id="allowance_tx_hash"]', {
       timeout: 180000
