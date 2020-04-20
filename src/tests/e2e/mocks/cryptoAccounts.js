@@ -2,7 +2,7 @@ const CRYPTO_ACCOUNTS = [
   // cloud wallet's private keys match the keys in mocks/drive.js
   {
     addedAt: 1582577659,
-    address: '0xb428Ca537F86a8375fF7FB35d9c58E58Adb85aC8',
+    address: '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
     cryptoType: 'ethereum',
     name: 'Ethereum Cloud Wallet',
     updatedAt: 1582577659,
@@ -11,10 +11,37 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1582577659,
-    address: '0xb428Ca537F86a8375fF7FB35d9c58E58Adb85aC8',
+    address: '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
     cryptoType: 'dai',
     name: 'Dai Cloud Wallet',
     updatedAt: 1582577659,
+    verified: true,
+    walletType: 'drive'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
+    cryptoType: 'usd-coin',
+    name: 'USDC Cloud Wallet',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'drive'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
+    cryptoType: 'tether',
+    name: 'Tether Cloud Wallet',
+    updatedAt: 1583802157,
+    verified: true,
+    walletType: 'drive'
+  },
+  {
+    addedAt: 1583802157,
+    address: '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
+    cryptoType: 'true-usd',
+    name: 'TUSD Cloud Wallet',
+    updatedAt: 1583802157,
     verified: true,
     walletType: 'drive'
   },

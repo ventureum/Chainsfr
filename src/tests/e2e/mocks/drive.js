@@ -50,7 +50,7 @@ type TransferData = {
 }
 
 // mock data
-var data = {
+var DATA = {
   [TEMP_SEND_FOLDER_NAME]: {
     [TEMP_SEND_FILE_NAME]: null
   },
@@ -61,8 +61,8 @@ var data = {
     [WALLET_FILE_NAME]: {
       accounts: Base64.encode(
         JSON.stringify({
-          '0xb428Ca537F86a8375fF7FB35d9c58E58Adb85aC8': {
-            privateKey: '0x9ccba47adc95d13b565ce4beed9c1de5b909288cfa59ee7a8a15e4e227532d57'
+          '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4': {
+            privateKey: '0xAFC2580FA77A12AD3972EC3353EEE003EDA1215E8091DB8C39255D19F396D3D4'
           },
           tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME: {
             hdWalletVariables: {
@@ -78,13 +78,16 @@ var data = {
   }
 }
 
-var storage = window.localStorage
+var storage
 
-if (!storage.getItem('data')) {
-  // prevent refresh from clearing data
-  storage.setItem('data', JSON.stringify(data))
+function initStorage () {
+  storage = window.localStorage
+
+  if (!storage.getItem('data')) {
+    // prevent refresh from clearing data
+    storage.setItem('data', JSON.stringify(DATA))
+  }
 }
-
 // gapi.load does not support promise
 // convert it into a promise
 function gapiLoad (): Promise<any> {
@@ -161,6 +164,7 @@ async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
  * see the object definition at the top
  */
 async function getTransferData (id: string): Promise<TransferData> {
+  if (!storage) initStorage()
   let data = JSON.parse(storage.getItem('data'))
   let transfers: ?{ [string]: TransferData } = data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME]
   if (transfers) {
@@ -171,16 +175,19 @@ async function getTransferData (id: string): Promise<TransferData> {
 }
 
 async function getAllTransfers (): Promise<{ [string]: TransferData }> {
+  if (!storage) initStorage()
   let data = JSON.parse(storage.getItem('data'))
   return data[HISTORY_FOLDER_NAME][HISTORY_FILE_NAME]
 }
 
 async function getWallet (): Promise<any> {
+  if (!storage) initStorage()
   let data = JSON.parse(storage.getItem('data'))
   return data[WALLET_FOLDER_NAME][WALLET_FILE_NAME]
 }
 
 async function deleteWallet (): Promise<any> {
+  if (!storage) initStorage()
   let data = JSON.parse(storage.getItem('data'))
   delete data[WALLET_FOLDER_NAME][WALLET_FILE_NAME]
   storage.removeItem('data')
@@ -194,5 +201,12 @@ export {
   getAllTransfers,
   getWallet,
   gapiLoad,
-  deleteWallet
+  deleteWallet,
+  DATA,
+  WALLET_FILE_NAME,
+  WALLET_FOLDER_NAME,
+  HISTORY_FILE_NAME,
+  HISTORY_FOLDER_NAME,
+  TEMP_SEND_FILE_NAME,
+  TEMP_SEND_FOLDER_NAME
 }
