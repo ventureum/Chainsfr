@@ -83,8 +83,8 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
           </Typography>
           <Typography variant='caption'>
             {receiveTxHash
-              ? `This transfer has been deposited on ${receiveTime}`
-              : `This transfer has been cancelled on ${cancelTime}`}
+              ? `This payment has been deposited on ${receiveTime}`
+              : `This payment has been cancelled on ${cancelTime}`}
           </Typography>
         </Grid>
         <Grid item>
@@ -106,7 +106,7 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
     <Card className={classes.cardRoot}>
       <Box padding={3}>
         <Typography className={classes.title} variant='h3' align='left'>
-          Pending Transfer
+          Pending Payment
         </Typography>
         <Grid container direction='column' spacing={2}>
           <Grid item>
@@ -366,11 +366,11 @@ class ReceiveFormComponent extends Component {
     let message
 
     if (transfer.receiveTxHash) {
-      title = 'Transfer Accepted'
-      message = `This transfer was accepted on ${receiveTime}`
+      title = 'Payment Accepted'
+      message = `This payment was accepted on ${receiveTime}`
     } else if (transfer.cancelTxHash) {
-      title = 'Transfer Cancelled'
-      message = `This transfer was cancelled on ${cancelTime}`
+      title = 'Payment Cancelled'
+      message = `This payment was cancelled on ${cancelTime}`
     }
 
     return (

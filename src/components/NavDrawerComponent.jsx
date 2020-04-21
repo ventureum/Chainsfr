@@ -24,7 +24,7 @@ import CloseIcon from '@material-ui/icons/CloseRounded'
 import ContactsIcon from '@material-ui/icons/PeopleRounded'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRightRounded'
-import TransferIcon from '@material-ui/icons/SwapHorizRounded'
+import PaymentsIcon from '@material-ui/icons/SwapHorizRounded'
 import WalletIcon from '@material-ui/icons/AccountBalanceWalletRounded'
 
 //Assets
@@ -33,10 +33,10 @@ import ChainsfrLogoDemoSVG from '../images/logo_chainsfr_demo_852_128.svg'
 
 const NAV_BTNS = [
   {
-    name: 'Transfer',
+    name: 'Payments',
     id: 'overview',
     path: path.home,
-    icon: <TransferIcon color='primary' />
+    icon: <PaymentsIcon color='primary' />
   },
   {
     name: 'Wallet',

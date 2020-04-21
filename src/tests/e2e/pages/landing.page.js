@@ -72,13 +72,13 @@ class LandingPage {
   async checkEmailTransferTitle () {
     const element = await page.$('[data-test-id="emt_title"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
-    expect(text).toEqual('Email Transfer')
+    expect(text).toEqual('Make a Payment')
   }
 
   async checkEmailTransferTitleSubtitle () {
     const element = await page.$('[data-test-id="emt_subtitle"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
-    expect(text).toEqual('Send Crypto payments to any Email address. No more cryptic address.')
+    expect(text).toEqual('Make Cryptocurrency payments to any Email address. Cancel payments when needed.')
   }
 
   async checkEmptyImg () {

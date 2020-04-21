@@ -29,7 +29,7 @@
 Chainsfr aims to make cryptocurrency transaction more friendly and fault-tolerant, easy to use.
 
 * Powered by Google - Single-click sign in, sensitive data stored in Google Drive, transactions managed inside Google Account
-* Pay via Email - All you need is a Google account, the recipient’s email address, and a security answer to start a safe transfer.
+* Pay via Email - All you need is a Google account, the recipient’s email address, and a security answer to start a safe payment.
 * Built-in Wallet - Keyless, Non-custodial and Multiple Assets Support
 
 ## Is Chainsfr free?
@@ -38,7 +38,7 @@ Yes. The Chainsfr service itself does not charge any service fee. However you st
 
 ## How does Chainsfr work and how safe is Chainsfr?
 
-As a financial and cryptocurrency service, we try our best to build Chainsfr as secure as possible. Chainsfr service uses Smart Contracts and Multisig Wallets as escrows, which means we have no access to your funds during transfers. We use your Google account to store your Chainsfr Wallet and transfer information.
+As a financial and cryptocurrency service, we try our best to build Chainsfr as secure as possible. Chainsfr service uses Smart Contracts and Multisig Wallets as escrows, which means we have no access to your funds during payments. We use your Google account to store your Chainsfr Wallet and payment information.
 
 Learn more about the Google third-party, please check the links below:
 

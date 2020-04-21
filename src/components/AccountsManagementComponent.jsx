@@ -556,7 +556,7 @@ class AccountsManagementComponent extends Component {
                 justifyContent='center'
                 height='100%'
               >
-                <Typography variant='h2'>Manage Accounts</Typography>
+                <Typography variant='h2'>Manage Connected Accounts</Typography>
                 <Typography className={classes.decText}>
                   Native supports for popular exchanges, mobile and hardware wallets
                 </Typography>
@@ -569,7 +569,7 @@ class AccountsManagementComponent extends Component {
                     color='primary'
                     data-test-id='connect_account_btn'
                   >
-                    Connect to Your Account
+                    Add Connection to Existing Accounts
                   </Button>
                 </Box>
               </Box>
