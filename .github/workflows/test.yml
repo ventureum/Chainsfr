@@ -39,6 +39,10 @@ jobs:
     - run: npm run build:test && mv ./build ./build_test
     - run: aws s3 sync ./build_test s3://test.chainsfr.com --delete
       if: github.event_name == 'push'
+
+    # deploy maintenance page
+    - run run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
+      if: github.event_name == 'push'
     
     - name: Notify slack success
       if: success() && github.event_name == 'push'
