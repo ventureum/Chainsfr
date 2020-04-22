@@ -67,11 +67,21 @@ class AccountsManagementPage {
     await page.waitFor(500) // animation
     await page.click('[data-test-id="wallet_item_metamask"]')
     await page.click('[data-test-id="authorize_btn"]')
-    await metamaskPage.connect()
 
-    await page.waitFor('[data-test-id="new_accounts_name_text_field"]')
+    // 1. if metamask has not previously connected, the popup will be shown
+    // 2. otherwise, popup will not be shown and we should skip the metamask
+    // connect procedure
+    await Promise.race([
+      metamaskPage.connect(),
+      page.waitFor('[data-test-id="new_accounts_name_text_field"]', { timeout: 30000 })
+    ])
+
+    // somehow we have to wait again for the selector in order to avoid
+    // selector not found errors
+    await page.waitFor('[data-test-id="new_accounts_name_text_field"]', { timeout: 5000 })
+    
     // click three times and backspace to clear any default value
-    await page.click('[data-test-id="new_accounts_name_text_field"]', { clickCount: 3 })
+    await page.click('[data-test-id="new_accounts_name_text_field"]')
     await page.keyboard.press('Backspace')
     await page.keyboard.type(name)
     await page.click('[data-test-id="save_btn"]')

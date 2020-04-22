@@ -33,18 +33,22 @@ let receiverTestParam = testedTransferList.map((transfer, i) => {
 describe('Receipt page tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    const loginPage = new LoginPage()
+    await page.goto(`${process.env.E2E_TEST_URL}`)
+    await loginPage.login(
+      process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
+      process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
+      true
+    )
   }, timeout)
 
-  afterEach(async () => {
+  afterAll(async () => {
     await jestPuppeteer.resetBrowser()
   })
 
   it.each(senderTestParam)(
     'Transfer ID: %s %s',
     async (transferId, state, transfer) => {
-      await page.goto(`${process.env.E2E_TEST_URL}/receipt?transferId=${transfer.transferId}`)
-      const loginPage = new LoginPage()
-
       await Promise.all([
         reduxTracker.waitFor(
           [
@@ -68,14 +72,9 @@ describe('Receipt page tests', () => {
             }
           ]
         ),
-        page.waitForNavigation({
+        page.goto(`${process.env.E2E_TEST_URL}/receipt?transferId=${transfer.transferId}`, {
           waitUntil: 'networkidle0'
-        }),
-        loginPage.login(
-          process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
-          process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
-          true
-        )
+        })
       ])
       const receiptPage = new ReceiptPage()
       await receiptPage.receiptCheck(transfer, 'SENDER')
@@ -86,9 +85,6 @@ describe('Receipt page tests', () => {
   it.each(receiverTestParam)(
     'Receiving ID: %s %s',
     async (receivingId, state, transfer) => {
-      await page.goto(`${process.env.E2E_TEST_URL}/receipt?receivingId=${receivingId}`)
-      const loginPage = new LoginPage()
-
       await Promise.all([
         reduxTracker.waitFor(
           [
@@ -112,14 +108,9 @@ describe('Receipt page tests', () => {
             }
           ]
         ),
-        page.waitForNavigation({
+        page.goto(`${process.env.E2E_TEST_URL}/receipt?receivingId=${receivingId}`, {
           waitUntil: 'networkidle0'
-        }),
-        loginPage.login(
-          process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
-          process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
-          true
-        )
+        })
       ])
       const receiptPage = new ReceiptPage()
       await receiptPage.receiptCheck(transfer, 'RECEIVER')

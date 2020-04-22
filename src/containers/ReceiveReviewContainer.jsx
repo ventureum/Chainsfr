@@ -68,7 +68,9 @@ class ReceiveReviewContainer extends Component {
         receiveAmount={receiveAmount}
         sendTime={sendTime}
         currencyAmount={{
-          transferAmount: transfer && toCurrencyAmount(transfer.transferAmount),
+          // transferCurrencyAmount should not be updated by cryptoPrice
+          // tracker
+          transferAmount: transfer && utils.formatNumber(transfer.transferCurrencyAmount),
           txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit),
           receiveAmount: receiveAmount && toCurrencyAmount(receiveAmount)
         }}
@@ -117,4 +119,7 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReceiveReviewContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ReceiveReviewContainer)

@@ -1,17 +1,17 @@
 import LoginPage from './pages/login.page'
 import EmailTransferFormPage from './pages/emailTransferForm.page'
+import EmailTransferReviewPage from './pages/sendReview.page'
 import EmailTransferAuthPage from './pages/emailTransferAuth.page'
+import ReceiptPage from './pages/receipt.page'
 import DisconnectPage from './pages/disconnect.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import ERC20_ABI from '../../contracts/ERC20.js'
-import SimpleMultiSigContractArtifacts from '../../contracts/SimpleMultiSig.json'
-import { getCrypto } from '../../tokens'
-import { Base64 } from 'js-base64'
 import url from '../../url'
-import { getWallet } from './mocks/drive.js'
+import { DATA, WALLET_FOLDER_NAME, WALLET_FILE_NAME } from './mocks/drive.js'
 import log from 'loglevel'
 import BN from 'bn.js'
+import pWaitFor from 'p-wait-for'
+import Web3 from 'web3'
 
 log.setDefaultLevel('info')
 
@@ -22,8 +22,11 @@ describe('Transfer Auth Tests', () => {
   let loginPage
   const reduxTracker = new ReduxTracker()
   const emtPage = new EmailTransferFormPage()
+  const emtReviewPage = new EmailTransferReviewPage()
   const emtAuthPage = new EmailTransferAuthPage()
+  const receiptPage = new ReceiptPage()
   const disconnectPage = new DisconnectPage()
+  const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
   const FORM_BASE = {
     formPage: emtPage,
@@ -47,71 +50,48 @@ describe('Transfer Auth Tests', () => {
     )
   }, timeout)
 
-  beforeEach(async () => {
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      page.goto(`${process.env.E2E_TEST_URL}/send`)
-    ])
-  })
-
   afterAll(async () => {
     await jestPuppeteer.resetBrowser()
   })
 
   const gotoAuthPage = async () => {
     // go to review page
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      expect(page).toClick('button', { text: 'Continue' })
-    ])
+    await emtPage.dispatchFormActions('continue')
 
     // go to auth page
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      expect(page).toClick('button', { text: 'Continue' })
-    ])
+    await emtReviewPage.dispatchFormActions('continue')
   }
 
-  const getAllowance = async (owner, spender, cryptoType) => {
-    const Web3 = require('web3')
-    let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-    const targetContract = new web3.eth.Contract(ERC20_ABI, getCrypto(cryptoType).address)
-    return targetContract.methods.allowance(owner, spender).call()
-  }
+  const waitForTxConfirmation = async () => {
+    // due to us manually setting allowance using web3, as well as reseting the browser storage,
+    // the pending txs are not tracked properly in txController which causes incorrecet nonce
+    // errors
+    //
+    // we wait for all txs in each test to be mined before procedding to the next test
+    const { sendOnExplorerLink } = await receiptPage.getReceiptFormInfo('sendOn')
+    const txHash = sendOnExplorerLink
+      .split('/')
+      .slice(-1)
+      .pop()
 
-  const getSetAllowanceTxObj = async (from, amount, cryptoType) => {
-    const Web3 = require('web3')
-    let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-    const targetContract = new web3.eth.Contract(ERC20_ABI, getCrypto(cryptoType).address)
-    const multiSigAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address
-
-    const data = targetContract.methods.approve(multiSigAddr, amount).encodeABI()
-
-    let txObj = {
-      from: from,
-      to: getCrypto(cryptoType).address,
-      data: data,
-      value: '0'
-    }
-
-    // hard-coded gas to avoid weird out-of-gas from web3 using
-    // web3.eth.estimateGas
-    // 200,000
-    txObj.gas = '0x30d40'
-    // 20 GWEI
-    txObj.gasPrice = '0x4a817c800'
-    return txObj
+    log.info('Waiting for the pending tx to be mined...')
+    await pWaitFor(
+      async () => {
+        const receipt = await web3.eth.getTransactionReceipt(txHash)
+        return !!receipt
+      },
+      {
+        interval: 1000
+      }
+    )
+    log.info('Tx mined.')
   }
 
   test(
     'Send ETH from drive wallet',
     async () => {
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
       await emtPage.fillForm({
         ...FORM_BASE,
         walletType: 'drive',
@@ -139,6 +119,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -157,6 +142,8 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect()
       ])
+
+      await waitForTxConfirmation()
     },
     timeout
   )
@@ -164,6 +151,15 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send DAI from drive wallet (insufficient allowance)',
     async () => {
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
+
+      await disconnectPage.setAllowance('0', 'drive')
+      log.info(`Reset allowance to 0 successfully`)
+
+      // go back to transfer form
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
       const CRYPTO_AMOUNT = '1'
       await emtPage.fillForm({
         ...FORM_BASE,
@@ -174,35 +170,9 @@ describe('Transfer Auth Tests', () => {
         cryptoType: 'dai'
       })
 
-      // check approval value
-      const address = await emtPage.getAccountAddress()
-      const cryptoAmount = (await emtPage.getTextFieldStatus('cryptoAmount')).text
-      const contractAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address
-      const currentAllowance = await getAllowance(address, contractAddr, 'dai')
-
-      // get private key
-      const walletFile = JSON.parse(Base64.decode((await getWallet()).accounts))
-      const privateKey = walletFile[address].privateKey
-
-      // setup web3
-      const Web3 = require('web3')
-      const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      web3.eth.accounts.wallet.add(privateKey)
-
-      // reset allowance to 0
-      const setAllowanceTxObj = await getSetAllowanceTxObj(address, '0', 'dai')
-      log.info('Sending out tx to reset allowance, wait for confirmation...')
-      const txReceipt = await web3.eth.sendTransaction(setAllowanceTxObj)
-
-      // tx must be executed successfully
-      expect(txReceipt.status).toBe(true)
-      log.info('Reset allowance to 0 successfully')
-
       await gotoAuthPage()
 
-      await expect(page).toMatch(
-        'Please approve a transaction limit to continue.'
-      )
+      await expect(page).toMatch('Insufficient transaction limit to complete the transaction.')
       const allowance = await emtAuthPage.getAllowance()
 
       // allowance should match transfer crypto amount exactly
@@ -236,6 +206,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -254,6 +229,8 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect()
       ])
+
+      await waitForTxConfirmation()
     },
     timeout
   )
@@ -262,6 +239,20 @@ describe('Transfer Auth Tests', () => {
     'Send DAI from drive wallet (sufficient allowance)',
     async () => {
       const CRYPTO_AMOUNT = '1'
+
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
+
+      // dai has decimals of 18
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+
+      await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'drive')
+
+      log.info(`Reset allowance to ${CRYPTO_AMOUNT} successfully`)
+
+      // go back to transfer form
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
       await emtPage.fillForm({
         ...FORM_BASE,
         cryptoAmount: CRYPTO_AMOUNT,
@@ -271,40 +262,11 @@ describe('Transfer Auth Tests', () => {
         cryptoType: 'dai'
       })
 
-      // check approval value
-      const address = await emtPage.getAccountAddress()
-      const cryptoAmount = (await emtPage.getTextFieldStatus('cryptoAmount')).text
-      const contractAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address
-      const currentAllowance = await getAllowance(address, contractAddr, 'dai')
-
-      // get private key
-      const walletFile = JSON.parse(Base64.decode((await getWallet()).accounts))
-      const privateKey = walletFile[address].privateKey
-
-      // setup web3
-      const Web3 = require('web3')
-      const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-      web3.eth.accounts.wallet.add(privateKey)
-
-      // reset allowance to match cryptoAmount exactly
-      // dai has decimals of 18
-      const cryptoAmountBasicTokenUnit = new BN(1).pow(new BN(18)).toString()
-      const setAllowanceTxObj = await getSetAllowanceTxObj(
-        address,
-        cryptoAmountBasicTokenUnit,
-        'dai'
-      )
-
-      log.info('Sending out tx to reset allowance, wait for confirmation...')
-      const txReceipt = await web3.eth.sendTransaction(setAllowanceTxObj)
-
-      // tx must be executed successfully
-      expect(txReceipt.status).toBe(true)
-      log.info(`Reset allowance to ${CRYPTO_AMOUNT} successfully`)
-
       await gotoAuthPage()
 
-      await expect(page).toMatch(`Your remaining authorized DAI transfer limit is ${CRYPTO_AMOUNT}`)
+      await expect(page).toMatch(`Your remaining DAI transaction limit is ${CRYPTO_AMOUNT}`, {
+        timeout: 5000
+      })
 
       // click connect
       await Promise.all([
@@ -324,6 +286,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -342,6 +309,8 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect()
       ])
+
+      await waitForTxConfirmation()
     },
     timeout
   )
@@ -349,6 +318,8 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send BTC from drive wallet',
     async () => {
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
       const CRYPTO_AMOUNT = '0.001'
       await emtPage.fillForm({
         ...FORM_BASE,
@@ -378,6 +349,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -403,6 +379,8 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send ETH from metamask extension',
     async () => {
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
       await emtPage.fillForm({
         ...FORM_BASE,
         walletType: 'metamask',
@@ -429,6 +407,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -447,6 +430,7 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect('metamask', 'ethereum')
       ])
+      await waitForTxConfirmation()
     },
     timeout
   )
@@ -455,14 +439,13 @@ describe('Transfer Auth Tests', () => {
     'Send DAI from metamask wallet (insufficient allowance)',
     async () => {
       // reset metamask dai allowance
-      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`)
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
-      // dai has decimals of 18
-      await disconnectPage.setAllowanceWithMetamask('0')
+      await disconnectPage.setAllowance('0', 'metamask')
       log.info(`Reset allowance to 0 successfully`)
 
       // go back to transfer form
-      await page.goto(`${process.env.E2E_TEST_URL}/send`)
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
 
       const CRYPTO_AMOUNT = '1'
       await emtPage.fillForm({
@@ -476,9 +459,9 @@ describe('Transfer Auth Tests', () => {
 
       await gotoAuthPage()
 
-      await expect(page).toMatch(
-        'Please approve a transaction limit to continue.'
-      )
+      await expect(page).toMatch('Insufficient transaction limit to complete the transaction.', {
+        timeout: 10000
+      })
       const allowance = await emtAuthPage.getAllowance()
 
       // allowance should match transfer crypto amount exactly
@@ -512,6 +495,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -530,6 +518,7 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect('metamask', 'dai', true)
       ])
+      await waitForTxConfirmation()
     },
     timeout
   )
@@ -540,17 +529,17 @@ describe('Transfer Auth Tests', () => {
       const CRYPTO_AMOUNT = '1'
 
       // reset metamask dai allowance
-      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`)
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
       // dai has decimals of 18
       const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
 
-      await disconnectPage.setAllowanceWithMetamask(cryptoAmountBasicTokenUnit)
+      await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'metamask')
 
       log.info(`Reset allowance to ${CRYPTO_AMOUNT} successfully`)
 
       // go back to transfer form
-      await page.goto(`${process.env.E2E_TEST_URL}/send`)
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
 
       await emtPage.fillForm({
         ...FORM_BASE,
@@ -563,7 +552,9 @@ describe('Transfer Auth Tests', () => {
 
       await gotoAuthPage()
 
-      await expect(page).toMatch(`Your remaining authorized DAI transfer limit is ${CRYPTO_AMOUNT}`)
+      await expect(page).toMatch(`Your remaining DAI transaction limit is ${CRYPTO_AMOUNT}.`, {
+        timeout: 5000
+      })
 
       // click connect
       await Promise.all([
@@ -583,6 +574,11 @@ describe('Transfer Auth Tests', () => {
               action: {
                 type: 'SUBMIT_TX_FULFILLED'
               }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
             }
           ],
           [
@@ -601,6 +597,7 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect('metamask', 'dai', false)
       ])
+      await waitForTxConfirmation()
     },
     timeout
   )

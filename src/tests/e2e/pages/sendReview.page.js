@@ -2,19 +2,9 @@ import { getElementTextContent } from '../testUtils'
 class SendReviewPage {
   async dispatchFormActions (action) {
     if (action === 'continue') {
-      await Promise.all([
-        page.click('[data-test-id="continue"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
-      ])
+      await page.click('[data-test-id="continue"]')
     } else if (action === 'back') {
-      await Promise.all([
-        page.click('[data-test-id="back"]'),
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        })
-      ])
+      await page.click('[data-test-id="back"]')
     } else if (action === 'showSenderAddress') {
       await page.click('[data-test-id="show_from_address_btn"]')
     } else if (action === 'showReceiverAddress') {

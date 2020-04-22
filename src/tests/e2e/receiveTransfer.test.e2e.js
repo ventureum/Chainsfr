@@ -42,16 +42,6 @@ describe('Receive transfer tests', () => {
       process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
       true
     )
-
-    // reset metamask dai allowance
-    await page.goto(`${process.env.E2E_TEST_URL}/disconnect`)
-
-    // dai has decimals of 18
-    const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
-
-    await disconnectPage.setAllowanceWithMetamask(cryptoAmountBasicTokenUnit)
-
-    log.info(`Set allowance Dai successfully`)
   }, timeout)
 
   afterAll(async () => {
@@ -106,13 +96,7 @@ describe('Receive transfer tests', () => {
     async () => {
       const depositWalletType = 'metamask'
       const platformType = 'ethereum'
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        }),
-        page.goto(`${process.env.E2E_TEST_URL}/send`)
-      ])
-
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
         walletType: 'metamask',
@@ -136,14 +120,12 @@ describe('Receive transfer tests', () => {
       log.info('Send tx confirmed', sendTxState)
       log.info('Tx receiving id: ', receivingId)
       // back to home page
-      await Promise.all([
-        page.waitForNavigation(),
-        page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`)
-      ])
+      await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`, {
+        waitUntil: 'networkidle0'
+      })
 
       await receiveFormPage.waitUntilTransferLoaded()
 
-      //
       await receiveFormPage.enterSecurityAnswer('123456')
 
       await Promise.all([
@@ -230,12 +212,16 @@ describe('Receive transfer tests', () => {
     async () => {
       const depositWalletType = 'metamask'
       const platformType = 'ethereum'
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        }),
-        page.goto(`${process.env.E2E_TEST_URL}/send`)
-      ])
+
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
+
+      // dai has decimals of 18
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+      await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'metamask')
+      log.info(`Set allowance Dai successfully`)
+
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
 
       await emtPage.fillForm({
         ...FORM_BASE,
@@ -260,10 +246,9 @@ describe('Receive transfer tests', () => {
       log.info('Send tx confirmed', sendTxState)
       log.info('Tx receiving id: ', receivingId)
       // back to home page
-      await Promise.all([
-        page.waitForNavigation(),
-        page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`)
-      ])
+      await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`, {
+        waitUntil: 'networkidle0'
+      })
 
       await receiveFormPage.waitUntilTransferLoaded()
       await receiveFormPage.enterSecurityAnswer('123456')

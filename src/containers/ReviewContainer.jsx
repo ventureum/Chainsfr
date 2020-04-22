@@ -52,7 +52,9 @@ class ReviewContainer extends Component<Props> {
       <Review
         {...this.props}
         currencyAmount={{
-          transferAmount: transferForm && toCurrencyAmount(transferForm.transferAmount),
+          // transferCurrencyAmount should not be updated by cryptoPrice
+          // tracker
+          transferAmount: transferForm && utils.formatNumber(transferForm.transferCurrencyAmount),
           txFee: txFee && toCurrencyAmount(txFee.costInStandardUnit, true)
         }}
       />
@@ -93,4 +95,7 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReviewContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ReviewContainer)

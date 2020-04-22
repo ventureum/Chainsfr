@@ -36,6 +36,10 @@ jobs:
     - run: aws s3 sync ./build_staging s3://testnet.chainsfr.com --delete
     - run: aws s3 sync ./build_prod s3://app.chainsfr.com --delete
     
+    # deploy maintenance page
+    - run run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
+      if: github.event_name == 'push'
+
     - name: Notify slack success
       if: success()
       env:
