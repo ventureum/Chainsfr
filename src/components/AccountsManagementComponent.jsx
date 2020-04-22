@@ -303,7 +303,7 @@ class AccountsManagementComponent extends Component {
             <TableCell align='left' style={{ width: '18%' }}>
               {currency}
             </TableCell>
-            <TableCell align='left' style={{ width: '2%' }}></TableCell>
+            <TableCell align='left' style={{ width: '2%' }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -332,7 +332,7 @@ class AccountsManagementComponent extends Component {
                     <Avatar
                       style={{ borderRadius: '0px', marginLeft: 15 }}
                       src={getWalletLogo(account.walletType)}
-                    ></Avatar>
+                    />
                   </TableCell>
 
                   <TableCell align='left' className={rowCellClassName}>
@@ -448,7 +448,7 @@ class AccountsManagementComponent extends Component {
                       <Avatar
                         style={{ borderRadius: '0px', marginRight: 10 }}
                         src={getWalletLogo(account.walletType)}
-                      ></Avatar>
+                      />
                       <Box>
                         <Typography variant='body2'>{account.name}</Typography>
                         <Typography variant='caption'>
@@ -547,19 +547,7 @@ class AccountsManagementComponent extends Component {
         display='flex'
       >
         <Container className={classes.container}>
-          <Grid container direction='row-reverse'>
-            <Grid item md={6} xs={12}>
-              <Box display='flex' justifyContent='center' height='225px' width='100%'>
-                <iframe
-                  width='100%'
-                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameBorder='0'
-                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                  title='accountManagementFrame'
-                  allowFullScreen
-                />
-              </Box>
-            </Grid>
+          <Grid container>
             <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
               <Box
                 display='flex'
@@ -632,7 +620,7 @@ class AccountsManagementComponent extends Component {
             open={addAccountModal}
             handleClose={this.toggleAddAccountModal}
             online={online}
-          ></AddAccountModal>
+          />
         )}
         {deleteConfirmModal && this.renderDeleteConfirmModal()}
         {changeNameModal && this.renderChangeNameModal()}
