@@ -192,6 +192,10 @@ function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbo
   return rv
 }
 
+function formatNumber (number: number | string): string {
+  return numeral(number).format('0.000[000]')
+}
+
 function accountsEqual (account1: AccountData, account2: AccountData): boolean {
   if (!account1 || !account2) return false
   return account1.id === account2.id
@@ -205,5 +209,6 @@ export default {
   decryptMessage,
   toCurrencyAmount,
   toCryptoAmount,
-  accountsEqual
+  accountsEqual,
+  formatNumber
 }
