@@ -41,7 +41,7 @@ jobs:
       if: github.event_name == 'push'
 
     # deploy maintenance page
-    - run run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
+    - run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
       if: github.event_name == 'push'
     
     - name: Notify slack success
