@@ -8,8 +8,11 @@ import GoogleLoginButton from './GoogleLoginButton'
 import classNames from 'classnames'
 import env from '../typedEnv'
 import { ReceiveTransferDataSection } from './ReceiveFormComponent'
+
+// Assets
 import ChainsfrLogoSVG from '../images/logo_chainsfr_617_128.svg'
 import ChainsfrLogoDemoSVG from '../images/logo_chainsfr_demo_852_128.svg'
+import ReceiptSVG from '../images/receipt.svg'
 
 const data = {
   descriptions: [
@@ -55,8 +58,37 @@ class LoginComponent extends Component {
     )
   }
 
+  renderFaq = () => {
+    const { classes } = this.props
+    return (
+      <>
+        {data.descriptions.map((item, i) => (
+          <Grid className={classes.leftContainer} key={i}>
+            <Typography align='left' className={classNames(classes.faqTitle, classes.faqFontColor)}>
+              {item.title}
+            </Typography>
+            <Typography
+              align='left'
+              className={classNames(classes.faqContent, classes.faqFontColor)}
+            >
+              {item.content}
+            </Typography>
+          </Grid>
+        ))}
+      </>
+    )
+  }
+
   renderReceiveLogin = () => {
-    let { transfer, sendTime, receiveTime, cancelTime, currencyAmount } = this.props
+    let {
+      transfer,
+      sendTime,
+      receiveTime,
+      cancelTime,
+      currencyAmount,
+      classes,
+      isMainNet
+    } = this.props
 
     let isInvalidTransfer = false
     if (transfer) {
@@ -65,57 +97,103 @@ class LoginComponent extends Component {
     }
 
     return (
-      <Box display='flex' flexDirection='column' alignItems='center'>
-        <Box width='100%' maxWidth='560px' pt={3}>
-          <Box display='flex' flexDirection='column' padding='0px 10px 0px 10px'>
-            <ReceiveTransferDataSection
-              transfer={transfer}
-              sendTime={sendTime}
-              receiveTime={receiveTime}
-              cancelTime={cancelTime}
-              currencyAmount={currencyAmount}
-            />
+      <Grid container className={classNames(classes.container, classes.containerInfo)}>
+        <Grid item md={6} className={classes.faqContainer}>
+          {this.renderFaq()}
+        </Grid>
+        <Grid item md={6} className={classes.loginContainer}>
+          <Box
+            display='flex'
+            flexDirection='column'
+            alignItems='center'
+            mx='auto'
+            my={6}
+            width='100%'
+          >
+            <Box mb={2}>
+              <img
+                className={classes.chainsfrLogo}
+                src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+                alt='Chainsfr Logo'
+              />
+            </Box>
+            <Box maxWidth={360} width={'90%'} mx={2}>
+              <ReceiveTransferDataSection
+                transfer={transfer}
+                sendTime={sendTime}
+                receiveTime={receiveTime}
+                cancelTime={cancelTime}
+                currencyAmount={currencyAmount}
+              />
+            </Box>
             {!isInvalidTransfer && (
-              <Box maxWidth={480} mt={3} width='100%' alignSelf='center'>
-                {this.renderLoginBtn()}
-              </Box>
+              <>
+                <Box maxWidth={480} width='100%' alignSelf='center'>
+                  {this.renderLoginBtn()}
+                </Box>
+                <Box mt={3}>
+                  <Link
+                    className={classes.linkText}
+                    variant='caption'
+                    align='center'
+                    color='textSecondary'
+                    href={data.termURL}
+                    target='_blank'
+                  >
+                    Term and Use
+                  </Link>
+                </Box>
+              </>
             )}
           </Box>
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     )
   }
 
   renderReceiptLogin = () => {
-    let { classes } = this.props
+    let { classes, isMainNet } = this.props
     return (
-      <Grid container direction='column' alignItems='center'>
-        {/* struct copied from ReceiveComponent */}
-        <Grid item className={classes.sectionContainer}>
-          <Grid container direction='column'>
-            <Grid item>
-              <Grid container direction='column' alignItems='center'>
-                <Grid item className={classes.subComponent}>
-                  <Grid
-                    container
-                    direction='column'
-                    justify='center'
-                    alignItems='stretch'
-                    spacing={2}
-                  >
-                    <Grid container direction='column' spacing={4}>
-                      <Grid item>
-                        <Grid container direction='column' justify='center' align='center'>
-                          <Typography variant='h3'> Please login to view this receipt </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item>{this.renderLoginBtn()}</Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+      <Grid container className={classNames(classes.container, classes.containerInfo)}>
+        <Grid item md={6} className={classes.faqContainer}>
+          {this.renderFaq()}
+        </Grid>
+        <Grid item md={6} className={classes.loginContainer}>
+          <Box display='flex' flexDirection='column' alignItems='center' mx='auto' my={6}>
+            <Box mb={2}>
+              <img
+                className={classes.chainsfrLogo}
+                src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+                alt='Chainsfr Logo'
+              />
+            </Box>
+            <Box mb={1}>
+              <img src={ReceiptSVG} alt='Receipt Illustration' />
+            </Box>
+            <Box mb={3}>
+              <Typography
+                variant='h4'
+                align='center'
+                color='textPrimary'
+                className={classes.loginText}
+              >
+                Please sign in to view the receipt
+              </Typography>
+            </Box>
+            <Box width={300}>{this.renderLoginBtn()}</Box>
+            <Box mt={3}>
+              <Link
+                className={classes.linkText}
+                variant='caption'
+                align='center'
+                color='textSecondary'
+                href={data.termURL}
+                target='_blank'
+              >
+                Term and Use
+              </Link>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
     )
@@ -133,22 +211,7 @@ class LoginComponent extends Component {
     return (
       <Grid container className={classNames(classes.container, classes.containerInfo)}>
         <Grid item md={6} className={classes.faqContainer}>
-          {data.descriptions.map((item, i) => (
-            <Grid className={classes.leftContainer} key={i}>
-              <Typography
-                align='left'
-                className={classNames(classes.faqTitle, classes.faqFontColor)}
-              >
-                {item.title}
-              </Typography>
-              <Typography
-                align='left'
-                className={classNames(classes.faqContent, classes.faqFontColor)}
-              >
-                {item.content}
-              </Typography>
-            </Grid>
-          ))}
+          {this.renderFaq()}
         </Grid>
         <Grid item md={6} className={classes.loginContainer}>
           <Box flexGrow={1}>
@@ -194,7 +257,7 @@ const styles = theme => ({
     backgroundColor: '#393386'
   },
   chainsfrLogo: {
-    height: 40,
+    height: 32,
     margin: 'auto'
   },
   faqContainer: {
@@ -210,7 +273,7 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8',
     order: 2
   },
   btnContainer: {
@@ -251,6 +314,9 @@ const styles = theme => ({
     maxWidth: '1200px'
   },
   linkText: {
+    fontFamily: 'Poppins'
+  },
+  loginText: {
     fontFamily: 'Poppins'
   }
 })
