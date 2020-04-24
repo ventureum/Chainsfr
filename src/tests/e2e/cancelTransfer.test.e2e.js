@@ -1,19 +1,18 @@
 import LoginPage from './pages/login.page'
+import DisconnectPage from './pages/disconnect.page'
 import EmailTransferFormPage from './pages/emailTransferForm.page'
 import EmailTransferAuthPage from './pages/emailTransferAuth.page'
 import LandingPage from './pages/landing.page'
 import SendReviewPage from './pages/sendReview.page'
 import ReceiptPage from './pages/receipt.page'
 import CancelReviewPage from './pages/cancelReview.page'
-import log from 'loglevel'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
 import { getNewPopupPage, getTransfer, getTransferState } from './testUtils'
+import BN from 'bn.js'
 
-log.setDefaultLevel('info')
-
-// 10 min
-const timeout = 1000 * 60 * 10
+// 15 min
+const timeout = 1000 * 60 * 15
 
 describe('Cancel transfer tests', () => {
   const reduxTracker = new ReduxTracker()
@@ -22,6 +21,7 @@ describe('Cancel transfer tests', () => {
   const emtAuthPage = new EmailTransferAuthPage()
   const receiptPage = new ReceiptPage()
   const landingPage = new LandingPage()
+  const disconnectPage = new DisconnectPage()
 
   const FORM_BASE = {
     formPage: emtPage,
@@ -30,6 +30,14 @@ describe('Cancel transfer tests', () => {
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'
   }
+
+  // pending transferIds by walletType, cryptoType
+  var pendingReceive = {}
+  // used for expanding row in transfer history
+  var numPendingReceive = 0
+
+  // pending transferIds by walletType, cryptoType
+  var pendingCancel = {}
 
   beforeAll(async () => {
     await resetUserDefault()
@@ -47,7 +55,9 @@ describe('Cancel transfer tests', () => {
     await jestPuppeteer.resetBrowser()
   })
 
-  const sendTx = async () => {
+  const sendTx = async (walletType, cryptoType) => {
+    log.info(`Sending ${walletType}_${cryptoType}...`)
+
     // go to review page
     await emtPage.dispatchFormActions('continue')
     // go to auth page
@@ -70,6 +80,11 @@ describe('Cancel transfer tests', () => {
             action: {
               type: 'SUBMIT_TX_FULFILLED'
             }
+          },
+          {
+            action: {
+              type: 'GET_TRANSFER_FULFILLED'
+            }
           }
         ],
         [
@@ -86,73 +101,152 @@ describe('Cancel transfer tests', () => {
           }
         ]
       ),
-      emtAuthPage.connect('metamask', 'ethereum')
+      emtAuthPage.connect(walletType, cryptoType)
     ])
+
+    const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
+
+    pendingReceive[`${walletType}_${cryptoType}`] = { transferId, idx: numPendingReceive }
+    numPendingReceive += 1
+
+    // wait 2 seconds to avoid consecutive transfers having the
+    // same sendTimestamp, which can cause some ordering issues
+    // in transferHistory list
+    await page.waitFor(2000)
+
+    log.info(`Send ${walletType}_${cryptoType} finished`)
   }
 
-  it(
-    'Cancel Ether tx',
-    async () => {
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        }),
-        page.goto(`${process.env.E2E_TEST_URL}/send`)
-      ])
+  const cancel = async (walletType, cryptoType) => {
+    log.info(`Cancelling ${walletType}_${cryptoType} transfer...`)
 
+    const platformType = 'ethereum'
+    let sendTxState = ''
+
+    const { transferId, idx } = pendingReceive[`${walletType}_${cryptoType}`]
+    log.info(`Transfer Id: ${transferId}`)
+    while (true) {
+      await page.waitFor(15000) // 15 seconds
+      var transferData = await getTransfer({ transferId: transferId })
+      sendTxState = getTransferState(transferData)
+      if (sendTxState === 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED') {
+        var { receivingId } = transferData
+        break
+      }
+      log.info('Waiting for send tx to be confirmed, current state: ', sendTxState)
+    }
+    log.info('Send tx confirmed', sendTxState)
+
+    // back to home page
+    await page.goto(process.env.E2E_TEST_URL, {
+      waitUntil: 'networkidle0'
+    })
+    await landingPage.waitUntilTransferHistoryLoaded()
+
+    const itemIdx = numPendingReceive - idx - 1
+    await landingPage.expandTxHistoryItem(itemIdx)
+
+    const cancelPageTab = await getNewPopupPage(browser, async () => {
+      await landingPage.cancelTx(itemIdx)
+    })
+
+    const cancelReviewPage = new CancelReviewPage(cancelPageTab)
+    await cancelReviewPage.waitUntilTransferLoaded()
+    await cancelReviewPage.dispatchFormActions('review_cancel')
+    await cancelReviewPage.dispatchFormActions('modal_cancel')
+
+    // close the receipt page
+    await cancelPageTab.close()
+
+    pendingCancel[`${walletType}_${cryptoType}`] = { transferId }
+    log.info(`Cancel ${walletType}_${cryptoType} finished`)
+  }
+
+  const confirmCancel = async (walletType, cryptoType) => {
+    log.info(`Confirming cancellation ${walletType}_${cryptoType}...`)
+    const { transferId } = pendingCancel[`${walletType}_${cryptoType}`]
+
+    let canceltxState = ''
+    while (true) {
+      // wait until cancel tx is confirmed
+      await page.waitFor(15000) // 15 seconds
+
+      var transferData = await getTransfer({ transferId: transferId })
+
+      canceltxState = getTransferState(transferData)
+      if (canceltxState === 'SEND_CONFIRMED_CANCEL_CONFIRMED') break
+      log.info('Waiting for cancel tx to be confirmed, current state: ', canceltxState)
+    }
+
+    log.info(`Cancel ${walletType}_${cryptoType} confirmed with txState ${canceltxState}`)
+  }
+
+  // make dai the first tests to reduce waiting time between different transfers
+  // since the allowance approval takes one tx time unit
+  it(
+    'Send DAI from metamask',
+    async () => {
+      const platformType = 'ethereum'
+
+      // reset metamask dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
+
+      // dai has decimals of 18
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+      await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'metamask')
+      log.info(`Set allowance Dai successfully`)
+
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
         walletType: 'metamask',
-        platformType: 'ethereum',
-        cryptoType: 'ethereum'
+        platformType: platformType,
+        cryptoType: 'dai'
       })
 
-      await sendTx()
-      let sendTxState = ''
-      while (true) {
-        await page.waitFor(15000) // 15 seconds
-        const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
-        const transferData = await getTransfer({ transferId: transferId })
-        sendTxState = getTransferState(transferData)
-        if (sendTxState === 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED') break
-        log.info('Waiting for send tx to be confirmed, current state: ', sendTxState)
-      }
-      log.info('Send tx confirmed', sendTxState)
-
-      // back to home page
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        }),
-        page.goto(process.env.E2E_TEST_URL)
-      ])
-      await landingPage.waitUntilTransferHistoryLoaded()
-      await landingPage.expandTxHistoryItem(0)
-
-      const cancelPageTab = await getNewPopupPage(browser, async () => {
-        await landingPage.cancelTx(0)
-      })
-
-      const cancelReviewPage = new CancelReviewPage(cancelPageTab)
-      await cancelReviewPage.waitUntilTransferLoaded()
-      await cancelReviewPage.dispatchFormActions('review_cancel')
-      await cancelReviewPage.dispatchFormActions('modal_cancel')
-
-      const cancelReceiptPage = new ReceiptPage(cancelPageTab)
-      await cancelReceiptPage.waitUntilReceiptLoaded()
-
-      let canceltxState = ''
-      while (true) {
-        // wait until cancel tx is confirmed
-        await page.waitFor(15000) // 15 seconds
-        const { transferId } = await cancelReceiptPage.getReceiptFormInfo('transferId')
-        const transferData = await getTransfer({ transferId: transferId })
-        canceltxState = getTransferState(transferData)
-        if (canceltxState === 'SEND_CONFIRMED_CANCEL_CONFIRMED') break
-        log.info('Waiting for cancel tx to be confirmed, current state: ', canceltxState)
-      }
-      log.info('Cancel tx confirmed', canceltxState)
+      await sendTx('metamask', 'dai')
     },
     timeout
   )
+
+  it(
+    'Send ETH from metamask',
+    async () => {
+      const platformType = 'ethereum'
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        walletType: 'metamask',
+        platformType: platformType,
+        cryptoType: 'ethereum'
+      })
+
+      await sendTx('metamask', 'ethereum')
+    },
+    timeout
+  )
+
+  it(
+    'Cancel DAI metamask transfer',
+    async () => {
+      await cancel('metamask', 'dai')
+    },
+    timeout
+  )
+
+  it(
+    'Cancel ETH metamask transfer',
+    async () => {
+      await cancel('metamask', 'ethereum')
+    },
+    timeout
+  )
+
+  it('Confirm DAI metamask cancellation', async () => {
+    await confirmCancel('metamask', 'dai')
+  })
+
+  it('Confirm ETH metamask cancellation', async () => {
+    await confirmCancel('metamask', 'ethereum')
+  })
 })
