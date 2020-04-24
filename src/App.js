@@ -123,7 +123,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   enqueueSnackbar({
                     message: 'No Internet connection',
                     key: 'offline',
-                    options: { variant: 'error', persist: true }
+                    options: { persist: true }
                   })
                 )
               }, 3000)
@@ -134,7 +134,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
             if (isolate) {
               return (
                 <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
-                  <AppBar {...matchProps} online={online} isolate={isolate} isMainNet={isMainNet}/>
+                  <AppBar {...matchProps} online={online} isolate={isolate} isMainNet={isMainNet} />
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -248,80 +248,80 @@ class App extends Component {
       <ThemeProvider theme={themeChainsfr}>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-          <SnackbarProvider
-            action={[
-              <IconButton key='close' aria-label='Close' color='inherit'>
-                <CloseIcon />
-              </IconButton>
-            ]}
-          >
-            <ConnectedRouter history={history}>
-              <Switch>
-                <LoginLayoutSwitch
-                  path={paths.login}
-                  isolate
-                  component={userIsNotAuthenticated(LoginContainer)}
-                />
-                <DefaultLayout
-                  exact
-                  path={paths.home}
-                  component={userIsAuthenticated(LandingPage)}
-                />
-                <DefaultLayout
-                  exact
-                  path={paths.wallet}
-                  component={userIsAuthenticated(WalletContainer)}
-                />
-                <DefaultLayout
-                  isolate
-                  path={`${paths.directTransfer}`}
-                  component={userIsAuthenticated(DirectTransferContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.transfer}`}
-                  isolate
-                  component={userIsAuthenticated(TransferContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.receive}`}
-                  isolate
-                  component={userIsAuthenticated(ReceiveContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.cancel}`}
-                  isolate
-                  component={userIsAuthenticated(CancelContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.contacts}`}
-                  component={userIsAuthenticated(RecipientsContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.accounts}`}
-                  component={userIsAuthenticated(AccountsManagementContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.receipt}`}
-                  isolate
-                  component={userIsAuthenticated(ReceiptContainer)}
-                />
-                <DefaultLayout
-                  path={`${paths.OAuthRedirect}`}
-                  component={userIsAuthenticated(OAuthRedirectComponent)}
-                />
-                <DefaultLayout
-                  path={`${paths.userSetting}`}
-                  component={userIsAuthenticated(UserSettingContainer)}
-                />
-                {process.env.REACT_APP_ENV === 'test' && (
-                  <DefaultLayout
-                    path={`${paths.disconnect}`}
-                    component={userIsAuthenticated(Disconnect)}
+            <SnackbarProvider
+              action={[
+                <IconButton key='close' aria-label='Close' color='inherit'>
+                  <CloseIcon />
+                </IconButton>
+              ]}
+            >
+              <ConnectedRouter history={history}>
+                <Switch>
+                  <LoginLayoutSwitch
+                    path={paths.login}
+                    isolate
+                    component={userIsNotAuthenticated(LoginContainer)}
                   />
-                )}
-              </Switch>
-            </ConnectedRouter>
-          </SnackbarProvider>
+                  <DefaultLayout
+                    exact
+                    path={paths.home}
+                    component={userIsAuthenticated(LandingPage)}
+                  />
+                  <DefaultLayout
+                    exact
+                    path={paths.wallet}
+                    component={userIsAuthenticated(WalletContainer)}
+                  />
+                  <DefaultLayout
+                    isolate
+                    path={`${paths.directTransfer}`}
+                    component={userIsAuthenticated(DirectTransferContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.transfer}`}
+                    isolate
+                    component={userIsAuthenticated(TransferContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.receive}`}
+                    isolate
+                    component={userIsAuthenticated(ReceiveContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.cancel}`}
+                    isolate
+                    component={userIsAuthenticated(CancelContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.contacts}`}
+                    component={userIsAuthenticated(RecipientsContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.accounts}`}
+                    component={userIsAuthenticated(AccountsManagementContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.receipt}`}
+                    isolate
+                    component={userIsAuthenticated(ReceiptContainer)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.OAuthRedirect}`}
+                    component={userIsAuthenticated(OAuthRedirectComponent)}
+                  />
+                  <DefaultLayout
+                    path={`${paths.userSetting}`}
+                    component={userIsAuthenticated(UserSettingContainer)}
+                  />
+                  {process.env.REACT_APP_ENV === 'test' && (
+                    <DefaultLayout
+                      path={`${paths.disconnect}`}
+                      component={userIsAuthenticated(Disconnect)}
+                    />
+                  )}
+                </Switch>
+              </ConnectedRouter>
+            </SnackbarProvider>
           </PersistGate>
         </Provider>
       </ThemeProvider>

@@ -525,20 +525,7 @@ class LandingPageComponent extends Component {
         display='flex'
       >
         <Container className={classes.container}>
-          <Grid container direction='row-reverse'>
-            <Grid item md={6} xs={12}>
-              <Box display='flex' justifyContent='center' height='225px' width='100%'>
-                <iframe
-                  width='100%'
-                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameBorder='0'
-                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                  title='landingFrame'
-                  allowFullScreen
-                  data-test-id='video_embed'
-                />
-              </Box>
-            </Grid>
+          <Grid container>
             <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
               <Box
                 display='flex'
@@ -551,8 +538,7 @@ class LandingPageComponent extends Component {
                   Email Transfer
                 </Typography>
                 <Typography className={classes.descText} data-test-id='emt_subtitle'>
-                  Send Crypto payments to any Email address.
-                  No more cryptic address.
+                  Send Crypto payments to any Email address. No more cryptic address.
                 </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>

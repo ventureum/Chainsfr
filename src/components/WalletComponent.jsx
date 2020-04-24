@@ -527,19 +527,7 @@ function WalletComponent (props: {
         display='flex'
       >
         <Container className={classes.container}>
-          <Grid container direction='row-reverse'>
-            <Grid item md={6} xs={12}>
-              <Box display='flex' justifyContent='center' height='225px' width='100%'>
-                <iframe
-                  width='100%'
-                  src='https://www.youtube.com/embed/TeHbsQ0-wmM'
-                  frameBorder='0'
-                  allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                  title='walletFrame'
-                  allowFullScreen
-                />
-              </Box>
-            </Grid>
+          <Grid container>
             <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
               <Box
                 display='flex'
