@@ -176,17 +176,6 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   )
 }
 
-const LoginLayoutSwitch = props => {
-  const query = props.location.search
-  if (query.includes('?redirect=%2Freceipt') || query.includes('?redirect=%2Freceive')) {
-    // special cases
-    // use default layout for receipt and receive before authentication
-    return <DefaultLayout {...props} />
-  } else {
-    return <LoginLayout {...props} />
-  }
-}
-
 class App extends Component {
   constructor (props) {
     super(props)
@@ -257,7 +246,7 @@ class App extends Component {
             >
               <ConnectedRouter history={history}>
                 <Switch>
-                  <LoginLayoutSwitch
+                  <LoginLayout
                     path={paths.login}
                     isolate
                     component={userIsNotAuthenticated(LoginContainer)}
