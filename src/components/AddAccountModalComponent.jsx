@@ -47,11 +47,13 @@ import { useActionTracker } from '../hooksUtils'
 import MuiLink from '@material-ui/core/Link'
 
 // Icons
+import CancelIcon from '@material-ui/icons/Cancel'
 import CheckCircleIcon from '@material-ui/icons/CheckCircleRounded'
 import CloseIcon from '@material-ui/icons/CloseRounded'
 import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
 import ErrorIcon from '@material-ui/icons/ErrorRounded'
 import FileCopyIcon from '@material-ui/icons/FileCopyRounded'
+import InfoIcon from '@material-ui/icons/InfoOutlined'
 
 const useStyles = makeStyles(theme => ({
   closeButton: {
@@ -118,8 +120,206 @@ const useStyles = makeStyles(theme => ({
   divider: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2)
+  },
+  checkCircleIcon: {
+    color: '#0C9B57',
+    fontSize: '20px'
+  },
+  infoIcon: {
+    color: '#AAAAAA',
+    fontSize: '20px'
+  },
+  cancelIcon: {
+    color: '#EA4335',
+    fontSize: '20px'
+  },
+  featureListItem: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(0),
+    paddingRight: theme.spacing(0),
+    height: '70px'
+  },
+  featureList: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2)
   }
 }))
+
+type FeatureListItemProps = {
+  leftIcon: any, // Material-UI Icon Component
+  text: string,
+  subText?: string,
+  rightIcon: any // Material-UI Icon Component
+}
+
+const FeatureListItem = (props: FeatureListItemProps) => {
+  const { leftIcon, text, subText, rightIcon } = props
+  const classes = useStyles()
+  return (
+    <ListItem divider className={classes.featureListItem}>
+      <Box display='flex' alignItems='center' flexDirection='row' width='100%' pl={1}>
+        {leftIcon}
+        <Box flex='1' pl={1} pr={1}>
+          <Typography variant='body1'>{text}</Typography>
+          {subText && <Typography variant='body2'>{subText}</Typography>}
+        </Box>
+        {rightIcon}
+      </Box>
+    </ListItem>
+  )
+}
+
+type DepositFeatureProps = {
+  supported: boolean,
+  walletType: string
+}
+
+const DepositFeature = (props: DepositFeatureProps) => {
+  const { supported, walletType } = props
+  const classes = useStyles()
+  return (
+    <FeatureListItem
+      leftIcon={
+        supported ? (
+          <CheckCircleIcon className={classes.checkCircleIcon} />
+        ) : (
+          <CancelIcon className={classes.cancelIcon} />
+        )
+      }
+      text='Deposite payment'
+      subText={`No connection to ${getWalletTitle(walletType)} required`}
+      rightIcon={<InfoIcon className={classes.infoIcon} />}
+    />
+  )
+}
+
+type SendFeatureProps = {
+  supported: boolean,
+  walletType: string
+}
+
+const SendFeature = (props: SendFeatureProps) => {
+  const { supported, walletType } = props
+  const classes = useStyles()
+  return (
+    <FeatureListItem
+      leftIcon={
+        supported ? (
+          <CheckCircleIcon className={classes.checkCircleIcon} />
+        ) : (
+          <CancelIcon className={classes.cancelIcon} />
+        )
+      }
+      text='Send payment'
+      subText={
+        supported ? `Require connection to ${getWalletTitle(walletType)}` : 'Not supported yet'
+      }
+      rightIcon={<InfoIcon className={classes.infoIcon} />}
+    />
+  )
+}
+
+type ViewAddressFeatureProps = {
+  supported: boolean,
+  walletType: string,
+  platformType: string
+}
+
+const ViewAddressFeature = (props: ViewAddressFeatureProps) => {
+  const { supported, walletType, platformType } = props
+  const classes = useStyles()
+  if (walletType === 'ledger' && platformType === 'bitcoin') {
+    return (
+      <FeatureListItem
+        leftIcon={
+          supported ? (
+            <CheckCircleIcon className={classes.checkCircleIcon} />
+          ) : (
+            <CancelIcon className={classes.cancelIcon} />
+          )
+        }
+        text={`View ${getWalletTitle(walletType)} XPub`}
+        rightIcon={<InfoIcon className={classes.infoIcon} />}
+      />
+    )
+  }
+  return (
+    <FeatureListItem
+      leftIcon={
+        supported ? (
+          <CheckCircleIcon className={classes.checkCircleIcon} />
+        ) : (
+          <CancelIcon className={classes.cancelIcon} />
+        )
+      }
+      text={`View ${getWalletTitle(walletType)} account address`}
+      rightIcon={<InfoIcon className={classes.infoIcon} />}
+    />
+  )
+}
+type SupportedCoinFeatureProps = {
+  supported: boolean
+}
+
+const SupportedCoinFeature = (props: SupportedCoinFeatureProps) => {
+  const { supported } = props
+  const classes = useStyles()
+  return (
+    <FeatureListItem
+      leftIcon={
+        supported ? (
+          <CheckCircleIcon className={classes.checkCircleIcon} />
+        ) : (
+          <CancelIcon className={classes.cancelIcon} />
+        )
+      }
+      text='Support many coin types'
+      subText={'ETH, DAI, USDC, TUSD, etc...'}
+      rightIcon={<InfoIcon className={classes.infoIcon} />}
+    />
+  )
+}
+type FeatureListProps = {
+  walletType: string,
+  platformType: string
+}
+const FeatureList = (props: FeatureListProps) => {
+  const { walletType, platformType } = props
+  const classes = useStyles()
+  let features = []
+  if (
+    ['trustWalletConnect', 'metamaskWalletConnect', 'metamask', 'coinbaseWalletLink'].includes(
+      walletType
+    )
+  ) {
+    features = [
+      <DepositFeature supported walletType={walletType} />,
+      <SendFeature supported walletType={walletType} />,
+      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />,
+      <SupportedCoinFeature supported walletType={walletType} />
+    ]
+  } else if (walletType === 'ledger') {
+    features = [
+      <DepositFeature supported walletType={walletType} />,
+      <SendFeature supported walletType={walletType} />,
+      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />
+    ]
+  } else if (walletType === 'coinbaseOAuthWallet') {
+    features = [
+      <DepositFeature supported walletType={walletType} />,
+      <SendFeature supported={false} walletType={walletType} />,
+      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />
+    ]
+  }
+  return (
+    <List disablePadding className={classes.featureList}>
+      <Divider />
+      {features}
+    </List>
+  )
+}
+
 type SelectCoinProps = {
   selectedCryptoType: string,
   cryptoTypeList: Array<string>,
@@ -149,7 +349,7 @@ const SelectCoin = (props: SelectCoinProps) => {
               <Box display='flex' alignItems='center'>
                 <Box mr={1} display='inline'>
                   {/* wallet icon */}
-                  <Avatar style={{ borderRadius: '2px' }} src={getCryptoLogo(cryptoType)}></Avatar>
+                  <Avatar style={{ borderRadius: '2px' }} src={getCryptoLogo(cryptoType)} />
                 </Box>
                 <Box>
                   {/* wallet symbol */}
@@ -249,7 +449,7 @@ type WalletListProps = {
 const WalletList = (props: WalletListProps) => {
   const { onSelect } = props
   const addableWallets = walletSelections.filter(w => {
-    return w.addable
+    return w.addable || w.addDisabledReason
   })
   const classes = useStyles()
   return (
@@ -266,46 +466,15 @@ const WalletList = (props: WalletListProps) => {
                 onSelect(w.walletType)
               }}
               data-test-id={`wallet_item_${w.walletType}`}
+              disabled={!w.addable}
             >
-              <Box display='flex' flexDirection='row' alignItems='center'>
+              <Box display='flex' flexDirection='row' alignItems='center' height='30px'>
                 <Box mr={1}>
                   <Avatar className={classes.avatar} src={getWalletLogo(w.walletType)} />
                 </Box>
                 <Box>
-                  <Typography variant='body2'>{getWalletTitle(w.walletType)}</Typography>
-                </Box>
-              </Box>
-            </ListItem>
-          )
-        })}
-      </List>
-    </Box>
-  )
-}
-
-type SupportedCoinTypesProps = {
-  platformType: string
-}
-
-const SupportedCoinTypes = (props: SupportedCoinTypesProps) => {
-  const { platformType } = props
-  const cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
-  const classes = useStyles()
-  if (!platformType) return null
-  return (
-    <Box width='100%' flexDirection='column' display='flex'>
-      <Typography variant='h6'>Supported coin types</Typography>
-      <Divider style={{ marginTop: 10 }} />
-      <List disablePadding>
-        {cryptoTypes.map((c, i) => {
-          return (
-            <ListItem key={`crypto-${i}`} divider className={classes.denseListItem}>
-              <Box display='flex' flexDirection='row' alignItems='center'>
-                <Box mr={1}>
-                  <Avatar className={classes.avatar} src={getCryptoLogo(c)} />
-                </Box>
-                <Box>
-                  <Typography variant='body2'>{getCryptoSymbol(c)}</Typography>
+                  <Typography variant='body1'>{getWalletTitle(w.walletType)}</Typography>
+                  {!w.addable && <Typography variant='body2'>{w.addDisabledReason}</Typography>}
                 </Box>
               </Box>
             </ListItem>
@@ -540,10 +709,12 @@ const ConnectWallet = (props: ConnectWalletProps) => {
               errors={errors}
             />
           </Box>
-          <Box mt={1} width='100%'>
-            <SupportedCoinTypes platformType={platformType} />
-          </Box>
         </Box>
+        {platformType && (
+          <Box mt={1} width='100%'>
+            <FeatureList walletType={walletType} platformType={platformType} />
+          </Box>
+        )}
       </Box>
     )
   } else {
@@ -570,6 +741,11 @@ const ConnectWallet = (props: ConnectWalletProps) => {
             />
           </Box>
         </Box>
+        {cryptoType && (
+          <Box mt={1} width='100%'>
+            <FeatureList walletType={walletType} platformType={platformType} />
+          </Box>
+        )}
       </Box>
     )
   }
