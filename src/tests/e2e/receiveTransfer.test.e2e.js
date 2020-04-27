@@ -271,6 +271,51 @@ describe('Receive transfer tests', () => {
   )
 
   it(
+    'Send DAI from drive',
+    async done => {
+      const platformType = 'ethereum'
+
+      // reset drive dai allowance
+      await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
+
+      // dai has decimals of 18
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+      await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'drive')
+      log.info(`Set allowance Dai successfully`)
+
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        walletType: 'drive',
+        platformType: platformType,
+        cryptoType: 'dai'
+      })
+
+      await sendTx('drive', 'dai')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Send ETH from drive',
+    async done => {
+      const platformType = 'ethereum'
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        walletType: 'drive',
+        platformType: platformType,
+        cryptoType: 'ethereum'
+      })
+
+      await sendTx('drive', 'ethereum')
+      done()
+    },
+    timeout
+  )
+
+  it(
     'Deposit DAI into metamask',
     async done => {
       await deposit('metamask', 'dai')
@@ -288,6 +333,24 @@ describe('Receive transfer tests', () => {
     timeout
   )
 
+  it(
+    'Deposit DAI into drive',
+    async done => {
+      await deposit('drive', 'dai')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Deposit ETH into drive',
+    async done => {
+      await deposit('drive', 'ethereum')
+      done()
+    },
+    timeout
+  )
+
   it('Confirm DAI metamask depost', async done => {
     await confirmDeposit('metamask', 'dai')
     done()
@@ -295,6 +358,16 @@ describe('Receive transfer tests', () => {
 
   it('Confirm ETH metamask depost', async done => {
     await confirmDeposit('metamask', 'ethereum')
+    done()
+  })
+
+  it('Confirm DAI drive depost', async done => {
+    await confirmDeposit('drive', 'dai')
+    done()
+  })
+
+  it('Confirm ETH drive depost', async done => {
+    await confirmDeposit('drive', 'ethereum')
     done()
   })
 })
