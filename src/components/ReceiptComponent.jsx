@@ -240,7 +240,7 @@ class ReceiptComponent extends Component<Props, State> {
               <MuiLink
                 target='_blank'
                 rel='noopener'
-                href={url.getExplorerTx(cryptoType, receiveTxHash)}
+                href={url.getExplorerTx(cryptoType, cancelTxHash)}
               >
                 {' here'}
               </MuiLink>
@@ -261,7 +261,7 @@ class ReceiptComponent extends Component<Props, State> {
               <MuiLink
                 target='_blank'
                 rel='noopener'
-                href={url.getExplorerTx(cryptoType, receiveTxHash)}
+                href={url.getExplorerTx(cryptoType, cancelTxHash)}
               >
                 {' here'}
               </MuiLink>
