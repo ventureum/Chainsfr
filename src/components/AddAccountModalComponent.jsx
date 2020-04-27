@@ -758,7 +758,7 @@ const AddAccountModalComponent = (props: AddAccountModalComponentProps) => {
       disableBackdropClick={locked}
     >
       <DialogTitle disableTypography className={classes.titleRoot}>
-        <Typography variant='h3'>Connect to Account</Typography>
+        <Typography variant='h3'>Add account connection</Typography>
         <IconButton onClick={handleClose} className={classes.closeButton} disabled={locked}>
           <CloseIcon className={classes.closeIcon} />
         </IconButton>

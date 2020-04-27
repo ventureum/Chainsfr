@@ -419,7 +419,7 @@ export function UserRecentTransactions (props) {
                   className={classes.recentTransferItemCancelBtn}
                   data-test-id={`cancel_btn_${i}`}
                 >
-                  Cancel Transfer
+                  Cancel Payment
                 </Button>
               </Grid>
             )}
@@ -535,10 +535,11 @@ class LandingPageComponent extends Component {
                 justifyContent='center'
               >
                 <Typography variant='h2' data-test-id='emt_title'>
-                  Email Transfer
+                  My Payments
                 </Typography>
                 <Typography className={classes.descText} data-test-id='emt_subtitle'>
-                  Send Crypto payments to any Email address. No more cryptic address.
+                  Make Cryptocurrency payments to any Email address.
+                  Cancel payments when needed.
                 </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>
@@ -549,7 +550,7 @@ class LandingPageComponent extends Component {
                         onClick={() => push(path.transfer)}
                         data-test-id='emt_btn'
                       >
-                        Start Email Transfer
+                        Make a Payment
                       </Button>
                     </Grid>
                     <Grid item className={classes.uppperSmallGridItem}>
@@ -559,7 +560,7 @@ class LandingPageComponent extends Component {
                         onClick={() => push(path.accounts)}
                         data-test-id='cya_btn'
                       >
-                        Connect Your Accounts
+                        Connect to Existing Wallets
                       </Button>
                     </Grid>
                   </Grid>

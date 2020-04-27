@@ -100,16 +100,16 @@ class ReceiptComponent extends Component<Props, State> {
     switch (state) {
       case transferStates.SEND_PENDING:
         // only accessible to sender
-        title = 'Transfer Arranged'
+        title = 'Payment Arranged'
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         messageBoxContent =
           `${platFormType} network is processing your transaction. ` +
           `${receiverName} will receive an email notification to ` +
-          `accept your transfer shortly`
+          `accept your payment shortly`
         break
       case transferStates.SEND_DIRECT_TRANSFER_PENDING:
         // only accessible to sender
-        title = 'Transfer Arranged'
+        title = 'Payment Arranged'
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         messageBoxContent = `${platFormType} network is processing your transaction. `
         break
@@ -118,24 +118,24 @@ class ReceiptComponent extends Component<Props, State> {
         // only accessible to sender
         // TODO need to classify failures into different cases
         // make errror messsage more specific
-        title = 'Transfer Delayed'
+        title = 'Payment Delayed'
         titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
         messageBoxContent =
-          'Your transfer is experiencing longer than usual time to ' +
+          'Your payment is experiencing longer than usual time to ' +
           'be processed by the network. To learn more, visit our Help Center.'
         break
       case transferStates.SEND_DIRECT_TRANSFER_CONFIRMED:
-        title = 'Transfer Completed'
+        title = 'Payment Completed'
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_PENDING:
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING:
         // edge case, receive initiated before expiration, pending just after expiration
         if (transferType === 'SENDER') {
-          title = 'Transfer Sent'
+          title = 'Payment Sent'
           messageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
-          title = 'Transfer Accepted'
+          title = 'Payment Accepted'
           messageBoxContent = (
             <Typography>
               It may take some time to update your account balance. You can track the transaction
@@ -154,7 +154,7 @@ class ReceiptComponent extends Component<Props, State> {
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_FAILURE:
         if (transferType === 'SENDER') {
-          title = 'Transfer Sent'
+          title = 'Payment Sent'
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
           messageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
@@ -162,7 +162,7 @@ class ReceiptComponent extends Component<Props, State> {
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
             <Typography>
-              Something went wrong while sending your transfer. You can track the transaction
+              Something went wrong while sending your payment. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -178,16 +178,16 @@ class ReceiptComponent extends Component<Props, State> {
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE:
         // edge case, receive initiated before expiration, failure just after expiration
         if (transferType === 'SENDER') {
-          title = 'Transfer Expired'
+          title = 'Payment Expired'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
-          messageBoxContent = `Transfer has expired. Please cancel the transfer.`
+          messageBoxContent = `Payment has expired. Please reclaim the payment.`
           break
         } else {
           title = 'Accept Failed'
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
             <Typography>
-              Something went wrong while sending your transfer. You can track the transaction
+              Something went wrong while sending your payment. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -202,12 +202,12 @@ class ReceiptComponent extends Component<Props, State> {
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED:
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED:
-        title = 'Transfer Completed'
+        title = 'Payment Completed'
         titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED:
         if (transferType === 'SENDER') {
-          title = 'Transfer Sent'
+          title = 'Payment Sent'
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
           messageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
@@ -215,14 +215,14 @@ class ReceiptComponent extends Component<Props, State> {
         }
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED:
-        title = 'Transfer Expired'
+        title = 'Payment Expired'
         titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
         if (transferType === 'SENDER') {
-          messageBoxContent = `Transfer has expired. Please cancel the transfer.`
+          messageBoxContent = `Payment has expired. Please reclaim the payment.`
         }
         break
       case transferStates.SEND_CONFIRMED_CANCEL_PENDING:
-        title = 'Transfer Cancelled'
+        title = 'Payment Cancelled'
         if (transferType === 'SENDER') {
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
           messageBoxContent = (
@@ -244,7 +244,7 @@ class ReceiptComponent extends Component<Props, State> {
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_PENDING:
         if (transferType === 'SENDER') {
-          title = 'Transfer Reclaimed'
+          title = 'Payment Reclaimed'
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
           messageBoxContent = (
             <Typography>
@@ -260,12 +260,12 @@ class ReceiptComponent extends Component<Props, State> {
             </Typography>
           )
         } else {
-          title = 'Transfer Expired'
+          title = 'Payment Expired'
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
         }
         break
       case transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED:
-        title = 'Transfer Cancelled'
+        title = 'Payment Cancelled'
         if (transferType === 'SENDER') {
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
         } else {
@@ -274,10 +274,10 @@ class ReceiptComponent extends Component<Props, State> {
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED:
         if (transferType === 'SENDER') {
-          title = 'Transfer Reclaimed'
+          title = 'Payment Reclaimed'
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
         } else {
-          title = 'Transfer Expired'
+          title = 'Payment Expired'
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
         }
         break
@@ -287,7 +287,7 @@ class ReceiptComponent extends Component<Props, State> {
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
             <Typography>
-              Something went wrong while cancelling your transfer. You can track the transaction
+              Something went wrong while cancelling your payment. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -299,7 +299,7 @@ class ReceiptComponent extends Component<Props, State> {
             </Typography>
           )
         } else {
-          title = 'Transfer Cancelled'
+          title = 'Payment Cancelled'
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
         }
         break
@@ -309,7 +309,7 @@ class ReceiptComponent extends Component<Props, State> {
           titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
           messageBoxContent = (
             <Typography>
-              Something went wrong while cancelling your transfer. You can track the transaction
+              Something went wrong while reclaiming your payment. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -321,7 +321,7 @@ class ReceiptComponent extends Component<Props, State> {
             </Typography>
           )
         } else {
-          title = 'Transfer Expired'
+          title = 'Payment Expired'
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
         }
         break

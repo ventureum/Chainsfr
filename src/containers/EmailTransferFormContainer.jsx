@@ -140,7 +140,7 @@ export default function EmailTransferFormContainer (props: Props) {
   return (
     <Grid container direction='column' justify='center' alignItems='stretch'>
       <Grid item style={{ marginBottom: 30 }}>
-        <TransferFormComponents.Title title={'Set up Transfer'} />
+        <TransferFormComponents.Title title={'Set up Payment'} />
       </Grid>
       <Grid item>
         <TransferFormComponents.SelectRecipient

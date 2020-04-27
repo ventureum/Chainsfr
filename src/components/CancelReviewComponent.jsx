@@ -62,13 +62,13 @@ class CancelReviewComponent extends Component {
         onClose={this.handleClose}
       >
         <DialogTitle id='cancel-dialog-title'>
-          <Typography varaint='h3'>Cancel Transfer</Typography>
+          <Typography varaint='h3'>Cancel Payment</Typography>
         </DialogTitle>
         <Grid container direction='column' justify='center' className={classes.modalContainer}>
           <Grid item className={classes.modalDescSection}>
             <Typography variant='body2'>
-              You are going to cancel the arranged transfer. Recepient will receive an email
-              notification and won’t be able to accept the transfer anymore. Gas fee will be
+              You are going to cancel the arranged payment. Recepient will receive an email
+              notification and won’t be able to accept the payment anymore. Gas fee will be
               applied.
             </Typography>
           </Grid>
@@ -103,7 +103,7 @@ class CancelReviewComponent extends Component {
                     id='confirmCancel'
                     data-test-id='modal_cancel_btn'
                   >
-                    Cancel Transfer
+                    Cancel Payment
                   </Button>
                   {(actionsPending.verifyEscrowAccountPassword ||
                     actionsPending.cancelTransfer) && (
@@ -351,7 +351,7 @@ class CancelReviewComponent extends Component {
                   id='cancel'
                   data-test-id='review_cancel_btn'
                 >
-                  Cancel Transfer
+                  Cancel Payment
                 </Button>
               </Grid>
             </Grid>

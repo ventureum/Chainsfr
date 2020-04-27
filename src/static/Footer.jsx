@@ -19,7 +19,7 @@ class FooterComponent extends React.Component {
             </Grid>
             <Grid item xs={12} sm={5} className={classes.itemContainer}>
               <Typography className={classes.descriptionText}>
-                Chainsfr is a cryptocurrency transfer service, powered by Google Drive APIs and Amazon Web Services.
+                Chainsfr is a cryptocurrency payment service, powered by Google Drive APIs and Amazon Web Services.
               </Typography>
             </Grid>
             <Grid item xs={12} sm={4} className={classes.itemContainer}>

@@ -206,33 +206,33 @@ class ReceiptPage {
     let cancelled
     switch (state) {
       case transferStates.SEND_PENDING:
-        expectedTitle = 'Transfer Arranged'
+        expectedTitle = 'Payment Arranged'
         expectedMessageBoxContent =
           `${platFormType} network is processing your transaction. ` +
           `${receiverName} will receive an email notification to ` +
-          `accept your transfer shortly`
+          `accept your payment shortly`
         break
       case transferStates.SEND_DIRECT_TRANSFER_PENDING:
-        expectedTitle = 'Transfer Arranged'
+        expectedTitle = 'Payment Arranged'
         expectedMessageBoxContent = `${platFormType} network is processing your transaction. `
         break
       case transferStates.SEND_FAILURE:
       case transferStates.SEND_DIRECT_TRANSFER_FAILURE:
-        expectedTitle = 'Transfer Delayed'
+        expectedTitle = 'Payment Delayed'
         expectedMessageBoxContent =
-          'Your transfer is experiencing longer than usual time to ' +
+          'Your payment is experiencing longer than usual time to ' +
           'be processed by the network. To learn more, visit our Help Center.'
         break
       case transferStates.SEND_DIRECT_TRANSFER_CONFIRMED:
-        expectedTitle = 'Transfer Completed'
+        expectedTitle = 'Payment Completed'
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_PENDING:
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_PENDING:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Sent'
+          expectedTitle = 'Payment Sent'
           expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
-          expectedTitle = 'Transfer Accepted'
+          expectedTitle = 'Payment Accepted'
           expectedMessageBoxContent =
             'It may take some time to update your account balance. You can track the transaction here.'
         }
@@ -240,49 +240,49 @@ class ReceiptPage {
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_FAILURE:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Sent'
+          expectedTitle = 'Payment Sent'
           expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
           expectedTitle = 'Accept Failed'
           expectedMessageBoxContent =
-            'Something went wrong while sending your transfer. ' +
+            'Something went wrong while sending your payment. ' +
             'You can track the transaction here. Please contact us for help.'
         }
         received = true
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Expired'
-          expectedMessageBoxContent = `Transfer has expired. Please cancel the transfer.`
+          expectedTitle = 'Payment Expired'
+          expectedMessageBoxContent = `Payment has expired. Please reclaim the payment.`
           break
         } else {
           expectedTitle = 'Accept Failed'
           expectedMessageBoxContent =
-            'Something went wrong while sending your transfer. ' +
+            'Something went wrong while sending your payment. ' +
             'You can track the transaction here. Please contact us for help.'
         }
         received = true
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_CONFIRMED:
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED:
-        expectedTitle = 'Transfer Completed'
+        expectedTitle = 'Payment Completed'
         break
       case transferStates.SEND_CONFIRMED_RECEIVE_NOT_INITIATED:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Sent'
+          expectedTitle = 'Payment Sent'
           expectedMessageBoxContent = `An email notification was sent to ${receiverName} successfully.`
         } else {
           expectedTitle = 'Pending to Receive'
         }
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED:
-        expectedTitle = 'Transfer Expired'
+        expectedTitle = 'Payment Expired'
         if (userType === 'SENDER') {
-          expectedMessageBoxContent = `Transfer has expired. Please cancel the transfer.`
+          expectedMessageBoxContent = `Payment has expired. Please reclaim the payment.`
         }
         break
       case transferStates.SEND_CONFIRMED_CANCEL_PENDING:
-        expectedTitle = 'Transfer Cancelled'
+        expectedTitle = 'Payment Cancelled'
         if (userType === 'SENDER') {
           expectedMessageBoxContent =
             'It may take some time to update your account balance. You can track the transaction here.'
@@ -291,23 +291,23 @@ class ReceiptPage {
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_PENDING:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Reclaimed'
+          expectedTitle = 'Payment Reclaimed'
           expectedMessageBoxContent =
             'It may take some time to update your account balance. You can track the transaction here.'
         } else {
-          expectedTitle = 'Transfer Expired'
+          expectedTitle = 'Payment Expired'
         }
         cancelled = true
         break
       case transferStates.SEND_CONFIRMED_CANCEL_CONFIRMED:
-        expectedTitle = 'Transfer Cancelled'
+        expectedTitle = 'Payment Cancelled'
         cancelled = true
         break
       case transferStates.SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED:
         if (userType === 'SENDER') {
-          expectedTitle = 'Transfer Reclaimed'
+          expectedTitle = 'Payment Reclaimed'
         } else {
-          expectedTitle = 'Transfer Expired'
+          expectedTitle = 'Payment Expired'
         }
         cancelled = true
         break
@@ -315,10 +315,10 @@ class ReceiptPage {
         if (userType === 'SENDER') {
           expectedTitle = 'Cancel Failed'
           expectedMessageBoxContent =
-            'Something went wrong while cancelling your transfer. ' +
+            'Something went wrong while cancelling your payment. ' +
             'You can track the transaction here. Please contact us for help.'
         } else {
-          expectedTitle = 'Transfer Cancelled'
+          expectedTitle = 'Payment Cancelled'
         }
         cancelled = true
         break
@@ -326,10 +326,10 @@ class ReceiptPage {
         if (userType === 'SENDER') {
           expectedTitle = 'Reclaim Failed'
           expectedMessageBoxContent =
-            'Something went wrong while cancelling your transfer. ' +
+            'Something went wrong while reclaiming your payment. ' +
             'You can track the transaction here. Please contact us for help.'
         } else {
-          expectedTitle = 'Transfer Expired'
+          expectedTitle = 'Payment Expired'
         }
         cancelled = true
         break
