@@ -132,8 +132,37 @@ describe('Receive transfer tests', () => {
 
     await receiveFormPage.waitUntilTransferLoaded()
 
-    await receiveFormPage.enterSecurityAnswer('123456')
+    // Test wrong security answer deposit
+    await receiveFormPage.enterSecurityAnswer('wrongla')
+    await Promise.all([
+      reduxTracker.waitFor(
+        [
+          {
+            action: {
+              type: 'VERIFY_ESCROW_ACCOUNT_PASSWORD_REJECTED'
+            }
+          },
+          {
+            action: {
+              type: 'ENQUEUE_SNACKBAR',
+              notification: {
+                options: {
+                  variant: 'error'
+                }
+              }
+            }
+          }
+        ],
+        []
+      ),
+      receiveFormPage.dispatchFormActions('validate')
+    ])
 
+    const status = await receiveFormPage.getSecurityAnswerTextFieldStatus()
+    expect(status.error).toBeTruthy()
+    expect(status.helperText).toEqual('Incorrect security answer')
+
+    await receiveFormPage.enterSecurityAnswer(FORM_BASE.securityAnswer)
     await Promise.all([
       reduxTracker.waitFor(
         [
@@ -351,22 +380,22 @@ describe('Receive transfer tests', () => {
     timeout
   )
 
-  it('Confirm DAI metamask depost', async done => {
+  it('Confirm DAI metamask deposit', async done => {
     await confirmDeposit('metamask', 'dai')
     done()
   })
 
-  it('Confirm ETH metamask depost', async done => {
+  it('Confirm ETH metamask deposit', async done => {
     await confirmDeposit('metamask', 'ethereum')
     done()
   })
 
-  it('Confirm DAI drive depost', async done => {
+  it('Confirm DAI drive deposit', async done => {
     await confirmDeposit('drive', 'dai')
     done()
   })
 
-  it('Confirm ETH drive depost', async done => {
+  it('Confirm ETH drive deposit', async done => {
     await confirmDeposit('drive', 'ethereum')
     done()
   })

@@ -69,9 +69,9 @@ class ReceiveFormPage {
 
   async getSecurityAnswerTextFieldStatus () {
     const textFieldElement = await page.$('[data-test-id="security_answer"]')
-    const helperTextElement = await page.$('#password-helper-text')
-    const cryptoAmountElement = await page.$('#password')
-    const text = await (await cryptoAmountElement.getProperty('value')).jsonValue()
+    const helperTextElement = await page.$('#answer-helper-text')
+    const inputTextElement = await page.$('#answer')
+    const text = await (await inputTextElement.getProperty('value')).jsonValue()
     const error = (await (await textFieldElement.getProperty('className')).jsonValue()).includes(
       'Mui-error'
     )
