@@ -37,7 +37,8 @@ const data = {
       content: 'Login, manage, auto-backup.'
     }
   ],
-  termURL: env.REACT_APP_TERMS_URL
+  termURL: env.REACT_APP_TERMS_URL,
+  privacyURL: env.REACT_APP_PRIVACY_URL
 }
 
 class LoginComponent extends Component {
@@ -131,17 +132,37 @@ class LoginComponent extends Component {
                 <Box maxWidth={480} width='100%' alignSelf='center'>
                   {this.renderLoginBtn()}
                 </Box>
-                <Box mt={3}>
-                  <Link
-                    className={classes.linkText}
+                <Box mt={3} maxWidth={350}>
+                  <Typography
                     variant='caption'
+                    component='p' // otherwise component does not align center
+                    className={classes.linkText}
                     align='center'
-                    color='textSecondary'
-                    href={data.termURL}
-                    target='_blank'
                   >
-                    Term and Use
-                  </Link>
+                    By signing in, you agree to our{' '}
+                    <Link
+                      className={classes.linkText}
+                      variant='caption'
+                      align='center'
+                      color='textSecondary'
+                      href={data.termURL}
+                      target='_blank'
+                    >
+                      Term of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      className={classes.linkText}
+                      variant='caption'
+                      align='center'
+                      color='textSecondary'
+                      href={data.privacyURL}
+                      target='_blank'
+                    >
+                      Privacy Policy
+                    </Link>{' '}
+                    and to receive Chainsfr emails, newsletters & updates.
+                  </Typography>
                 </Box>
               </>
             )}
@@ -181,17 +202,37 @@ class LoginComponent extends Component {
               </Typography>
             </Box>
             <Box width={300}>{this.renderLoginBtn()}</Box>
-            <Box mt={3}>
-              <Link
-                className={classes.linkText}
+            <Box mt={3} maxWidth={350}>
+              <Typography
                 variant='caption'
+                component='p' // otherwise component does not align center
+                className={classes.linkText}
                 align='center'
-                color='textSecondary'
-                href={data.termURL}
-                target='_blank'
               >
-                Term and Use
-              </Link>
+                By signing in, you agree to our{' '}
+                <Link
+                  className={classes.linkText}
+                  variant='caption'
+                  align='center'
+                  color='textSecondary'
+                  href={data.termURL}
+                  target='_blank'
+                >
+                  Term of Service
+                </Link>{' '}
+                and{' '}
+                <Link
+                  className={classes.linkText}
+                  variant='caption'
+                  align='center'
+                  color='textSecondary'
+                  href={data.privacyURL}
+                  target='_blank'
+                >
+                  Privacy Policy
+                </Link>{' '}
+                and to receive Chainsfr emails, newsletters & updates.
+              </Typography>
             </Box>
           </Box>
         </Grid>
@@ -227,17 +268,37 @@ class LoginComponent extends Component {
                 <Box mt={4} width={300}>
                   <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
                 </Box>
-                <Box mt={3}>
-                  <Link
-                    className={classes.linkText}
+                <Box mt={3} maxWidth={350}>
+                  <Typography
                     variant='caption'
+                    component='p' // otherwise component does not align center
+                    className={classes.linkText}
                     align='center'
-                    color='textSecondary'
-                    href={data.termURL}
-                    target='_blank'
                   >
-                    Term and Use
-                  </Link>
+                    By signing in, you agree to our{' '}
+                    <Link
+                      className={classes.linkText}
+                      variant='caption'
+                      align='center'
+                      color='textSecondary'
+                      href={data.termURL}
+                      target='_blank'
+                    >
+                      Term of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      className={classes.linkText}
+                      variant='caption'
+                      align='center'
+                      color='textSecondary'
+                      href={data.privacyURL}
+                      target='_blank'
+                    >
+                      Privacy Policy
+                    </Link>{' '}
+                    and to receive Chainsfr emails, newsletters & updates.
+                  </Typography>
                 </Box>
               </Box>
             </Box>

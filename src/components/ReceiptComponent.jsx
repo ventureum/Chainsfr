@@ -84,7 +84,8 @@ class ReceiptComponent extends Component<Props, State> {
       receiverAccount,
       destinationAccount, // for direct transfer
       senderAccount,
-      sendTxHash
+      sendTxHash,
+      emailSentFailure
     } = transfer
     const id = transferType === 'SENDER' ? transferId : receivingId
 
@@ -118,11 +119,19 @@ class ReceiptComponent extends Component<Props, State> {
         // only accessible to sender
         // TODO need to classify failures into different cases
         // make errror messsage more specific
-        title = 'Payment Delayed'
         titleIcon = <ErrorRoundedIcon className={classes.errorRoundedIcon} />
-        messageBoxContent =
-          'Your payment is experiencing longer than usual time to ' +
-          'be processed by the network. To learn more, visit our Help Center.'
+        if (emailSentFailure) {
+          title = 'Transfer Failed'
+          messageBoxContent =
+            `This transfer was not successful likely due to an invalid email address of ${receiverName}. ` +
+            `You need to sign in to cancel the transfer first, ` +
+            `then update the email address for ${receiverName} and make a new transfer.`
+        } else {
+          title = 'Transfer Delayed'
+          messageBoxContent =
+            'Your transfer is experiencing longer than usual time to ' +
+            'be processed by the network. To learn more, visit our Help Center.'
+        }
         break
       case transferStates.SEND_DIRECT_TRANSFER_CONFIRMED:
         title = 'Payment Completed'
@@ -231,7 +240,7 @@ class ReceiptComponent extends Component<Props, State> {
               <MuiLink
                 target='_blank'
                 rel='noopener'
-                href={url.getExplorerTx(cryptoType, receiveTxHash)}
+                href={url.getExplorerTx(cryptoType, cancelTxHash)}
               >
                 {' here'}
               </MuiLink>
@@ -252,7 +261,7 @@ class ReceiptComponent extends Component<Props, State> {
               <MuiLink
                 target='_blank'
                 rel='noopener'
-                href={url.getExplorerTx(cryptoType, receiveTxHash)}
+                href={url.getExplorerTx(cryptoType, cancelTxHash)}
               >
                 {' here'}
               </MuiLink>

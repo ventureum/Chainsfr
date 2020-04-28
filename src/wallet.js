@@ -64,13 +64,17 @@ function isBrowserCompatible ({ status, walletType }: { status: Object, walletTy
       status.sendable = false
       status.receivable = false
       status.addable = false
-      status.disabledReason = 'Chrome version 73 or above needed'
+      status.sendDisabledReason = 'Chrome version 73 or above needed'
+      status.addDisabledReason = 'Chrome version 73 or above needed'
+      status.receiveDisabledReason = 'Chrome version 73 or above needed'
     }
   } else if (browser && !['chrome', 'ios', 'crios'].includes(browser.name)) {
     status.sendable = false
     status.receivable = false
     status.addable = false
-    status.disabledReason = 'Browser is not supported'
+    status.sendDisabledReason = 'Browser is not supported'
+    status.addDisabledReason = 'Browser is not supported'
+    status.receiveDisabledReason = 'Browser is not supported'
   }
 
   return { status, walletType }
@@ -84,17 +88,16 @@ function isSendable ({ status, walletType }: { status: Object, walletType: strin
       'metamaskOne',
       'metamaskWalletConnect',
       'trustWalletConnect',
-      'coinbaseOAuthWallet',
       'ledger',
       'coinbaseWalletLink'
     ].includes(walletType)
   ) {
     status.sendable = false
-    status.disabledReason = status.disabledReason || 'Not supported in mobile device'
+    status.sendDisabledReason = status.sendDisabledReason || 'Not supported in mobile device'
   }
   if (walletType === 'coinbaseOAuthWallet') {
     status.sendable = false
-    status.disabledReason = status.disabledReason || 'Send from coinbase wallet not supported'
+    status.sendDisabledReason = 'Send from coinbase wallet not supported'
   }
   return { status, walletType }
 }
@@ -109,14 +112,13 @@ function isReceivable ({ status, walletType }: { status: Object, walletType: str
 }
 
 function isAddable ({ status, walletType }: { status: Object, walletType: string }) {
-  // in mobile, only coinbaseOauthWallet is enabled
-  if (isMobile && walletType !== 'coinbaseOAuthWallet') {
-    status.addable = false
-    status.disabledReason = status.disabledReason || 'Not supported in mobile device'
-  }
-
   if (['drive', 'metamaskOne', 'referralWallet', 'escrow'].includes(walletType)) {
     status.addable = false
+  }
+  // in mobile, only coinbaseOauthWallet is enabled
+  else if (isMobile && walletType !== 'coinbaseOAuthWallet') {
+    status.addable = false
+    status.addDisabledReason = status.addDisabledReason || 'Not supported in mobile device'
   }
 
   return { status, walletType }

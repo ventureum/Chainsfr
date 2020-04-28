@@ -143,7 +143,7 @@ class AccountDropdownComponent extends Component<Props, State> {
     }
   }
 
-  renderGroupedAccountItem = (item: Object) => {
+  renderGroupedAccountItem = (item: Object, purpose?: string) => {
     if (item.skeletonOnly) {
       return (
         <React.Fragment>
@@ -155,20 +155,27 @@ class AccountDropdownComponent extends Component<Props, State> {
         </React.Fragment>
       )
     }
-
+    const walletConfig = getWalletConfig(item.walletType)
     return (
-      <Box display='flex' flexDirection='row' alignItems='center'>
-        <Box mr={1} display='inline'>
-          {/* wallet icon */}
-          <Avatar style={{ borderRadius: '2px' }} src={getWalletLogo(item.walletType)} />
-        </Box>
-        <Box>
-          {/* name and wallet title*/}
-          <Typography variant='body2'>{item.name}</Typography>
-          <Typography variant='caption'>
-            {getWalletTitle(item.walletType)}
-            {item.platformType && `, ${getPlatformTitle(item.platformType)}`}
-          </Typography>
+      <Box>
+        <Box display='flex' flexDirection='row' alignItems='center'>
+          <Box mr={1} display='inline'>
+            {/* wallet icon */}
+            <Avatar style={{ borderRadius: '2px' }} src={getWalletLogo(item.walletType)} />
+          </Box>
+          <Box>
+            {/* name and wallet title*/}
+            <Typography variant='body2'>{item.name}</Typography>
+            <Typography variant='caption'>
+              {getWalletTitle(item.walletType)}
+              {item.platformType && `, ${getPlatformTitle(item.platformType)}`}
+            </Typography>
+            {!walletConfig.sendable && purpose === 'send' && (
+              <Typography variant='caption' component='p'>
+                {walletConfig.sendDisabledReason}
+              </Typography>
+            )}
+          </Box>
         </Box>
       </Box>
     )
@@ -292,7 +299,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                     groupedAccountData.platformType
                   }`}
                 >
-                  {this.renderGroupedAccountItem(groupedAccountData)}
+                  {this.renderGroupedAccountItem(groupedAccountData, purpose)}
                 </MenuItem>
               )
             })}

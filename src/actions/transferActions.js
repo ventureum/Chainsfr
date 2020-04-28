@@ -476,7 +476,14 @@ async function _cancelTransfer (txRequest: {
 // which follows the timeline of transfer events
 function getTransferState (transferData: Object): string {
   let state
-  const { sendTxState, receiveTxState, cancelTxState, transferMethod, expired } = transferData
+  const {
+    sendTxState,
+    receiveTxState,
+    cancelTxState,
+    transferMethod,
+    expired,
+    emailSentFailure
+  } = transferData
   switch (sendTxState) {
     case 'Pending': {
       // SEND_PENDING
@@ -520,6 +527,11 @@ function getTransferState (transferData: Object): string {
           break
         default:
           break
+      }
+      if (emailSentFailure) {
+        state = transferStates.SEND_FAILURE
+        // Do not break here
+        // if there is cancelTxState, it should reflect the cancel state
       }
       switch (cancelTxState) {
         // SEND_CONFIRMED_CANCEL_PENDING
