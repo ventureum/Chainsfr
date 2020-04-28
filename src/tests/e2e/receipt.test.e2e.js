@@ -30,6 +30,46 @@ let receiverTestParam = testedTransferList.map((transfer, i) => {
   return [transfer.receivingId, transfer.state, transfer]
 })
 
+describe('Receipt login test', () => {
+  beforeAll(async () => {
+    await resetUserDefault()
+  }, timeout)
+
+  afterEach(async () => {
+    await jestPuppeteer.resetBrowser()
+  })
+
+  it('Receipt login test with transfer id', async () => {
+    const loginPage = new LoginPage()
+    const transferId = testedTransferList[0].transferId
+
+    await page.goto(`${process.env.E2E_TEST_URL}/receipt?transferId=${transferId}`, {
+      waitUntil: 'networkidle0'
+    })
+    await loginPage.receiptLogin(
+      process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
+      process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
+      `${process.env.E2E_TEST_URL}/receipt?transferId=${transferId}`,
+      true
+    )
+  })
+
+  it('Receipt login test with receiving id', async () => {
+    const loginPage = new LoginPage()
+    const receivingId = testedTransferList[0].receivingId
+
+    await page.goto(`${process.env.E2E_TEST_URL}/receipt?receivingId=${receivingId}`, {
+      waitUntil: 'networkidle0'
+    })
+    await loginPage.receiptLogin(
+      process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
+      process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
+      `${process.env.E2E_TEST_URL}/receipt?receivingId=${receivingId}`,
+      true
+    )
+  })
+})
+
 describe('Receipt page tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
