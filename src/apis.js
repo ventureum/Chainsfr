@@ -13,6 +13,13 @@ const chainsferApi = axios.create({
   baseURL: env.REACT_APP_CHAINSFER_API_ENDPOINT,
   headers: {
     'Content-Type': 'application/json'
+  },
+  validateStatus: status => {
+    if (status === 405 || status === 503) {
+      // maintenance mode is on, redirect to status page
+      window.location.replace('http://status.chainsfr.com')
+    }
+    return status >= 200 && status < 300 // default
   }
 })
 

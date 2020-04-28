@@ -240,6 +240,25 @@ const NavDrawerComponent = (props: Props) => {
                 </Typography>
               </Box>
             </Box>
+            <Typography variant='caption' color='textSecondary'>
+              <Box color='text.disabled' display='inline'>
+                <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_FAQ_URL}>
+                  <Box ml={0.5} color='text.disabled' display='inline'>
+                    Help |
+                  </Box>
+                </MuiLink>
+                <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_TERMS_URL}>
+                  <Box ml={0.5} color='text.disabled' display='inline'>
+                    Terms |
+                  </Box>
+                </MuiLink>
+                <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_PRIVACY_URL}>
+                  <Box ml={0.5} color='text.disabled' display='inline'>
+                    Privacy
+                  </Box>
+                </MuiLink>
+              </Box>
+            </Typography>
           </Box>
         </Box>
       </Drawer>
