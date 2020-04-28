@@ -39,6 +39,12 @@ jobs:
     # deploy maintenance page
     - run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
       if: github.event_name == 'push'
+    
+    # invalidate cdn
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.STAGING_DISTRIBUTION_ID }} --paths "/*"
+      if: github.event_name == 'push'
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_DISTRIBUTION_ID }} --paths "/*"
+      if: github.event_name == 'push'
 
     - name: Notify slack success
       if: success()
