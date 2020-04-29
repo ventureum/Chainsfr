@@ -60,7 +60,7 @@ class LandingPage {
     const element = await page.$('[data-test-id="copy_right"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
     // note that there is no space between "2020" and "Ventureum"
-    expect(text).toEqual(`© 2018-${new Date().getFullYear()}Ventureum Inc.`)
+    expect(text).toEqual(`Terms|Privacy ©${new Date().getFullYear()}Ventureum Inc.`)
   }
 
   async checkBuild () {
@@ -72,7 +72,7 @@ class LandingPage {
   async checkEmailTransferTitle () {
     const element = await page.$('[data-test-id="emt_title"]')
     const text = await (await element.getProperty('textContent')).jsonValue()
-    expect(text).toEqual('Make a Payment')
+    expect(text).toEqual('My Payments')
   }
 
   async checkEmailTransferTitleSubtitle () {
@@ -84,12 +84,6 @@ class LandingPage {
   async checkEmptyImg () {
     const element = await page.$('[data-test-id="empty_img"]')
     expect(element.getProperty('src')).toEqual(expect.anything())
-  }
-
-  async checkVideoEmbed () {
-    const element = await page.$('[data-test-id="video_embed"]')
-    const src = await (await element.getProperty('src')).jsonValue()
-    expect(src).toEqual('https://www.youtube.com/embed/TeHbsQ0-wmM')
   }
 
   async expandTxHistoryItem (index) {

@@ -51,7 +51,6 @@ describe('Landing page tests', () => {
       const landingPage = new LandingPage()
       await landingPage.checkEmailTransferTitle()
       await landingPage.checkEmailTransferTitleSubtitle()
-      await landingPage.checkVideoEmbed()
     },
     timeout
   )
