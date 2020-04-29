@@ -126,7 +126,7 @@ const NavDrawerComponent = (props: Props) => {
         open={open || match}
         anchor={match ? 'left' : 'top'}
         classes={{
-          paper: (match ? classes.drawerPermanent : classes.drawerTemporary)
+          paper: match ? classes.drawerPermanent : classes.drawerTemporary
         }}
         onClose={handleDrawerToggle}
       >
@@ -148,12 +148,20 @@ const NavDrawerComponent = (props: Props) => {
                 }}
                 id='back'
               >
-                <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG} alt='Chainsfr Logo' />
+                <img
+                  className={classes.chainsfrLogo}
+                  src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+                  alt='Chainsfr Logo'
+                />
               </Button>
             </Box>
           ) : (
             <Box display='flex' justifyContent='space-between' alignItems='center' ml={2} mt={1}>
-              <img className={classes.chainsfrLogo} src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG} alt='Chainsfr Logo' />
+              <img
+                className={classes.chainsfrLogo}
+                src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+                alt='Chainsfr Logo'
+              />
               <IconButton
                 color='secondary'
                 aria-label='Close'
@@ -219,17 +227,6 @@ const NavDrawerComponent = (props: Props) => {
             </Button>
           </Box>
           <Box display='flex' flexDirection='column' alignItems='center' mb={match ? 2 : 3}>
-            <Typography variant='caption' color='textSecondary'>
-              <Box color='text.disabled' display='inline' data-test-id='copy_right'>
-                &copy; {'2018-'}
-                {new Date().getFullYear()}
-                <MuiLink target='_blank' rel='noopener noreferrer' href='https://ventureum.io/'>
-                  <Box ml={0.5} color='text.disabled' display='inline'>
-                    Ventureum Inc.
-                  </Box>
-                </MuiLink>
-              </Box>
-            </Typography>
             <Box mx={1} display='flex' alignItems='center'>
               <Box display='flex' alignItems='center'>
                 <GitHubIcon style={{ width: 12, color: '#c4c4c4', marginRight: 4 }} />
@@ -241,20 +238,25 @@ const NavDrawerComponent = (props: Props) => {
               </Box>
             </Box>
             <Typography variant='caption' color='textSecondary'>
-              <Box color='text.disabled' display='inline'>
-                <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_FAQ_URL}>
-                  <Box ml={0.5} color='text.disabled' display='inline'>
-                    Help |
-                  </Box>
-                </MuiLink>
+              <Box color='text.disabled' display='inline' data-test-id='copy_right'>
                 <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_TERMS_URL}>
                   <Box ml={0.5} color='text.disabled' display='inline'>
-                    Terms |
+                    Terms
                   </Box>
                 </MuiLink>
+                <Box ml={0.5} color='text.disabled' display='inline'>
+                  |
+                </Box>
                 <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_PRIVACY_URL}>
+                  <Box ml={0.5} mr={0.5} color='text.disabled' display='inline'>
+                    {'Privacy '}
+                  </Box>
+                </MuiLink>
+                &copy;
+                {new Date().getFullYear()}
+                <MuiLink target='_blank' rel='noopener noreferrer' href='https://ventureum.io/'>
                   <Box ml={0.5} color='text.disabled' display='inline'>
-                    Privacy
+                    Ventureum Inc.
                   </Box>
                 </MuiLink>
               </Box>

@@ -12,7 +12,7 @@ jobs:
         AWS_REGION: 'us-east-1'
     steps:
     - name: Checkout Git
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       
     # setup node
     - name: Use Node 12
@@ -42,6 +42,10 @@ jobs:
 
     # deploy maintenance page
     - run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
+      if: github.event_name == 'push'
+
+    # invalidate cdn
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.TEST_DISTRIBUTION_ID }} --paths "/*"
       if: github.event_name == 'push'
     
     - name: Notify slack success

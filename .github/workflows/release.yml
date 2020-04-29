@@ -13,7 +13,9 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL}}
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout Git
+      uses: actions/checkout@v2
+      
     - name: Use Node 12
       uses: actions/setup-node@v1
       with:
@@ -38,6 +40,12 @@ jobs:
     
     # deploy maintenance page
     - run: aws s3 sync ./maintenance s3://maintenance.chainsfr.com --delete
+      if: github.event_name == 'push'
+    
+    # invalidate cdn
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.STAGING_DISTRIBUTION_ID }} --paths "/*"
+      if: github.event_name == 'push'
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_DISTRIBUTION_ID }} --paths "/*"
       if: github.event_name == 'push'
 
     - name: Notify slack success
