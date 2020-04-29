@@ -147,7 +147,7 @@ class ReceiptComponent extends Component<Props, State> {
           title = 'Payment Accepted'
           messageBoxContent = (
             <Typography>
-              It may take some time to update your account balance. You can track the transaction
+              It may take some time to update your balance. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -236,7 +236,7 @@ class ReceiptComponent extends Component<Props, State> {
           titleIcon = <CancelRoundedIcon className={classes.cancelRoundedIcon} />
           messageBoxContent = (
             <Typography>
-              It may take some time to update your account balance. You can track the transaction
+              It may take some time to update your balance. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'
@@ -257,7 +257,7 @@ class ReceiptComponent extends Component<Props, State> {
           titleIcon = <CheckCircleIcon className={classes.checkCircleIcon} />
           messageBoxContent = (
             <Typography>
-              It may take some time to update your account balance. You can track the transaction
+              It may take some time to update your balance. You can track the transaction
               <MuiLink
                 target='_blank'
                 rel='noopener'

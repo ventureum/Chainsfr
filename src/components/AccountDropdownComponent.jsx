@@ -307,7 +307,7 @@ class AccountDropdownComponent extends Component<Props, State> {
             <MenuItem value='addCryptoAccounts'>
               <Button onClick={() => addAccount()} color='primary' fullWidth>
                 <AddIcon fontSize='small' />
-                Add Account
+                  Add connection to your wallet
               </Button>
             </MenuItem>
           </Select>
@@ -328,7 +328,7 @@ class AccountDropdownComponent extends Component<Props, State> {
               input={
                 <OutlinedInput
                   labelWidth={this.state.accountCryptoTypeSelectionLabelWidth}
-                  name='Select Account'
+                  name='Select Wallet'
                 />
               }
               inputProps={{ 'data-test-id': 'crypto_selection' }}
@@ -360,7 +360,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                 data-test-id='syncing'
               >
                 <Typography variant='body2' style={{ marginBottom: '10px' }}>
-                  Checking your account
+                  Checking wallet information
                 </Typography>
                 <LinearProgress />
               </Box>

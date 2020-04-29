@@ -93,7 +93,7 @@ describe('Account Management page tests', () => {
   )
 
   it(
-    'Change account name',
+    'Change wallet name',
     async () => {
       const accountPage = new AccountManagementPage()
       const accounts = await accountPage.getAccountsList()

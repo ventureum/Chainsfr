@@ -269,7 +269,7 @@ const InputSection = withStyles(inputSectionStyle)(props => {
             Security answer validated
           </Alert>
           <Box mt={3} mb={3}>
-            <Typography variant='h3'>Select Account to Deposit</Typography>
+            <Typography variant='h3'>Select Wallet to Deposit</Typography>
           </Box>
           <AccountDropdown
             online
@@ -322,7 +322,7 @@ const InputSection = withStyles(inputSectionStyle)(props => {
             }
             data-test-id='deposit_btn'
           >
-            Deposit to Account
+            Deposit to Wallet
           </Button>
         </>
       )}

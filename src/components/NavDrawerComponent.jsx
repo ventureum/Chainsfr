@@ -45,9 +45,9 @@ const NAV_BTNS = [
     icon: <WalletIcon color='primary' />
   },
   {
-    name: 'Accounts',
-    id: 'accounts',
-    path: path.accounts,
+    name: 'Connections',
+    id: 'Connections',
+    path: path.connections,
     icon: <AccountIcon color='primary' />
   },
   {

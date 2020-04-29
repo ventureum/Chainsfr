@@ -111,7 +111,7 @@ class AccountsManagementComponent extends Component {
         classes={{ paper: classes.confirmDialogPaper }}
       >
         <DialogTitle disableTypography className={classes.dialogTitle}>
-          <Typography variant='h2'>Delete Account</Typography>
+          <Typography variant='h2'>Delete Connected Wallet</Typography>
           <IconButton
             onClick={() => this.toggleDeleteConfirmModal()}
             className={classes.closeButton}
@@ -120,7 +120,7 @@ class AccountsManagementComponent extends Component {
           </IconButton>
         </DialogTitle>
         <DialogContent className={classes.dialogContent}>
-          <DialogContentText>Are you sure you want to delete the account?</DialogContentText>
+          <DialogContentText>Are you sure you want to delete this connected wallet?</DialogContentText>
         </DialogContent>
         <DialogActions className={classes.dialogAction}>
           <Button onClick={() => this.toggleDeleteConfirmModal()}>Cancel</Button>
@@ -152,7 +152,7 @@ class AccountsManagementComponent extends Component {
         classes={{ paper: classes.confirmDialogPaper }}
       >
         <DialogTitle disableTypography className={classes.dialogTitle}>
-          <Typography variant='h2'>Change Account Name</Typography>
+          <Typography variant='h2'>Change Wallet Name</Typography>
           <IconButton onClick={() => this.toggleChangeNameModal()} className={classes.closeButton}>
             <CloseIcon />
           </IconButton>
@@ -161,10 +161,10 @@ class AccountsManagementComponent extends Component {
           <TextField
             fullWidth
             id='newName'
-            label='New Account Name'
-            placeholder='Account Name'
+            label='New Wallet Name'
+            placeholder='Wallet Name'
             variant='outlined'
-            helperText={'Please enter a new account name'}
+            helperText={'Please enter a new wallet name'}
             onChange={event => {
               this.handleNewAccountNameChange(event.target.value)
             }}
@@ -556,7 +556,7 @@ class AccountsManagementComponent extends Component {
                 justifyContent='center'
                 height='100%'
               >
-                <Typography variant='h2'>Manage Connected Accounts</Typography>
+                <Typography variant='h2'>Manage Connected Wallets</Typography>
                 <Typography className={classes.decText}>
                   Native supports for popular exchanges, mobile and hardware wallets
                 </Typography>
@@ -569,7 +569,7 @@ class AccountsManagementComponent extends Component {
                     color='primary'
                     data-test-id='connect_account_btn'
                   >
-                    Add Connection to Existing Accounts
+                    Add Connection to Your Wallet
                   </Button>
                 </Box>
               </Box>
@@ -603,7 +603,7 @@ class AccountsManagementComponent extends Component {
                   <img src={EmptyStateImage} alt='Empty State' />
                 </Box>
                 <Typography variant='subtitle2' color='textSecondary'>
-                  It seems you don't have any accounts saved
+                  It seems you don't have any connected wallets yet
                 </Typography>
               </Box>
             ) : actionsPending.getCryptoAccounts ? (

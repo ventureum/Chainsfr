@@ -2,7 +2,7 @@ export default {
   metamask: {
     incorrectNetwork: 'Incorrect MetaMask network',
     extendsionNotFound: 'Check wallet connection failed',
-    incorrectAccount: 'MetaMask extendsion holds different account',
+    incorrectAccount: 'Incorrect Metamask walllet',
     noOptions: 'Options must not be null for metamask wallet',
     authorizationDenied: 'MetaMask wallet authorization denied by user'
   },
@@ -18,24 +18,24 @@ export default {
     privateKeyNotExist: 'Private key is undefined',
     noOptions: 'Options must not be null for escrow wallet',
     noMultiSig: 'MultiSig missing in options',
-    noPrivateKeyInAccount: 'PrivateKey does not exist in account'
+    noPrivateKeyInAccount: 'PrivateKey does not exist'
   },
   ledger: {
     deviceNotConnected: 'Acquire Ledger device connection failed',
-    ledgerAppCommunicationFailed: 'Unabled to fetch account from Ledger',
-    incorrectAccount: 'Ledger device holds different account',
+    ledgerAppCommunicationFailed: 'Unabled to fetch wallet information from Ledger',
+    incorrectAccount: 'Incorrect Ledger wallet',
     contractDataDisabled: 'Please enable Contract data on the Ethereum app Settings',
     incorrectSigningKey:'Ledger App does not have the correct signing keys'
   },
   metamaskWalletConnect: {
-    incorrectAccount: 'MetaMask WalletConnect holds different account',
+    incorrectAccount: 'Incorrect MetaMask Wallet',
     noOptions: 'Options must not be null',
     modalClosed: 'User closed WalletConnect modal'
   },
   coinbaseWalletLink: {
-    incorrectAccount: 'Coinbase WalletLink holds different account',
+    incorrectAccount: 'Incorrect Coinbase Wallet',
     noOptions: 'Options must not be null for coinbase WalletLink wallet',
-    authorizationDenied: 'User denied account authorization'
+    authorizationDenied: 'User denied wallet authorization'
   },
   coinbaseOAuthWallet: {
     accountNotFound: 'Coinbase wallet not found',

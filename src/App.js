@@ -286,7 +286,7 @@ class App extends Component {
                     component={userIsAuthenticated(RecipientsContainer)}
                   />
                   <DefaultLayout
-                    path={`${paths.accounts}`}
+                    path={`${paths.connections}`}
                     component={userIsAuthenticated(AccountsManagementContainer)}
                   />
                   <DefaultLayout
