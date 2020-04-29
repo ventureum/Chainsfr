@@ -105,7 +105,7 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
   return (
     <Card className={classes.cardRoot}>
       <Box padding={3}>
-        <Typography className={classes.title} variant='h3' align='left'>
+        <Typography className={classes.title} variant='h3' align='left' data-test-id='title'>
           Pending Payment
         </Typography>
         <Grid container direction='column' spacing={2}>
@@ -128,10 +128,14 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
               </Grid>
               <Grid item>
                 <Grid container direction='row' alignItems='center'>
-                  <Typography variant='body2' id='transferAmount'>
+                  <Typography variant='body2' id='transferAmount' data-test-id='transfer_amount'>
                     {transferAmount} {getCryptoSymbol(cryptoType)}
                   </Typography>
-                  <Typography style={{ marginLeft: '10px' }} variant='caption'>
+                  <Typography
+                    style={{ marginLeft: '10px' }}
+                    variant='caption'
+                    data-test-id='currency_amount'
+                  >
                     ≈ {currencyAmount.transferAmount}
                   </Typography>
                 </Grid>
@@ -144,7 +148,9 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
           <Grid item>
             <Grid container direction='column' alignItems='flex-start'>
               <Typography variant='caption'>Message</Typography>
-              <Typography variant='body2'>{sendMessage}</Typography>
+              <Typography variant='body2' data-test-id='send_msg'>
+                {sendMessage}
+              </Typography>
             </Grid>
           </Grid>
           <Grid item>
@@ -153,10 +159,14 @@ const ReceiveTransferDataSection = withStyles(formStyle)(props => {
           <Grid item>
             <Grid container direction='column' spacing={1}>
               <Grid item>
-                <Typography variant='caption'>Sent on {sendTime}</Typography>
+                <Typography variant='caption' data-test-id='send_on'>
+                  Sent on {sendTime}
+                </Typography>
               </Grid>
               <Grid item>
-                <Typography variant='caption'>Transfer ID: {receivingId}</Typography>
+                <Typography variant='caption' data-test-id='transfer_id'>
+                  Transfer ID: {receivingId}
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
