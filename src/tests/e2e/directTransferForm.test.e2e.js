@@ -320,4 +320,130 @@ describe('Direct transfer form tests', () => {
     },
     timeout
   )
+
+  it(
+    'Fill then switch (Metamask_ETH -> Metamask_ETH)',
+    async () => {
+      const walletType = 'metamask'
+      const platformType = 'ethereum'
+      const cryptoType = 'ethereum'
+      const currencyAmount = '1'
+      const sendMessage = 'bilibilibalaboom'
+
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.fillForm(
+        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        true
+      )
+
+      await dtfPage.dispatchFormActions('transferIn')
+      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(cryptoAmountTextField.text).toEqual('')
+
+      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+      expect(currencyAmountTextField.text).toEqual('')
+
+      await dtfPage.fillForm(
+        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        true
+      )
+      await dtfPage.dispatchFormActions('continue')
+      expect(page.url()).toMatch('step=1')
+    },
+    timeout
+  )
+
+  it(
+    'Fill then switch (Metamask_ETH -> Ledger_BTC)',
+    async () => {
+      let walletType = 'metamask'
+      let platformType = 'ethereum'
+      let cryptoType = 'ethereum'
+      let currencyAmount = '1'
+      const sendMessage = 'bilibilibalaboom'
+
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.fillForm(
+        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        true
+      )
+
+      await dtfPage.dispatchFormActions('transferIn')
+      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(cryptoAmountTextField.text).toEqual('')
+
+      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+      expect(currencyAmountTextField.text).toEqual('')
+
+      walletType = 'ledger'
+      platformType = 'bitcoin'
+      cryptoType = 'bitcoin'
+      currencyAmount = '10'
+
+      await dtfPage.fillForm(
+        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        true
+      )
+      await dtfPage.dispatchFormActions('continue')
+      expect(page.url()).toMatch('step=1')
+    },
+    timeout
+  )
+
+  it(
+    'Edge case: transfer in/out balance update test',
+    async () => {
+      const walletType = 'ledger'
+      const platformType = 'bitcoin'
+      const cryptoType = 'bitcoin'
+      let ledgerBtcBalance
+      let ledgerBtcCurrencyBalance
+      let driveBtcBalance
+      let driveBtcCurrencyBalance
+      let cryptoAmountTextField
+      let currencyAmountTextField
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.fillForm({ walletType, platformType, cryptoType }, true)
+
+      for (let i = 0; i < 3; i++) {
+        await dtfPage.dispatchFormActions('transferOut')
+        cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+        if (driveBtcBalance) {
+          expect(cryptoAmountTextField.helperText).toEqual(driveBtcBalance)
+        } else {
+          driveBtcBalance = cryptoAmountTextField.helperText
+        }
+
+        currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+        if (driveBtcCurrencyBalance) {
+          expect(currencyAmountTextField.helperText).toEqual(driveBtcCurrencyBalance)
+        } else {
+          driveBtcCurrencyBalance = currencyAmountTextField.helperText
+        }
+
+        await dtfPage.dispatchFormActions('transferIn')
+        cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+        if (ledgerBtcBalance) {
+          expect(cryptoAmountTextField.helperText).toEqual(ledgerBtcBalance)
+        } else {
+          ledgerBtcBalance = cryptoAmountTextField.helperText
+        }
+
+        currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+        if (ledgerBtcCurrencyBalance) {
+          expect(currencyAmountTextField.helperText).toEqual(ledgerBtcCurrencyBalance)
+        } else {
+          ledgerBtcCurrencyBalance = currencyAmountTextField.helperText
+        }
+      }
+    },
+    timeout
+  )
 })
