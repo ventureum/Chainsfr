@@ -36,8 +36,8 @@ async function setup (jestConfig = {}) {
       if (config.browserContext === 'incognito') {
         // enable metmask in incognito mode
         //
-        // currently, metamask ext popup shows blank page in incognito, thus this part is not being used
-        // might be fixed by updating metamask pkg
+        // currently, metamask ext popup shows blank page in incognito, thus this part is not being
+        // used might be fixed by updating metamask pkg
         //
         // due to the complexity of this part, the following code is reserved for future usage
         //
@@ -52,27 +52,27 @@ async function setup (jestConfig = {}) {
         await page.goto('chrome://extensions/?id=ogegpepdjhlgagkiimnlckeojobdjfgd')
 
         // makes the library available in evaluate functions which run within the browser context
-        // must be called after navigation since we are evaluating the script on the ext management page
+        // must be called after navigation since we are evaluating the script on the ext management
+        // page
         await page.addScriptTag({
           path: path.join(
             __dirname,
             '../../../../node_modules/query-selector-shadow-dom/dist/querySelectorShadowDom.js'
           )
         })
-        
+
         // the actual btn is in several layers of shadow doms, regular query does not work
         // we must use the package querySelectorShadowDom to search for the entire dom tree
         //
         // find allow-incognito toggle btn and enable it
-        const btn = (
-          await page.waitForFunction(() => {
-            const btn = querySelectorShadowDom.querySelectorDeep('#allow-incognito')
-            return btn
-          })
-        ).asElement()
+        const btn = (await page.waitForFunction(() => {
+          const btn = querySelectorShadowDom.querySelectorDeep('#allow-incognito')
+          return btn
+        })).asElement()
         await btn.click()
       }
     } else {
+      console.log('E2E_TEST_METAMASK_PRIVATE_KEY not found, MetaMask will not be installed')
       browser = await puppeteer.launch(config.launch)
     }
   }
