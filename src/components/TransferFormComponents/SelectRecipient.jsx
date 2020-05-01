@@ -54,6 +54,7 @@ export default function SelectRecipient (props: Props) {
       // close dialog
       toggleAddRecipientDialog()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionsPending, actionsFulfilled])
 
   const toggleAddRecipientDialog = () => {

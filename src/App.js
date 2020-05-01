@@ -107,6 +107,12 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
     setOpenDrawer(previous => !previous)
   }
 
+  // usePageVisibility causing tests to fail for unknown reasons
+  // must disable it conditionally during e2e tests
+  // However, disabling it make react to complaint about using conditional hooks
+  // thus, manually disable lint checking for the next line
+  //
+  // eslint-disable-next-line
   const isVisible = env.NODE_ENV === 'development' ? true : usePageVisibility()
   const isMainNet = env.REACT_APP_ENV === 'prod'
 

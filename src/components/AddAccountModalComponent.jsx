@@ -762,7 +762,7 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
   const { walletType, onNameChanged, name, newCryptoAccounts } = props
   const [toolipText, setTooltipText] = useState('Copy')
   const firstNewCryptoAccount = newCryptoAccounts[0]
-  if (!firstNewCryptoAccount) return null
+  
   useEffect(() => {
     if (
       firstNewCryptoAccount &&
@@ -772,8 +772,12 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
     ) {
       onNameChanged(firstNewCryptoAccount.email)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstNewCryptoAccount])
-
+  
+  // cannot be placed before useEffects due to
+  // react not allowing conditional hooks
+  if (!firstNewCryptoAccount) return null
   let addressInfo = ''
   if (firstNewCryptoAccount.hdWalletVariables && firstNewCryptoAccount.hdWalletVariables.xpub) {
     addressInfo = firstNewCryptoAccount.hdWalletVariables.xpub
@@ -887,6 +891,7 @@ const AddAccountModalComponent = (props: AddAccountModalComponentProps) => {
     if (actionsFulfilled['newCryptoAccountsFromWallet']) {
       setStep(2)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionsFulfilled['newCryptoAccountsFromWallet']])
 
   function renderSteps () {

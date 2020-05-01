@@ -126,6 +126,7 @@ export default function EmailTransferFormContainer (props: Props) {
       }
     },
     // set data once user is logged in
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [profile.isAuthenticated]
   )
 

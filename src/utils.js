@@ -176,13 +176,21 @@ async function decryptMessage (encryptedMessage: string, password: string): Prom
   return message
 }
 
-function toCurrencyAmount (cryptoAmount: StandardTokenUnit, price: number, symbol: ?string): string {
+function toCurrencyAmount (
+  cryptoAmount: StandardTokenUnit,
+  price: number,
+  symbol: ?string
+): string {
   let rv = numeral(parseFloat(cryptoAmount) * price).format('0.00[0]')
   if (symbol) rv = rv + ` ${symbol}`
   return rv
 }
 
-function toCryptoAmount (currencyAmount: StandardTokenUnit, price: number, symbol: ?string): string {
+function toCryptoAmount (
+  currencyAmount: StandardTokenUnit,
+  price: number,
+  symbol: ?string
+): string {
   let rv = numeral(parseFloat(currencyAmount) / price).format('0.000[000]')
   if (isNaN(rv)) {
     // NaN value displayed on Balance when the value is <= 0.0000001 caused by a bug on NumeralJs

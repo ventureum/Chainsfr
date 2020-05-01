@@ -155,10 +155,7 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
         accountData.forEach((account: AccountData) => {
           dict[account.id] = account
         })
-        syncHelper(
-          dispatch,
-          data.value.filter(account => dict[account.id] !== undefined)
-        )
+        syncHelper(dispatch, data.value.filter(account => dict[account.id] !== undefined))
       })
       .then(() => {
         dispatch(
@@ -241,7 +238,9 @@ function removeCryptoAccounts (accountData: AccountData | Array<AccountData>) {
   }
 }
 
-async function _removeCryptoAccounts (accountData: Array<AccountData>): Promise<Array<AccountData>> {
+async function _removeCryptoAccounts (
+  accountData: Array<AccountData>
+): Promise<Array<AccountData>> {
   let cryptoAccounts = (await API.removeCryptoAccounts(accountData)).cryptoAccounts
   // transform to front-end accountData type
   cryptoAccounts = cryptoAccounts.map(cryptoAccount =>

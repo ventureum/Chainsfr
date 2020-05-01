@@ -208,6 +208,7 @@ export default function TransferAmountTextField (props: Props) {
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transferAmount, txFee])
 
   // on account changes
@@ -235,6 +236,7 @@ export default function TransferAmountTextField (props: Props) {
         }
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountSelection])
   return (
     <Grid container direction='row' justify='center' alignItems='stretch'>

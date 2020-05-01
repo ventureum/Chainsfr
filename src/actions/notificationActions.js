@@ -1,12 +1,15 @@
 // @flow
 
-export const enqueueSnackbar = (notification: { message: string, key: ?number, options: ?Object }) => ({
+export const enqueueSnackbar = (notification: {
+  message: string,
+  key: ?number,
+  options: ?Object
+}) => ({
   type: 'ENQUEUE_SNACKBAR',
   notification: {
     key: new Date().getTime() + Math.random(),
     ...notification
   }
-
 })
 
 export const closeSnackbar = (key: number) => ({
