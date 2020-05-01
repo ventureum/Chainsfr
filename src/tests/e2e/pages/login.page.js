@@ -88,6 +88,12 @@ class LoginPage {
     })
     log.info('Login finished')
   }
+
+  async receiptLogin (username, password, redirectUrl, mockLogin = false) {
+    await page.waitForSelector('[data-test-id="receipt_illustration"]', { visible: true })
+    await this.login(username, password, mockLogin)
+    expect(page.url()).toMatch(redirectUrl)
+  }
 }
 
 export default LoginPage

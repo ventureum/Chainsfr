@@ -9,9 +9,15 @@ import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
 import { getTransfer, getTransferState } from './testUtils'
 import BN from 'bn.js'
+import moment from 'moment'
+import { getCryptoSymbol } from '../../tokens'
+import { DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG } from './mocks/transfers'
+const { transferDataList, driveTransferHistory } = DEFAULT_TRANSFER_DATA
 
 // 15 min
 const timeout = 1000 * 60 * 15
+
+const receivingTransfer = { ...transferDataList[1], state: DEFAULT_TRANSFER_DATA_CONFIG[1].state }
 
 describe('Receive transfer tests', () => {
   const reduxTracker = new ReduxTracker()
@@ -398,5 +404,56 @@ describe('Receive transfer tests', () => {
   it('Confirm ETH drive deposit', async done => {
     await confirmDeposit('drive', 'ethereum')
     done()
+  })
+})
+
+describe('Receive Login test', () => {
+  beforeAll(async () => {
+    await resetUserDefault()
+  }, timeout)
+
+  afterAll(async () => {
+    await jestPuppeteer.resetBrowser()
+  })
+
+  it('Receive Login test', async () => {
+    const loginPage = new LoginPage()
+    const receiveFormPage = new ReceiveFormPage()
+    await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingTransfer.receivingId}`, {
+      waitUntil: 'networkidle0'
+    })
+
+    await receiveFormPage.waitUntilTransferLoaded()
+
+    // verify transfer form info
+    const sender = await receiveFormPage.getFormInfo('sender')
+    expect(sender.name).toEqual(receivingTransfer.senderName)
+    expect(sender.email).toEqual(receivingTransfer.sender)
+
+    const recipient = await receiveFormPage.getFormInfo('recipient')
+    expect(recipient.name).toEqual(receivingTransfer.receiverName)
+    expect(recipient.email).toEqual(receivingTransfer.destination)
+
+    const transferAmount = await receiveFormPage.getFormInfo('transferAmount')
+    expect(transferAmount.transferAmount).toEqual(receivingTransfer.transferAmount)
+    expect(transferAmount.symbol).toEqual(getCryptoSymbol(receivingTransfer.cryptoType))
+
+    const sendMessage = (await receiveFormPage.getFormInfo('sendMessage')).message
+    expect(sendMessage).toEqual(receivingTransfer.sendMessage)
+    const sendTime = (await receiveFormPage.getFormInfo('sendOn')).sendOn
+    const expectSendTime = moment
+      .unix(receivingTransfer.senderToChainsfer.txTimestamp)
+      .format('MMM Do YYYY, HH:mm:ss')
+    expect(sendTime).toEqual(`Sent on ${expectSendTime}`)
+
+    // login
+    await loginPage.login(
+      process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
+      process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
+      true
+    )
+    expect(page.url()).toEqual(
+      `${process.env.E2E_TEST_URL}/receive?id=${receivingTransfer.receivingId}`
+    )
   })
 })

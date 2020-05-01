@@ -49,13 +49,24 @@ class ReceiveFormPage {
         const currencyAmountElement = await this.page.$('[data-test-id="currency_amount"]')
         const transferAmount = (await getElementTextContent(transferAmountElement)).split(' ')[0]
         const symbol = (await getElementTextContent(transferAmountElement)).split(' ')[1]
-        const currencyAmount = (await getElementTextContent(currencyAmountElement)).split(' ')[2]
+        const currencyAmount = (await getElementTextContent(currencyAmountElement)).split(' ')[1]
         return { transferAmount, currencyAmount, symbol }
       }
       case 'sendMessage': {
         const messageElement = await this.page.$('[data-test-id="send_msg"]')
         const message = await getElementTextContent(messageElement)
         return { message }
+      }
+      case 'transferId': {
+        const transferIdElement = await this.page.$('[data-test-id="transfer_id"]')
+        const transferId = (await getElementTextContent(transferIdElement)).split(' ')[2]
+        return { transferId }
+      }
+      case 'sendOn': {
+        const sendOnElement = await this.page.$('[data-test-id="send_on"]')
+        if (!sendOnElement) return null
+        const sendOn = await getElementTextContent(sendOnElement)
+        return { sendOn }
       }
     }
   }
@@ -83,7 +94,7 @@ class ReceiveFormPage {
   }
 
   async waitUntilTransferLoaded () {
-    await this.page.waitForSelector('[data-test-id="validate_btn"]', {
+    await this.page.waitForSelector('[data-test-id="title"]', {
       visible: true
     })
   }

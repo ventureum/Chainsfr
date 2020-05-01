@@ -36,7 +36,7 @@ import { getWalletTitle, getWalletLogo } from '../wallet'
 import AddAccountModal from '../containers/AddAccountModalContainer'
 import EmptyStateImage from '../images/empty_state_01.png'
 import AddressQRCodeDialog from './AddressQRCodeDialog'
-
+import numeral from 'numeral'
 class AccountsManagementComponent extends Component {
   state = {
     addAccountModal: false,
@@ -222,7 +222,7 @@ class AccountsManagementComponent extends Component {
   }
 
   toCurrencyLocaleString = s => {
-    return parseFloat(s).toLocaleString('en-US', { maximumFractionDigits: 3 })
+    return numeral(parseFloat(s)).format('(0.000 a)')
   }
 
   rednerAccountActionButtons = account => {
@@ -474,7 +474,7 @@ class AccountsManagementComponent extends Component {
                         ) : (
                           <Typography variant='body2'>Multiple Coins</Typography>
                         )}
-                        <Typography variant='caption'>
+                        <Typography variant='caption' component='p'>
                           $ {this.toCurrencyLocaleString(account.totalMarketValue)}
                         </Typography>
                       </Box>

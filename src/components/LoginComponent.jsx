@@ -189,7 +189,11 @@ class LoginComponent extends Component {
               />
             </Box>
             <Box mb={1}>
-              <img src={ReceiptSVG} alt='Receipt Illustration' />
+              <img
+                src={ReceiptSVG}
+                alt='Receipt Illustration'
+                data-test-id='receipt_illustration'
+              />
             </Box>
             <Box mb={3}>
               <Typography
