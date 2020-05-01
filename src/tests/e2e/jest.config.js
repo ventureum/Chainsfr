@@ -1,5 +1,4 @@
 module.exports = {
-  runner: './jest-environment-puppeteer/serialJestRunner.js',
   preset: 'jest-puppeteer',
   setupFilesAfterEnv: ['./jest-environment-puppeteer/custom.setup.js'],
   globalSetup: './jest-environment-puppeteer/setup.js',
