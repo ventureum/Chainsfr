@@ -1,4 +1,5 @@
 module.exports = {
+  runner: './jest-environment-puppeteer/serialJestRunner.js',
   preset: 'jest-puppeteer',
   setupFilesAfterEnv: ['./jest-environment-puppeteer/custom.setup.js'],
   globalSetup: './jest-environment-puppeteer/setup.js',
@@ -10,11 +11,11 @@ module.exports = {
   },
   // TODO: more tests will be added
   testMatch: [
-    '**/emailTransferForm.test.e2e.js',
-    '**/emailTransferFormEntryPoint.test.e2e.js',
-    '**/emailTransferReview.test.e2e.js',
-    '**/directTransferForm.test.e2e.js',
-    '**/directTransferReview.test.e2e.js',
+    //'**/emailTransferForm.test.e2e.js',
+    //'**/emailTransferFormEntryPoint.test.e2e.js',
+    //'**/emailTransferReview.test.e2e.js',
+    //'**/directTransferForm.test.e2e.js',
+    //'**/directTransferReview.test.e2e.js',
     '**/accountManagement.test.e2e.js',
     '**/emailTransferWalletAuth.test.e2e.js',
     '**/cancelTransfer.test.e2e.js',

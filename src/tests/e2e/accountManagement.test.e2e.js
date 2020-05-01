@@ -8,6 +8,7 @@ const reduxTracker = new ReduxTracker()
 
 describe('Account Management page tests', () => {
   beforeAll(async () => {
+    try {
     await resetUserDefault()
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
@@ -17,6 +18,10 @@ describe('Account Management page tests', () => {
       process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
       true
     )
+    } catch (e) {
+      console.log(e)
+      throw e
+    }
   }, timeout)
 
   beforeEach(async () => {
@@ -43,16 +48,20 @@ describe('Account Management page tests', () => {
           }
         ]
       ),
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
       page.goto(`${process.env.E2E_TEST_URL}/accounts`)
     ])
+
+    page.goto(`${process.env.E2E_TEST_URL}/accounts`, { waitUntil: 'networkidle0' })
+    console.log(`Starting test: [${jasmine['currentTest'].fullName}]`)
   })
+
+  // more logs to debug
+  afterEach(() => console.log(`Finished test: [${jasmine['currentTest'].fullName}]`));
 
   it(
     'Delete account',
-    async () => {
+    async (done) => {
+      await jestPuppeteer.debug()
       const accountPage = new AccountManagementPage()
       const accounts = await accountPage.getAccountsList()
 
@@ -88,11 +97,13 @@ describe('Account Management page tests', () => {
         ),
         accountPage.deleteAccounts(index)
       ])
+
+      done()
     },
     timeout
   )
 
-  it(
+  /* it(
     'Change account name',
     async () => {
       const accountPage = new AccountManagementPage()
@@ -197,5 +208,5 @@ describe('Account Management page tests', () => {
       expect(index).toBeGreaterThanOrEqual(0)
     },
     timeout
-  )
+  ) */
 })
