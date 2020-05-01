@@ -4,9 +4,12 @@ import SendReviewPage from './pages/sendReview.page'
 import { resetUserDefault } from './utils/reset.js'
 import { getWalletTitle } from '../../wallet'
 import { getCryptoTitle, getCryptoSymbol } from '../../tokens'
+import { GOOGLE_LOGIN_AUTH_OBJ } from './mocks/user'
 import ReduxTracker from './utils/reduxTracker'
 
 const timeout = 180000
+const senderName = GOOGLE_LOGIN_AUTH_OBJ.profileObj.name
+const senderEmail = GOOGLE_LOGIN_AUTH_OBJ.profileObj.email
 
 async function goToReview (formInfo) {
   const {
@@ -84,8 +87,6 @@ describe('Email transfer review tests', () => {
       const emtPage = new EmailTransferFormPage()
       const recipientName = 'Alice'
       const recipientEmail = 'alice@gmail.com'
-      const senderName = 'e2e test'
-      const senderEmail = 'chainsfre2etest@gmail.com'
 
       const securityAnswer = '123456'
       const sendMessage = 'nothing'
@@ -148,8 +149,6 @@ describe('Email transfer review tests', () => {
       const emtPage = new EmailTransferFormPage()
       const recipientName = 'Alice'
       const recipientEmail = 'alice@gmail.com'
-      const senderName = 'e2e test'
-      const senderEmail = 'chainsfre2etest@gmail.com'
 
       const securityAnswer = '123456'
       const sendMessage = 'nothing'
@@ -212,8 +211,6 @@ describe('Email transfer review tests', () => {
       const emtPage = new EmailTransferFormPage()
       const recipientName = 'Alice'
       const recipientEmail = 'alice@gmail.com'
-      const senderName = 'e2e test'
-      const senderEmail = 'chainsfre2etest@gmail.com'
 
       const securityAnswer = '123456'
       const sendMessage = 'nothing'

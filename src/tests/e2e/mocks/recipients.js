@@ -1,3 +1,7 @@
+if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
+  throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
+const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+
 const RECIPIENTS = [
   {
     addedAt: 1577139574,
@@ -28,6 +32,14 @@ const RECIPIENTS = [
     email: 'chainsfre2etest@gmail.com',
     name: 'e2e-user',
     updatedAt: 1584499597,
+    validEmail: true,
+    validName: true
+  },
+  {
+    addedAt: 1584499697,
+    email: `${testMailNamespace}.receiver@inbox.testmail.app`,
+    name: 'receiver',
+    updatedAt: 1584499697,
     validEmail: true,
     validName: true
   }
