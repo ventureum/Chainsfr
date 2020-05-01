@@ -191,7 +191,10 @@ export default function TransferAmountTextField (props: Props) {
 
   useEffect(() => {
     if (accountSelection) {
-      if ((!prevTransferAmount || prevTransferAmount !== transferAmount) && !formError.transferAmount) {
+      if (
+        (!prevTransferAmount || prevTransferAmount !== transferAmount) &&
+        !formError.transferAmount
+      ) {
         // if transfer amount changed, update tx fee
         getTxFee({
           fromAccount: accountSelection,
@@ -208,6 +211,7 @@ export default function TransferAmountTextField (props: Props) {
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transferAmount, txFee])
 
   // on account changes
@@ -235,6 +239,7 @@ export default function TransferAmountTextField (props: Props) {
         }
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountSelection])
   return (
     <Grid container direction='row' justify='center' alignItems='stretch'>

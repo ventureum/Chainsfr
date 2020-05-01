@@ -50,6 +50,7 @@ type TransferData = {
 }
 
 // mock data
+const TPUB = 'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME'
 var DATA = {
   [TEMP_SEND_FOLDER_NAME]: {
     [TEMP_SEND_FILE_NAME]: null
@@ -64,7 +65,7 @@ var DATA = {
           '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4': {
             privateKey: '0xAFC2580FA77A12AD3972EC3353EEE003EDA1215E8091DB8C39255D19F396D3D4'
           },
-          tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME: {
+          [TPUB]: {
             hdWalletVariables: {
               xpriv:
                 'tprv8ZgxMBicQKsPdXnbZJtwjK2a2C7P6BWT9xG2mWW26272dgJn8doNAx75omMTgukJnq6Mv9Fkq1XmuBFXKxFAUSyERgZYpEGf8jkzHuxtJTk'

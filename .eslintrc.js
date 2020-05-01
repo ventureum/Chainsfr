@@ -27,11 +27,23 @@ module.exports = {
     sourceType: 'module'
   },
   extends: ['plugin:flowtype/recommended'],
-  plugins: ['react', 'standard', 'flowtype', 'import', 'node', 'promise'],
+  plugins: ['react', 'standard', 'flowtype', 'import', 'node', 'promise', 'react-hooks'],
   rules: {
     'react/prop-types': 'off',
     'flowtype/no-types-missing-file-annotation': 'off',
-    code: 100,
-    'space-before-function-paren': ['error', 'always']
+    'max-len': [
+      2,
+      {
+        code: 100,
+        tabWidth: 2,
+        ignoreUrls: true,
+        ignoreComments: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true
+      }
+    ],
+    'space-before-function-paren': ['error', 'always'],
+    'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
+    'react-hooks/exhaustive-deps': 'warn' // Checks effect dependencies
   }
 }

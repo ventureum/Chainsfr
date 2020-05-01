@@ -124,16 +124,18 @@ class PuppeteerEnvironment extends NodeEnvironment {
           this.global.context = await this.global.browser.browserContexts()[0]
         } else {
           throw new Error(
-            `browserContext should be either 'incognito' or 'default'. Received '${config.browserContext}'`
+            `browserContext should be either 'incognito' or 'default'. Received '${
+              config.browserContext
+            }'`
           )
         }
         await this.global.jestPuppeteer.resetPage()
         const client = await this.global.page.target().createCDPSession()
-        await client.send('Storage.clearDataForOrigin', { 
-         origin: process.env.E2E_TEST_URL, 
-         storageTypes: 'all', 
-       });
-        await client.send('Storage.clearCookies');
+        await client.send('Storage.clearDataForOrigin', {
+          origin: process.env.E2E_TEST_URL,
+          storageTypes: 'all'
+        })
+        await client.send('Storage.clearCookies')
       },
       getMetamask: async () => {
         const dappeteer = require('dappeteer')

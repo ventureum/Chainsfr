@@ -35,10 +35,10 @@ async function web3SendTransactions (web3Function: Function, txObj: Object) {
   return _web3SendTransactionPromise(web3Function, txObj)
 }
 
-async function web3SendTransactionsWithMetamaskController (accountData: Object,  txObj: Object) {
+async function web3SendTransactionsWithMetamaskController (accountData: Object, txObj: Object) {
   const account = metamaskController.web3.eth.accounts.wallet.add(accountData.privateKey)
   metamaskController.web3.eth.defaultAccount = accountData.address
-  metamaskController.txController.signEthTx = async (txParams) => account.signTransaction(txParams)
+  metamaskController.txController.signEthTx = async txParams => account.signTransaction(txParams)
   metamaskController.txController.getWeb3Account = () => account
 
   // txObj.[value, gas, gasPrice] must be hex
@@ -53,7 +53,7 @@ async function web3SendTransactionsWithMetamaskController (accountData: Object, 
   //
   // as a temporary solution, 1.5x the gas estimation to
   // avoid out-of-gas error
-  txObj.gas = Web3.utils.toHex(Math.floor(Number(txObj.gas)*1.5))
+  txObj.gas = Web3.utils.toHex(Math.floor(Number(txObj.gas) * 1.5))
 
   txObj.gasPrice = Web3.utils.toHex(txObj.gasPrice)
 
@@ -202,7 +202,11 @@ function collectUtxos (
   }
 }
 
-function estimateTransactionSize (inputsCount: number, outputsCount: number, handleSegwit: boolean) {
+function estimateTransactionSize (
+  inputsCount: number,
+  outputsCount: number,
+  handleSegwit: boolean
+) {
   var maxNoWitness, maxSize, maxWitness, minNoWitness, minSize, minWitness, varintLength
   if (inputsCount < 0xfd) {
     varintLength = 1

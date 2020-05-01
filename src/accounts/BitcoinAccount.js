@@ -241,7 +241,9 @@ export default class BitcoinAccount implements IAccount<AccountData> {
       hdWalletVariables.addresses = await Promise.all(
         hdWalletVariables.addresses.map(async addressData => {
           let response = await axios.get(
-            `${url.LEDGER_API_URL}/addresses/${addressData.address}/transactions?noToken=true&truncated=true`
+            `${url.LEDGER_API_URL}/addresses/${
+              addressData.address
+            }/transactions?noToken=true&truncated=true`
           )
           const { txs } = response.data
           const { address } = addressData
@@ -432,7 +434,11 @@ export default class BitcoinAccount implements IAccount<AccountData> {
   // Function to estimate Tx size
   // Referrenced from
   // https://github.com/LedgerHQ/ledger-wallet-webtool/blob/094d3741527e181a626d929d56ab4a515403e4a0/src/TransactionUtils.js#L10
-  _estimateTransactionSize = (inputsCount: number, outputsCount: number, handleSegwit: boolean) => {
+  _estimateTransactionSize = (
+    inputsCount: number,
+    outputsCount: number,
+    handleSegwit: boolean
+  ) => {
     var maxNoWitness, maxSize, maxWitness, minNoWitness, minSize, minWitness, varintLength
     if (inputsCount < 0xfd) {
       varintLength = 1

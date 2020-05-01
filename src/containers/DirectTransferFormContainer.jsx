@@ -95,6 +95,7 @@ export default function DirectTransferFormContainer (props: Props) {
       // fetch recipients
       dispatch(getRecipients())
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
   // update send account selection
@@ -153,6 +154,7 @@ export default function DirectTransferFormContainer (props: Props) {
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSendingFromDriveWallet, receiveAccountId, accountId])
 
   // helper functions for converting currency

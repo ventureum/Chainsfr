@@ -62,6 +62,10 @@ describe('Transfer Auth Tests', () => {
     await emtReviewPage.dispatchFormActions('continue')
   }
 
+  // more logs to debug
+  beforeEach(() => console.log(`Starting test: [${jasmine['currentTest'].fullName}]`));
+  afterEach(() => console.log(`Finished test: [${jasmine['currentTest'].fullName}]`));
+
   const waitForTxConfirmation = async () => {
     // due to us manually setting allowance using web3, as well as reseting the browser storage,
     // the pending txs are not tracked properly in txController which causes incorrecet nonce

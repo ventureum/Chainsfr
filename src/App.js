@@ -107,7 +107,8 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
     setOpenDrawer(previous => !previous)
   }
 
-  const isVisible = env.NODE_ENV === 'development' ? true : usePageVisibility()
+  const pageVisibility = usePageVisibility()
+  const isVisible = env.NODE_ENV === 'development' ? true : pageVisibility
   const isMainNet = env.REACT_APP_ENV === 'prod'
 
   return (

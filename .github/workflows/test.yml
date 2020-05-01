@@ -1,7 +1,12 @@
 name: Test
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
 jobs:
   build:
      
@@ -21,19 +26,33 @@ jobs:
         node-version: '12.x'
       env:
         CI: true
-    - name: Cache node modules
-      uses: actions/cache@v1
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-          
+
     # install dependencies
-    - run: npm ci
+    - name: Install Dependencies
+      run: npm ci
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+       
       
-    # lint
+    # lintasd
     - run: npm run eslint && npm run flow
+    
+    # e2e tests
+    - name: E2E Test
+      uses: ventureum/puppeteer-headful@master
+      env:
+        CI: 'true'
+        # we use test.api.chainsfr.com backend
+        REACT_APP_CHAINSFER_API_ENDPOINT: https://test.api.chainsfr.com
+        REACT_APP_E2E_TEST_MOCK_USER: true
+        E2E_TEST_START_SERVER: true
+        E2E_TEST_URL: http://localhost:3001
+        E2E_TEST_GOOGLE_LOGIN_USERNAME: ${{ secrets.E2E_TEST_GOOGLE_LOGIN_USERNAME }}
+        E2E_TEST_GOOGLE_LOGIN_PASSWORD: ${{ secrets.E2E_TEST_GOOGLE_LOGIN_PASSWORD }}
+        E2E_TEST_ANTICAPTCHA_API_KEY: ${{ secrets.E2E_TEST_ANTICAPTCHA_API_KEY }}
+        E2E_TEST_METAMASK_PRIVATE_KEY: ${{ secrets.E2E_TEST_METAMASK_PRIVATE_KEY }}
+      with:
+        args: npm run test:e2e
       
     # build & deploy test 
     - run: npm run build:test && mv ./build ./build_test

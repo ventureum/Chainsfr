@@ -16,7 +16,9 @@ export default function (state = initState, action) {
     case 'persist/REHYDRATE':
       if (action.payload && action.payload.txControllerReducer) {
         initMetamaskController(action.payload.txControllerReducer)
-        return update(state, { transactions: { $set: action.payload.txControllerReducer.transactions } })
+        return update(state, {
+          transactions: { $set: action.payload.txControllerReducer.transactions }
+        })
       } else {
         initMetamaskController(initState)
         return initState
