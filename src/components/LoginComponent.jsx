@@ -136,7 +136,7 @@ class LoginComponent extends Component {
                   <Typography
                     variant='caption'
                     component='p' // otherwise component does not align center
-                    className={classes.linkText}
+                    className={classes.loginText}
                     align='center'
                   >
                     By signing in, you agree to our{' '}
@@ -210,7 +210,7 @@ class LoginComponent extends Component {
               <Typography
                 variant='caption'
                 component='p' // otherwise component does not align center
-                className={classes.linkText}
+                className={classes.loginText}
                 align='center'
               >
                 By signing in, you agree to our{' '}
@@ -276,7 +276,7 @@ class LoginComponent extends Component {
                   <Typography
                     variant='caption'
                     component='p' // otherwise component does not align center
-                    className={classes.linkText}
+                    className={classes.loginText}
                     align='center'
                   >
                     By signing in, you agree to our{' '}
@@ -379,7 +379,8 @@ const styles = theme => ({
     maxWidth: '1200px'
   },
   linkText: {
-    fontFamily: 'Poppins'
+    fontFamily: 'Poppins',
+    textDecoration: 'underline'
   },
   loginText: {
     fontFamily: 'Poppins'
