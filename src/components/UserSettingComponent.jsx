@@ -399,6 +399,7 @@ const UserSettingComponent = props => {
   useEffect(() => {
     props.getUserCloudWalletFolderMeta()
     props.getUserRegisterTime()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

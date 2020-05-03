@@ -1,7 +1,4 @@
-const {
-  addHexPrefix,
-  isValidAddress,
-} = require('ethereumjs-util')
+const { addHexPrefix, isValidAddress } = require('ethereumjs-util')
 const BN = require('bn.js')
 const ethUtil = require('ethereumjs-util')
 
@@ -19,16 +16,16 @@ module.exports = {
   BnMultiplyByFraction
 }
 
-
 // functions that handle normalizing of that key in txParams
 const normalizers = {
-  from: (from, LowerCase = true) => LowerCase ? addHexPrefix(from).toLowerCase() : addHexPrefix(from),
-  to: (to, LowerCase = true) => LowerCase ? addHexPrefix(to).toLowerCase() : addHexPrefix(to),
+  from: (from, LowerCase = true) =>
+    LowerCase ? addHexPrefix(from).toLowerCase() : addHexPrefix(from),
+  to: (to, LowerCase = true) => (LowerCase ? addHexPrefix(to).toLowerCase() : addHexPrefix(to)),
   nonce: nonce => addHexPrefix(nonce),
   value: value => addHexPrefix(value),
   data: data => addHexPrefix(data),
   gas: gas => addHexPrefix(gas),
-  gasPrice: gasPrice => addHexPrefix(gasPrice),
+  gasPrice: gasPrice => addHexPrefix(gasPrice)
 }
 
 /**
@@ -69,7 +66,8 @@ function validateTxParams (txParams) {
   @param txParams {object}
  */
 function validateFrom (txParams) {
-  if (!(typeof txParams.from === 'string')) throw new Error(`Invalid from address ${txParams.from} not a string`)
+  if (!(typeof txParams.from === 'string'))
+    throw new Error(`Invalid from address ${txParams.from} not a string`)
   if (!isValidAddress(txParams.from)) throw new Error('Invalid from address')
 }
 
@@ -98,7 +96,7 @@ function getFinalStates () {
     'rejected', // the user has responded no!
     'confirmed', // the tx has been included in a block.
     'failed', // the tx failed for some reason, included on tx data.
-    'dropped', // the tx nonce was already used
+    'dropped' // the tx nonce was already used
   ]
 }
 
