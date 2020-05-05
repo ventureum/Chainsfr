@@ -3,7 +3,7 @@ import log from 'loglevel'
 log.setDefaultLevel('info')
 
 class EmailTransferAuthPage {
-  async connect (walletType = 'drive', cryptoType='ethereum', approveAllowance=false) {
+  async connect (walletType = 'drive', cryptoType = 'ethereum', approveAllowance = false) {
     const metamaskPage = new MetamaskPage()
     await expect(page).toClick('button', { text: 'Connect' })
     if (walletType === 'metamask') {
