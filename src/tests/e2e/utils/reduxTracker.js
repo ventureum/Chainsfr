@@ -16,6 +16,8 @@ type StateChangeType = {
 class ReduxTracker {
   stateChanges: Array<StateChangeType> = []
   status: ?string = null
+  includedStateChangesNotFound: Array<StateChangeType> = []
+
   validate (
     includedStateChanges: Array<StateChangeType>,
     excludedStateChanges: Array<StateChangeType>
@@ -44,6 +46,14 @@ class ReduxTracker {
       }
     }
     const nonTrueIdx = found.findIndex(item => !item)
+
+    // log states not found in includedStateChanges
+    this.includedStateChangesNotFound = []
+    found.map((val, idx) => {
+      if (!val) {
+        this.includedStateChangesNotFound.push(includedStateChanges[idx])
+      }
+    })
     // all actions in the includedStateChanges should appear in the action list
     // if not, return false, and continue polling
     // otherwise, mark validation as "passed" and stop
@@ -123,7 +133,7 @@ class ReduxTracker {
       })
     } catch (e) {
       if (e.name === 'TimeoutError') {
-        log.error('Validation timeout due to includedStateChanges not all found')
+        log.error('Validation timeout due to the following includedStateChanges all found:', this.includedStateChangesNotFound)
       } else {
         throw e
       }

@@ -40,6 +40,11 @@ import moment from 'moment'
 import { erc20TokensList } from './erc20Tokens'
 import { usePageVisibility } from 'react-page-visibility'
 import env from './typedEnv'
+import { hotjar } from 'react-hotjar';
+ 
+if (env.REACT_APP_HOTJAR_ID && env.REACT_APP_HOTJAR_SV) {
+  hotjar.initialize(env.REACT_APP_HOTJAR_ID, env.REACT_APP_HOTJAR_SV)
+}
 
 const userIsAuthenticated = connectedRouterRedirect({
   // The url to redirect user to if they fail
