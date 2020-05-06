@@ -12,12 +12,20 @@ import BN from 'bn.js'
 import moment from 'moment'
 import { getCryptoSymbol } from '../../tokens'
 import { DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG } from './mocks/transfers'
+import TestMailsClient from './email/testMailClient'
+import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 const { transferDataList, driveTransferHistory } = DEFAULT_TRANSFER_DATA
 
-// 15 min
-const timeout = 1000 * 60 * 15
+// 20 min
+const timeout = 1000 * 60 * 20
 
 const receivingTransfer = { ...transferDataList[1], state: DEFAULT_TRANSFER_DATA_CONFIG[1].state }
+if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
+  throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
+const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+let expiryDays = 0
+if (process.env.REACT_APP_CHAINSFER_API_ENDPOINT.match(new RegExp('prod'))) expiryDays = 28
+if (process.env.REACT_APP_CHAINSFER_API_ENDPOINT.match(new RegExp('test'))) expiryDays = 10
 
 describe('Receive transfer tests', () => {
   const reduxTracker = new ReduxTracker()
@@ -30,7 +38,7 @@ describe('Receive transfer tests', () => {
 
   const FORM_BASE = {
     formPage: emtPage,
-    recipient: 'chainsfre2etest@gmail.com',
+    recipient: `${testMailNamespace}.receiver@inbox.testmail.app`,
     currencyAmount: '1',
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'
@@ -38,8 +46,10 @@ describe('Receive transfer tests', () => {
 
   // pending transferIds by walletType, cryptoType
   var pendingReceive = {}
+  var pendingSendEmail = {}
   // pending receivingIds by walletType, cryptoType
   var pendingDeposit = {}
+  var pendingReceiveEmail = {}
 
   beforeAll(async () => {
     await resetUserDefault()
@@ -108,8 +118,9 @@ describe('Receive transfer tests', () => {
 
     const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
     pendingReceive[`${walletType}_${cryptoType}`] = transferId
-
     log.info(`Send ${walletType}_${cryptoType} finished`)
+
+    pendingSendEmail[`${walletType}_${cryptoType}`] = checkSendEmails(walletType, cryptoType)
   }
 
   const deposit = async (walletType, cryptoType) => {
@@ -120,7 +131,6 @@ describe('Receive transfer tests', () => {
 
     const transferId = pendingReceive[`${walletType}_${cryptoType}`]
     while (true) {
-      await page.waitFor(15000) // 15 seconds
       const transferData = await getTransfer({ transferId: transferId })
       sendTxState = getTransferState(transferData)
       if (sendTxState === 'SEND_CONFIRMED_RECEIVE_NOT_INITIATED') {
@@ -128,6 +138,7 @@ describe('Receive transfer tests', () => {
         break
       }
       log.info('Waiting for send tx to be confirmed, current state: ', sendTxState)
+      await page.waitFor(15000) // 15 seconds
     }
     log.info('Send tx confirmed', sendTxState)
     log.info('Tx receiving id: ', receivingId)
@@ -239,6 +250,8 @@ describe('Receive transfer tests', () => {
 
     pendingDeposit[`${walletType}_${cryptoType}`] = receivingId
     log.info(`Deposit ${walletType}_${cryptoType} finished`)
+
+    pendingReceiveEmail[`${walletType}_${cryptoType}`] = checkReceiveEmails(walletType, cryptoType)
   }
 
   const confirmDeposit = async (walletType, cryptoType) => {
@@ -247,15 +260,117 @@ describe('Receive transfer tests', () => {
 
     let receivetxState
     while (true) {
-      // wait until receive tx is confirmed
-      await page.waitFor(15000) // 15 seconds
-
       const transferData = await getTransfer({ receivingId })
       receivetxState = getTransferState(transferData)
       if (receivetxState === 'SEND_CONFIRMED_RECEIVE_CONFIRMED') break
       log.info('Waiting for receive tx to be confirmed, current state: ', receivetxState)
+      await page.waitFor(15000) // 15 seconds
     }
     log.info(`Deposit ${walletType}_${cryptoType} confirmed with txState ${receivetxState}`)
+  }
+
+  const checkSendSenderEmail = async transferData => {
+    const testMailClient = new TestMailsClient('sender')
+
+    const subjectFilterValue = getEmailSubject('sender', 'send', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.SENDER.SEND
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const btnLink = emailParser.getEmailElementAttribute(selectors.CANCEL_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
+    expect(emailMessage).toMatch(new RegExp(transferData.destination))
+    expect(emailMessage).toMatch(new RegExp(transferData.sendMessage))
+    expect(btnLink).toEqual(`https://testnet.chainsfr.com/cancel?id=${transferData.transferId}`)
+  }
+
+  const checkSendReceiverEmail = async transferData => {
+    const testMailClient = new TestMailsClient('receiver')
+
+    const subjectFilterValue = getEmailSubject('receiver', 'send', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.RECEIVER.SEND
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const btnLink = emailParser.getEmailElementAttribute(selectors.DEPOSIT_BTN, 'href')
+    const reminderMessage = emailParser.getEmailElementText(selectors.DEPOSIT_REMINDER)
+
+    expect(emailMessage).toMatch(new RegExp(transferData.senderName))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.sendMessage))
+    expect(btnLink).toEqual(`https://testnet.chainsfr.com/receive?id=${transferData.receivingId}`)
+    expect(reminderMessage).toMatch(new RegExp(`You have ${expiryDays} days to accept it`))
+  }
+
+  const checkSendEmails = async (walletType, cryptoType) => {
+    log.info(`Listening send email ${walletType}_${cryptoType}...`)
+
+    const transferId = pendingReceive[`${walletType}_${cryptoType}`]
+    const transferData = await getTransfer({ transferId: transferId })
+
+    return Promise.all([checkSendSenderEmail(transferData), checkSendReceiverEmail(transferData)])
+  }
+
+  const checkReceiveSenderEmail = async transferData => {
+    const testMailClient = new TestMailsClient('sender')
+
+    const subjectFilterValue = getEmailSubject('sender', 'receive', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.SENDER.RECEIVE
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const btnLink = emailParser.getEmailElementAttribute(selectors.RECEIPT_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
+    expect(btnLink).toEqual(
+      `https://testnet.chainsfr.com/receipt?transferId=${transferData.transferId}`
+    )
+  }
+
+  const checkReceiveReceiverEmail = async transferData => {
+    const testMailClient = new TestMailsClient('receiver')
+
+    const subjectFilterValue = getEmailSubject('receiver', 'receive', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.RECEIVER.RECEIVE
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const btnLink = emailParser.getEmailElementAttribute(selectors.RECEIPT_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.senderName))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(btnLink).toEqual(
+      `https://testnet.chainsfr.com/receipt?receivingId=${transferData.receivingId}`
+    )
+  }
+
+  const checkReceiveEmails = async (walletType, cryptoType) => {
+    log.info(`Listening receive email ${walletType}_${cryptoType}...`)
+
+    const transferId = pendingReceive[`${walletType}_${cryptoType}`]
+    const transferData = await getTransfer({ transferId: transferId })
+
+    return Promise.all([
+      checkReceiveSenderEmail(transferData),
+      checkReceiveReceiverEmail(transferData)
+    ])
   }
 
   // make dai the first tests to reduce waiting time between different transfers
@@ -269,7 +384,7 @@ describe('Receive transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
       // dai has decimals of 18
-      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(19)).toString()
       await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'metamask')
       log.info(`Set allowance Dai successfully`)
 
@@ -278,7 +393,8 @@ describe('Receive transfer tests', () => {
         ...FORM_BASE,
         walletType: 'metamask',
         platformType: platformType,
-        cryptoType: 'dai'
+        cryptoType: 'dai',
+        currencyAmount: '1.1' // set different amount to diferentiate emails
       })
 
       await sendTx('metamask', 'dai')
@@ -296,7 +412,8 @@ describe('Receive transfer tests', () => {
         ...FORM_BASE,
         walletType: 'metamask',
         platformType: platformType,
-        cryptoType: 'ethereum'
+        cryptoType: 'ethereum',
+        currencyAmount: '1.1' // set different amount to diferentiate emails
       })
 
       await sendTx('metamask', 'ethereum')
@@ -314,7 +431,7 @@ describe('Receive transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
       // dai has decimals of 18
-      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(18)).toString()
+      const cryptoAmountBasicTokenUnit = new BN(10).pow(new BN(19)).toString()
       await disconnectPage.setAllowance(cryptoAmountBasicTokenUnit, 'drive')
       log.info(`Set allowance Dai successfully`)
 
@@ -336,6 +453,7 @@ describe('Receive transfer tests', () => {
     'Send ETH from drive',
     async done => {
       const platformType = 'ethereum'
+      const cryptoAmount = '1'
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
@@ -386,6 +504,50 @@ describe('Receive transfer tests', () => {
     timeout
   )
 
+  it(
+    'Check DAI MetaMask send email',
+    async done => {
+      log.info('Waiting for metamask_dai send emails to be resolved')
+      await pendingSendEmail['metamask_dai']
+      log.info('metamask_dai send emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check ETH MetaMask send email',
+    async done => {
+      log.info('Waiting for metamask_ethereum send emails to be resolved')
+      await pendingSendEmail['metamask_ethereum']
+      log.info('metamask_ethereum send emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check DAI drive send email',
+    async done => {
+      log.info('Waiting for drive_dai send emails to be resolved')
+      await pendingSendEmail['drive_dai']
+      log.info('drive_dai send emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check ETH drive send email',
+    async done => {
+      log.info('Waiting for drive_ethereum send emails to be resolved')
+      await pendingSendEmail['drive_ethereum']
+      log.info('drive_ethereum send emails resolved')
+      done()
+    },
+    timeout
+  )
+
   it('Confirm DAI metamask deposit', async done => {
     await confirmDeposit('metamask', 'dai')
     done()
@@ -405,13 +567,53 @@ describe('Receive transfer tests', () => {
     await confirmDeposit('drive', 'ethereum')
     done()
   })
+
+  it(
+    'Check DAI MetaMask receive email',
+    async done => {
+      log.info('Waiting for metamask_dai receive emails to be resolved')
+      await pendingReceiveEmail['metamask_dai']
+      log.info('metamask_dai receive emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check ETH MetaMask receive email',
+    async done => {
+      log.info('Waiting for metamask_ethereum receive emails to be resolved')
+      await pendingReceiveEmail['metamask_ethereum']
+      log.info('metamask_ethereum receive emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check DAI drive receive email',
+    async done => {
+      log.info('Waiting for drive_dai receive emails to be resolved')
+      await pendingReceiveEmail['drive_dai']
+      log.info('drive_dai receive emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check ETH drive receive email',
+    async done => {
+      log.info('Waiting for drive_ethereum receive emails to be resolved')
+      await pendingReceiveEmail['drive_ethereum']
+      log.info('drive_ethereum receive emails resolved')
+      done()
+    },
+    timeout
+  )
 })
 
 describe('Receive Login test', () => {
-  beforeAll(async () => {
-    await resetUserDefault()
-  }, timeout)
-
   afterAll(async () => {
     await jestPuppeteer.resetBrowser()
   })
