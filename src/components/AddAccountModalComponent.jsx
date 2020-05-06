@@ -253,7 +253,7 @@ const ViewAddressFeature = (props: ViewAddressFeatureProps) => {
           <CancelIcon className={classes.cancelIcon} />
         )
       }
-      text={`View ${getWalletTitle(walletType)} account address`}
+      text={`View ${getWalletTitle(walletType)} address`}
       rightIcon={<InfoIcon className={classes.infoIcon} />}
     />
   )
@@ -403,7 +403,7 @@ const ErrorMessage = (props: ErrorMessageProps) => {
       if (errors.checkWalletConnection) {
         errorInstruction = 'WalletConnect loading failed'
       } else if (error === walletErrors.metamaskWalletConnect.modalClosed) {
-        errorInstruction = `User denied account authorization`
+        errorInstruction = `User denied wallet authorization`
       } else {
         errorInstruction = error
       }
@@ -412,7 +412,7 @@ const ErrorMessage = (props: ErrorMessageProps) => {
       if (errors.checkWalletConnection) {
         errorInstruction = 'WalletLink loading failed'
       } else if (error === walletErrors.coinbaseWalletLink.authorizationDenied) {
-        errorInstruction = `User denied account authorization`
+        errorInstruction = `User denied wallet authorization`
       } else {
         errorInstruction = error
       }
@@ -421,7 +421,7 @@ const ErrorMessage = (props: ErrorMessageProps) => {
       if (errors.checkWalletConnection) {
         errorInstruction = 'Failed to get authorization from Coinbase'
       } else if (error === walletErrors.coinbaseOAuthWallet.accountNotFound) {
-        errorInstruction = `Please select the proper account in the Coinbase pop window`
+        errorInstruction = `Please select the correct account in the Coinbase pop window`
       } else if (error === walletErrors.coinbaseOAuthWallet.noAddress) {
         errorInstruction = `No address is available from Coinbase`
       } else if (error === walletErrors.coinbaseOAuthWallet.popupClosed) {
@@ -514,7 +514,7 @@ const WalletConnectAction = (props: WalletConnectActionProps) => {
       buttonText = 'Connect to Ledger'
       buttonIcon = <UsbIcon />
       if (actionsPending.newCryptoAccountsFromWallet && platformType === 'bitcoin') {
-        statusMessage = 'Please wait while we sync your Bitcoin account with the network...'
+        statusMessage = 'Please wait while we sync your Bitcoin wallet with the network...'
       } else if (actionsPending.checkWalletConnection) {
         statusMessage =
           'Please connect your Ledger Device and connect it through the popup window...'
@@ -939,7 +939,7 @@ const AddAccountModalComponent = (props: AddAccountModalComponentProps) => {
       disableBackdropClick={locked}
     >
       <DialogTitle disableTypography className={classes.titleRoot}>
-        <Typography variant='h3'>Add account connection</Typography>
+        <Typography variant='h3'>Add connection to wallet</Typography>
         <IconButton onClick={handleClose} className={classes.closeButton} disabled={locked}>
           <CloseIcon className={classes.closeIcon} />
         </IconButton>

@@ -8,7 +8,7 @@ const paths = {
   cancel: '/cancel',
   contacts: '/contacts',
   referral: '/referral',
-  accounts: '/accounts',
+  connections: '/connections',
   receipt: '/receipt',
   OAuthRedirect: '/OAuthRedirect',
   userSetting: '/userSetting'

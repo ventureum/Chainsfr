@@ -55,7 +55,7 @@ export default function MockDriveWalletDropdown (props: { inputLabel: string }) 
         renderValue={renderAccountItem}
         value={{}}
         // must have outlinedInput for complete dropdown mock
-        input={<OutlinedInput labelWidth={inputLabelWidth} name='Select Account' />}
+        input={<OutlinedInput labelWidth={inputLabelWidth} name='Select Wallet' />}
         inputProps={{ 'data-test-id': 'drive_select' }}
       >
         {/* Must have a single menu item since the select is not disabled */}

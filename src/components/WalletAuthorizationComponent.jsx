@@ -271,7 +271,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (errors.checkWalletConnection === WalletErrors.metamask.extendsionNotFound) {
           errorInstruction = 'MetaMask extension is not available'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectAccount) {
-          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+          errorInstruction = `Incorrect wallet connected. Please connect to the correct wallet: \n ${accountSelection.address.slice(
             0,
             10
           )}...${accountSelection.address.slice(-10)}`
@@ -291,7 +291,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (errors.checkWalletConnection) {
           errorInstruction = 'WalletConnect loading failed'
         } else if (errors.verifyAccount === WalletErrors.metamaskWalletConnect.incorrectAccount) {
-          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+          errorInstruction = `Incorrect wallet connected. Please connect to the correct wallet: \n ${accountSelection.address.slice(
             0,
             10
           )}...${accountSelection.address.slice(-10)}`
@@ -314,7 +314,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           } else if (accountSelection.platformType === 'bitcoin') {
             address = accountSelection.hdWalletVariables.xpub
           }
-          errorInstruction = `Incorrect account connected. Please connect to the correct Ledger device: \n 
+          errorInstruction = `Incorrect wallet connected. Please connect to the correct Ledger device: \n 
           ${address.slice(0, 10)}...${address.slice(-10)}`
         } else if (errors.setTokenAllowance === WalletErrors.ledger.contractDataDisabled) {
           errorInstruction = 'Please enable Contract data on the Ethereum app Settings'
@@ -327,7 +327,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         if (actionsPending.checkWalletConnection) {
           instruction = 'Loading Chainfr wallet...'
         } else if (actionsPending.verifyAccount) {
-          instruction = 'Verifying account...'
+          instruction = 'Verifying Google account...'
         }
         break
       case 'coinbaseWalletLink':
@@ -340,7 +340,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = 'WalletLink loading failed'
         }
         if (errors.verifyAccount === WalletErrors.coinbaseWalletLink.incorrectAccount) {
-          errorInstruction = `Incorrect account connected. Please connect to the correct account: \n ${accountSelection.address.slice(
+          errorInstruction = `Incorrect wallet connected. Please connect to the correct wallet: \n ${accountSelection.address.slice(
             0,
             10
           )}...${accountSelection.address.slice(-10)}`

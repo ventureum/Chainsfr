@@ -234,7 +234,7 @@ class ReceiptPage {
         } else {
           expectedTitle = 'Payment Accepted'
           expectedMessageBoxContent =
-            'It may take some time to update your account balance. You can track the transaction here.'
+            'It may take some time to update your balance. You can track the transaction here.'
         }
         received = true
         break
@@ -285,7 +285,7 @@ class ReceiptPage {
         expectedTitle = 'Payment Cancelled'
         if (userType === 'SENDER') {
           expectedMessageBoxContent =
-            'It may take some time to update your account balance. You can track the transaction here.'
+            'It may take some time to update your balance. You can track the transaction here.'
         }
         cancelled = true
         break
@@ -293,7 +293,7 @@ class ReceiptPage {
         if (userType === 'SENDER') {
           expectedTitle = 'Payment Reclaimed'
           expectedMessageBoxContent =
-            'It may take some time to update your account balance. You can track the transaction here.'
+            'It may take some time to update your balance. You can track the transaction here.'
         } else {
           expectedTitle = 'Payment Expired'
         }

@@ -160,7 +160,7 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
       .then(() => {
         dispatch(
           enqueueSnackbar({
-            message: 'Account added successfully.',
+            message: 'Wallet connected successfully.',
             key: new Date().getTime() + Math.random(),
             options: { variant: 'success', autoHideDuration: 3000 }
           })
@@ -220,7 +220,7 @@ function removeCryptoAccounts (accountData: AccountData | Array<AccountData>) {
       .then(() => {
         dispatch(
           enqueueSnackbar({
-            message: 'Account is removed successfully.',
+            message: 'Connected wallet deleted.',
             key: new Date().getTime() + Math.random(),
             options: { variant: 'success', autoHideDuration: 3000 }
           })
@@ -261,7 +261,7 @@ function modifyCryptoAccountsName (accountData: AccountData | Array<AccountData>
       .then(() => {
         dispatch(
           enqueueSnackbar({
-            message: 'Account name modified successfully.',
+            message: 'Wallet name changed.',
             key: new Date().getTime() + Math.random(),
             options: { variant: 'success', autoHideDuration: 3000 }
           })

@@ -557,10 +557,10 @@ class LandingPageComponent extends Component {
                       <Button
                         className={classes.lightbtn}
                         color='primary'
-                        onClick={() => push(path.accounts)}
+                        onClick={() => push(path.connections)}
                         data-test-id='cya_btn'
                       >
-                        Connect to Existing Wallets
+                        Connect to Your Existing Wallets
                       </Button>
                     </Grid>
                   </Grid>
