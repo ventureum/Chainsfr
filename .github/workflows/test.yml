@@ -42,7 +42,7 @@ jobs:
       env:
         CI: 'true'
         # we use test.api.chainsfr.com backend
-        REACT_APP_CHAINSFER_API_ENDPOINT: https://test.api.chainsfr.com
+        REACT_APP_CHAINSFER_API_ENDPOINT: https://tim.api.chainsfr.com
         REACT_APP_E2E_TEST_MOCK_USER: true
         REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE:  vnpkn
         E2E_TEST_START_SERVER: true
