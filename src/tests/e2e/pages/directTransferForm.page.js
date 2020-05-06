@@ -7,10 +7,7 @@ export default class DirectTransferFormPage {
       await pWaitFor(this.formProceedable)
       await page.click('[data-test-id="continue"]')
     } else if (action === 'back') {
-      await Promise.all([
-        page.click('[data-test-id="back"]'),
-        page.waitForNavigation()
-      ])
+      await Promise.all([page.click('[data-test-id="back"]'), page.waitForNavigation()])
     } else if (action === 'transferIn') {
       await page.click('[data-test-id="transfer_in"]')
       await page.waitFor(500) // animation
@@ -41,8 +38,15 @@ export default class DirectTransferFormPage {
 
   async waitForCoinListToBeSynced () {
     // assume coin list dropdown has been opened
-    await page.waitFor(() => 
-      document.querySelectorAll('[data-test-id="account_sync_skeleton"]').length === 0
+    await page.waitFor(
+      () => document.querySelectorAll('[data-test-id="account_sync_skeleton"]').length === 0
+    )
+  }
+
+  async waitForAccountListToBeLoaded () {
+    // assume acount list dropdown has been opened
+    await page.waitFor(
+      () => document.querySelectorAll('[data-test-id="account_load_skeleton"]').length === 0
     )
   }
 
@@ -51,6 +55,7 @@ export default class DirectTransferFormPage {
       case 'account': {
         const { walletType, platformType } = values
         await this.openSelect('account')
+        await this.waitForAccountListToBeLoaded()
         await page.click(`[data-test-id="grouped_account_item_${walletType}_${platformType}"]`)
         await page.waitFor(500) // select animation
         break
@@ -162,7 +167,9 @@ export default class DirectTransferFormPage {
           displayedAccount.cryptoSymbol = node.querySelector(
             '[data-test-id="coin_symbol"]'
           ).textContent
-          displayedAccount.balance = node.querySelector('[data-test-id="coin_balance"]').textContent
+          displayedAccount.balance = node.querySelector(
+            '[data-test-id="coin_balance"]'
+          ).textContent
           displayedAccount.currencyBalance = node.querySelector(
             '[data-test-id="coin_currency_balance"]'
           ).textContent

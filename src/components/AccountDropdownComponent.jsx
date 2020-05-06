@@ -148,7 +148,12 @@ class AccountDropdownComponent extends Component<Props, State> {
       return (
         <React.Fragment>
           <Box pr={1} mb={1}>
-            <Skeleton variant='circle' width={40} height={40} />
+            <Skeleton
+              variant='circle'
+              data-test-id='account_load_skeleton'
+              width={40}
+              height={40}
+            />
           </Box>
           <Skeleton height={6} />
           <Skeleton height={6} width='80%' />
@@ -287,22 +292,24 @@ class AccountDropdownComponent extends Component<Props, State> {
                 </MenuItem>
               )
             })}
-            {groupedCryptoAccounts.map((groupedAccountData, index) => {
-              return (
-                <MenuItem
-                  key={index}
-                  value={groupedAccountData}
-                  disabled={
-                    purpose === 'send' && !getWalletConfig(groupedAccountData.walletType).sendable
-                  }
-                  data-test-id={`grouped_account_item_${groupedAccountData.walletType}_${
-                    groupedAccountData.platformType
-                  }`}
-                >
-                  {this.renderGroupedAccountItem(groupedAccountData, purpose)}
-                </MenuItem>
-              )
-            })}
+            {!pending &&
+              groupedCryptoAccounts.map((groupedAccountData, index) => {
+                return (
+                  <MenuItem
+                    key={index}
+                    value={groupedAccountData}
+                    disabled={
+                      purpose === 'send' &&
+                      !getWalletConfig(groupedAccountData.walletType).sendable
+                    }
+                    data-test-id={`grouped_account_item_${groupedAccountData.walletType}_${
+                      groupedAccountData.platformType
+                    }`}
+                  >
+                    {this.renderGroupedAccountItem(groupedAccountData, purpose)}
+                  </MenuItem>
+                )
+              })}
             {groupedCryptoAccounts.length !== 0 && <Divider />}
             <MenuItem value='addCryptoAccounts'>
               <Button onClick={() => addAccount()} color='primary' fullWidth>
