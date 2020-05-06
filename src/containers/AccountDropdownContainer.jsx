@@ -188,7 +188,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           addAccount={this.toggleAddAccountModal}
           pending={actionsPending.getCryptoAccounts || !accountsFetchStarted}
           error={error}
-          inputLabel={inputLabel ? inputLabel : 'Select Account'}
+          inputLabel={inputLabel ? inputLabel : 'Select Wallet'}
           hideCryptoDropdown={hideCryptoDropdown}
           disableAccountSelect={disableAccountSelect}
         />
