@@ -18,10 +18,10 @@ class LandingPage {
 
   async navigateToAccounts () {
     await Promise.all([page.waitForNavigation(), page.click('[data-test-id="cya_btn"]')])
-    expect(page.url()).toEqual(`${process.env.E2E_TEST_URL}/accounts`)
+    expect(page.url()).toEqual(`${process.env.E2E_TEST_URL}/connections`)
 
-    await Promise.all([page.waitForNavigation(), page.click('[data-test-id="accounts_nav_btn"]')])
-    expect(page.url()).toEqual(`${process.env.E2E_TEST_URL}/accounts`)
+    await Promise.all([page.waitForNavigation(), page.click('[data-test-id="connections_nav_btn"]')])
+    expect(page.url()).toEqual(`${process.env.E2E_TEST_URL}/connections`)
   }
 
   async navigateToContacts () {
