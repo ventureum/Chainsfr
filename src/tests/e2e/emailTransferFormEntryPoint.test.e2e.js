@@ -174,7 +174,7 @@ describe('Email transfer form entry point tests', () => {
         page.waitForNavigation({
           waitUntil: 'networkidle0'
         }),
-        page.goto(`${process.env.E2E_TEST_URL}/accounts`)
+        page.goto(`${process.env.E2E_TEST_URL}/connections`)
       ])
       const accountPage = new AccountsPage()
       const accounts = await accountPage.getAccountsList()
@@ -208,7 +208,7 @@ describe('Email transfer form entry point tests', () => {
         page.waitForNavigation({
           waitUntil: 'networkidle0'
         }),
-        page.goto(`${process.env.E2E_TEST_URL}/accounts`)
+        page.goto(`${process.env.E2E_TEST_URL}/connections`)
       ])
       const accountPage = new AccountsPage()
       const accounts = await accountPage.getAccountsList()

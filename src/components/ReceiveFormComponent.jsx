@@ -284,7 +284,7 @@ const InputSection = withStyles(inputSectionStyle)(props => {
           <AccountDropdown
             online
             purpose='receive'
-            inputLabel='Account'
+            inputLabel='Wallet'
             filterCriteria={accountData => accountData.cryptoType === transfer.cryptoType}
             updateForm={onAccountChange}
             hideCryptoDropdown

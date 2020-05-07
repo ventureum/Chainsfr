@@ -46,7 +46,7 @@ const NAV_BTNS = [
   },
   {
     name: 'Connections',
-    id: 'Connections',
+    id: 'connections',
     path: path.connections,
     icon: <AccountIcon color='primary' />
   },

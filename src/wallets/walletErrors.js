@@ -2,8 +2,8 @@ export default {
   metamask: {
     incorrectNetwork: 'Incorrect MetaMask network',
     extendsionNotFound: 'Check wallet connection failed',
-    incorrectAccount: 'Incorrect Metamask walllet',
-    noOptions: 'Options must not be null for metamask wallet',
+    incorrectAccount: 'Incorrect MetaMask wallet',
+    noOptions: 'Options must not be null for MetaMask wallet',
     authorizationDenied: 'MetaMask wallet authorization denied by user'
   },
   drive: {

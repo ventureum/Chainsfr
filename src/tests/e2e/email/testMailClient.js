@@ -21,6 +21,7 @@ const testMailApiKey = process.env.E2E_TEST_TEST_MAIL_API_KEY
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 export default class TestMailsClient {
   tag: string
@@ -45,7 +46,7 @@ export default class TestMailsClient {
       data = await this.testmailClient.request(`{
         inbox (
           namespace:"${testMailNamespace}"
-          tag:"${this.tag}"
+          tag:"${this.tag}${suffix}"
           timestamp_from:${timestamp}
           livequery:true
           advanced_filters:[{

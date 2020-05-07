@@ -1,6 +1,7 @@
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 const RECIPIENTS = [
   {
@@ -37,7 +38,7 @@ const RECIPIENTS = [
   },
   {
     addedAt: 1584499697,
-    email: `${testMailNamespace}.receiver@inbox.testmail.app`,
+    email: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
     name: 'receiver',
     updatedAt: 1584499697,
     validEmail: true,

@@ -45,6 +45,7 @@ jobs:
         REACT_APP_CHAINSFER_API_ENDPOINT: https://test.api.chainsfr.com
         REACT_APP_E2E_TEST_MOCK_USER: true
         REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE:  vnpkn
+        REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX: CI
         E2E_TEST_START_SERVER: true
         E2E_TEST_URL: http://localhost:3001
         E2E_TEST_GOOGLE_LOGIN_USERNAME: ${{ secrets.E2E_TEST_GOOGLE_LOGIN_USERNAME }}
