@@ -258,7 +258,7 @@ export default function TransferAmountTextField (props: Props) {
           }
           disabled={disabled}
           onChange={e => updateAmount(e.target.value, null)}
-          value={transferAmount}
+          value={transferAmount|| ''}
           InputProps={{
             endAdornment: (
               <InputAdornment position='end'>
@@ -290,7 +290,7 @@ export default function TransferAmountTextField (props: Props) {
           placeholder='Amount'
           disabled={disabled}
           onChange={e => updateAmount(null, e.target.value)}
-          value={transferCurrencyAmount}
+          value={transferCurrencyAmount|| ''}
           InputProps={{
             endAdornment: (
               <InputAdornment position='end'>
