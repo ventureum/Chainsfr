@@ -23,6 +23,7 @@ const receivingTransfer = { ...transferDataList[1], state: DEFAULT_TRANSFER_DATA
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 let expiryDays = 0
 if (process.env.REACT_APP_CHAINSFER_API_ENDPOINT.match(new RegExp('prod'))) expiryDays = 28
 if (process.env.REACT_APP_CHAINSFER_API_ENDPOINT.match(new RegExp('test'))) expiryDays = 10
@@ -38,7 +39,7 @@ describe('Receive transfer tests', () => {
 
   const FORM_BASE = {
     formPage: emtPage,
-    recipient: `${testMailNamespace}.receiver@inbox.testmail.app`,
+    recipient: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
     currencyAmount: '1',
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'
