@@ -18,12 +18,6 @@ module.exports = {
       config.plugins = [];
     }
     config.plugins.push(new WorkerPlugin())
-    config.output = {
-      ...config.output,
-      path: path.join(__dirname, 'build'),
-      filename: 'bundle.js',
-      globalObject: 'this',
-    }
   return config;
   },
   // The Jest config to use when running your jest tests - note that the normal rewires do not

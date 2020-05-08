@@ -42,6 +42,7 @@ jobs:
       env:
         CI: 'true'
         # we use test.api.chainsfr.com backend
+        REACT_APP_INFURA_API_KEY: ${{ secrets.REACT_APP_INFURA_API_KEY }}
         REACT_APP_CHAINSFER_API_ENDPOINT: https://test.api.chainsfr.com
         REACT_APP_E2E_TEST_MOCK_USER: true
         REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE:  vnpkn
