@@ -39,6 +39,7 @@ jobs:
     # e2e tests
     - name: E2E Test
       uses: ventureum/puppeteer-headful@master
+      if: github.event_name == 'pull_request'
       env:
         CI: 'true'
         # we use test.api.chainsfr.com backend
