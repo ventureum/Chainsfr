@@ -6,12 +6,16 @@ import ReceiptPage from './pages/receipt.page'
 import DisconnectPage from './pages/disconnect.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
+import { getTransfer } from './testUtils'
 import url from '../../url'
 import { DATA, WALLET_FOLDER_NAME, WALLET_FILE_NAME } from './mocks/drive.js'
 import log from 'loglevel'
 import BN from 'bn.js'
 import pWaitFor from 'p-wait-for'
 import Web3 from 'web3'
+import { getCryptoSymbol } from '../../tokens'
+import TestMailsClient from './email/testMailClient'
+import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 
 log.setDefaultLevel('info')
 
@@ -37,6 +41,26 @@ describe('Transfer Auth Tests', () => {
   }
 
   const NETWORK_ID = 4
+
+  const checkSenderErrorEmail = async transferData => {
+    const testMailClient = new TestMailsClient('sender')
+
+    const subjectFilterValue = getEmailSubject('sender', 'error', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.SENDER.ERROR
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const btnLink = emailParser.getEmailElementAttribute(selectors.CANCEL_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
+    expect(emailMessage).toMatch(new RegExp(transferData.destination))
+    expect(btnLink).toEqual(`https://testnet.chainsfr.com/cancel?id=${transferData.transferId}`)
+  }
 
   beforeAll(async () => {
     await resetUserDefault()
@@ -239,7 +263,8 @@ describe('Transfer Auth Tests', () => {
                 }
               }
             }
-          ]
+          ],
+          75000 // sometime it take longer.
         ),
         emtAuthPage.connect()
       ])
@@ -346,7 +371,7 @@ describe('Transfer Auth Tests', () => {
     async () => {
       requestInterceptor.byPass({
         platform: 'bitcoin',
-        method: 'txs',
+        method: 'txs'
       })
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
 
@@ -402,7 +427,7 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect()
       ])
-    requestInterceptor.byPass(null)
+      requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -555,7 +580,8 @@ describe('Transfer Auth Tests', () => {
                 }
               }
             }
-          ]
+          ],
+          75000 // sometime it take longer.
         ),
         emtAuthPage.connect('metamask', 'dai', true)
       ])
@@ -607,7 +633,7 @@ describe('Transfer Auth Tests', () => {
       await expect(page).toMatch(`Your remaining DAI transaction limit is ${CRYPTO_AMOUNT}.`, {
         timeout: 5000
       })
-
+      
       // click connect
       await Promise.all([
         reduxTracker.waitFor(
@@ -653,5 +679,73 @@ describe('Transfer Auth Tests', () => {
       requestInterceptor.byPass(null)
     },
     timeout
+  )
+
+  test(
+    'Send MetaMask ETH to recipient unreachabled (check error email)',
+    async () => {
+      // go back to transfer form
+      await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
+
+      await emtPage.fillForm({
+        ...FORM_BASE,
+        currencyAmount: '0.5',
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'ethereum',
+        recipient: 'recipientEmailNotExist.forSure@gmail.com'
+      })
+
+      await gotoAuthPage()
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SUBMIT_TX_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        emtAuthPage.connect('metamask', 'ethereum')
+      ])
+      const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
+      log.info('Transfer ID: ', transferId)
+      const transferData = await getTransfer({ transferId: transferId })
+      log.info('Waiting for error email to be resolved')
+      await checkSenderErrorEmail(transferData)
+      log.info('Error email resolved')
+    },
+    1000 * 60 * 20 // this may take longer than other tests
   )
 })
