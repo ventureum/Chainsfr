@@ -40,6 +40,9 @@ describe('Transfer Auth Tests', () => {
 
   beforeAll(async () => {
     await resetUserDefault()
+
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
     const loginPage = new LoginPage()
@@ -51,6 +54,7 @@ describe('Transfer Auth Tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 
@@ -151,6 +155,16 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send DAI from drive wallet (insufficient allowance)',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0x259ec51efaa03c33787752e5a99becbf7f8526c4',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       // reset metamask dai allowance
       await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
@@ -231,6 +245,7 @@ describe('Transfer Auth Tests', () => {
       ])
 
       await waitForTxConfirmation()
+      requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -238,6 +253,16 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send DAI from drive wallet (sufficient allowance)',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0x259ec51efaa03c33787752e5a99becbf7f8526c4',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const CRYPTO_AMOUNT = '1'
 
       // reset metamask dai allowance
@@ -311,6 +336,7 @@ describe('Transfer Auth Tests', () => {
       ])
 
       await waitForTxConfirmation()
+      requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -318,6 +344,10 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send BTC from drive wallet',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'bitcoin',
+        method: 'txs',
+      })
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
 
       const CRYPTO_AMOUNT = '0.001'
@@ -372,6 +402,7 @@ describe('Transfer Auth Tests', () => {
         ),
         emtAuthPage.connect()
       ])
+    requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -438,6 +469,16 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send DAI from metamask wallet (insufficient allowance)',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       // reset metamask dai allowance
       await page.goto(`${process.env.E2E_TEST_URL}/disconnect`, { waitUntil: 'networkidle0' })
 
@@ -519,6 +560,7 @@ describe('Transfer Auth Tests', () => {
         emtAuthPage.connect('metamask', 'dai', true)
       ])
       await waitForTxConfirmation()
+      requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -526,6 +568,16 @@ describe('Transfer Auth Tests', () => {
   test(
     'Send DAI from metamask wallet (sufficient allowance)',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const CRYPTO_AMOUNT = '1'
 
       // reset metamask dai allowance
@@ -598,6 +650,7 @@ describe('Transfer Auth Tests', () => {
         emtAuthPage.connect('metamask', 'dai', false)
       ])
       await waitForTxConfirmation()
+      requestInterceptor.byPass(null)
     },
     timeout
   )

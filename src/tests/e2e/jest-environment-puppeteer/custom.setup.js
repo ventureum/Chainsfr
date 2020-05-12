@@ -34,3 +34,6 @@ page
   .on('requestfailed', request =>
     console.log(chalk.magenta(`${request.failure().errorText} ${request.url()}`))
   )
+
+const RequestInterceptor = require('../utils/requestInterceptor').default
+global.requestInterceptor = new RequestInterceptor()

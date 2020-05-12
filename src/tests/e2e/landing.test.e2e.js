@@ -8,6 +8,10 @@ const timeout = 180000
 describe('Landing page tests', () => {
   beforeAll(async () => {
     await jestPuppeteer.resetBrowser()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -18,7 +22,11 @@ describe('Landing page tests', () => {
     )
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
+
+  beforeEach(async () => {
     await page.goto(process.env.E2E_TEST_URL)
   })
 

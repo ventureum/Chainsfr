@@ -14,6 +14,10 @@ function aboutEqual (valueA, valueB, tolerance = 0.05) {
 describe('Direct transfer review tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -25,6 +29,7 @@ describe('Direct transfer review tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 

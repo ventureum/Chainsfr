@@ -15,6 +15,7 @@ module.exports = {
     '**/emailTransferReview.test.e2e.js',
     '**/directTransferForm.test.e2e.js',
     '**/directTransferReview.test.e2e.js',
+    '**/directTransferWalletAuth.test.e2e.js',
     '**/accountManagement.test.e2e.js',
     '**/emailTransferWalletAuth.test.e2e.js',
     '**/cancelTransfer.test.e2e.js',

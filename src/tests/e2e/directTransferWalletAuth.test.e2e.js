@@ -44,6 +44,9 @@ describe('Direct Transfer Auth Tests', () => {
 
   beforeAll(async () => {
     await resetUserDefault()
+
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
     const loginPage = new LoginPage()
@@ -55,6 +58,14 @@ describe('Direct Transfer Auth Tests', () => {
   }, timeout)
 
   beforeEach(async () => {
+    if (['Send BTC from drive wallet to ledger wallet'].includes(jasmine['currentTest'].description)) {
+      requestInterceptor.byPass({
+        platform: 'bitcoin',
+        method: 'txs',
+      })
+    } else {
+      requestInterceptor.byPass(null)
+    }
     await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
   })
 
@@ -84,6 +95,7 @@ describe('Direct Transfer Auth Tests', () => {
       }
     )
 
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 
@@ -157,6 +169,16 @@ describe('Direct Transfer Auth Tests', () => {
   test(
     'Send DAI from drive wallet to metamask wallet',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0x259EC51eFaA03c33787752E5a99BeCBF7F8526c4',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const CRYPTO_AMOUNT = '1'
       await dtPage.fillForm({
         ...FORM_BASE,
@@ -219,6 +241,7 @@ describe('Direct Transfer Auth Tests', () => {
   test(
     'Send BTC from drive wallet to ledger wallet',
     async () => {
+
       const CRYPTO_AMOUNT = '0.001'
       await dtPage.fillForm({
         ...FORM_BASE,
@@ -339,6 +362,16 @@ describe('Direct Transfer Auth Tests', () => {
   test(
     'Send DAI from metamask wallet to drive wallet',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const CRYPTO_AMOUNT = '1'
 
       await dtPage.dispatchFormActions('transferIn')

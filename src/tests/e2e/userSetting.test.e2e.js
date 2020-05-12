@@ -9,6 +9,10 @@ const timeout = 180000
 describe('User setting page tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -18,6 +22,10 @@ describe('User setting page tests', () => {
       true
     )
   }, timeout)
+
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
 
   beforeEach(async () => {
     const reduxTracker = new ReduxTracker()

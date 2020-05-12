@@ -104,7 +104,7 @@ const CRYPTO_ACCOUNTS = [
   // ledger
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'ethereum',
     name: 'Ledger ETH',
     updatedAt: 1583802157,
@@ -113,7 +113,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'dai',
     name: 'Ledger DAI',
     updatedAt: 1583802157,
@@ -122,7 +122,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'usd-coin',
     name: 'Ledger USDC',
     updatedAt: 1583802157,
@@ -131,7 +131,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'tether',
     name: 'Ledger Tether',
     updatedAt: 1583802157,
@@ -140,7 +140,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'true-usd',
     name: 'Ledger TUSD',
     updatedAt: 1583802157,
@@ -155,12 +155,12 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'ledger',
     xpub:
-      'tpubDDJyEqmpGqgcXoVcs94neUx2dQ3tEacznobgN69ZPpnmMXMjHqtzqjbLJmtRfXYyucjJ9LE4jJ9MZYkVZuXzJePKMU9sqLe2zBc1sZ5nTG8'
+      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME'
   },
   // coinbaseWalletLink
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'ethereum',
     name: 'CoinbaseWalletLink ETH',
     updatedAt: 1583802157,
@@ -169,7 +169,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'dai',
     name: 'CoinbaseWalletLink DAI',
     updatedAt: 1583802157,
@@ -178,7 +178,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'usd-coin',
     name: 'CoinbaseWalletLink USDC',
     updatedAt: 1583802157,
@@ -187,7 +187,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'tether',
     name: 'CoinbaseWalletLink Tether',
     updatedAt: 1583802157,
@@ -196,7 +196,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'true-usd',
     name: 'CoinbaseWalletLink TUSD',
     updatedAt: 1583802157,
@@ -206,7 +206,7 @@ const CRYPTO_ACCOUNTS = [
   // metamaskWalletConnect
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'ethereum',
     name: 'MetamaskWalletConnect ETH',
     updatedAt: 1583802157,
@@ -215,7 +215,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'dai',
     name: 'MetamaskWalletConnect DAI',
     updatedAt: 1583802157,
@@ -224,7 +224,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'usd-coin',
     name: 'MetamaskWalletConnect USDC',
     updatedAt: 1583802157,
@@ -233,7 +233,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'tether',
     name: 'MetamaskWalletConnect Tether',
     updatedAt: 1583802157,
@@ -242,7 +242,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'true-usd',
     name: 'MetamaskWalletConnect TUSD',
     updatedAt: 1583802157,
@@ -252,7 +252,7 @@ const CRYPTO_ACCOUNTS = [
   // trustWalletConnect
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'ethereum',
     name: 'TrustWalletConnect ETH',
     updatedAt: 1583802157,
@@ -261,7 +261,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'dai',
     name: 'TrustWalletConnect DAI',
     updatedAt: 1583802157,
@@ -270,7 +270,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'usd-coin',
     name: 'TrustWalletConnect USDC',
     updatedAt: 1583802157,
@@ -279,7 +279,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'tether',
     name: 'TrustWalletConnect Tether',
     updatedAt: 1583802157,
@@ -288,7 +288,7 @@ const CRYPTO_ACCOUNTS = [
   },
   {
     addedAt: 1583802157,
-    address: '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'true-usd',
     name: 'TrustWalletConnect TUSD',
     updatedAt: 1583802157,
@@ -298,7 +298,7 @@ const CRYPTO_ACCOUNTS = [
   // coinbase oauth
   {
     addedAt: 1584480506,
-    address: '0x55985F5C5cc9cC1A4263feb11AB5a1d6CbEf3bBA',
+    address: '0x6F6a68eC176AAfFE76e6771F2Ea79607f6B79801',
     cryptoType: 'ethereum',
     email: 'e2e-user@gmail.com',
     name: 'e2e-user@gmail.com',
@@ -319,3 +319,5 @@ const CRYPTO_ACCOUNTS = [
 ]
 
 export { CRYPTO_ACCOUNTS }
+
+

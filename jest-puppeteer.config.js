@@ -9,7 +9,7 @@ module.exports = {
       It takes the max resolution then. 
     */
     defaultViewport: null,
-    args: ['--no-sandbox', '--disable-web-security', '--disable-gpu', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-web-security', '--disable-gpu', '--disable-setuid-sandbox', '--unlimited-storage', '--disable-dev-shm-usage']
   },
   browser: 'chromium',
   server: process.env.E2E_TEST_START_SERVER === 'true' && {

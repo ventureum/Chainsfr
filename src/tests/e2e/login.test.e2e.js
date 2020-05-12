@@ -10,7 +10,13 @@ describe('Login and onboarding', () => {
     await jestPuppeteer.resetBrowser()
   })
 
+  beforeAll(async () => {
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+  })
+
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 
