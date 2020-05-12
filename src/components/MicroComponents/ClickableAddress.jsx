@@ -27,7 +27,6 @@ const ClickableAddress = (props: ClickableAddressProps) => {
 
   return (
     <Button
-      size='size'
       target='_blank'
       rel='noopener noreferrer'
       className={classes.button}
