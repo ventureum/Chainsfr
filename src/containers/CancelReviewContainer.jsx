@@ -6,7 +6,7 @@ import CancelReviewComponent from '../components/CancelReviewComponent'
 import { getTransfer, cancelTransfer, getTxFee } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { goToStep } from '../actions/navigationActions'
-import { verifyEscrowAccountPassword, syncWithNetwork } from '../actions/accountActions'
+import { onEscrowPasswordEntered, syncWithNetwork } from '../actions/accountActions'
 import utils from '../utils'
 
 class CancelReviewContainer extends Component {
@@ -23,24 +23,10 @@ class CancelReviewContainer extends Component {
     if (!error && transfer) {
       if (prevActionPending.getTransfer && !actionsPending.getTransfer) {
         // transfer data retrieved, now decrypt escrow account
-        this.props.verifyEscrowAccountPassword({
+        this.props.onEscrowPasswordEntered({
           transferId: transfer.transferId,
           account: escrowAccount
         })
-      } else if (
-        prevActionPending.verifyEscrowAccountPassword &&
-        !actionsPending.verifyEscrowAccountPassword &&
-        !actionsPending.syncWithNetwork
-      ) {
-        // verifyEscrowAccountPassword completed, currently not syncing
-        this.props.syncWithNetwork(escrowAccount)
-      } else if (
-        prevActionPending.syncWithNetwork &&
-        !actionsPending.syncWithNetwork &&
-        !actionsPending.getTxFee
-      ) {
-        // sync completed, currently not executing getTxFee action
-        this.props.getTxFee({ fromAccount: escrowAccount, transferAmount: transfer.transferAmount })
       }
     }
   }
@@ -89,8 +75,8 @@ const errorSelector = createErrorSelector([
 const mapDispatchToProps = dispatch => {
   return {
     getTransfer: id => dispatch(getTransfer(id)), // here we use transferId
-    verifyEscrowAccountPassword: transferInfo =>
-      dispatch(verifyEscrowAccountPassword(transferInfo)),
+    onEscrowPasswordEntered: transferInfo =>
+      dispatch(onEscrowPasswordEntered(transferInfo)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),
     cancelTransfer: txRequest => dispatch(cancelTransfer(txRequest)),
     syncWithNetwork: txRequest => dispatch(syncWithNetwork(txRequest)),

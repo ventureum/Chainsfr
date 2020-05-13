@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ReceiveFormComponent from '../components/ReceiveFormComponent'
-import { verifyEscrowAccountPassword } from '../actions/accountActions'
+import { onEscrowPasswordEntered } from '../actions/accountActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import { updateTransferForm } from '../actions/formActions'
 import { syncWithNetwork } from '../actions/accountActions'
@@ -15,31 +15,9 @@ import moment from 'moment'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
-import { accountStatus } from '../types/account.flow'
 class ReceiveFormContainer extends Component {
   componentDidUpdate (prevProps) {
-    const { actionsPending, error, syncWithNetwork, escrowAccount, transfer } = this.props
-    const prevActionPending = prevProps.actionsPending
-
     if (
-      prevActionPending.verifyEscrowAccountPassword &&
-      !actionsPending.verifyEscrowAccountPassword &&
-      !error
-    ) {
-      // verified password successfully
-      // go to next step
-      syncWithNetwork(escrowAccount)
-    } else if (
-      prevActionPending.syncWithNetwork &&
-      !actionsPending.syncWithNetwork &&
-      escrowAccount &&
-      escrowAccount.status === accountStatus.synced
-    ) {
-      this.props.getTxFee({
-        fromAccount: escrowAccount,
-        transferAmount: transfer.transferAmount
-      })
-    } else if (
       prevProps.actionsPending.acceptTransfer &&
       !this.props.actionsPending.acceptTransfer &&
       !this.props.error
@@ -106,8 +84,8 @@ const mapDispatchToProps = dispatch => {
   return {
     getTransfer: id => dispatch(getTransfer(null, id)),
     updateTransferForm: form => dispatch(updateTransferForm(form)),
-    verifyEscrowAccountPassword: transferInfo =>
-      dispatch(verifyEscrowAccountPassword(transferInfo)),
+    onEscrowPasswordEntered: transferInfo =>
+      dispatch(onEscrowPasswordEntered(transferInfo)),
     clearVerifyEscrowAccountPasswordError: () => dispatch(clearVerifyEscrowAccountPasswordError()),
     push: path => dispatch(push(path)),
     getTxFee: txRequest => dispatch(getTxFee(txRequest)),

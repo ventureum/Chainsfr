@@ -1,7 +1,5 @@
 import type { AccountData } from '../types/account.flow.js'
 import { createAccount } from '../accounts/AccountFactory'
-import utils from '../utils'
-import { getCryptoDecimals } from '../tokens'
 import { getWallet } from '../drive.js'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
@@ -9,6 +7,7 @@ import { accountStatus } from '../types/account.flow'
 import { enqueueSnackbar } from './notificationActions.js'
 import API from '../apis.js'
 import WalletErrors from '../wallets/walletErrors'
+import { getTxFee } from './transferActions'
 
 async function _syncWithNetwork (accountData: AccountData) {
   let account = createAccount(accountData)
@@ -21,32 +20,6 @@ function syncWithNetwork (accountData: AccountData) {
     type: 'SYNC_WITH_NETWORK',
     payload: _syncWithNetwork(accountData),
     meta: { ...accountData, status: accountStatus.syncing }
-  }
-}
-
-async function _getTxFee (txRequest: {
-  fromAccount: AccountData,
-  transferAmount: StandardTokenUnit,
-  options: Object
-}) {
-  const { fromAccount, transferAmount, options } = txRequest
-  let account = createAccount(fromAccount)
-  return account.getTxFee({
-    value: utils
-      .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromAccount.cryptoType))
-      .toString(),
-    options: options
-  })
-}
-
-function getTxFee (txRequest: {
-  fromAccount: AccountData,
-  transferAmount: StandardTokenUnit,
-  options: Object
-}) {
-  return {
-    type: 'GET_TX_FEE',
-    payload: _getTxFee(txRequest)
   }
 }
 
@@ -103,12 +76,43 @@ function verifyEscrowAccountPassword (transferInfo: {
   account: AccountData,
   password: string
 }) {
+  return {
+    type: 'VERIFY_ESCROW_ACCOUNT_PASSWORD',
+    payload: _verifyEscrowAccountPassword(transferInfo),
+    meta: { localErrorHandling: true }
+  }
+}
+
+async function _onEscrowPasswordEntered (
+  dispatch,
+  getState,
+  transferInfo: {
+    transferId: ?string,
+    account: AccountData,
+    password: string
+  }
+) {
+  await dispatch(verifyEscrowAccountPassword(transferInfo))
+  const escrowAccount = getState().accountReducer.escrowAccount
+  const transfer = getState().transferReducer.transfer
+  await dispatch(syncWithNetwork(escrowAccount))
+  await dispatch(
+    getTxFee({
+      fromAccount: escrowAccount,
+      transferAmount: transfer.transferAmount
+    })
+  )
+}
+
+function onEscrowPasswordEntered (transferInfo: {
+  transferId: ?string,
+  account: AccountData,
+  password: string
+}) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
-      type: 'VERIFY_ESCROW_ACCOUNT_PASSWORD',
-      payload: _verifyEscrowAccountPassword(transferInfo)
-    }).catch(error => {
-      console.warn(error)
+      type: 'ON_ESCROW_PASSWORD_ENTERED',
+      payload: _onEscrowPasswordEntered(dispatch, getState, transferInfo)
     })
   }
 }
@@ -124,12 +128,14 @@ function markAccountDirty (accountData: AccountData) {
   }
 }
 
-function syncHelper (dispatch, accounts) {
+async function syncHelper (dispatch, accounts) {
+  let syncList = []
   accounts.forEach(cryptoAccount => {
     if ([accountStatus.initialized, accountStatus.dirty].includes(cryptoAccount.status)) {
-      dispatch(syncWithNetwork(cryptoAccount))
+      syncList.push(dispatch(syncWithNetwork(cryptoAccount)))
     }
   })
+  return Promise.all(syncList)
 }
 
 async function _addCryptoAccounts (accountData: Array<AccountData>): Promise<Array<AccountData>> {
@@ -323,6 +329,7 @@ export {
   getTxFee,
   decryptCloudWalletAccount,
   verifyEscrowAccountPassword,
+  onEscrowPasswordEntered,
   markAccountDirty,
   getCryptoAccounts,
   addCryptoAccounts,

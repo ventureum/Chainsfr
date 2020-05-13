@@ -10,22 +10,9 @@ import { push } from 'connected-react-router'
 import path from '../Paths.js'
 
 class ReceiveReviewContainer extends Component {
-  componentDidMount () {
-    const { escrowAccount, syncWithNetwork } = this.props
-    syncWithNetwork(escrowAccount)
-  }
 
   componentDidUpdate (prevProps) {
     if (
-      prevProps.actionsPending.syncWithNetwork &&
-      !this.props.actionsPending.syncWithNetwork &&
-      !this.props.error
-    ) {
-      this.props.getTxFee({
-        fromAccount: this.props.escrowAccount,
-        transferAmount: this.props.transfer.transferAmount
-      })
-    } else if (
       prevProps.actionsPending.acceptTransfer &&
       !this.props.actionsPending.acceptTransfer &&
       !this.props.error
