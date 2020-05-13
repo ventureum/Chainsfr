@@ -1,0 +1,97 @@
+os: linux
+dist: bionic
+services:
+  - xvfb
+notifications:
+  slack: ventureum-team:DSE8wxmLTenq0Yz17BrYBWg9
+language: node_js
+node_js:
+  - 12
+
+stages:
+  - lint
+  - e2e_tests
+  - build_test
+  - name: build_staging
+    if: type = push AND branch = master AND tag IS present
+  - name: build_prod
+    if: type = push AND branch = master AND tag IS present
+  - name: deploy_test
+    if: type = push AND branch = master
+  - name: deploy_staging
+    if: type = push AND branch = master AND tag IS present
+  - name: deploy_prod
+    if: type = push AND branch = master AND tag IS present
+
+jobs:
+  include:
+    - stage: lint
+      script:
+        - npm run eslint
+        - npm run flow
+    - stage: e2e_tests
+      script:
+        - npm run test:e2e
+      env:
+        - REACT_APP_INFURA_API_KEY=$REACT_APP_INFURA_API_KEY
+        - REACT_APP_CHAINSFER_API_ENDPOINT=https://test.api.chainsfr.com
+        - REACT_APP_E2E_TEST_MOCK_USER=true
+        - REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE=vnpkn
+        - REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX=CI
+        - E2E_TEST_START_SERVER=true
+        - E2E_TEST_URL=http://localhost:3001
+        - E2E_TEST_METAMASK_PRIVATE_KEY=$E2E_TEST_METAMASK_PRIVATE_KEY
+        - E2E_TEST_TEST_MAIL_API_KEY=$E2E_TEST_TEST_MAIL_API_KEY
+    - stage: build_test
+      script:
+        - npm run build:test
+        - mv ./build ./build_test
+    - stage: build_staging
+      script:
+        - npm run build:staging
+        - mv ./build ./build_staging
+    - stage: build_prod
+      script:
+        - npm run build:prod
+        - mv ./build ./build_prod
+    - stage: deploy test
+      script: skip
+      deploy:
+        - provider: s3
+          cache_control: 'max-age=0,no-cache,no-store,must-revalidate'
+          access_key_id: $S3_ACCESS_KEY
+          secret_access_key: $S3_SECRET
+          bucket: test.chainsfr.com
+          local_dir: build_test
+          region: us-east-1
+          acl: public_read
+          on:
+            branch: master
+    - stage: deploy staging
+      script: skip
+      deploy:
+        - provider: s3
+          cache_control: 'max-age=0,no-cache,no-store,must-revalidate'
+          access_key_id: $S3_ACCESS_KEY
+          secret_access_key: $S3_SECRET
+          bucket: testnet.chainsfr.com
+          local_dir: build_staging
+          region: us-east-1
+          acl: public_read
+          on:
+            branch: master
+            tags: true
+    - stage: deploy prod
+      script: skip
+      deploy:
+        - provider: s3
+          cache_control: 'max-age=0,no-cache,no-store,must-revalidate'
+          access_key_id: $S3_ACCESS_KEY
+          secret_access_key: $S3_SECRET
+          bucket: app.chainsfr.com
+          local_dir: build_prod
+          region: us-east-1
+          acl: public_read
+          on:
+            branch: master
+            tags: true
