@@ -313,7 +313,16 @@ async function addCryptoAccounts (
 ): Promise<{ cryptoAccounts: Array<BackEndCryptoAccountType> }> {
   const { idToken } = store.getState().userReducer.profile
   let tobeAdded = accounts.map((accountData: AccountData) => {
-    const { cryptoType, name, email, verified, receivable, sendable, walletType } = accountData
+    const {
+      cryptoType,
+      name,
+      email,
+      verified,
+      receivable,
+      sendable,
+      walletType,
+      platformType
+    } = accountData
     let newAccount = {}
     if (cryptoType === 'bitcoin' && accountData.hdWalletVariables.xpub) {
       newAccount.xpub = accountData.hdWalletVariables.xpub
@@ -324,6 +333,7 @@ async function addCryptoAccounts (
       ...newAccount,
       walletType: walletType,
       cryptoType: cryptoType,
+      platformType: platformType,
       name: name,
       email: email,
       verified: verified || false,
@@ -364,7 +374,7 @@ async function removeCryptoAccounts (
   const { idToken } = store.getState().userReducer.profile
 
   let tobeRemove = accounts.map((accountData: AccountData) => {
-    const { cryptoType, walletType, hdWalletVariables, address } = accountData
+    const { cryptoType, walletType, hdWalletVariables, address, platformType } = accountData
     let targetAccount = {}
 
     if (cryptoType === 'bitcoin' && hdWalletVariables.xpub) {
@@ -375,6 +385,7 @@ async function removeCryptoAccounts (
     targetAccount = {
       cryptoType: cryptoType,
       walletType: walletType,
+      platformType: platformType,
       ...targetAccount
     }
     return targetAccount
@@ -399,7 +410,7 @@ async function modifyCryptoAccountsName (
   const { idToken } = store.getState().userReducer.profile
 
   let toBeModified = accounts.map((accountData: AccountData) => {
-    const { cryptoType, walletType, hdWalletVariables, address } = accountData
+    const { cryptoType, walletType, hdWalletVariables, address, platformType } = accountData
     let targetAccount = {}
     if (cryptoType === 'bitcoin' && hdWalletVariables.xpub) {
       targetAccount.xpub = hdWalletVariables.xpub
@@ -409,6 +420,7 @@ async function modifyCryptoAccountsName (
     targetAccount = {
       cryptoType: cryptoType,
       walletType: walletType,
+      platformType: platformType,
       name: newName,
       ...targetAccount
     }

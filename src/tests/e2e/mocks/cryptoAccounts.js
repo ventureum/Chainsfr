@@ -7,7 +7,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ethereum Cloud Wallet',
     updatedAt: 1582577659,
     verified: true,
-    walletType: 'drive'
+    walletType: 'drive',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1582577659,
@@ -16,7 +17,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Dai Cloud Wallet',
     updatedAt: 1582577659,
     verified: true,
-    walletType: 'drive'
+    walletType: 'drive',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -25,7 +27,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'USDC Cloud Wallet',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'drive'
+    walletType: 'drive',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -34,7 +37,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Tether Cloud Wallet',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'drive'
+    walletType: 'drive',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -43,7 +47,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TUSD Cloud Wallet',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'drive'
+    walletType: 'drive',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1582577659,
@@ -53,7 +58,8 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'drive',
     xpub:
-      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME'
+      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME',
+    platformType: 'bitcoin'
   },
   // metamask
   {
@@ -63,7 +69,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Metamask ETH',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamask'
+    walletType: 'metamask',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -72,7 +79,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Metamask DAI',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamask'
+    walletType: 'metamask',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -81,7 +89,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Metamask USDC',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamask'
+    walletType: 'metamask',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -90,7 +99,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Metamask Tether',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamask'
+    walletType: 'metamask',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -99,7 +109,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Metamask TUSD',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamask'
+    walletType: 'metamask',
+    platformType: 'ethereum'
   },
   // ledger
   {
@@ -109,7 +120,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ledger ETH',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'ledger'
+    walletType: 'ledger',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -118,7 +130,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ledger DAI',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'ledger'
+    walletType: 'ledger',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -127,7 +140,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ledger USDC',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'ledger'
+    walletType: 'ledger',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -136,7 +150,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ledger Tether',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'ledger'
+    walletType: 'ledger',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -145,7 +160,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'Ledger TUSD',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'ledger'
+    walletType: 'ledger',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1582577659,
@@ -155,7 +171,8 @@ const CRYPTO_ACCOUNTS = [
     verified: true,
     walletType: 'ledger',
     xpub:
-      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME'
+      'tpubDCGHKimikfN7inXVgFiRJiAkN3Lb2Rca1UQyfnioyAJDQX7SkqD8dnYJH6SdjUcMkpNFNTHxwNYoCbna2CL9ZrYCZgKgv84hvHVrNEMLHME',
+    platformType: 'bitcoin'
   },
   // coinbaseWalletLink
   {
@@ -165,7 +182,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'CoinbaseWalletLink ETH',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'coinbaseWalletLink'
+    walletType: 'coinbaseWalletLink',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -174,7 +192,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'CoinbaseWalletLink DAI',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'coinbaseWalletLink'
+    walletType: 'coinbaseWalletLink',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -183,7 +202,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'CoinbaseWalletLink USDC',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'coinbaseWalletLink'
+    walletType: 'coinbaseWalletLink',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -192,7 +212,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'CoinbaseWalletLink Tether',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'coinbaseWalletLink'
+    walletType: 'coinbaseWalletLink',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -201,7 +222,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'CoinbaseWalletLink TUSD',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'coinbaseWalletLink'
+    walletType: 'coinbaseWalletLink',
+    platformType: 'ethereum'
   },
   // metamaskWalletConnect
   {
@@ -211,7 +233,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'MetamaskWalletConnect ETH',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamaskWalletConnect'
+    walletType: 'metamaskWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -220,7 +243,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'MetamaskWalletConnect DAI',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamaskWalletConnect'
+    walletType: 'metamaskWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -229,7 +253,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'MetamaskWalletConnect USDC',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamaskWalletConnect'
+    walletType: 'metamaskWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -238,7 +263,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'MetamaskWalletConnect Tether',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamaskWalletConnect'
+    walletType: 'metamaskWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -247,7 +273,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'MetamaskWalletConnect TUSD',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'metamaskWalletConnect'
+    walletType: 'metamaskWalletConnect',
+    platformType: 'ethereum'
   },
   // trustWalletConnect
   {
@@ -257,7 +284,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TrustWalletConnect ETH',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'trustWalletConnect'
+    walletType: 'trustWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -266,7 +294,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TrustWalletConnect DAI',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'trustWalletConnect'
+    walletType: 'trustWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -275,7 +304,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TrustWalletConnect USDC',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'trustWalletConnect'
+    walletType: 'trustWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -284,7 +314,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TrustWalletConnect Tether',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'trustWalletConnect'
+    walletType: 'trustWalletConnect',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583802157,
@@ -293,7 +324,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'TrustWalletConnect TUSD',
     updatedAt: 1583802157,
     verified: true,
-    walletType: 'trustWalletConnect'
+    walletType: 'trustWalletConnect',
+    platformType: 'ethereum'
   },
   // coinbase oauth
   {
@@ -304,7 +336,8 @@ const CRYPTO_ACCOUNTS = [
     name: 'e2e-user@gmail.com',
     updatedAt: 1584480506,
     verified: true,
-    walletType: 'coinbaseOAuthWallet'
+    walletType: 'coinbaseOAuthWallet',
+    platformType: 'ethereum'
   },
   {
     addedAt: 1583369082,
@@ -314,10 +347,9 @@ const CRYPTO_ACCOUNTS = [
     name: 'e2e-user@gmail.com',
     updatedAt: 1583369082,
     verified: true,
-    walletType: 'coinbaseOAuthWallet'
+    walletType: 'coinbaseOAuthWallet',
+    platformType: 'bitcoin'
   }
 ]
 
 export { CRYPTO_ACCOUNTS }
-
-
