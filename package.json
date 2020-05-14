@@ -107,7 +107,7 @@
     "build:staging": "env-cmd .env.staging npm run build",
     "build:prod": "env-cmd .env.prod npm run build",
     "test": "REACT_APP_VERSION=`git describe --tags --long --always` react-app-rewired test",
-    "test:e2e": "BROWSER=none env-cmd .env --no-override jest --config ./src/tests/e2e/jest.config.js --runInBand --bail --detectOpenHandles --forceExit",
+    "test:e2e": "BROWSER=none env-cmd .env --no-override jest --config ./src/tests/e2e/jest.config.js --runInBand --bail --detectOpenHandles --verbose=true --forceExit",
     "eject": "react-scripts eject",
     "flow-typed": "flow-typed install",
     "flow": "flow",
