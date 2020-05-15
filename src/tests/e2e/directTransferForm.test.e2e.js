@@ -8,6 +8,10 @@ const timeout = 180000
 describe('Direct transfer form tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -19,6 +23,7 @@ describe('Direct transfer form tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 

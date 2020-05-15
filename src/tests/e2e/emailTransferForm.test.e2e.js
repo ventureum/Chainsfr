@@ -69,6 +69,10 @@ async function fillForm (formInfo) {
 describe('Email transfer form tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
     const loginPage = new LoginPage()
@@ -80,15 +84,13 @@ describe('Email transfer form tests', () => {
   }, timeout)
 
   beforeEach(async () => {
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      page.goto(`${process.env.E2E_TEST_URL}/send`)
-    ])
+    await page.goto(`${process.env.E2E_TEST_URL}/send`, {
+      waitUntil: 'networkidle0'
+    })
   })
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 

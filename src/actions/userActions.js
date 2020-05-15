@@ -29,9 +29,6 @@ function refreshAccessToken () {
         // logout user
         dispatch(onLogout())
       })
-      .then(() => {
-        dispatch(getCryptoAccounts())
-      })
   }
 }
 

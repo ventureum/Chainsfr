@@ -41,6 +41,10 @@ describe('Cancel transfer tests', () => {
 
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
     const loginPage = new LoginPage()
@@ -52,6 +56,7 @@ describe('Cancel transfer tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 
@@ -125,6 +130,11 @@ describe('Cancel transfer tests', () => {
 
     const { transferId, idx } = pendingReceive[`${walletType}_${cryptoType}`]
     log.info(`Transfer Id: ${transferId}`)
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'GET_TRANSFER'
+    })
+    
     while (true) {
       await page.waitFor(15000) // 15 seconds
       var transferData = await getTransfer({ transferId: transferId })
@@ -138,6 +148,10 @@ describe('Cancel transfer tests', () => {
     log.info('Send tx confirmed', sendTxState)
 
     // back to home page
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'BATCH_GET'
+    })
     await page.goto(process.env.E2E_TEST_URL, {
       waitUntil: 'networkidle0'
     })
@@ -146,6 +160,11 @@ describe('Cancel transfer tests', () => {
     const itemIdx = numPendingReceive - idx - 1
     await landingPage.expandTxHistoryItem(itemIdx)
 
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'GET_TRANSFER'
+    })
+    
     const cancelPageTab = await getNewPopupPage(browser, async () => {
       await landingPage.cancelTx(itemIdx)
     })
@@ -186,6 +205,15 @@ describe('Cancel transfer tests', () => {
   it(
     'Send DAI from metamask',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
       const platformType = 'ethereum'
 
       // reset metamask dai allowance
@@ -205,6 +233,7 @@ describe('Cancel transfer tests', () => {
       })
 
       await sendTx('metamask', 'dai')
+      requestInterceptor.byPass(null)
     },
     timeout
   )
@@ -246,6 +275,15 @@ describe('Cancel transfer tests', () => {
   it(
     'Send DAI from drive wallet',
     async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0x259ec51efaa03c33787752e5a99becbf7f8526c4',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
       const platformType = 'ethereum'
 
       // reset drive dai allowance
@@ -265,6 +303,7 @@ describe('Cancel transfer tests', () => {
       })
 
       await sendTx('drive', 'dai')
+      requestInterceptor.byPass(null)
     },
     timeout
   )

@@ -18,6 +18,14 @@ describe('Recipients Page', () => {
   beforeAll(async done => {
     // we assume user has not logged in yet
     await jestPuppeteer.resetBrowser()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'GET_RECIPIENTS'
+    })
+
     await page.goto(process.env.E2E_TEST_URL)
     loginPage = new LoginPage()
     recipientsPage = new RecipientsPage()
@@ -34,6 +42,10 @@ describe('Recipients Page', () => {
 
     done()
   }, timeout)
+
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
 
   beforeEach(async () => {
     await resetUserDefault()

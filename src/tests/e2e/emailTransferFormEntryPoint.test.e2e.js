@@ -12,6 +12,10 @@ const timeout = 180000
 describe('Email transfer form entry point tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -23,11 +27,8 @@ describe('Email transfer form entry point tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
-  })
-
-  afterEach(async () => {
-    await page.goto(process.env.E2E_TEST_URL)
   })
 
   it(
@@ -46,13 +47,7 @@ describe('Email transfer form entry point tests', () => {
   it(
     'Recipients page entry',
     async () => {
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle0'
-        }),
-        page.goto(`${process.env.E2E_TEST_URL}/contacts`)
-      ])
-      // await page.waitFor(1000)
+      await page.goto(`${process.env.E2E_TEST_URL}/contacts`, { waitUntil: 'networkidle0' })
       const recipientPage = new RecipientPage()
       const recipients = await recipientPage.getRecipientList()
       let recipient = {}

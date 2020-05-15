@@ -54,6 +54,14 @@ describe('Receive transfer tests', () => {
 
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'GET_TRANSFER'
+    })
+
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
     const loginPage = new LoginPage()
@@ -65,6 +73,7 @@ describe('Receive transfer tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 
@@ -379,6 +388,16 @@ describe('Receive transfer tests', () => {
   it(
     'Send DAI from metamask',
     async done => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const platformType = 'ethereum'
 
       // reset metamask dai allowance
@@ -399,6 +418,7 @@ describe('Receive transfer tests', () => {
       })
 
       await sendTx('metamask', 'dai')
+      requestInterceptor.byPass(null)
       done()
     },
     timeout
@@ -426,6 +446,16 @@ describe('Receive transfer tests', () => {
   it(
     'Send DAI from drive',
     async done => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0x259ec51efaa03c33787752e5a99becbf7f8526c4',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
       const platformType = 'ethereum'
 
       // reset drive dai allowance
@@ -445,6 +475,7 @@ describe('Receive transfer tests', () => {
       })
 
       await sendTx('drive', 'dai')
+      requestInterceptor.byPass(null)
       done()
     },
     timeout
@@ -615,7 +646,13 @@ describe('Receive transfer tests', () => {
 })
 
 describe('Receive Login test', () => {
+  beforeAll(async () => {
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+  })
+
   afterAll(async () => {
+    requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
 

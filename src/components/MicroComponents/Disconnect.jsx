@@ -30,6 +30,8 @@ const Disconnect = (props) => {
         return true
       }
       return false
+    }, {
+      interval: 10000 // 10 seconds
     })
     setAllowanceTxHash(txHash)
   }

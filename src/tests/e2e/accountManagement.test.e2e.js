@@ -9,6 +9,14 @@ const reduxTracker = new ReduxTracker()
 describe('Account Management page tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+    requestInterceptor.byPass({
+      platform: 'chainsfrApi',
+      method: 'GET_CRYPTO_ACCOUNTS'
+    })
+    
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -18,6 +26,10 @@ describe('Account Management page tests', () => {
       true
     )
   }, timeout)
+
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
 
   beforeEach(async () => {
     await Promise.all([

@@ -62,6 +62,10 @@ async function goToReview (formInfo) {
 describe('Email transfer review tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     await page.goto(process.env.E2E_TEST_URL)
     // login to app
     const loginPage = new LoginPage()
@@ -72,13 +76,14 @@ describe('Email transfer review tests', () => {
     )
   }, timeout)
 
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
+
   beforeEach(async () => {
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'networkidle0'
-      }),
-      page.goto(`${process.env.E2E_TEST_URL}/send`)
-    ])
+    await page.goto(`${process.env.E2E_TEST_URL}/send`, {
+      waitUntil: 'networkidle0'
+    })
   })
 
   it(

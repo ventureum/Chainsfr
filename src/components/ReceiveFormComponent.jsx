@@ -355,8 +355,8 @@ class ReceiveFormComponent extends Component {
   }
 
   onPasswordSubmit = password => {
-    let { verifyEscrowAccountPassword, escrowAccount } = this.props
-    verifyEscrowAccountPassword({
+    let { onEscrowPasswordEntered, escrowAccount } = this.props
+    onEscrowPasswordEntered({
       transferId: null,
       account: escrowAccount,
       password: password

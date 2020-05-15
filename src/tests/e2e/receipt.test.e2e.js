@@ -8,8 +8,6 @@ import { getElementTextContent, getNewPopupPage } from './testUtils'
 import { getCryptoSymbol } from '../../tokens'
 import { Base64 } from 'js-base64'
 import moment from 'moment'
-import log from 'loglevel'
-log.setDefaultLevel('info')
 
 const timeout = 180000
 const reduxTracker = new ReduxTracker()
@@ -33,7 +31,14 @@ let receiverTestParam = testedTransferList.map((transfer, i) => {
 describe('Receipt login test', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
   }, timeout)
+
+  afterAll(async () => {
+    requestInterceptor.showStats()
+  })
 
   afterEach(async () => {
     await jestPuppeteer.resetBrowser()
@@ -73,6 +78,10 @@ describe('Receipt login test', () => {
 describe('Receipt page tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+
+    // setup interceptor
+    await requestInterceptor.setRequestInterception(true)
+
     const loginPage = new LoginPage()
     await page.goto(`${process.env.E2E_TEST_URL}`)
     await loginPage.login(
@@ -83,6 +92,9 @@ describe('Receipt page tests', () => {
   }, timeout)
 
   afterAll(async () => {
+    // show intercepted stats
+    requestInterceptor.showStats()
+
     await jestPuppeteer.resetBrowser()
   })
 
