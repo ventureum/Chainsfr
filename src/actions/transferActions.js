@@ -56,7 +56,8 @@ function submitDirectTransferTx (txRequest: {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'DIRECT_TRANSFER',
-      payload: _submitDirectTransferTx(txRequest)
+      payload: _submitDirectTransferTx(txRequest),
+      meta: { track: utils.getTrackInfoFromDirectTransfer(txRequest) }
     }).then(() => {
       dispatch(postTxAccountCleanUp(txRequest.fromAccount))
     })
@@ -1008,7 +1009,10 @@ async function _getTxHistoryByAccount ({
           cumulativeGasUsed
         } = txData
 
-        if (contractAddress === tokenContractAddr && (from === accountAddr || to === accountAddr)) {
+        if (
+          contractAddress === tokenContractAddr &&
+          (from === accountAddr || to === accountAddr)
+        ) {
           // token matches
           // fill in data
           rv[txHash] = { timestamp: timeStamp, blockNumber, nonce, gasPrice, cumulativeGasUsed }
@@ -1021,7 +1025,16 @@ async function _getTxHistoryByAccount ({
         }
       } else {
         // eth tx
-        let { from, to, value, timeStamp, blockNumber, nonce, gasPrice, cumulativeGasUsed } = txData
+        let {
+          from,
+          to,
+          value,
+          timeStamp,
+          blockNumber,
+          nonce,
+          gasPrice,
+          cumulativeGasUsed
+        } = txData
         if (from === accountAddr || to === accountAddr) {
           // from or to matches
           // fill in data
@@ -1213,7 +1226,8 @@ function submitTx (txRequest: {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'SUBMIT_TX',
-      payload: _submitTx(txRequest)
+      payload: _submitTx(txRequest),
+      meta: { track: utils.getTrackInfoFromSendTransfer(txRequest) }
     }).then(() => {
       dispatch(postTxAccountCleanUp(txRequest.fromAccount))
     })
@@ -1231,7 +1245,8 @@ function acceptTransfer (txRequest: {
 }) {
   return {
     type: 'ACCEPT_TRANSFER',
-    payload: _acceptTransfer(txRequest)
+    payload: _acceptTransfer(txRequest),
+    meta: { track: utils.getTrackInfoFromReceiveTransfer(txRequest) }
   }
 }
 
@@ -1248,7 +1263,8 @@ function cancelTransfer (txRequest: {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'CANCEL_TRANSFER',
-      payload: _cancelTransfer(txRequest)
+      payload: _cancelTransfer(txRequest),
+      meta: { track: utils.getTrackInfoFromCancelTransfer(txRequest) }
     }).then(() => dispatch(goToStep('cancel', 1)))
   }
 }
