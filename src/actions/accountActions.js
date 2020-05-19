@@ -8,6 +8,7 @@ import { enqueueSnackbar } from './notificationActions.js'
 import API from '../apis.js'
 import WalletErrors from '../wallets/walletErrors'
 import { getTxFee } from './transferActions'
+import utils from '../utils'
 
 async function _syncWithNetwork (accountData: AccountData) {
   let account = createAccount(accountData)
@@ -154,7 +155,8 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
     }
     return dispatch({
       type: 'ADD_CRYPTO_ACCOUNTS',
-      payload: _addCryptoAccounts(accountData)
+      payload: _addCryptoAccounts(accountData),
+      meta: { track: utils.getTrackInfoFromAccount(accountData) }
     })
       .then(data => {
         let dict = {}
@@ -221,7 +223,8 @@ function removeCryptoAccounts (accountData: AccountData | Array<AccountData>) {
     }
     return dispatch({
       type: 'REMOVE_CRYPTO_ACCOUNTS',
-      payload: _removeCryptoAccounts(accountData)
+      payload: _removeCryptoAccounts(accountData),
+      meta: { track: utils.getTrackInfoFromAccount(accountData) }
     })
       .then(() => {
         dispatch(
@@ -262,7 +265,8 @@ function modifyCryptoAccountsName (accountData: AccountData | Array<AccountData>
     }
     return dispatch({
       type: 'MODIFY_CRYPTO_ACCOUNTS_NAME',
-      payload: _modifyCryptoAccountsName(accountData, newName)
+      payload: _modifyCryptoAccountsName(accountData, newName),
+      meta: { track: utils.getTrackInfoFromAccount(accountData) }
     })
       .then(() => {
         dispatch(

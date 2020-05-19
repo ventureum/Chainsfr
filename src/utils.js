@@ -208,6 +208,65 @@ function accountsEqual (account1: AccountData, account2: AccountData): boolean {
   if (!account1 || !account2) return false
   return account1.id === account2.id
 }
+
+function getTrackInfoFromAccount (accountData: AccountData): Object {
+  return {
+    walletType: accountData.walletType,
+    platformType: accountData.platformType,
+    cryptoType: accountData.cryptoType
+  }
+}
+
+function getTrackInfoFromDirectTransfer (txRequest: {
+  fromAccount: AccountData,
+  destinationAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+  transferFiatAmountSpot: string
+}): Object {
+  const { fromAccount, destinationAccount, transferAmount, transferFiatAmountSpot } = txRequest
+  return {
+    fromAccount: getTrackInfoFromAccount(fromAccount),
+    destinationAccount: getTrackInfoFromAccount(destinationAccount),
+    transferAmount,
+    transferFiatAmountSpot
+  }
+}
+
+function getTrackInfoFromSendTransfer (txRequest: {
+  fromAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+  transferFiatAmountSpot: string
+}): Object {
+  const { fromAccount, transferAmount, transferFiatAmountSpot } = txRequest
+  return {
+    fromAccount: getTrackInfoFromAccount(fromAccount),
+    transferAmount,
+    transferFiatAmountSpot
+  }
+}
+
+function getTrackInfoFromReceiveTransfer (txRequest: {
+  destinationAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+}): Object {
+  const { destinationAccount, transferAmount } = txRequest
+  return {
+    destinationAccount: getTrackInfoFromAccount(destinationAccount),
+    transferAmount,
+  }
+}
+
+function getTrackInfoFromCancelTransfer (txRequest: {
+  senderAccount: AccountData,
+  transferAmount: StandardTokenUnit,
+}): Object {
+  const { senderAccount, transferAmount } = txRequest
+  return {
+    senderAccount: getTrackInfoFromAccount(senderAccount),
+    transferAmount,
+  }
+}
+
 export default {
   toHumanReadableUnit,
   toBasicTokenUnit,
@@ -218,5 +277,10 @@ export default {
   toCurrencyAmount,
   toCryptoAmount,
   accountsEqual,
-  formatNumber
+  formatNumber,
+  getTrackInfoFromAccount,
+  getTrackInfoFromDirectTransfer,
+  getTrackInfoFromSendTransfer,
+  getTrackInfoFromReceiveTransfer,
+  getTrackInfoFromCancelTransfer
 }
