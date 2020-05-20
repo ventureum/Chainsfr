@@ -19,6 +19,8 @@ import AccountsManagementContainer from './containers/AccountsManagementContaine
 import OAuthRedirectComponent from './components/OAuthRedirectComponent'
 import UserSettingContainer from './containers/UserSettingContainer'
 import AppBar from './containers/AppBarContainer'
+import Button from '@material-ui/core/Button'
+import MuiLink from '@material-ui/core/Link'
 import NavDrawer from './containers/NavDrawerContainer'
 import paths from './Paths'
 import { ThemeProvider } from '@material-ui/styles'
@@ -34,14 +36,14 @@ import { getCryptoPrice } from './actions/cryptoPriceActions'
 import { onLogout, refreshAccessToken, postLoginPreparation } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
-import { Hidden } from '@material-ui/core'
+import { Hidden, Typography } from '@material-ui/core'
 import { PersistGate } from 'redux-persist/integration/react'
 import moment from 'moment'
 import { erc20TokensList } from './erc20Tokens'
 import { usePageVisibility } from 'react-page-visibility'
 import env from './typedEnv'
-import { hotjar } from 'react-hotjar';
- 
+import { hotjar } from 'react-hotjar'
+
 if (env.REACT_APP_HOTJAR_ID && env.REACT_APP_HOTJAR_SV) {
   hotjar.initialize(env.REACT_APP_HOTJAR_ID, env.REACT_APP_HOTJAR_SV)
 }
@@ -145,7 +147,12 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
             if (isolate) {
               return (
                 <Box display='flex' flexDirection='column' minHeight='100vh' alignItems='stretch'>
-                  <AppBar {...matchProps} online={online} isolate={isolate} isMainNet={isMainNet} />
+                  <AppBar
+                    {...matchProps}
+                    online={online}
+                    isolate={isolate}
+                    isMainNet={isMainNet}
+                  />
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
@@ -155,7 +162,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
               )
             }
             return (
-              <Box display='flex' flexDirection='row' minHeight='100vh' alignItems='stretch'>
+              <Box display='flex' flexDirection='row' minHeight='100%' alignItems='stretch'>
                 <NavDrawer
                   {...matchProps}
                   online={online}
@@ -164,6 +171,42 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   isMainNet={isMainNet}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
+                  {!isMainNet && (
+                    <Box
+                      bgcolor='#1E0E62'
+                      height='58px'
+                      display='flex'
+                      justifyContent='center'
+                      alignItems='center'
+                      color='white'
+                    >
+                      <Typography color='inherit' variant='subtitle2'>
+                        {'👋 You are in Demo now. '}
+                        <MuiLink
+                          color='inherit'
+                          underline='always'
+                          id='intercom_launcher'
+                          //  fallback when intercom is not launched/available
+                          href={env.REACT_APP_FAQ_URL}
+                          rel='noopener noreferrer'
+                        >
+                          Learn more
+                        </MuiLink>
+                      </Typography>
+                      <Button
+                        style={{
+                          backgroundColor: 'white',
+                          marginLeft: 50,
+                          padding: '5px 17px 5px 17px'
+                        }}
+                        component={MuiLink}
+                        href='https://app.chainsfr.com'
+                        rel='noopener noreferrer'
+                      >
+                        Switch to Live
+                      </Button>
+                    </Box>
+                  )}
                   <Hidden only={['sm', 'md', 'lg', 'xl']}>
                     <AppBar
                       {...matchProps}
