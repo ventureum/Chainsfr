@@ -41,6 +41,7 @@ jobs:
 
     - stage: build and deploy
       install:
+        - npm ci
         - pip install --user awscli
       script:
         - npm run build:test
