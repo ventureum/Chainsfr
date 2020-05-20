@@ -40,6 +40,9 @@ jobs:
         - E2E_TEST_TEST_MAIL_API_KEY=$E2E_TEST_TEST_MAIL_API_KEY
 
     - stage: build and deploy
+      before_install:
+        - chmod +x ./aws_config.sh
+        - ./aws_config.sh
       install:
         - npm ci
         - pip install --user awscli
