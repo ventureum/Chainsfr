@@ -40,6 +40,8 @@ jobs:
         - E2E_TEST_TEST_MAIL_API_KEY=$E2E_TEST_TEST_MAIL_API_KEY
 
     - stage: build and deploy
+      install:
+        - pip install --user awscli
       script:
         - npm run build:test
         - mv ./build ./build_test
@@ -83,3 +85,9 @@ jobs:
           on:
             branch: release
             tags: true
+      after_deploy:
+        - aws configure set preview.cloudfront true
+        - test $TRAVIS_BRANCH = "master" && aws cloudfront create-invalidation --distribution-id $TEST_DISTRIBUTION_ID --paths "/*"
+        - test $TRAVIS_BRANCH = "release" && aws cloudfront create-invalidation --distribution-id $STAGING_DISTRIBUTION_ID --paths "/*"
+        - test $TRAVIS_BRANCH = "release" && aws cloudfront create-invalidation --distribution-id $PROD_DISTRIBUTION_ID --paths "/*"
+
