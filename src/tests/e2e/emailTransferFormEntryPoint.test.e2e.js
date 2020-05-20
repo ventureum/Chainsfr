@@ -30,7 +30,7 @@ describe('Email transfer form entry point tests', () => {
     requestInterceptor.showStats()
     await jestPuppeteer.resetBrowser()
   })
-
+  
   it(
     'Landing page entry',
     async () => {
@@ -222,6 +222,102 @@ describe('Email transfer form entry point tests', () => {
       expect(
         await emtPage.formInputFieldToBe('coin', {
           cryptoType: accounts[index].platformType.toLowerCase()
+        })
+      ).toBe(true)
+    },
+    timeout
+  )
+
+  it(
+    'Prefill recipient, account and transferCurrencyAmount',
+    async () => {
+      const WALLET_TYPE = 'metamask'
+      const PLATFORM_TYPE = 'ethereum'
+      const CRYPTO_TYPE = 'ethereum'
+      const DESTINATION = 'alice@gmail.com'
+      const RECEIVER_NAME = 'alice'
+      const TRANSFER_CURRENCY_AMOUNT = '1'
+      await page.goto(
+        `${process.env.E2E_TEST_URL}/send?walletSelection=${WALLET_TYPE}` +
+          `&cryptoType=${CRYPTO_TYPE}` +
+          `&platformType=${PLATFORM_TYPE}` +
+          `&destination=${DESTINATION}` +
+          `&receiverName=${RECEIVER_NAME}` +
+          `&transferCurrencyAmount=${TRANSFER_CURRENCY_AMOUNT}`,
+        {
+          waitUntil: 'networkidle0'
+        }
+      )
+
+      const emtPage = new EmailTransferFormPage()
+      expect(await emtPage.formInputFieldToBe('recipient', { email: DESTINATION })).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('account', {
+          walletType: WALLET_TYPE,
+          platformType: PLATFORM_TYPE
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('coin', {
+          cryptoType: CRYPTO_TYPE
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('currencyAmount', {
+          currencyAmount: TRANSFER_CURRENCY_AMOUNT
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('cryptoAmount', {
+          existOnly: true
+        })
+      ).toBe(true)
+    },
+    timeout
+  )
+
+  it(
+    'Prefill recipient, account and transferAmount',
+    async () => {
+      const WALLET_TYPE = 'metamask'
+      const PLATFORM_TYPE = 'ethereum'
+      const CRYPTO_TYPE = 'ethereum'
+      const DESTINATION = 'alice@gmail.com'
+      const RECEIVER_NAME = 'alice'
+      const TRANSFER_AMOUNT = '0.1'
+      await page.goto(
+        `${process.env.E2E_TEST_URL}/send?walletSelection=${WALLET_TYPE}` +
+          `&cryptoType=${CRYPTO_TYPE}` +
+          `&platformType=${PLATFORM_TYPE}` +
+          `&destination=${DESTINATION}` +
+          `&receiverName=${RECEIVER_NAME}` +
+          `&transferAmount=${TRANSFER_AMOUNT}`,
+        {
+          waitUntil: 'networkidle0'
+        }
+      )
+
+      const emtPage = new EmailTransferFormPage()
+      expect(await emtPage.formInputFieldToBe('recipient', { email: DESTINATION })).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('account', {
+          walletType: WALLET_TYPE,
+          platformType: PLATFORM_TYPE
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('coin', {
+          cryptoType: CRYPTO_TYPE
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('currencyAmount', {
+          existOnly: true
+        })
+      ).toBe(true)
+      expect(
+        await emtPage.formInputFieldToBe('cryptoAmount', {
+          cryptoAmount: TRANSFER_AMOUNT
         })
       ).toBe(true)
     },

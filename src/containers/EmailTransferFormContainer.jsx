@@ -25,7 +25,9 @@ type Props = {
   walletSelectionPrefilled: string,
   platformTypePrefilled: string,
   addressPrefilled: string,
-  xpubPrefilled: string
+  xpubPrefilled: string,
+  transferCurrencyAmountPrefilled: string,
+  transferAmountPrefilled: string
 }
 
 /*
@@ -42,7 +44,9 @@ export default function EmailTransferFormContainer (props: Props) {
     walletSelectionPrefilled,
     platformTypePrefilled,
     addressPrefilled,
-    xpubPrefilled
+    xpubPrefilled,
+    transferCurrencyAmountPrefilled,
+    transferAmountPrefilled
   } = props
 
   const profile = useSelector(state => state.userReducer.profile)
@@ -108,8 +112,8 @@ export default function EmailTransferFormContainer (props: Props) {
 
           // always clear transferAmount
           // this also applies going from step 2 to step 1
-          transferAmount: { $set: '' },
-          transferCurrencyAmount: { $set: '' },
+          transferAmount: { $set: transferAmountPrefilled || '' },
+          transferCurrencyAmount: { $set: transferCurrencyAmountPrefilled || '' },
 
           accountId: {
             $set: JSON.stringify({
@@ -136,6 +140,46 @@ export default function EmailTransferFormContainer (props: Props) {
   const toCryptoAmount = (currencyAmount, cryptoType) =>
     utils.toCryptoAmount(currencyAmount, cryptoPrice[cryptoType])
 
+  useEffect(() => {
+    if (
+      accountSelection &&
+      profile.isAuthenticated &&
+      cryptoTypePrefilled &&
+      cryptoPrice[cryptoTypePrefilled]
+    ) {
+      if (!transferForm.transferAmount && transferCurrencyAmountPrefilled) {
+        const _transferAmount = toCryptoAmount(
+          transferCurrencyAmountPrefilled,
+          cryptoTypePrefilled
+        )
+        updateForm({
+          transferAmount: { $set: _transferAmount }
+        })
+        dispatch(
+          getTxFee({
+            fromAccount: accountSelection,
+            transferAmount: _transferAmount
+          })
+        )
+      } else if (!transferForm.transferCurrencyAmount && transferAmountPrefilled) {
+        const _transferCurrencyAmount = toCurrencyAmount(
+          transferAmountPrefilled,
+          cryptoTypePrefilled
+        )
+        updateForm({
+          transferCurrencyAmount: { $set: _transferCurrencyAmount }
+        })
+        dispatch(
+          getTxFee({
+            fromAccount: accountSelection,
+            transferAmount: transferAmountPrefilled
+          })
+        )
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cryptoPrice, accountSelection])
+
   const { actionsPending, actionsFulfilled } = useActionTracker(['getTxFee'], [['GET_TX_COST']])
 
   return (
@@ -157,12 +201,11 @@ export default function EmailTransferFormContainer (props: Props) {
           purpose={'send'}
           accountSelection={accountSelection}
           filterCriteria={accountData =>
-            !walletSelectionPrefilled ||
-            (accountData.walletType === walletSelectionPrefilled &&
-              accountData.platformType === platformTypePrefilled &&
-              (accountData.address === addressPrefilled ||
-                (accountData.hdWalletVariables &&
-                  accountData.hdWalletVariables.xpub === xpubPrefilled)))
+            (!walletSelectionPrefilled || accountData.walletType === walletSelectionPrefilled) &&
+            (!platformTypePrefilled || accountData.platformType === platformTypePrefilled) &&
+            (!cryptoTypePrefilled || accountData.cryptoType === cryptoTypePrefilled) &&
+            (!addressPrefilled || accountData.address === addressPrefilled) &&
+            (!xpubPrefilled || accountData.hdWalletVariables.xpub === xpubPrefilled)
           }
           disableAccountSelect={
             !!walletSelectionPrefilled &&

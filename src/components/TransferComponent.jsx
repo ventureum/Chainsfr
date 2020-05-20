@@ -41,6 +41,8 @@ class TransferComponent extends React.Component<Props> {
               destinationPrefilled={urlParams && (urlParams.destination || '')}
               receiverNamePrefilled={urlParams && (urlParams.receiverName || '')}
               xpubPrefilled={urlParams && urlParams.xpub}
+              transferCurrencyAmountPrefilled={urlParams && urlParams.transferCurrencyAmount}
+              transferAmountPrefilled={urlParams && urlParams.transferAmount}
               online={online}
             />
           )}
