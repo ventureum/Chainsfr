@@ -4,6 +4,7 @@ export type PlatformType = 'bitcoin' | 'ethereum'
 export type BackEndCryptoAccountType = {
   crytoType: string,
   walletType: string,
+  platformType: String,
   address: ?string, // not used for btc account
   xpub: ?string, // not used for eth account
   name: string, // the name of this account set by the user.
@@ -140,9 +141,9 @@ export interface IAccount<AccountData> {
 
 // used in account dropdown
 export type GroupedAccountType = {
-    name: string,
-    walletType: string,
-    email?: string,
-    platformType?: string,
-    accounts: Array<AccountData>
+  name: string,
+  walletType: string,
+  email?: string,
+  platformType?: string,
+  accounts: Array<AccountData>
 }

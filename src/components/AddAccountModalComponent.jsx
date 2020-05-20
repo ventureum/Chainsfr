@@ -294,22 +294,37 @@ const FeatureList = (props: FeatureListProps) => {
     )
   ) {
     features = [
-      <DepositFeature supported walletType={walletType} />,
-      <SendFeature supported walletType={walletType} />,
-      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />,
-      <SupportedCoinFeature supported walletType={walletType} />
+      <DepositFeature supported walletType={walletType} key={'deposit_feature'} />,
+      <SendFeature supported walletType={walletType} key={'send_feature'} />,
+      <ViewAddressFeature
+        supported
+        walletType={walletType}
+        platformType={platformType}
+        key={'view_address_feature'}
+      />,
+      <SupportedCoinFeature supported walletType={walletType} key={'supported_coin_feature'} />
     ]
   } else if (walletType === 'ledger') {
     features = [
-      <DepositFeature supported walletType={walletType} />,
-      <SendFeature supported walletType={walletType} />,
-      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />
+      <DepositFeature supported walletType={walletType} key={'deposit_feature'} />,
+      <SendFeature supported walletType={walletType} key={'send_feature'} />,
+      <ViewAddressFeature
+        supported
+        walletType={walletType}
+        platformType={platformType}
+        key={'view_address_feature'}
+      />
     ]
   } else if (walletType === 'coinbaseOAuthWallet') {
     features = [
-      <DepositFeature supported walletType={walletType} />,
-      <SendFeature supported={false} walletType={walletType} />,
-      <ViewAddressFeature supported walletType={walletType} platformType={platformType} />
+      <DepositFeature supported walletType={walletType} key={'deposit_feature'} />,
+      <SendFeature supported={false} walletType={walletType} key={'send_feature'} />,
+      <ViewAddressFeature
+        supported
+        walletType={walletType}
+        platformType={platformType}
+        key={'view_address_feature'}
+      />
     ]
   }
   return (
@@ -762,7 +777,7 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
   const { walletType, onNameChanged, name, newCryptoAccounts } = props
   const [toolipText, setTooltipText] = useState('Copy')
   const firstNewCryptoAccount = newCryptoAccounts[0]
-  
+
   useEffect(() => {
     if (
       firstNewCryptoAccount &&
@@ -774,7 +789,7 @@ const NameNewAccounts = (props: NameNewAccountsProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstNewCryptoAccount])
-  
+
   // cannot be placed before useEffects due to
   // react not allowing conditional hooks
   if (!firstNewCryptoAccount) return null

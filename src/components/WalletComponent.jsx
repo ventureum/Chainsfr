@@ -258,16 +258,16 @@ function WalletComponent (props: {
         {txHistory
           ? allTxs &&
             allTxs.map((tx, i) => (
-              <>
+              <React.Fragment key={i}>
                 <Divider />
                 {renderRecentTransferItem(account, tx, i)}
-              </>
+              </React.Fragment>
             ))
           : [null, null, null].map((tx, i) => (
-              <>
+              <React.Fragment key={i}>
                 <Divider />
                 {renderRecentTransferItem(account, tx, i)}
-              </>
+              </React.Fragment>
             ))}
       </InfiniteScroll>
     )

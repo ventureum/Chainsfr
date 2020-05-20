@@ -43,6 +43,14 @@ const RECIPIENTS = [
     updatedAt: 1584499697,
     validEmail: true,
     validName: true
+  },
+  {
+    addedAt: 1584599697,
+    email: 'recipientEmailNotExist.forSure@gmail.com',
+    name: 'recipientEmailNotExist',
+    updatedAt: 1584599697,
+    validEmail: true,
+    validName: true
   }
 ]
 

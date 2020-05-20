@@ -1,5 +1,5 @@
 // Modified and referenced from https://github.com/LedgerHQ/ledger-wallet-webtool/blob/master/src/PathFinderUtils.js
-import 'babel-polyfill'
+import 'regenerator-runtime'
 import * as bitcoinjs from 'bitcoinjs-lib'
 import bs58 from 'bs58'
 import padStart from 'lodash/padStart'

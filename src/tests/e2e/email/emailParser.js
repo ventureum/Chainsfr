@@ -15,6 +15,18 @@ const SELECTORS = {
         '#templateBody > table:nth-child(2) > tbody > tr > td > table > tbody > tr > td > div > span > span',
       RECEIPT_BTN:
         '#templateBody > table:nth-child(4) > tbody > tr > td > table > tbody > tr > td > div > span > span > a'
+    },
+    CANCEL: {
+      MESSAGE:
+        '#templateBody > table:nth-child(2) > tbody > tr > td > table > tbody > tr > td > div > span > span',
+      RECEIPT_BTN:
+        '#templateBody > table:nth-child(4) > tbody > tr > td > table > tbody > tr > td > div > span > span > a'
+    },
+    ERROR: {
+      MESSAGE:
+        '#templateBody > table:nth-child(2) > tbody > tr > td > table > tbody > tr > td > div > span > span',
+      CANCEL_BTN:
+        '#templateBody > table:nth-child(3) > tbody > tr > td > table > tbody > tr > td > a'
     }
   },
   RECEIVER: {
@@ -27,6 +39,12 @@ const SELECTORS = {
         '#templateBody > table:nth-child(5) > tbody > tr > td > table > tbody > tr > td > div > span > span'
     },
     RECEIVE: {
+      MESSAGE:
+        '#templateBody > table:nth-child(2) > tbody > tr > td > table > tbody > tr > td > div > span > span',
+      RECEIPT_BTN:
+        '#templateBody > table:nth-child(4) > tbody > tr > td > table > tbody > tr > td > div > span > span > a'
+    },
+    CANCEL: {
       MESSAGE:
         '#templateBody > table:nth-child(2) > tbody > tr > td > table > tbody > tr > td > div > span > span',
       RECEIPT_BTN:
@@ -45,6 +63,14 @@ const getEmailSubject = (type, stage, transferData) => {
       return `Chainsfr: ${transferData.receiverName} accepted your payment of ${
         transferData.transferAmount
       } ${getCryptoSymbol(transferData.cryptoType)}`
+    } else if (stage === 'cancel') {
+      return `Chainsfr: The payment of ${transferData.transferAmount} ${getCryptoSymbol(
+        transferData.cryptoType
+      )} to ${transferData.receiverName} has been cancelled`
+    } else if (stage === 'error') {
+      return `Chainsfr: Your payment of ${transferData.transferAmount} ${getCryptoSymbol(
+        transferData.cryptoType
+      )} to ${transferData.receiverName} is NOT successful`
     }
   } else if (type === 'receiver') {
     if (stage === 'send') {
@@ -55,6 +81,10 @@ const getEmailSubject = (type, stage, transferData) => {
       return `Chainsfr: The payment of ${transferData.transferAmount} ${getCryptoSymbol(
         transferData.cryptoType
       )} from ${transferData.senderName} has been deposited`
+    } else if (stage === 'cancel') {
+      return `Chainsfr: The payment of ${transferData.transferAmount} ${getCryptoSymbol(
+        transferData.cryptoType
+      )} from ${transferData.senderName} has been cancelled`
     }
   }
 }

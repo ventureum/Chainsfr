@@ -440,9 +440,6 @@ class ReceiveFormComponent extends Component {
 const styles = theme => ({
   title: {
     marginBottom: '10px'
-  },
-  btnSection: {
-    marginTop: '60px'
   }
 })
 

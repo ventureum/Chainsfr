@@ -248,10 +248,14 @@ function postLoginPreparation (loginData: any, progress?: Function) {
     dispatch(onGoogleLoginReturn(loginData))
     return dispatch({
       type: 'POST_LOGIN_PREPARATION',
-      payload: new Promise(async (resolve, reject) => {
-        // register/get user
+      payload: async () => {
+        // Must try register before getWallet, getCryptoAccounts, and getRecipients
         const userMetaInfo = (await dispatch(register(idToken, profileObj))).value
-        const chainfrWalletFile = await getWallet()
+        const [chainfrWalletFile] = await Promise.all([
+          getWallet(),
+          dispatch(getCryptoAccounts()),
+          dispatch(getRecipients())
+        ])
         if (!chainfrWalletFile) {
           const { masterKey } = userMetaInfo
           // delete old cloud wallet accounts from backend
@@ -260,10 +264,7 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           // create
           await dispatch(createCloudWallet(masterKey))
         }
-        await dispatch(getCryptoAccounts())
-        await dispatch(getRecipients())
-        resolve()
-      })
+      }
     })
   }
 }

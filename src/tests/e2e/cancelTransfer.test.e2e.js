@@ -9,10 +9,17 @@ import CancelReviewPage from './pages/cancelReview.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
 import { getNewPopupPage, getTransfer, getTransferState } from './testUtils'
+import TestMailsClient from './email/testMailClient'
+import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
+import { getCryptoSymbol } from '../../tokens'
 import BN from 'bn.js'
 
 // 15 min
 const timeout = 1000 * 60 * 15
+if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
+  throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
+const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 describe('Cancel transfer tests', () => {
   const reduxTracker = new ReduxTracker()
@@ -25,7 +32,7 @@ describe('Cancel transfer tests', () => {
 
   const FORM_BASE = {
     formPage: emtPage,
-    recipient: 'chainsfre2etest@gmail.com',
+    recipient: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
     currencyAmount: '1',
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'
@@ -38,6 +45,7 @@ describe('Cancel transfer tests', () => {
 
   // pending transferIds by walletType, cryptoType
   var pendingCancel = {}
+  var pendingCancelEmail = {}
 
   beforeAll(async () => {
     await resetUserDefault()
@@ -179,10 +187,13 @@ describe('Cancel transfer tests', () => {
 
     pendingCancel[`${walletType}_${cryptoType}`] = { transferId }
     log.info(`Cancel ${walletType}_${cryptoType} finished`)
+
+    pendingCancelEmail[`${walletType}_${cryptoType}`] = checkCancelEmails(walletType, cryptoType)
   }
 
   const confirmCancel = async (walletType, cryptoType) => {
     log.info(`Confirming cancellation ${walletType}_${cryptoType}...`)
+
     const { transferId } = pendingCancel[`${walletType}_${cryptoType}`]
 
     let canceltxState = ''
@@ -198,6 +209,63 @@ describe('Cancel transfer tests', () => {
     }
 
     log.info(`Cancel ${walletType}_${cryptoType} confirmed with txState ${canceltxState}`)
+  }
+
+  const checkCancelSenderEmail = async transferData => {
+    const testMailClient = new TestMailsClient('sender')
+
+    const subjectFilterValue = getEmailSubject('sender', 'cancel', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.SENDER.CANCEL
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const receiptLink = emailParser.getEmailElementAttribute(selectors.RECEIPT_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
+    expect(emailMessage).toMatch(new RegExp(transferData.destination))
+    expect(emailMessage).toMatch(new RegExp(transferData.cancelMessage))
+    expect(receiptLink).toEqual(
+      `https://testnet.chainsfr.com/receipt?transferId=${transferData.transferId}`
+    )
+  }
+
+  const checkCancelReceiverEmail = async transferData => {
+    const testMailClient = new TestMailsClient('receiver')
+
+    const subjectFilterValue = getEmailSubject('receiver', 'cancel', transferData)
+    const email = await testMailClient.liveEmailQuery(subjectFilterValue)
+
+    const emailParser = new EmailParser(email.html)
+    const selectors = SELECTORS.RECEIVER.CANCEL
+    const emailMessage = emailParser.getEmailElementText(selectors.MESSAGE)
+    const receiptLink = emailParser.getEmailElementAttribute(selectors.RECEIPT_BTN, 'href')
+
+    expect(emailMessage).toMatch(new RegExp(transferData.senderName))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferAmount))
+    expect(emailMessage).toMatch(new RegExp(getCryptoSymbol(transferData.cryptoType)))
+    expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
+    expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
+    expect(emailMessage).toMatch(new RegExp(transferData.cancelMessage))
+    expect(receiptLink).toEqual(
+      `https://testnet.chainsfr.com/receipt?receivingId=${transferData.receivingId}`
+    )
+  }
+
+  const checkCancelEmails = async (walletType, cryptoType) => {
+    log.info(`Listening cancel email ${walletType}_${cryptoType}...`)
+
+    const { transferId } = pendingReceive[`${walletType}_${cryptoType}`]
+    const transferData = await getTransfer({ transferId: transferId })
+
+    return Promise.all([
+      checkCancelSenderEmail(transferData),
+      checkCancelReceiverEmail(transferData)
+    ])
   }
 
   // make dai the first tests to reduce waiting time between different transfers
@@ -229,7 +297,8 @@ describe('Cancel transfer tests', () => {
         ...FORM_BASE,
         walletType: 'metamask',
         platformType: platformType,
-        cryptoType: 'dai'
+        cryptoType: 'dai',
+        currencyAmount: '0.1'
       })
 
       await sendTx('metamask', 'dai')
@@ -247,7 +316,8 @@ describe('Cancel transfer tests', () => {
         ...FORM_BASE,
         walletType: 'metamask',
         platformType: platformType,
-        cryptoType: 'ethereum'
+        cryptoType: 'ethereum',
+        currencyAmount: '0.5'
       })
 
       await sendTx('metamask', 'ethereum')
@@ -264,7 +334,8 @@ describe('Cancel transfer tests', () => {
         ...FORM_BASE,
         walletType: 'drive',
         platformType: platformType,
-        cryptoType: 'ethereum'
+        cryptoType: 'ethereum',
+        currencyAmount: '0.6'
       })
 
       await sendTx('drive', 'ethereum')
@@ -299,7 +370,8 @@ describe('Cancel transfer tests', () => {
         ...FORM_BASE,
         walletType: 'drive',
         platformType: platformType,
-        cryptoType: 'dai'
+        cryptoType: 'dai',
+        currencyAmount: '0.2'
       })
 
       await sendTx('drive', 'dai')
@@ -351,7 +423,52 @@ describe('Cancel transfer tests', () => {
   it('Confirm DAI drive cancellation', async () => {
     await confirmCancel('drive', 'dai')
   })
+
   it('Confirm ETH drive cancellation', async () => {
     await confirmCancel('drive', 'ethereum')
   })
+
+  it(
+    'Check metamask_dai cancel email',
+    async done => {
+      log.info('Waiting for metamask_dai cancel emails to be resolved')
+      await pendingCancelEmail['metamask_dai']
+      log.info('metamask_dai cancel emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check metamask_ethereum cancel email',
+    async done => {
+      log.info('Waiting for metamask_ethereum cancel emails to be resolved')
+      await pendingCancelEmail['metamask_ethereum']
+      log.info('metamask_ethereum cancel emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check drive_dai cancel email',
+    async done => {
+      log.info('Waiting for drive_dai cancel emails to be resolved')
+      await pendingCancelEmail['drive_dai']
+      log.info('drive_dai cancel emails resolved')
+      done()
+    },
+    timeout
+  )
+
+  it(
+    'Check drive_ethereum cancel email',
+    async done => {
+      log.info('Waiting for drive_ethereum cancel emails to be resolved')
+      await pendingCancelEmail['drive_ethereum']
+      log.info('drive_ethereum cancel emails resolved')
+      done()
+    },
+    timeout
+  )
 })

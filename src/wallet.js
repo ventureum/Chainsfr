@@ -36,18 +36,31 @@ export const walletCryptoSupports = {
     { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
     { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
-  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' }],
+  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+  { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+  { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+  { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+  { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }],
   metamaskWalletConnect: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   trustWalletConnect: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   coinomiWalletConnect: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
-    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' }
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
   referralWallet: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' }],
   coinbaseOAuthWallet: [

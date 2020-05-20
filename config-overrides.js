@@ -15,15 +15,30 @@ module.exports = {
     }
 
     if (!config.plugins) {
-      config.plugins = [];
+      config.plugins = []
     }
     config.plugins.push(new WorkerPlugin())
-  return config;
-  },
-  // The Jest config to use when running your jest tests - note that the normal rewires do not
-  // work here.
-  jest: function(config) {
-    config.transformIgnorePatterns = ["node_modules/(?!(@atlaskit)/)"]
-    return config;
+    config.optimization = {
+      runtimeChunk: 'single',
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: Infinity,
+        minSize: 0,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name(module) {
+              // get the name. E.g. node_modules/packageName/not/this/part.js
+              // or node_modules/packageName
+              const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1]
+
+              // npm package names are URL-safe, but some servers don't like @ symbols
+              return `npm.${packageName.replace('@', '')}`
+            }
+          }
+        }
+      }
+    }
+    return config
   }
 }

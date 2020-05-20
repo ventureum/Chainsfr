@@ -1,5 +1,5 @@
 // @flow
-import 'babel-polyfill' // required by @ledgerhq/hw-transport-webusb
+import 'regenerator-runtime' // required by @ledgerhq/hw-transport-webusb
 import type { IWallet } from '../types/wallet.flow.js'
 import type { IAccount, AccountData } from '../types/account.flow.js'
 import type { TxFee, TxHash, Signature } from '../types/transfer.flow'
@@ -76,7 +76,10 @@ export default class LedgerWallet implements IWallet<AccountData> {
         LedgerWallet.webUsbTransport = await WebUsbTransport.create()
         LedgerWallet.webUsbTransport.setExchangeTimeout(300000) // 5 mins
         setTimeout(async () => {
-          if (LedgerWallet.webUsbTransport !== null || LedgerWallet.webUsbTransport !== undefined) {
+          if (
+            LedgerWallet.webUsbTransport !== null ||
+            LedgerWallet.webUsbTransport !== undefined
+          ) {
             await LedgerWallet.webUsbTransport.close()
             LedgerWallet.webUsbTransport = null
           }
@@ -314,7 +317,11 @@ export default class LedgerWallet implements IWallet<AccountData> {
       }
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
-      const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
+      const { fee, utxosCollected } = account._collectUtxos(
+        addressPool,
+        value,
+        Number(txFee.price)
+      )
       let signedTxRaw = ''
       try {
         signedTxRaw = await this._createNewBtcPaymentTransaction(
@@ -464,7 +471,9 @@ export default class LedgerWallet implements IWallet<AccountData> {
     }
     outputs.push(changeOutput)
 
-    const outputScriptHex = btcApp.serializeTransactionOutputs({ outputs: outputs }).toString('hex')
+    const outputScriptHex = btcApp
+      .serializeTransactionOutputs({ outputs: outputs })
+      .toString('hex')
     const signedTxRaw = await btcApp.createPaymentTransactionNew(
       finalInputs,
       associatedKeysets,
