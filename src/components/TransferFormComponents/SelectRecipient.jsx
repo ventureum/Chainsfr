@@ -50,7 +50,7 @@ export default function SelectRecipient (props: Props) {
     if (actionsPending['getRecipients']) {
       setRecipientsFetchStarted(true)
     }
-    if (actionsFulfilled['addRecipient']) {
+    if (actionsFulfilled['addRecipient'] && openAddRecipientDialog) {
       // close dialog
       toggleAddRecipientDialog()
     }
@@ -142,6 +142,7 @@ export default function SelectRecipient (props: Props) {
         open={openAddRecipientDialog}
         handleClose={() => toggleAddRecipientDialog()}
         online={online}
+        updateForm
       />
     </>
   )

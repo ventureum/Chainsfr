@@ -172,7 +172,11 @@ export const trackAction = action => {
 }
 
 const _intercomBoot = metaData => {
-  window.intercomSettings = { app_id: env.REACT_APP_INTERCOM_APP_ID, ...metaData }
+  window.intercomSettings = {
+    app_id: env.REACT_APP_INTERCOM_APP_ID,
+    custom_launcher_selector: '#intercom_launcher',
+    ...metaData
+  }
 
   if (window.Intercom) {
     window.Intercom('boot', metaData)

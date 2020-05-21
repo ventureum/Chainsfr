@@ -51,6 +51,14 @@ const RECIPIENTS = [
     updatedAt: 1584599697,
     validEmail: true,
     validName: true
+  },
+  {
+    addedAt: 1584599699,
+    email: `${testMailNamespace}.sender${suffix}@inbox.testmail.app`,
+    name: 'e2e test sender',
+    updatedAt: 1584599699,
+    validEmail: true,
+    validName: true
   }
 ]
 

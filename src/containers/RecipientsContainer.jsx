@@ -23,7 +23,8 @@ class RecipientsContainer extends Component {
     if (
       prevProps.actionsPending.addRecipient &&
       !this.props.actionsPending.addRecipient &&
-      !this.props.error
+      !this.props.error&&
+      this.state.openAddRecipientDialog
     ) {
       this.toggleAddRecipientDialog()
     } else if (

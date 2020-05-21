@@ -22,13 +22,12 @@ function refreshAccessToken () {
     return dispatch({
       type: 'REFRESH_ACCESS_TOKEN',
       payload: _refreshAccessToken()
+    }).catch(error => {
+      console.warn('Refresh login session failed')
+      console.warn(error)
+      // logout user
+      dispatch(onLogout())
     })
-      .catch(error => {
-        console.warn('Refresh login session failed')
-        console.warn(error)
-        // logout user
-        dispatch(onLogout())
-      })
   }
 }
 
@@ -130,7 +129,11 @@ function getRecipients () {
   }
 }
 
-function addRecipient (recipient: Recipient) {
+function addRecipient (
+  recipient: Recipient,
+  notify?: boolean = true,
+  updateForm?: boolean = false
+) {
   return (dispatch: Function, getState: Function) => {
     const { idToken } = getState().userReducer.profile
     const { transferForm } = getState().formReducer
@@ -151,22 +154,26 @@ function addRecipient (recipient: Recipient) {
       type: 'ADD_RECIPIENT',
       payload: API.addRecipient({ idToken, recipient })
     }).then(() => {
-      dispatch(
-        enqueueSnackbar({
-          message: 'Contact added successfully.',
-          key: new Date().getTime() + Math.random(),
-          options: { variant: 'info', autoHideDuration: 3000 }
-        })
-      )
-      dispatch(
-        updateTransferForm(
-          update(transferForm, {
-            destination: { $set: recipient.email },
-            receiverName: { $set: recipient.name },
-            formError: { destination: { $set: null } }
+      if (notify) {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Contact added successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
           })
         )
-      )
+      }
+      if (updateForm) {
+        dispatch(
+          updateTransferForm(
+            update(transferForm, {
+              destination: { $set: recipient.email },
+              receiverName: { $set: recipient.name },
+              formError: { destination: { $set: null } }
+            })
+          )
+        )
+      }
     })
   }
 }
@@ -251,12 +258,34 @@ function postLoginPreparation (loginData: any, progress?: Function) {
       payload: async () => {
         // Must try register before getWallet, getCryptoAccounts, and getRecipients
         const userMetaInfo = (await dispatch(register(idToken, profileObj))).value
-        const [chainfrWalletFile] = await Promise.all([
+        const currentTimestamp = moment().unix()
+        const rv = await Promise.all([
           getWallet(),
           dispatch(getCryptoAccounts()),
           dispatch(getRecipients())
         ])
-        if (!chainfrWalletFile) {
+        const recipients = rv[2].value
+        if (
+          !recipients.find(recipient => {
+            return recipient.email === loginData.profileObj.email
+          })
+        ) {
+          await dispatch(
+            addRecipient(
+              {
+                name: loginData.profileObj.name,
+                email: loginData.profileObj.email,
+                imageUrl: loginData.profileObj.imageUrl,
+                addedAt: currentTimestamp,
+                updatedAt: currentTimestamp,
+                imageUrlUpdatedAt: currentTimestamp
+              },
+              false
+            )
+          )
+        }
+        if (!rv[0]) {
+          // chainfrWalletFile
           const { masterKey } = userMetaInfo
           // delete old cloud wallet accounts from backend
           await dispatch(clearCloudWalletCryptoAccounts())

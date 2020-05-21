@@ -22,7 +22,8 @@ type Props = {
   handleClose: Function,
   handleSubmit: Function,
   loading: boolean,
-  online: boolean
+  online: boolean,
+  updateForm?: boolean
 }
 
 const defaultRecipient = {
@@ -35,12 +36,16 @@ const defaultRecipient = {
 }
 
 function AddRecipientDialog (props: Props) {
-  const { open, online, handleClose } = props
+  const { open, online, handleClose, updateForm } = props
 
   const [recipient, setRecipient] = useState<Recipient>(defaultRecipient)
 
   const dispatch = useDispatch()
-  const handleSubmit = useCallback(() => dispatch(addRecipient(recipient)), [dispatch, recipient])
+  const handleSubmit = useCallback(() => dispatch(addRecipient(recipient, true, !!updateForm)), [
+    dispatch,
+    recipient,
+    updateForm
+  ])
 
   const { actionsPending } = useActionTracker(['addRecipient'], [['ADD_RECIPIENT']])
   const loading = actionsPending.addRecipient
