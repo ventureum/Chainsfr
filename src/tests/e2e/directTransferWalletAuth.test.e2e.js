@@ -9,6 +9,7 @@ import url from '../../url'
 import Web3 from 'web3'
 import pWaitFor from 'p-wait-for'
 import log from 'loglevel'
+import { getTransfer, getTransferState } from './testUtils'
 
 log.setDefaultLevel('info')
 
@@ -23,7 +24,7 @@ describe('Direct Transfer Auth Tests', () => {
   const dtAuthPage = new DirectTransferAuthPage()
   const receiptPage = new ReceiptPage()
   const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-
+  let pendingTxTransferId = []
   var pendingTxHashList = []
 
   const FORM_BASE = {
@@ -35,11 +36,13 @@ describe('Direct Transfer Auth Tests', () => {
 
   const appendTxHash = async () => {
     const { sendOnExplorerLink } = await receiptPage.getReceiptFormInfo('sendOn')
+    const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
     const txHash = sendOnExplorerLink
       .split('/')
       .slice(-1)
       .pop()
     pendingTxHashList.push(txHash)
+    pendingTxTransferId.push(transferId)
   }
 
   beforeAll(async () => {
@@ -58,10 +61,12 @@ describe('Direct Transfer Auth Tests', () => {
   }, timeout)
 
   beforeEach(async () => {
-    if (['Send BTC from drive wallet to ledger wallet'].includes(jasmine['currentTest'].description)) {
+    if (
+      ['Send BTC from drive wallet to ledger wallet'].includes(jasmine['currentTest'].description)
+    ) {
       requestInterceptor.byPass({
         platform: 'bitcoin',
-        method: 'txs',
+        method: 'txs'
       })
     } else {
       requestInterceptor.byPass(null)
@@ -105,6 +110,22 @@ describe('Direct Transfer Auth Tests', () => {
 
     // go to auth page
     await dtReviewPage.dispatchFormActions('continue')
+  }
+
+  const waitForBackendConfirmation = async transferId => {
+    await pWaitFor(
+      async () => {
+        const transferData = await getTransfer({ transferId: transferId })
+        let sendTxState = getTransferState(transferData)
+        log.info(
+          `Waiting for send tx ${transferId} to be confirmed, current state: ${sendTxState}`
+        )
+        return sendTxState === 'SEND_DIRECT_TRANSFER_CONFIRMED'
+      },
+      {
+        interval: 30000
+      }
+    )
   }
 
   test(
@@ -241,7 +262,6 @@ describe('Direct Transfer Auth Tests', () => {
   test(
     'Send BTC from drive wallet to ledger wallet',
     async () => {
-
       const CRYPTO_AMOUNT = '0.001'
       await dtPage.fillForm({
         ...FORM_BASE,
@@ -432,5 +452,17 @@ describe('Direct Transfer Auth Tests', () => {
       await appendTxHash()
     },
     timeout
+  )
+
+  test(
+    'Check backend tx confirmation',
+    async () => {
+      await Promise.all(
+        pendingTxTransferId.map(transferId => {
+          return waitForBackendConfirmation(transferId)
+        })
+      )
+    },
+    1000 * 60 * 10
   )
 })
