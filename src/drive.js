@@ -39,7 +39,6 @@ const ROOT_FOLDER_NAME: string = 'ChainsfrData'
  *  } ...]
  */
 const TEMP_SEND_FILE_NAME: string = `__temp_send_${env.REACT_APP_ENV}__.json`
-const TEMP_SEND_FOLDER_NAME: string = `TempSend_${env.REACT_APP_ENV}`
 /*
  * A single file storing past transfer data
  * The password in the file will be used for cancellation
@@ -47,7 +46,6 @@ const TEMP_SEND_FOLDER_NAME: string = `TempSend_${env.REACT_APP_ENV}`
  * Data format: see type TransferData
  */
 const HISTORY_FILE_NAME: string = `__transaction_history_${env.REACT_APP_ENV}__.json`
-const HISTORY_FOLDER_NAME: string = `TransactionHistory_${env.REACT_APP_ENV}`
 /*
  * A single file storing encrypted wallet data
  *
@@ -58,7 +56,6 @@ const HISTORY_FOLDER_NAME: string = `TransactionHistory_${env.REACT_APP_ENV}`
  * }
  */
 const WALLET_FILE_NAME: string = `__wallet_${env.REACT_APP_ENV}__.json`
-const WALLET_FOLDER_NAME: string = `Wallet_${env.REACT_APP_ENV}`
 
 // flow type definitions
 
@@ -88,6 +85,7 @@ type FileResourceResponse = {
 }
 
 type TempTransferData = {
+  transferId: string,
   sender: string,
   destination: string,
   transferAmount: string,
@@ -175,7 +173,7 @@ async function listFiles (
   space: DriveSpace,
   parents: ?Array<FileId>,
   isFolder: boolean,
-  fileName: FileName
+  fileName: ?FileName
 ): Promise<Array<FileResourceResponse>> {
   await loadApi()
 
@@ -251,6 +249,7 @@ async function createFolder (
     } = await window.gapi.client.drive.files.create({
       resource: resource
     })
+
     return resp.result.id
   } else {
     // return the first folder found (we only have one)
@@ -286,9 +285,17 @@ async function addContent (fileId: FileId, content: any): Promise<FileResource> 
  *    name: [string] name of the file
  *    content: [object] content of the file
  *  }
+ *  @param skipFileExistenceCheck always create a new file if set to true
+ *  @param noRootFolder do not place under rootFolder if set to true
  *  @returns id [string] id of the file created/updated
  */
-async function saveFileByName (space: DriveSpace, folder: ?FileName, file: File): Promise<FileId> {
+async function saveFileByName (
+  space: DriveSpace,
+  folder: ?FileName,
+  file: File,
+  skipFileExistenceCheck: boolean = false,
+  noRootFolder: boolean = false
+): Promise<{ rootFolderId?: FileId, folderId?: FileId, fileId: FileId }> {
   await loadApi()
 
   var metadata: FileResource = {
@@ -298,8 +305,13 @@ async function saveFileByName (space: DriveSpace, folder: ?FileName, file: File)
     parents: null
   }
 
-  // create a root folder
-  let rootFolderId = await createFolder(space, null, ROOT_FOLDER_NAME)
+  let rootFolderId
+  if (!noRootFolder) {
+    // create a root folder
+    rootFolderId = await createFolder(space, null, ROOT_FOLDER_NAME)
+  } else {
+    rootFolderId = space
+  }
 
   // create a sub-folder
   let folderId = null
@@ -314,24 +326,71 @@ async function saveFileByName (space: DriveSpace, folder: ?FileName, file: File)
   // set parent folder in metadata
   metadata.parents = [folderId]
 
-  let files = await listFiles(space, [folderId], false, file.name)
+  let fileId
+  if (!skipFileExistenceCheck) {
+    var files = await listFiles(space, [folderId], false, file.name)
+    fileId = files[0] ? files[0].id : null
+  }
 
-  let fileId = files[0] ? files[0].id : null
   if (!fileId) {
-    // creating a new file
-    let resp = await window.gapi.client.drive.files.create({
-      resource: metadata
+    // creating a new file and write content
+    // the following code uses uploadType: 'multipart' to combine
+    // file creation and content upload in one single api call
+    // see https://gist.github.com/csusbdt/4525042 for reference
+    const boundary = '-------314159265358979323846264'
+    const delimiter = '\r\n--' + boundary + '\r\n'
+    const close_delim = '\r\n--' + boundary + '--'
+    const contentType = 'application/json'
+    const base64Data = btoa(JSON.stringify(file.content))
+    const parents =
+      metadata.parents && metadata.parents.length === 1
+        ? [
+            {
+              kind: 'drive#parentReference',
+              id: metadata.parents[0]
+            }
+          ]
+        : undefined
+    const multipartRequestBody =
+      delimiter +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify({
+        title: metadata.name,
+        mimeType: metadata.mimeType,
+        parents
+      }) +
+      delimiter +
+      'Content-Type: ' +
+      contentType +
+      '\r\n' +
+      'Content-Transfer-Encoding: base64\r\n' +
+      '\r\n' +
+      base64Data +
+      close_delim
+
+    let resp = await window.gapi.client.request({
+      path: '/upload/drive/v2/files',
+      method: 'POST',
+      params: { uploadType: 'multipart' },
+      headers: {
+        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+      },
+      body: multipartRequestBody
     })
 
     // update file id
     fileId = resp.result.id
+  } else {
+    // now add/update content to the file
+    await addContent(fileId, file.content)
   }
 
-  // now add/update content to the file
-  await addContent(fileId, file.content)
-
   // return the file id
-  return fileId
+  return {
+    rootFolderId,
+    folderId,
+    fileId
+  }
 }
 
 /*
@@ -345,7 +404,12 @@ async function loadFileByName (
   fileName: FileName,
   folderName: ?FileName
 ): Promise<any> {
-  let rootFolder = await listFiles(space, null, true, ROOT_FOLDER_NAME)
+  let rootFolder
+  if (space === APP_DATA_FOLDER_SPACE) {
+    rootFolder = [{ id: space }]
+  } else {
+    rootFolder = await listFiles(space, null, true, ROOT_FOLDER_NAME)
+  }
   if (rootFolder.length === 0) return null
   // get folder fileId if folder name is provided
   let parent = rootFolder[0].id
@@ -383,13 +447,25 @@ async function loadFileByName (
  * see the object definition at the top
  */
 async function saveTempSendFile (transferData: TempTransferData) {
-  // save a new temp send file
-  let file: File = {
-    name: transferData.tempTimestamp + TEMP_SEND_FILE_NAME,
-    content: transferData
+  let transfers = await loadFileByName(DRIVE_SPACE, TEMP_SEND_FILE_NAME, null)
+
+  let id = transferData.transferId
+  if (!id) throw new Error('Missing id in transferData')
+  if (transfers) {
+    transfers[id] = {
+      ...transfers[id],
+      ...transferData
+    }
+  } else {
+    transfers = {
+      [id]: transferData
+    }
   }
 
-  await saveFileByName(DRIVE_SPACE, TEMP_SEND_FOLDER_NAME, file)
+  await saveFileByName(DRIVE_SPACE, null, {
+    name: TEMP_SEND_FILE_NAME,
+    content: transfers
+  })
 }
 
 /*
@@ -399,11 +475,7 @@ async function saveTempSendFile (transferData: TempTransferData) {
  * see the object definition at the top
  */
 async function saveHistoryFile (transferData: TransferData) {
-  let transfers = await loadFileByName(
-    APP_DATA_FOLDER_SPACE,
-    HISTORY_FILE_NAME,
-    HISTORY_FOLDER_NAME
-  )
+  let transfers = await loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, null)
   let id = transferData.transferId ? transferData.transferId : transferData.receivingId
   if (!id) throw new Error('Missing id in transferData')
   if (transfers) {
@@ -418,12 +490,18 @@ async function saveHistoryFile (transferData: TransferData) {
   }
 
   // update the send file with new content
-  await saveFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FOLDER_NAME, {
-    name: HISTORY_FILE_NAME,
-    content: transfers
-  })
+  await saveFileByName(
+    APP_DATA_FOLDER_SPACE,
+    null,
+    {
+      name: HISTORY_FILE_NAME,
+      content: transfers
+    },
+    false,
+    true
+  )
 
-  await saveFileByName(DRIVE_SPACE, HISTORY_FOLDER_NAME, {
+  await saveFileByName(DRIVE_SPACE, null, {
     name: HISTORY_FILE_NAME,
     content: transfers
   })
@@ -431,12 +509,12 @@ async function saveHistoryFile (transferData: TransferData) {
 
 async function backupData (rootFolderId: FileId) {
   const timestamp = moment().format('MMMM Do YYYY, h:mm:ss a')
-  for (let folderName of [WALLET_FOLDER_NAME, HISTORY_FOLDER_NAME, TEMP_SEND_FOLDER_NAME]) {
-    let files = await listFiles(DRIVE_SPACE, [rootFolderId], true, folderName)
+  for (let fileName of [WALLET_FILE_NAME, HISTORY_FILE_NAME, TEMP_SEND_FILE_NAME]) {
+    let files = await listFiles(DRIVE_SPACE, [rootFolderId], false, fileName)
     if (files.length > 0) {
       await window.gapi.client.drive.files.update({
         fileId: files[0].id,
-        name: `${folderName}_Backup_${timestamp}`
+        name: `${fileName}_Backup_${timestamp}`
       })
     }
   }
@@ -444,6 +522,7 @@ async function backupData (rootFolderId: FileId) {
 
 async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
   let files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
+
   if (files.length > 0) {
     // root folder exists
     // backup existing data
@@ -451,52 +530,36 @@ async function saveWallet (walletDataList: any, encryptedWalletFileData: any) {
   }
 
   // update the wallet
-  await saveFileByName(APP_DATA_FOLDER_SPACE, WALLET_FOLDER_NAME, {
-    name: WALLET_FILE_NAME,
-    content: walletDataList
-  })
+  const resp: Array<{
+    rootFolderId?: FileId,
+    folderId?: FileId,
+    fileId: FileId
+  }> = await Promise.all([
+    saveFileByName(
+      APP_DATA_FOLDER_SPACE,
+      null,
+      {
+        name: WALLET_FILE_NAME,
+        content: walletDataList
+      },
+      true,
+      true
+    ),
+    saveFileByName(
+      DRIVE_SPACE,
+      null,
+      {
+        name: WALLET_FILE_NAME,
+        content: encryptedWalletFileData
+      },
+      true
+    )
+  ])
 
-  await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
-    name: WALLET_FILE_NAME,
-    content: encryptedWalletFileData
-  })
-
-  await saveFileByName(DRIVE_SPACE, WALLET_FOLDER_NAME, {
-    name: 'Readme.txt',
-    content: `
-      __wallet__ JSON file contains encrypted Chainsfr wallet.
-
-      Chainsfr Wallet Private Keys Recovery (Manual Method):
-        1. Decrypt "accounts" value using Base64 decoder
-        2. You will receive a JSON object from step 1
-        3. Search for "encryptedPrivateKey" of the account you
-           want to recovery
-        4. Using the code at 
-           https://github.com/ventureum/Chainsfr/blob/f89bc5466fd7140b85ac9ae691c462a0ad712c9d/src/utils.js#L168
-           to decrypt the encryptedPrivateKey.encryptedMessage with your master password
-        5. You will either get an ethereum private key of 64 characters,
-           or a bitcoin Private Extended Key starting with "xprv" 
-           (see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki for details)
-        6. For ethereum private keys, you can import it with MetaMask or any of your favourite wallets
-           For bitcoin Private Extended Key, go to https://iancoleman.io/bip39/
-              * Select BTC-bitcoin in Coin dropdown
-              * Paste Private Extended Key into BIP32 Root Key field
-              * You will see a list of addresses and the corresponding private keys
-                under "Derived Addresses" at the bottom part of the page
-       
-      Chainsfr Wallet Private Keys Recovery (Automatic Method):
-        1. Go to https://app.chainsfr.com/tools
-        2. Upload __wallet__ JSON file
-        3. A list of private keys and the corresponding accound will
-           be shown
-    `
-  })
-  
-  files = await listFiles(DRIVE_SPACE, null, true, ROOT_FOLDER_NAME)
-
-  if (files.length > 0) {
+  const { rootFolderId } = resp[1]
+  if (rootFolderId) {
     await API.updateUserCloudWalletFolderMeta({
-      fileId: files[0].id,
+      fileId: rootFolderId,
       lastModified: moment().unix()
     })
   } else {
@@ -515,7 +578,7 @@ async function getTransferData (id: string): Promise<TransferData> {
   let transfers: ?{ [string]: TransferData } = await loadFileByName(
     APP_DATA_FOLDER_SPACE,
     HISTORY_FILE_NAME,
-    HISTORY_FOLDER_NAME
+    null
   )
   if (transfers) {
     return transfers[id]
@@ -525,19 +588,21 @@ async function getTransferData (id: string): Promise<TransferData> {
 }
 
 async function getAllTransfers (): Promise<{ [string]: TransferData }> {
-  return loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, HISTORY_FOLDER_NAME)
+  return loadFileByName(APP_DATA_FOLDER_SPACE, HISTORY_FILE_NAME, null)
 }
 
 async function getWallet (): Promise<any> {
-  return loadFileByName(APP_DATA_FOLDER_SPACE, WALLET_FILE_NAME, WALLET_FOLDER_NAME)
+  return loadFileByName(APP_DATA_FOLDER_SPACE, WALLET_FILE_NAME, null)
 }
 
 async function deleteWallet (): Promise<any> {
-  let rootFolder = await listFiles(APP_DATA_FOLDER_SPACE, null, true, ROOT_FOLDER_NAME)
-  if (rootFolder.length === 0) return null
-  await window.gapi.client.drive.files.delete({
-    fileId: rootFolder[0].id
-  })
+  let files = await listFiles(APP_DATA_FOLDER_SPACE, null, false, null)
+  if (files.length === 0) return null
+  for (let file of files) {
+    await window.gapi.client.drive.files.delete({
+      fileId: file.id
+    })
+  }
 }
 
 let exportObj = {
@@ -555,16 +620,14 @@ if (env.REACT_APP_ENV === 'test' && env.REACT_APP_E2E_TEST_MOCK_USER) {
   exportObj = require('./tests/e2e/mocks/drive.js')
 }
 
-
-  const _saveTempSendFile = exportObj.saveTempSendFile
-  const _saveHistoryFile= exportObj.saveHistoryFile
-  const _saveWallet=exportObj.saveWallet
-  const _getTransferData=exportObj.getTransferData
-  const _getAllTransfers=exportObj.getAllTransfers
-  const _getWallet=exportObj.getWallet
-  const _gapiLoad=exportObj.gapiLoad
-  const _deleteWallet=exportObj.deleteWallet
-
+const _saveTempSendFile = exportObj.saveTempSendFile
+const _saveHistoryFile = exportObj.saveHistoryFile
+const _saveWallet = exportObj.saveWallet
+const _getTransferData = exportObj.getTransferData
+const _getAllTransfers = exportObj.getAllTransfers
+const _getWallet = exportObj.getWallet
+const _gapiLoad = exportObj.gapiLoad
+const _deleteWallet = exportObj.deleteWallet
 
 export {
   _saveTempSendFile as saveTempSendFile,

@@ -21,46 +21,47 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   // the following creation process should never fail (which blocks the onboarding process),
   // warn silently for any errors
   try {
-    let newAccountList = []
-    for (const { cryptoType, disabled } of walletCryptoSupports['drive']) {
-      if (!disabled) {
-        let account
-        let accountData
-        let _wallet = createWallet({ walletType: 'drive' })
+    // always create eth account first to
+    let _wallet = createWallet({ walletType: 'drive' })
+    await _wallet.newAccount('Wallet', 'ethereum', {
+      getPrefilled: true
+    })
+    ethereumBasedAccountData = JSON.parse(JSON.stringify(_wallet.getAccount().getAccountData()))
 
-        if (ethereumBasedAccountData && ['ethereum', ...erc20TokensList].includes(cryptoType)) {
-          // share the same privateKey for ethereum based coins
-          await _wallet.newAccount('Wallet', cryptoType, {
-            privateKey: ethereumBasedAccountData.privateKey
-          })
-          account = _wallet.getAccount()
-          accountData = account.getAccountData()
-        } else {
-          await _wallet.newAccount('Wallet', cryptoType, {
-            getPrefilled: true
-          })
-          account = _wallet.getAccount()
-          accountData = account.getAccountData()
-          if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-            ethereumBasedAccountData = JSON.parse(JSON.stringify(accountData))
+    let newAccountList = await Promise.all(
+      walletCryptoSupports['drive']
+        .filter(e => !e.disabled && e.cryptoType !== 'ethereum')
+        .map(async ({ cryptoType }) => {
+          let account
+          let accountData
+          let _wallet = createWallet({ walletType: 'drive' })
+          let privateKey
+          if (ethereumBasedAccountData && [...erc20TokensList].includes(cryptoType)) {
+            // share the same privateKey for ethereum based coins
+            privateKey = ethereumBasedAccountData.privateKey
           }
-        }
+          await _wallet.newAccount('Wallet', cryptoType, {
+            privateKey
+          })
+          account = _wallet.getAccount()
+          accountData = account.getAccountData()
 
-        if (accountData.cryptoType === 'bitcoin') {
-          walletFileData[accountData.hdWalletVariables.xpub] = JSON.parse(
-            JSON.stringify(account.getAccountData())
-          )
-          await account.encryptAccount(password)
-          encryptedWalletFileData[accountData.hdWalletVariables.xpub] = account.getAccountData()
-        } else {
-          walletFileData[accountData.address] = JSON.parse(JSON.stringify(account.getAccountData()))
-          await account.encryptAccount(password)
-          encryptedWalletFileData[accountData.address] = account.getAccountData()
-        }
-
-        newAccountList.push(account.getAccountData())
-      }
-    }
+          if (accountData.cryptoType === 'bitcoin') {
+            walletFileData[accountData.hdWalletVariables.xpub] = JSON.parse(
+              JSON.stringify(account.getAccountData())
+            )
+            await account.encryptAccount(password)
+            encryptedWalletFileData[accountData.hdWalletVariables.xpub] = account.getAccountData()
+          } else {
+            walletFileData[accountData.address] = JSON.parse(
+              JSON.stringify(account.getAccountData())
+            )
+            await account.encryptAccount(password)
+            encryptedWalletFileData[accountData.address] = account.getAccountData()
+          }
+          return account.getAccountData()
+        })
+    )
     await API.addCryptoAccounts(newAccountList)
   } catch (error) {
     console.warn(error)
@@ -72,15 +73,18 @@ async function _createCloudWallet (password: string, progress: ?Function) {
   if (progress) progress('STORE')
   // this never fails
   await saveWallet(walletFileData, encryptedWalletFileData)
-  // this never fails
-  return _getCloudWallet()
 }
 
 function createCloudWallet (password: string, progress: ?Function) {
   return (dispatch: Function, getState: Function) => {
     return dispatch({
       type: 'CREATE_CLOUD_WALLET',
-      payload: _createCloudWallet(password, progress),
+      payload: async () => {
+        await _createCloudWallet(password, progress)
+        // dispatch getCloudWallet after createCloudWallet to
+        // reduce onboarding time
+        dispatch(getCloudWallet())
+      },
       meta: {
         // do not show errors
         // errors are warned in the console

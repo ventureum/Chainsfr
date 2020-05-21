@@ -292,6 +292,7 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           // if chainfr wallet file does not exist
           // create
           await dispatch(createCloudWallet(masterKey))
+          await dispatch(getCryptoAccounts())
         }
       }
     })
