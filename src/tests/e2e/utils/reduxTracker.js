@@ -103,9 +103,15 @@ class ReduxTracker {
         }
       }
     } catch (e) {
-      if (e.message && e.message.includes('Target closed')) {
+      if (
+        e.message &&
+        (e.message.includes('Target closed') || e.message.includes('Cannot find context with specified id'))
+      ) {
         // ignore target closed error
         // browser may be closed before listener is removed
+        // ignore specified not found error
+        // when previous test finished, and logs are still being collected,
+        // this error may occur since browser context has been reset
       } else {
         throw e
       }
@@ -133,7 +139,10 @@ class ReduxTracker {
       })
     } catch (e) {
       if (e.name === 'TimeoutError') {
-        log.error('Validation timeout due to the following includedStateChanges all found:', this.includedStateChangesNotFound)
+        log.error(
+          'Validation timeout due to the following includedStateChanges all found:',
+          this.includedStateChangesNotFound
+        )
       } else {
         throw e
       }
