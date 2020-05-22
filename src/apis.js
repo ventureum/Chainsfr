@@ -212,8 +212,8 @@ async function getRecipients (request: { idToken: string }): Promise<any> {
       idToken: request.idToken
     })
     return rv.data.recipients
-  } catch (e) {
-    console.warn(e)
+  } catch (err) {
+    throw new Error(`Get contacts failed: ${err.response.data}`)
   }
 }
 
@@ -226,8 +226,8 @@ async function addRecipient (request: { idToken: string, recipient: Recipient })
       recipient: request.recipient
     })
     return rv.data.recipients
-  } catch (e) {
-    console.warn(e)
+  } catch (err) {
+    throw new Error(`Add contact failed: ${err.response.data}`)
   }
 }
 
@@ -240,8 +240,8 @@ async function removeRecipient (request: { idToken: string, recipient: Recipient
       recipient: request.recipient
     })
     return rv.data.recipients
-  } catch (e) {
-    console.warn(e)
+  } catch (err) {
+    throw new Error(`Remove contact failed: ${err.response.data}`)
   }
 }
 
