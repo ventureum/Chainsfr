@@ -12,6 +12,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import EmptyStateImage from '../images/empty_state_01.png'
 import UserAvatar from './MicroComponents/UserAvatar'
 import Skeleton from '@material-ui/lab/Skeleton'
+import CheckCircleSharpIcon from '@material-ui/icons/CheckCircleSharp'
 
 class RecipientsComponent extends Component {
   state = {
@@ -101,9 +102,14 @@ class RecipientsComponent extends Component {
                     {!skeletonOnly ? (
                       <Box ml={1}>
                         <Typography data-test-id='recipient_name'>{recipient.name}</Typography>
-                        <Typography variant='caption' data-test-id='recipient_email'>
-                          {recipient.email}
-                        </Typography>
+                        <Box display='flex' alignItems='center'>
+                          <Typography variant='caption' data-test-id='recipient_email'>
+                            {recipient.email}
+                          </Typography>
+                          {recipient.registeredUser === true && (
+                            <CheckCircleSharpIcon className={classes.registeredUserIcon} />
+                          )}
+                        </Box>
                       </Box>
                     ) : (
                       <Box>
@@ -225,6 +231,11 @@ const styles = theme => ({
   },
   skeleton: {
     margin: 5
+  },
+  registeredUserIcon: {
+    color: '#43B284',
+    fontSize: '18px',
+    marginLeft: '5px'
   }
 })
 export default withStyles(styles)(RecipientsComponent)
