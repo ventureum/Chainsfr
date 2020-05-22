@@ -152,29 +152,43 @@ function addRecipient (
     }
     return dispatch({
       type: 'ADD_RECIPIENT',
-      payload: API.addRecipient({ idToken, recipient })
-    }).then(() => {
-      if (notify) {
+      payload: API.addRecipient({ idToken, recipient }),
+      // set localErrorHandling to true so we can
+      // skip enqueue sucess snackbar and enqueue
+      // error snackbar
+      meta: { localErrorHandling: true }
+    })
+      .then(() => {
+        if (notify) {
+          dispatch(
+            enqueueSnackbar({
+              message: 'Contact added successfully.',
+              key: new Date().getTime() + Math.random(),
+              options: { variant: 'success', autoHideDuration: 3000 }
+            })
+          )
+        }
+        if (updateForm) {
+          dispatch(
+            updateTransferForm(
+              update(transferForm, {
+                destination: { $set: recipient.email },
+                receiverName: { $set: recipient.name },
+                formError: { destination: { $set: null } }
+              })
+            )
+          )
+        }
+      })
+      .catch(error => {
         dispatch(
           enqueueSnackbar({
-            message: 'Contact added successfully.',
+            message: error.message,
             key: new Date().getTime() + Math.random(),
             options: { variant: 'info', autoHideDuration: 3000 }
           })
         )
-      }
-      if (updateForm) {
-        dispatch(
-          updateTransferForm(
-            update(transferForm, {
-              destination: { $set: recipient.email },
-              receiverName: { $set: recipient.name },
-              formError: { destination: { $set: null } }
-            })
-          )
-        )
-      }
-    })
+      })
   }
 }
 
@@ -187,16 +201,30 @@ function editRecipient (oldRecipient: Recipient, newRecipient: Recipient) {
         await API.removeRecipient({ idToken, recipient: oldRecipient })
         const result = await API.addRecipient({ idToken, recipient: newRecipient })
         return result
-      }
-    }).then(() => {
-      dispatch(
-        enqueueSnackbar({
-          message: 'Contact modified successfully.',
-          key: new Date().getTime() + Math.random(),
-          options: { variant: 'info', autoHideDuration: 3000 }
-        })
-      )
+      },
+      // set localErrorHandling to true so we can
+      // skip enqueue sucess snackbar and enqueue
+      // error snackbar
+      meta: { localErrorHandling: true }
     })
+      .then(() => {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Contact modified successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'success', autoHideDuration: 3000 }
+          })
+        )
+      })
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
   }
 }
 
@@ -205,16 +233,30 @@ function removeRecipient (recipient: Recipient) {
     const { idToken } = getState().userReducer.profile
     return dispatch({
       type: 'REMOVE_RECIPIENT',
-      payload: API.removeRecipient({ idToken, recipient })
-    }).then(() => {
-      dispatch(
-        enqueueSnackbar({
-          message: 'Contact removed successfully.',
-          key: new Date().getTime() + Math.random(),
-          options: { variant: 'info', autoHideDuration: 3000 }
-        })
-      )
+      payload: API.removeRecipient({ idToken, recipient }),
+      // set localErrorHandling to true so we can
+      // skip enqueue sucess snackbar and enqueue
+      // error snackbar
+      meta: { localErrorHandling: true }
     })
+      .then(() => {
+        dispatch(
+          enqueueSnackbar({
+            message: 'Contact removed successfully.',
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'success', autoHideDuration: 3000 }
+          })
+        )
+      })
+      .catch(error => {
+        dispatch(
+          enqueueSnackbar({
+            message: error.message,
+            key: new Date().getTime() + Math.random(),
+            options: { variant: 'info', autoHideDuration: 3000 }
+          })
+        )
+      })
   }
 }
 
@@ -264,12 +306,15 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           dispatch(getCryptoAccounts()),
           dispatch(getRecipients())
         ])
-        const recipients = rv[2].value
-        if (
-          !recipients.find(recipient => {
-            return recipient.email === loginData.profileObj.email
-          })
-        ) {
+        if (!rv[0]) {
+          // chainfrWalletFile
+          const { masterKey } = userMetaInfo
+          // delete old cloud wallet accounts from backend
+          await dispatch(clearCloudWalletCryptoAccounts())
+          // if chainfr wallet file does not exist
+          // create
+          await dispatch(createCloudWallet(masterKey))
+          await dispatch(getCryptoAccounts())
           await dispatch(
             addRecipient(
               {
@@ -283,15 +328,6 @@ function postLoginPreparation (loginData: any, progress?: Function) {
               false
             )
           )
-        }
-        if (!rv[0]) {
-          // chainfrWalletFile
-          const { masterKey } = userMetaInfo
-          // delete old cloud wallet accounts from backend
-          await dispatch(clearCloudWalletCryptoAccounts())
-          // if chainfr wallet file does not exist
-          // create
-          await dispatch(createCloudWallet(masterKey))
         }
       }
     })

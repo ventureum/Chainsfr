@@ -66,7 +66,11 @@ export default class DriveWallet implements IWallet<AccountData> {
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let web3Account, privateKey
 
-    if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT && options && options.getPrefilled) {
+    if (
+      env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT &&
+      options &&
+      options.getPrefilled
+    ) {
       // use prefilled account
       privateKey = await API.getPrefilledAccount()
       web3Account = privateKey
@@ -293,7 +297,11 @@ export default class DriveWallet implements IWallet<AccountData> {
       }
     } else if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
-      const { fee, utxosCollected } = account._collectUtxos(addressPool, value, Number(txFee.price))
+      const { fee, utxosCollected } = account._collectUtxos(
+        addressPool,
+        value,
+        Number(txFee.price)
+      )
       const signedTxRaw = await this._xPrivSigner(
         utxosCollected,
         to,
