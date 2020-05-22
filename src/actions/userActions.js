@@ -306,12 +306,15 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           dispatch(getCryptoAccounts()),
           dispatch(getRecipients())
         ])
-        const recipients = rv[2].value
-        if (
-          !recipients.find(recipient => {
-            return recipient.email === loginData.profileObj.email
-          })
-        ) {
+        if (!rv[0]) {
+          // chainfrWalletFile
+          const { masterKey } = userMetaInfo
+          // delete old cloud wallet accounts from backend
+          await dispatch(clearCloudWalletCryptoAccounts())
+          // if chainfr wallet file does not exist
+          // create
+          await dispatch(createCloudWallet(masterKey))
+          await dispatch(getCryptoAccounts())
           await dispatch(
             addRecipient(
               {
@@ -325,16 +328,6 @@ function postLoginPreparation (loginData: any, progress?: Function) {
               false
             )
           )
-        }
-        if (!rv[0]) {
-          // chainfrWalletFile
-          const { masterKey } = userMetaInfo
-          // delete old cloud wallet accounts from backend
-          await dispatch(clearCloudWalletCryptoAccounts())
-          // if chainfr wallet file does not exist
-          // create
-          await dispatch(createCloudWallet(masterKey))
-          await dispatch(getCryptoAccounts())
         }
       }
     })
