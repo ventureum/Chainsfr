@@ -24,6 +24,7 @@ export type Recipient = {
   email: string,
   imageUrl?: ?string,
   imageUrlUpdatedAt?: ?number,
+  registeredUser?: boolean, // if the recipient is a chainsfr user
   validEmail?: ?boolean,
   validName?: ?boolean
 }
