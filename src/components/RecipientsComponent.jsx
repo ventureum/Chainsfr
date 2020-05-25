@@ -6,6 +6,7 @@ import Box from '@material-ui/core/Box'
 import SendIcon from '@material-ui/icons/SendRounded'
 import MoreIcon from '@material-ui/icons/MoreHoriz'
 import IconButton from '@material-ui/core/IconButton'
+import GoogleIcon from '../images/google-icon.svg'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -169,16 +170,39 @@ class RecipientsComponent extends Component {
             height='100%'
           >
             <Typography variant='h2'>Manage Contacts</Typography>
-            <Box display='flex' mt={2}>
-              <Button
-                variant='contained'
-                color='primary'
-                onClick={() => addRecipient()}
-                disabled={pending}
-              >
-                Add Contacts
-              </Button>
-            </Box>
+            <Grid container>
+              <Grid item sm={'auto'} xs={12} className={classes.btnItem}>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  onClick={() => addRecipient()}
+                  disabled={pending}
+                >
+                  Add Contacts
+                </Button>
+              </Grid>
+              <Grid item sm={'auto'} xs={12} className={classes.btnItem}>
+                <Button
+                  className={classes.lightbtn}
+                  color='primary'
+                  onClick={() => {}}
+                  data-test-id='connect_google_contact'
+                  classes={{ label: classes.lightbtnSpan }}
+                  disabled={pending}
+                  id='intercom_launcher'
+                >
+                  <Box
+                    className={classes.iconContainer}
+                    display='flex'
+                    justifyContent='center'
+                    alignItems='center'
+                  >
+                    <img src={GoogleIcon} style={{ width: 18 }} alt='googleIcon' />
+                  </Box>
+                  Connect to Google Contacts
+                </Button>
+              </Grid>
+            </Grid>
           </Box>
         </Container>
       </Box>
@@ -236,6 +260,28 @@ const styles = theme => ({
     color: '#43B284',
     fontSize: '18px',
     marginLeft: '5px'
+  },
+  lightbtn: {
+    backgroundColor: 'rgba(57, 51, 134, 0.05)',
+    padding: '5px 20px 5px 5px'
+  },
+  lightbtnSpan: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center'
+  },
+  iconContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: '50%',
+    left: '0px',
+    top: '0px',
+    padding: '5px',
+    height: '18px',
+    marginRight: '10px'
+  },
+  btnItem: {
+    marginRight: '30px',
+    marginTop: '20px'
   }
 })
 export default withStyles(styles)(RecipientsComponent)
