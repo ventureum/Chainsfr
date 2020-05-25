@@ -46,6 +46,12 @@ jobs:
       install:
         - npm ci
         - pip install --user awscli
+        # setup sentry
+        - curl -sL https://sentry.io/get-cli/ | bash
+        - export SENTRY_RELEASE=$(sentry-cli releases propose-version)
+        - sentry-cli releases new -p $SENTRY_PROJECT $SENTRY_RELEASE
+        - sentry-cli releases set-commits --auto $SENTRY_RELEASE
+        - sentry-cli releases finalize $SENTRY_RELEASE
       script:
         - npm run build:test
         - mv ./build ./build_test
