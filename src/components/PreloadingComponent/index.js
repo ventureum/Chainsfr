@@ -107,8 +107,8 @@ const Wave = props => {
     <div className='waveDivBox'>
       <svg
         xmlns='http://www.w3.org/2000/svg'
-        width='110px'
-        height='110px'
+        width='60px'
+        height='60px'
         viewBox='4 0 80 60'
         className='waveSvg'
       >

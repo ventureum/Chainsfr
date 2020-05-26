@@ -106,6 +106,55 @@ const LoginLayout = ({ component: Component, ...rest }) => {
 
 let offlineNotification = null
 
+const DemoTopBanner = props => {
+  return (
+    <Box
+      bgcolor='#1E0E62'
+      display='flex'
+      justifyContent='center'
+      alignItems='center'
+      color='white'
+    >
+      <Typography color='inherit' variant='subtitle2' style={{ padding: '10px' }} align='center'>
+        <Typography
+          color='inherit'
+          variant='subtitle1'
+          component='span'
+          style={{ marginRight: 10 }}
+          role='img'
+          aria-label='waving_hand'
+        >
+          {'👋'}
+        </Typography>
+        {'You are in Demo now.'}
+        <MuiLink
+          style={{ marginLeft: 10 }}
+          color='inherit'
+          underline='always'
+          id='intercom_launcher'
+          //  fallback when intercom is not launched/available
+          href={env.REACT_APP_FAQ_URL}
+          rel='noopener noreferrer'
+        >
+          {'Learn more'}
+        </MuiLink>
+        <Button
+          style={{
+            backgroundColor: 'white',
+            marginLeft: 15,
+            padding: '5px 17px 5px 17px'
+          }}
+          component={MuiLink}
+          href='https://app.chainsfr.com'
+          rel='noopener noreferrer'
+        >
+          Switch to Live
+        </Button>
+      </Typography>
+    </Box>
+  )
+}
+
 const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
   // isolate flag is used to toggle leftside navigation drawer
   // while isolate is true, users are not allow to navigate between paths
@@ -171,42 +220,6 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   isMainNet={isMainNet}
                 />
                 <Box display='flex' flexDirection='column' flex='1' minHeight='100vh'>
-                  {!isMainNet && (
-                    <Box
-                      bgcolor='#1E0E62'
-                      height='58px'
-                      display='flex'
-                      justifyContent='center'
-                      alignItems='center'
-                      color='white'
-                    >
-                      <Typography color='inherit' variant='subtitle2'>
-                        {'👋 You are in Demo now. '}
-                        <MuiLink
-                          color='inherit'
-                          underline='always'
-                          id='intercom_launcher'
-                          //  fallback when intercom is not launched/available
-                          href={env.REACT_APP_FAQ_URL}
-                          rel='noopener noreferrer'
-                        >
-                          Learn more
-                        </MuiLink>
-                      </Typography>
-                      <Button
-                        style={{
-                          backgroundColor: 'white',
-                          marginLeft: 50,
-                          padding: '5px 17px 5px 17px'
-                        }}
-                        component={MuiLink}
-                        href='https://app.chainsfr.com'
-                        rel='noopener noreferrer'
-                      >
-                        Switch to Live
-                      </Button>
-                    </Box>
-                  )}
                   <Hidden only={['sm', 'md', 'lg', 'xl']}>
                     <AppBar
                       {...matchProps}
@@ -215,6 +228,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                       isMainNet={isMainNet}
                     />
                   </Hidden>
+                  {!isMainNet && <DemoTopBanner />}
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
