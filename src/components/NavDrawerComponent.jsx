@@ -4,6 +4,7 @@ import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import clsx from 'clsx'
 import Drawer from '@material-ui/core/Drawer'
+import Divider from '@material-ui/core/Divider'
 import IconButton from '@material-ui/core/IconButton'
 import { Link } from 'react-router-dom'
 import MuiLink from '@material-ui/core/Link'
@@ -26,6 +27,7 @@ import GitHubIcon from '@material-ui/icons/GitHub'
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRightRounded'
 import PaymentsIcon from '@material-ui/icons/SwapHorizRounded'
 import WalletIcon from '@material-ui/icons/AccountBalanceWalletRounded'
+import ContactSupportIcon from '@material-ui/icons/ContactSupport'
 
 //Assets
 import ChainsfrLogoSVG from '../images/logo_chainsfr_617_128.svg'
@@ -88,6 +90,16 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: 'transparent'
     }
+  },
+  contactSupportBtn: {
+    padding: '0px 0px 0px 25px',
+    height: 57
+  },
+  divider: {
+    margin: '15px 25px 15px 25px'
+  },
+  supportColor: {
+    color: '#8784B5'
   }
 }))
 
@@ -172,7 +184,7 @@ const NavDrawerComponent = (props: Props) => {
               </IconButton>
             </Box>
           )}
-          <List style={{ flex: 1 }}>
+          <List>
             {NAV_BTNS.map((item, i) => {
               const selected = location.pathname === item.path
               return (
@@ -195,7 +207,24 @@ const NavDrawerComponent = (props: Props) => {
               )
             })}
           </List>
-
+          <Divider className={classes.divider} />
+          <Box flex={1} display='flex' flexDirection='column' alignItems='flex-start'>
+            {!match && (
+              <ListItem
+                button
+                className={classes.contactSupportBtn}
+                component={MuiLink}
+                id='intercom_launcher'
+                href={env.REACT_APP_FAQ_URL}
+                rel='noopener noreferrer'
+              >
+                <ListItemIcon>
+                  <ContactSupportIcon className={classes.supportColor} />
+                </ListItemIcon>
+                <ListItemText primary='Contact Us' classes={{ primary: classes.supportColor }} />
+              </ListItem>
+            )}
+          </Box>
           <Box mx={1} mb={2}>
             <Button
               fullWidth
@@ -247,7 +276,11 @@ const NavDrawerComponent = (props: Props) => {
                 <Box ml={0.5} color='text.disabled' display='inline'>
                   |
                 </Box>
-                <MuiLink target='_blank' rel='noopener noreferrer' href={env.REACT_APP_PRIVACY_URL}>
+                <MuiLink
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  href={env.REACT_APP_PRIVACY_URL}
+                >
                   <Box ml={0.5} mr={0.5} color='text.disabled' display='inline'>
                     {'Privacy '}
                   </Box>
