@@ -45,8 +45,10 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
 import { useActionTracker } from '../hooksUtils'
 import MuiLink from '@material-ui/core/Link'
+import env from '../typedEnv'
 
 // Icons
+import BitPayIcon from '../images/bitpay.png'
 import CancelIcon from '@material-ui/icons/Cancel'
 import CheckCircleIcon from '@material-ui/icons/CheckCircleRounded'
 import CloseIcon from '@material-ui/icons/CloseRounded'
@@ -54,6 +56,7 @@ import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
 import ErrorIcon from '@material-ui/icons/ErrorRounded'
 import FileCopyIcon from '@material-ui/icons/FileCopyRounded'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
+import LockIcon from '@material-ui/icons/Lock'
 
 const useStyles = makeStyles(theme => ({
   closeButton: {
@@ -467,35 +470,65 @@ const WalletList = (props: WalletListProps) => {
     return w.addable || w.addDisabledReason
   })
   const classes = useStyles()
+  const walletList = addableWallets.map((w, i) => {
+    return (
+      <ListItem
+        button
+        key={`wallet-${i}`}
+        divider
+        className={classes.listItem}
+        onClick={() => {
+          onSelect(w.walletType)
+        }}
+        data-test-id={`wallet_item_${w.walletType}`}
+        disabled={!w.addable}
+      >
+        <Box display='flex' flexDirection='row' alignItems='center' height='30px'>
+          <Box mr={1}>
+            <Avatar className={classes.avatar} src={getWalletLogo(w.walletType)} />
+          </Box>
+          <Box>
+            <Typography variant='body1'>{getWalletTitle(w.walletType)}</Typography>
+            {!w.addable && <Typography variant='body2'>{w.addDisabledReason}</Typography>}
+          </Box>
+        </Box>
+      </ListItem>
+    )
+  })
+
+  walletList.push(
+    <ListItem
+      button
+      component={MuiLink}
+      id='intercom_launcher'
+      href={env.REACT_APP_FAQ_URL}
+      target='_blank'
+      rel='noopener noreferrer'
+      key={`wallet-bitpay`}
+      divider
+      className={classes.listItem}
+    >
+      <Box display='flex' flexDirection='row' alignItems='center' height='30px' flex={1}>
+        <Box mr={1}>
+          <Avatar className={classes.avatar} src={BitPayIcon} />
+        </Box>
+        <Box
+          display='flex'
+          flexDirection='row'
+          alignItems='center'
+          justifyContent='space-between'
+          flex={1}
+        >
+          <Typography variant='body1'>BitPay</Typography>
+          <LockIcon />
+        </Box>
+      </Box>
+    </ListItem>
+  )
+
   return (
     <Box width='100%'>
-      <List disablePadding>
-        {addableWallets.map((w, i) => {
-          return (
-            <ListItem
-              button
-              key={`wallet-${i}`}
-              divider
-              className={classes.listItem}
-              onClick={() => {
-                onSelect(w.walletType)
-              }}
-              data-test-id={`wallet_item_${w.walletType}`}
-              disabled={!w.addable}
-            >
-              <Box display='flex' flexDirection='row' alignItems='center' height='30px'>
-                <Box mr={1}>
-                  <Avatar className={classes.avatar} src={getWalletLogo(w.walletType)} />
-                </Box>
-                <Box>
-                  <Typography variant='body1'>{getWalletTitle(w.walletType)}</Typography>
-                  {!w.addable && <Typography variant='body2'>{w.addDisabledReason}</Typography>}
-                </Box>
-              </Box>
-            </ListItem>
-          )
-        })}
-      </List>
+      <List disablePadding>{walletList}</List>
     </Box>
   )
 }
