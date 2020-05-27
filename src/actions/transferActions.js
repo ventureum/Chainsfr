@@ -180,7 +180,7 @@ async function _submitTx (txRequest: {
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  if (['ethereum', 'bitcoin', 'libra', ...erc20TokensList].includes(cryptoType)) {
+  if (['ethereum', 'bitcoin', ...erc20TokensList].includes(cryptoType)) {
     let multisig
     if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
       walletId = new SimpleMultiSig().createWalletId()
@@ -428,9 +428,6 @@ async function _cancelTransfer (txRequest: {
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
     multiSig = new SimpleMultiSig({ walletId, transferId })
-  } else if (cryptoType === 'libra') {
-    // txHash is the sender's address for libra
-    senderAddress = sendTxHash
   } else {
     throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }

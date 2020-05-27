@@ -262,23 +262,6 @@ async function register (idToken: string, userProfile: UserProfile): Promise<any
   }
 }
 
-async function mintLibra (request: {
-  address: string,
-  amount: string // microlibra
-}) {
-  try {
-    let rv = await chainsferApi.post('/transfer', {
-      clientId: 'test-client',
-      action: 'MINT_LIBRA',
-      address: request.address,
-      amount: request.amount
-    })
-    return rv.data
-  } catch (e) {
-    console.warn(e)
-  }
-}
-
 async function referralBalance () {
   const { idToken } = store.getState().userReducer.profile
   let rv = await chainsferApi.post('/referralWallet', {
@@ -574,7 +557,6 @@ export default {
   addRecipient,
   removeRecipient,
   register,
-  mintLibra,
   referralBalance,
   referralSend,
   referralCreate,
