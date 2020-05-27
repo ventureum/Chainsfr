@@ -223,7 +223,6 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   render () {
-    console.log('render')
     const {
       account,
       groupedCryptoAccounts,

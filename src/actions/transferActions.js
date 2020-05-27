@@ -1324,7 +1324,10 @@ async function _getTxFeeForTransfer (transferData) {
     transferMethod
   } = transferData
 
-  if (chainsferToSender || transferType === 'RECEIVER') {
+  if (
+    (chainsferToSender && chainsferToSender.txState !== 'NotInitiated') ||
+    transferType === 'RECEIVER'
+  ) {
     return {
       price: '0',
       gas: '0',
