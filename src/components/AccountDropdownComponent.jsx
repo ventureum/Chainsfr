@@ -80,13 +80,9 @@ class AccountDropdownComponent extends Component<Props, State> {
       !groupedAccount &&
       groupedCryptoAccounts &&
       groupedCryptoAccounts.length === 1 &&
-      this.state.groupedAccount !== groupedCryptoAccounts[0]
+      JSON.stringify(this.state.groupedAccount) !== JSON.stringify(groupedCryptoAccounts[0])
     ) {
       // auto-select grouped account
-      this.setState({
-        groupedAccount: groupedCryptoAccounts[0]
-      })
-
       this.autoSelectAccount(groupedCryptoAccounts[0])
     }
     if (
@@ -94,7 +90,6 @@ class AccountDropdownComponent extends Component<Props, State> {
       // deep object comparison
       JSON.stringify(this.state.groupedAccount) !== JSON.stringify(groupedAccount)
     ) {
-      this.setState({ groupedAccount: groupedAccount })
       this.autoSelectAccount(groupedAccount)
     }
 
@@ -139,6 +134,10 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   autoSelectAccount = (groupedAccount: Object) => {
+    // first set groupedAccount (a.k.a auto select walletType and platformType)
+    this.setState({ groupedAccount: groupedAccount })
+    // then check if we only have one account in the groupedAccount
+    // if so, auto select cryptoType/email
     if (groupedAccount.accounts && groupedAccount.accounts.length === 1) {
       // auto-select if accounts length is 1
       this.props.onChange({ target: { value: groupedAccount.accounts[0] } })
@@ -224,6 +223,7 @@ class AccountDropdownComponent extends Component<Props, State> {
   }
 
   render () {
+    console.log('render')
     const {
       account,
       groupedCryptoAccounts,
