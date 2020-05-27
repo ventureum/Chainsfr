@@ -9,6 +9,7 @@ import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper'
 import LoginContainer from './containers/LoginContainer'
 import DirectTransferContainer from './containers/DirectTransferContainer'
 import Disconnect from './components/MicroComponents/Disconnect'
+import PageNotFoundComponent from './components/MicroComponents/PageNotFound'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
@@ -102,6 +103,10 @@ const LoginLayout = ({ component: Component, ...rest }) => {
       )}
     />
   )
+}
+
+const PageNotFound = props => {
+  return <Route {...props} render={matchProps => <PageNotFoundComponent {...matchProps} />} />
 }
 
 let offlineNotification = null
@@ -330,21 +335,25 @@ class App extends Component {
                     component={userIsAuthenticated(WalletContainer)}
                   />
                   <DefaultLayout
+                    exact
                     isolate
                     path={`${paths.directTransfer}`}
                     component={userIsAuthenticated(DirectTransferContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.transfer}`}
                     isolate
                     component={userIsAuthenticated(TransferContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.receive}`}
                     isolate
                     component={userIsAuthenticated(ReceiveContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.cancel}`}
                     isolate
                     component={userIsAuthenticated(CancelContainer)}
@@ -354,28 +363,34 @@ class App extends Component {
                     component={userIsAuthenticated(RecipientsContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.connections}`}
                     component={userIsAuthenticated(AccountsManagementContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.receipt}`}
                     isolate
                     component={userIsAuthenticated(ReceiptContainer)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.OAuthRedirect}`}
                     component={userIsAuthenticated(OAuthRedirectComponent)}
                   />
                   <DefaultLayout
+                    exact
                     path={`${paths.userSetting}`}
                     component={userIsAuthenticated(UserSettingContainer)}
                   />
                   {process.env.REACT_APP_ENV === 'test' && (
                     <DefaultLayout
+                      exact
                       path={`${paths.disconnect}`}
                       component={userIsAuthenticated(Disconnect)}
                     />
                   )}
+                  <PageNotFound />
                 </Switch>
               </ConnectedRouter>
             </SnackbarProvider>
