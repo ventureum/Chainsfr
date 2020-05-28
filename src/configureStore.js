@@ -11,16 +11,24 @@ import { routerMiddleware } from 'connected-react-router'
 import { createBrowserHistory } from 'history'
 import { trackerMiddleware } from './trackerMiddleware'
 import { BN } from 'ethereumjs-util'
+import { createStateSyncMiddleware, initMessageListener } from 'redux-state-sync'
 import env from './typedEnv'
 
 const history = createBrowserHistory()
 
+const stateSyncMiddlewareConfig = {
+  whitelist: ['LOGOUT_FULFILLED']
+}
+
 function configureStore (reducers) {
+  const stateSyncMiddleware = createStateSyncMiddleware(stateSyncMiddlewareConfig)
+  // this is used to pass store.dsipatch to the message listener
   const middlewares = [
     routerMiddleware(history),
     errorMiddleware,
     promiseMiddleware(),
-    thunk
+    thunk,
+    stateSyncMiddleware
   ]
 
   if (env.REACT_APP_ENV === `test`) {
@@ -94,6 +102,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, reducers(history))
 
 var store = configureStore(persistedReducer)
+initMessageListener(store)
 var persistor = persistStore(store)
 
 export { store, persistor, history }
