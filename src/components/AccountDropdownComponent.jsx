@@ -18,6 +18,7 @@ import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
 import type { AccountData, GroupedAccountType } from '../types/account.flow'
 import { getWalletLogo, getWalletTitle, getWalletConfig } from '../wallet'
 import { getPlatformTitle } from '../platforms'
+import path from '../Paths'
 
 // Material Icons
 import AddIcon from '@material-ui/icons/AddRounded'
@@ -34,7 +35,8 @@ type Props = {
   addAccount: Function,
   toCurrencyAmount: Function,
   inputLabel: string,
-  disableAccountSelect: boolean
+  disableAccountSelect: boolean,
+  push: Function
 }
 
 type State = {
@@ -232,7 +234,8 @@ class AccountDropdownComponent extends Component<Props, State> {
       error,
       inputLabel,
       hideCryptoDropdown,
-      disableAccountSelect
+      disableAccountSelect,
+      push
     } = this.props
 
     let skeletonCryptoAccounts = []
@@ -312,10 +315,26 @@ class AccountDropdownComponent extends Component<Props, State> {
               })}
             {groupedCryptoAccounts.length !== 0 && <Divider />}
             <MenuItem value='addCryptoAccounts'>
-              <Button onClick={() => addAccount()} color='primary' fullWidth>
-                <AddIcon fontSize='small' />
+              {purpose === 'send' ? (
+                <Grid container justify='space-between' alignItems='center' spacing={1}>
+                  <Grid item xs={12} sm>
+                    <Typography variant='body2'>Want to use your other wallets?</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm='auto'>
+                    <Button
+                      variant='contained'
+                      onClick={() => push(path.connections)}
+                    >
+                      Add Connection
+                    </Button>
+                  </Grid>
+                </Grid>
+              ) : (
+                <Button onClick={() => addAccount()} color='primary' fullWidth>
+                  <AddIcon fontSize='small' />
                   Add connection to your wallet
-              </Button>
+                </Button>
+              )}
             </MenuItem>
           </Select>
         </FormControl>

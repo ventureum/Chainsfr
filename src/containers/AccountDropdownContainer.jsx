@@ -7,6 +7,7 @@ import AddAccountModal from './AddAccountModalContainer'
 import utils from '../utils'
 import { syncWithNetwork } from '../actions/accountActions'
 import { accountStatus } from '../types/account.flow'
+import { push } from 'connected-react-router'
 
 import type { AccountData, GroupedAccountType } from '../types/account.flow'
 
@@ -29,7 +30,8 @@ type Props = {
   error: Object,
   online: boolean,
   disableAccountSelect: boolean,
-  syncWithNetwork: Function
+  syncWithNetwork: Function,
+  push: Function
 }
 
 type State = {
@@ -77,7 +79,11 @@ class AccountDropdownContainer extends Component<Props, State> {
   componentDidUpdate (prevProps) {
     const { cryptoAccounts, actionsPending, accountSelection, syncWithNetwork, error } = this.props
 
-    if (prevProps.actionsPending.addCryptoAccounts && !actionsPending.addCryptoAccounts && !error) {
+    if (
+      prevProps.actionsPending.addCryptoAccounts &&
+      !actionsPending.addCryptoAccounts &&
+      !error
+    ) {
       // just added an account
       // use the newly added account (last item in the cryptoAccounts array)
       this.setState({ newlyAddedAccount: cryptoAccounts[cryptoAccounts.length - 1] })
@@ -112,7 +118,8 @@ class AccountDropdownContainer extends Component<Props, State> {
       purpose,
       online,
       hideCryptoDropdown,
-      disableAccountSelect
+      disableAccountSelect,
+      push
     } = this.props
     const { openAddAccountModal, accountsFetchStarted } = this.state
     let { filterCriteria } = this.props
@@ -129,7 +136,10 @@ class AccountDropdownContainer extends Component<Props, State> {
       if (account.walletType === 'coinbaseOAuthWallet') {
         key = JSON.stringify({ walletType: account.walletType, email: account.email })
       } else {
-        key = JSON.stringify({ walletType: account.walletType, platformType: account.platformType })
+        key = JSON.stringify({
+          walletType: account.walletType,
+          platformType: account.platformType
+        })
       }
       rv[key] = rv[key] ? [...rv[key], account] : [account]
       return rv
@@ -191,6 +201,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           inputLabel={inputLabel ? inputLabel : 'Select Wallet'}
           hideCryptoDropdown={hideCryptoDropdown}
           disableAccountSelect={disableAccountSelect}
+          push={push}
         />
         {openAddAccountModal && (
           <AddAccountModal
@@ -223,7 +234,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData))
+    syncWithNetwork: accountData => dispatch(syncWithNetwork(accountData)),
+    push: path => dispatch(push(path))
   }
 }
 

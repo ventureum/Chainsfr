@@ -1,7 +1,6 @@
 import EthereumLogo from './images/eth.png'
 import BitcoinLogo from './images/btc.png'
 import DaiLogo from './images/dai.png'
-import LibraLogo from './images/libra.png'
 import UsdcLogo from './images/usdc.png'
 import UsdtLogo from './images/usdt.png'
 import TusdLogo from './images/tusd.png'
@@ -35,15 +34,6 @@ export const cryptoSelections = [
     address: erc20TokensAddress.dai,
     decimals: 18,
     txFeesCryptoType: 'ethereum'
-  },
-  {
-    platformType: 'libra',
-    cryptoType: 'libra',
-    title: 'Libra',
-    symbol: 'Libra',
-    logo: LibraLogo,
-    decimals: 6,
-    txFeesCryptoType: 'libra'
   },
   {
     platformType: 'ethereum',
