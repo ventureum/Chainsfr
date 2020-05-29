@@ -207,22 +207,24 @@ const NavDrawerComponent = (props: Props) => {
               )
             })}
           </List>
-          <Divider className={classes.divider} />
-          <Box flex={1} display='flex' flexDirection='column' alignItems='flex-start'>
+          <Box flex={1} display='flex' flexDirection='column'>
             {!match && (
-              <ListItem
-                button
-                className={classes.contactSupportBtn}
-                component={MuiLink}
-                id='intercom_launcher'
-                href={env.REACT_APP_FAQ_URL}
-                rel='noopener noreferrer'
-              >
-                <ListItemIcon>
-                  <ContactSupportIcon className={classes.supportColor} />
-                </ListItemIcon>
-                <ListItemText primary='Contact Us' classes={{ primary: classes.supportColor }} />
-              </ListItem>
+              <>
+                <Divider className={classes.divider} />
+                <ListItem
+                  button
+                  className={classes.contactSupportBtn}
+                  component={MuiLink}
+                  id='intercom_launcher'
+                  href={env.REACT_APP_FAQ_URL}
+                  rel='noopener noreferrer'
+                >
+                  <ListItemIcon>
+                    <ContactSupportIcon className={classes.supportColor} />
+                  </ListItemIcon>
+                  <ListItemText primary='Contact Us' classes={{ primary: classes.supportColor }} />
+                </ListItem>
+              </>
             )}
           </Box>
           <Box mx={1} mb={2}>
