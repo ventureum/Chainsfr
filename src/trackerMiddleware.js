@@ -68,8 +68,6 @@ export const trackGAEvent = ({ category, action, label, value }) => {
 export const trackIntercomEvent = ({ eventName, meta }) => {
   if (window.Intercom) {
     window.Intercom('trackEvent', eventName, meta)
-  } else {
-    console.warn('Intercom not found')
   }
 }
 
@@ -180,8 +178,6 @@ const _intercomBoot = metaData => {
 
   if (window.Intercom) {
     window.Intercom('boot', metaData)
-  } else {
-    console.warn('Intercom not found')
   }
 }
 
@@ -229,7 +225,9 @@ export const trackerMiddleware = store => next => action => {
         currentPage = nextPage
         trackPage(nextPage)
       }
-      window.Intercom('update', { last_request_at: parseInt(new Date().getTime() / 1000) })
+      if (window.Intercom) {
+        window.Intercom('update', { last_request_at: parseInt(new Date().getTime() / 1000) })
+      }
       break
     case 'ON_GOOGLE_LOGIN_RETURN':
       currentUserId = action.payload.googleId
