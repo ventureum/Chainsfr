@@ -144,8 +144,10 @@ class CancelReviewComponent extends Component {
         cancelTxHash,
         senderName,
         sender,
+        senderAvatar,
         destination,
         receiverName,
+        receiverAvatar,
         cryptoType,
         sendMessage
       } = transfer
@@ -194,7 +196,8 @@ class CancelReviewComponent extends Component {
                 directionLabel='To'
                 user={{
                   name: senderName,
-                  email: sender
+                  email: sender,
+                  avatar: senderAvatar
                 }}
               />
             </Grid>
@@ -206,7 +209,8 @@ class CancelReviewComponent extends Component {
                 directionLabel='From'
                 user={{
                   name: receiverName,
-                  email: destination
+                  email: destination,
+                  avatar: receiverAvatar
                 }}
                 account={senderAccount}
               />
