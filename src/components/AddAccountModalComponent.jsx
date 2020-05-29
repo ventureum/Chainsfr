@@ -45,7 +45,6 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
 import { useActionTracker } from '../hooksUtils'
 import MuiLink from '@material-ui/core/Link'
-import env from '../typedEnv'
 
 // Icons
 import BitPayIcon from '../images/bitpay.png'
@@ -500,10 +499,7 @@ const WalletList = (props: WalletListProps) => {
     <ListItem
       button
       component={MuiLink}
-      id='intercom_launcher'
-      href={env.REACT_APP_FAQ_URL}
-      target='_blank'
-      rel='noopener noreferrer'
+      id='intercom_bitpay'
       key={`wallet-bitpay`}
       divider
       className={classes.listItem}

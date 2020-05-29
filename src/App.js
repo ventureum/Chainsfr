@@ -133,13 +133,13 @@ const DemoTopBanner = props => {
         </Typography>
         {'You are in Demo now.'}
         <MuiLink
-          style={{ marginLeft: 10 }}
+          style={{
+            marginLeft: 10,
+            cursor: 'pointer'
+          }}
           color='inherit'
           underline='always'
-          id='intercom_launcher'
-          //  fallback when intercom is not launched/available
-          href={env.REACT_APP_FAQ_URL}
-          rel='noopener noreferrer'
+          id='intercom_learn_more'
         >
           {'Learn more'}
         </MuiLink>
