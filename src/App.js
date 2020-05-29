@@ -44,6 +44,7 @@ import { erc20TokensList } from './erc20Tokens'
 import { usePageVisibility } from 'react-page-visibility'
 import env from './typedEnv'
 import { hotjar } from 'react-hotjar'
+import Prompt from './components/MicroComponents/PromptComponent'
 
 if (env.REACT_APP_HOTJAR_ID && env.REACT_APP_HOTJAR_SV) {
   hotjar.initialize(env.REACT_APP_HOTJAR_ID, env.REACT_APP_HOTJAR_SV)
@@ -212,6 +213,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   </Box>
                   <StyledCookieConsent />
                   <NotifierComponent />
+                  <Prompt/>
                 </Box>
               )
             }
