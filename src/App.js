@@ -44,6 +44,7 @@ import { erc20TokensList } from './erc20Tokens'
 import { usePageVisibility } from 'react-page-visibility'
 import env from './typedEnv'
 import { hotjar } from 'react-hotjar'
+import Prompt from './components/MicroComponents/PromptComponent'
 
 if (env.REACT_APP_HOTJAR_ID && env.REACT_APP_HOTJAR_SV) {
   hotjar.initialize(env.REACT_APP_HOTJAR_ID, env.REACT_APP_HOTJAR_SV)
@@ -133,13 +134,13 @@ const DemoTopBanner = props => {
         </Typography>
         {'You are in Demo now.'}
         <MuiLink
-          style={{ marginLeft: 10 }}
+          style={{
+            marginLeft: 10,
+            cursor: 'pointer'
+          }}
           color='inherit'
           underline='always'
-          id='intercom_launcher'
-          //  fallback when intercom is not launched/available
-          href={env.REACT_APP_FAQ_URL}
-          rel='noopener noreferrer'
+          id='intercom_learn_more'
         >
           {'Learn more'}
         </MuiLink>
@@ -212,6 +213,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   </Box>
                   <StyledCookieConsent />
                   <NotifierComponent />
+                  <Prompt/>
                 </Box>
               )
             }

@@ -20,7 +20,6 @@ import MuiLink from '@material-ui/core/Link'
 import utils from '../utils'
 import url from '../url'
 import BN from 'bn.js'
-import { Prompt } from 'react-router'
 
 // Icons
 import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
@@ -450,75 +449,60 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     const { accountSelection, actionsPending, push, directTransfer } = this.props
 
     return (
-      <>
-        <Prompt
-          when={
-            actionsPending.submitDirectTransferTx ||
-            actionsPending.submitTx ||
-            actionsPending.verifyAccount ||
-            actionsPending.checkWalletConnection ||
-            actionsPending.setTokenAllowance
-          }
-          message={
-            'You are currently confirming your transaction. Rejecting the transaction on your device or the popup window' +
-            ' to cancel the transaction.'
-          }
-        />
-        <Grid container direction='column' spacing={3}>
-          <Grid item>
-            <Typography variant='h3' display='inline'>
-              Wallet Authorization
-            </Typography>
-          </Grid>
+      <Grid container direction='column' spacing={3}>
+        <Grid item>
+          <Typography variant='h3' display='inline'>
+            Wallet Authorization
+          </Typography>
+        </Grid>
 
-          <Grid item>
-            <Box display='flex' alignItems='center' my={-4}>
-              <Box>
-                <WalletButton walletType={accountSelection.walletType} />
-              </Box>
-              <Box ml={2}>
-                <Typography variant='body1' display='block'>
-                  {accountSelection.name}
-                </Typography>
-                <Typography variant='caption'>
-                  {`${getWalletTitle(accountSelection.walletType)}, ${getCryptoTitle(
-                    accountSelection.platformType
-                  )}`}
-                </Typography>
-              </Box>
+        <Grid item>
+          <Box display='flex' alignItems='center' my={-4}>
+            <Box>
+              <WalletButton walletType={accountSelection.walletType} />
             </Box>
-          </Grid>
+            <Box ml={2}>
+              <Typography variant='body1' display='block'>
+                {accountSelection.name}
+              </Typography>
+              <Typography variant='caption'>
+                {`${getWalletTitle(accountSelection.walletType)}, ${getCryptoTitle(
+                  accountSelection.platformType
+                )}`}
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
 
-          <Grid item>{this.renderWalletAuthorizationSteps()}</Grid>
+        <Grid item>{this.renderWalletAuthorizationSteps()}</Grid>
 
-          <Grid item>
-            <Grid container direction='row' justify='center' spacing={2}>
-              <Grid item>
-                <Box my={3}>
-                  <Button
-                    onClick={() =>
-                      push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
-                    }
-                    color='primary'
-                    disabled={
-                      actionsPending.submitDirectTransferTx ||
-                      actionsPending.submitTx ||
-                      actionsPending.verifyAccount ||
-                      actionsPending.checkWalletConnection ||
-                      actionsPending.setTokenAllowance
-                    }
-                  >
-                    Back
-                  </Button>
-                </Box>
-              </Grid>
-              <Grid item>
-                <Box my={3}>{this.renderConnectToWalletButton()}</Box>
-              </Grid>
+        <Grid item>
+          <Grid container direction='row' justify='center' spacing={2}>
+            <Grid item>
+              <Box my={3}>
+                <Button
+                  onClick={() =>
+                    push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
+                  }
+                  color='primary'
+                  disabled={
+                    actionsPending.submitDirectTransferTx ||
+                    actionsPending.submitTx ||
+                    actionsPending.verifyAccount ||
+                    actionsPending.checkWalletConnection ||
+                    actionsPending.setTokenAllowance
+                  }
+                >
+                  Back
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item>
+              <Box my={3}>{this.renderConnectToWalletButton()}</Box>
             </Grid>
           </Grid>
         </Grid>
-      </>
+      </Grid>
     )
   }
 }

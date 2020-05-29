@@ -189,7 +189,7 @@ class RecipientsComponent extends Component {
                   data-test-id='connect_google_contact'
                   classes={{ label: classes.lightbtnSpan }}
                   disabled={pending}
-                  id='intercom_launcher'
+                  id='intercom_google_contract'
                 >
                   <Box
                     className={classes.iconContainer}
