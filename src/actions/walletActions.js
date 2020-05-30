@@ -30,13 +30,16 @@ async function _createCloudWallet (password: string, progress: ?Function) {
 
     let newAccountList = await Promise.all(
       walletCryptoSupports['drive']
-        .filter(e => !e.disabled && e.cryptoType !== 'ethereum')
+        .filter(e => !e.disabled)
         .map(async ({ cryptoType }) => {
           let account
           let accountData
           let _wallet = createWallet({ walletType: 'drive' })
           let privateKey
-          if (ethereumBasedAccountData && [...erc20TokensList].includes(cryptoType)) {
+          if (
+            (ethereumBasedAccountData && [...erc20TokensList].includes(cryptoType)) ||
+            cryptoType === 'ethereum'
+          ) {
             // share the same privateKey for ethereum based coins
             privateKey = ethereumBasedAccountData.privateKey
           }
