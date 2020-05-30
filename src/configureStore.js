@@ -33,9 +33,8 @@ function configureStore (reducers) {
 
   if (env.REACT_APP_ENV === `test`) {
     middlewares.push(logger)
-  } else if (env.REACT_APP_ENV === 'prod' || env.REACT_APP_ENV === 'staging') {
-    middlewares.push(trackerMiddleware)
   }
+  middlewares.push(trackerMiddleware)
 
   const enhancer = compose(applyMiddleware(...middlewares))
 

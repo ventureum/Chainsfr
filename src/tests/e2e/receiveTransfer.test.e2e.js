@@ -6,7 +6,9 @@ import SendReviewPage from './pages/sendReview.page'
 import ReceiptPage from './pages/receipt.page'
 import ReceiveFormPage from './pages/receiveFormPage'
 import ReduxTracker from './utils/reduxTracker'
-import { resetUserDefault } from './utils/reset'
+import { resetUserDefault, resetUser } from './utils/reset'
+import { CRYPTO_ACCOUNTS } from './mocks/cryptoAccounts.js'
+import { EMAIL, PROFILE } from './mocks/user.js'
 import { getTransfer, getTransferState } from './testUtils'
 import BN from 'bn.js'
 import moment from 'moment'
@@ -188,6 +190,72 @@ describe('Receive transfer tests', () => {
     const status = await receiveFormPage.getSecurityAnswerTextFieldStatus()
     expect(status.error).toBeTruthy()
     expect(status.helperText).toEqual('Incorrect security answer')
+    
+    if (walletType === 'drive' && cryptoType === 'ethereum') {
+      // edge case, receiver has exactly one matched account
+      // this corresponds to the issue #1656
+      // testing drive_ethereum is sufficient
+      await resetUser({
+        email: EMAIL,
+        profile: PROFILE,
+        cryptoAccounts: [
+          CRYPTO_ACCOUNTS.find(e => e.walletType === walletType && e.cryptoType === e.cryptoType)
+      ]})
+      await page.waitFor(500)
+      await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`, {
+        waitUntil: 'networkidle0'
+      })
+      await receiveFormPage.waitUntilTransferLoaded()
+      await receiveFormPage.enterSecurityAnswer(FORM_BASE.securityAnswer)
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'VERIFY_ESCROW_ACCOUNT_PASSWORD_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'GET_TX_COST_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'SYNC_WITH_NETWORK_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        receiveFormPage.dispatchFormActions('validate')
+      ])
+
+      // reset back to default accounts
+      await resetUser({
+        email: EMAIL,
+        profile: PROFILE,
+        cryptoAccounts: CRYPTO_ACCOUNTS
+      })
+      await page.waitFor(500)
+      await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`, {
+        waitUntil: 'networkidle0'
+      })
+      await receiveFormPage.waitUntilTransferLoaded()
+    }
+
 
     await receiveFormPage.enterSecurityAnswer(FORM_BASE.securityAnswer)
     await Promise.all([
