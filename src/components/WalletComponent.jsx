@@ -15,7 +15,13 @@ import Typography from '@material-ui/core/Typography'
 import CloseIcon from '@material-ui/icons/Close'
 import numeral from 'numeral'
 import path from '../Paths.js'
-import { getCryptoDecimals, getCryptoLogo, getCryptoTitle, getCryptoSymbol } from '../tokens'
+import {
+  getCryptoDecimals,
+  getCryptoLogo,
+  getCryptoTitle,
+  getCryptoSymbol,
+  cryptoOrder
+} from '../tokens'
 import utils from '../utils'
 import url from '../url'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
@@ -54,6 +60,12 @@ function WalletComponent (props: {
   const { cryptoPrice } = useSelector(state => state.cryptoPriceReducer)
 
   const { txHistoryByAccount, cloudWalletAccounts, toCurrencyAmount, push, actionsPending } = props
+
+  // must copy to avoid making changes to redux
+  let sortedCloudWalletAccounts = [...cloudWalletAccounts]
+  sortedCloudWalletAccounts.sort((a, b) => {
+    return cryptoOrder[b.cryptoType] - cryptoOrder[a.cryptoType]
+  })
 
   const renderRecentTransferItem = (account: AccountData, tx: ?Object, images) => {
     // three cases
@@ -275,7 +287,7 @@ function WalletComponent (props: {
 
   const renderAccountDrawer = () => {
     if (drawerState.open) {
-      var account = cloudWalletAccounts[drawerState.accountIdx]
+      var account = sortedCloudWalletAccounts[drawerState.accountIdx]
       var balanceStandardTokenUnit = utils
         .toHumanReadableUnit(account.balance, getCryptoDecimals(account.cryptoType))
         .toString()
@@ -511,9 +523,9 @@ function WalletComponent (props: {
         <Grid item>
           <Divider />
         </Grid>
-        {!cloudWalletAccounts || actionsPending.getCryptoAccounts
+        {!sortedCloudWalletAccounts || actionsPending.getCryptoAccounts
           ? [null, null, null].map((account, idx) => renderCryptoListItem(account, idx))
-          : cloudWalletAccounts.map((account, idx) => renderCryptoListItem(account, idx))}
+          : sortedCloudWalletAccounts.map((account, idx) => renderCryptoListItem(account, idx))}
       </Grid>
     )
   }
