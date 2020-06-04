@@ -13,7 +13,8 @@ const initState = {
   recipients: [],
   cloudWalletConnected: false,
   coinbaseAccessObject: null,
-  cloudWalletFolderMeta: null
+  cloudWalletFolderMeta: null,
+  exportedCloundWalletData: null
 }
 
 export default function (state = initState, action) {
@@ -64,6 +65,10 @@ export default function (state = initState, action) {
       return { ...state, cloudWalletFolderMeta: action.payload }
     case 'GET_USER_JOIN_DATE_FULFILLED':
       return { ...state, registerTime: action.payload }
+    case 'EXPORT_CLOUD_WALLET_FULFILLED':
+      return { ...state, exportedCloundWalletData: action.payload }
+    case 'CLEAR_CLOUD_WALLET_EXPORT':
+      return { ...state, exportedCloundWalletData: null }
     default:
       // need this for default case
       return state

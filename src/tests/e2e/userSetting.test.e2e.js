@@ -65,12 +65,12 @@ describe('User setting page tests', () => {
   })
 
   it(
-    'backup tab test',
+    'advanced tab test',
     async () => {
       const userSetting = new UserSettingPage()
-      await userSetting.clickTab('backup')
+      await userSetting.clickTab('advanced')
       const backupDate = await userSetting.getBackupDate()
-      expect(backupDate).toMatch(/Your account was backed up on Mar 16th 2020/)
+      expect(backupDate).toMatch(/Your account was encrypted and backed up on Mar 16th 2020/)
 
       const googleDriveBackupPage = await getNewPopupPage(browser, async () => {
         await userSetting.openBackupFolder()
@@ -97,7 +97,7 @@ describe('User setting page tests', () => {
   )
 
   it(
-    'backup tab test',
+    'account info tab test',
     async () => {
       const userSetting = new UserSettingPage()
 

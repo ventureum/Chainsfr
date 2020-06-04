@@ -1,12 +1,22 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { changeChainsfrWalletPassword } from '../actions/walletActions'
-import { getUserCloudWalletFolderMeta, getUserRegisterTime, onLogout } from '../actions/userActions'
+import {
+  changeChainsfrWalletPassword,
+  exportCloudWallet,
+  clearCloudWalletExport
+} from '../actions/walletActions'
+import {
+  getUserCloudWalletFolderMeta,
+  getUserRegisterTime,
+  onLogout
+} from '../actions/userActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
+import { enqueueSnackbar } from '../actions/notificationActions.js'
+
 import UserSettingComponent from '../components/UserSettingComponent'
 
 class UserSettingContainer extends PureComponent {
-  render() {
+  render () {
     return <UserSettingComponent {...this.props} />
   }
 }
@@ -22,6 +32,9 @@ const mapDispatchToProps = dispatch => {
       dispatch(changeChainsfrWalletPassword(oldPassword, newPassword)),
     getUserCloudWalletFolderMeta: () => dispatch(getUserCloudWalletFolderMeta()),
     getUserRegisterTime: () => dispatch(getUserRegisterTime()),
+    exportCloudWallet: () => dispatch(exportCloudWallet()),
+    clearCloudWalletExport: () => dispatch(clearCloudWalletExport()),
+    enqueueSnackbar: payload => dispatch(enqueueSnackbar(payload)),
     onLogout: () => dispatch(onLogout())
   }
 }
@@ -33,8 +46,12 @@ const mapStateToProps = state => {
     },
     cloudWalletFolderMeta: state.userReducer.cloudWalletFolderMeta,
     registerTime: state.userReducer.registerTime,
+    exportedCloundWalletData: state.userReducer.exportedCloundWalletData,
     error: errorSelector(state)
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserSettingContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UserSettingContainer)
