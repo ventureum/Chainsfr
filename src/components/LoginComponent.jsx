@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Box from '@material-ui/core/Box'
+import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
@@ -65,7 +66,10 @@ class LoginComponent extends Component {
       <>
         {data.descriptions.map((item, i) => (
           <Grid className={classes.leftContainer} key={i}>
-            <Typography align='left' className={classNames(classes.faqTitle, classes.faqFontColor)}>
+            <Typography
+              align='left'
+              className={classNames(classes.faqTitle, classes.faqFontColor)}
+            >
               {item.title}
             </Typography>
             <Typography
@@ -263,11 +267,18 @@ class LoginComponent extends Component {
             <Box display='flex' my={10}>
               <Box display='flex' flexDirection='column' alignItems='center' mx='auto'>
                 <Box width='300'>
-                  <img
-                    className={classes.chainsfrLogo}
-                    src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
-                    alt='Chainsfr Logo'
-                  />
+                  <Button
+                    className={classes.logoBtn}
+                    component={Link}
+                    href='https://www.chainsfr.com'
+                    target='_blank'
+                  >
+                    <img
+                      className={classes.chainsfrLogo}
+                      src={isMainNet ? ChainsfrLogoSVG : ChainsfrLogoDemoSVG}
+                      alt='Chainsfr Logo'
+                    />
+                  </Button>
                 </Box>
                 <Box mt={4} width={300}>
                   <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
@@ -384,6 +395,11 @@ const styles = theme => ({
   },
   loginText: {
     fontFamily: 'Poppins'
+  },
+  logoBtn: {
+    '&:hover': {
+      backgroundColor: 'transparent'
+    }
   }
 })
 
