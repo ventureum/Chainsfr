@@ -1,148 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import Alert from '@material-ui/lab/Alert'
+import AlertTitle from '@material-ui/lab/AlertTitle'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-// import CloseIcon from '@material-ui/icons/Close'
-// import Dialog from '@material-ui/core/Dialog'
-// import DialogActions from '@material-ui/core/DialogActions'
-// import DialogContent from '@material-ui/core/DialogContent'
-// import DialogTitle from '@material-ui/core/DialogTitle'
-// import Divider from '@material-ui/core/Divider'
+import CloseIcon from '@material-ui/icons/Close'
+import Checkbox from '@material-ui/core/Checkbox'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import Divider from '@material-ui/core/Divider'
+import env from '../typedEnv'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 import GoogleIcon from '../images/google-icon.svg'
 import GoogleDrive from '../images/googleDrive.svg'
-// import IconButton from '@material-ui/core/IconButton'
+import IconButton from '@material-ui/core/IconButton'
+import InfoIcon from '@material-ui/icons/Info'
 import LaunchRoundedIcon from '@material-ui/icons/LaunchRounded'
 import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
 import moment from 'moment'
+import MuiLink from '@material-ui/core/Link'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
-// import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import UserAvatar from './MicroComponents/UserAvatar'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
-// import { useActionTracker } from '../hooksUtils'
-
-// const ChangePasswordDialog = props => {
-//   const { open, handleClose, handleSubmit, loading } = props
-
-//   const [currentPassword, setCurrentPassword] = useState('')
-//   const [newPassword, setNewPassword] = useState('')
-//   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
-//   const [newPasswordError, setNewPasswordError] = useState('')
-
-//   useEffect(() => {
-//     if (!open) {
-//       setCurrentPassword('')
-//       setNewPassword('')
-//       setNewPasswordConfirm('')
-//     }
-//   })
-
-//   const handleChange = action => event => {
-//     if (action === 'currentPassword') {
-//       setCurrentPassword(event.target.value)
-//     } else if (action === 'newPassword') {
-//       setNewPassword(event.target.value)
-//     } else if (action === 'newPasswordConfirm') {
-//       setNewPasswordConfirm(event.target.value)
-//     }
-//     setNewPasswordError('')
-//   }
-
-//   const preSubmitCheck = (currentP, newP, newPC) => {
-//     if (newP !== newPC) {
-//       return setNewPasswordError('New password must match')
-//     }
-//     handleSubmit(currentP, newP)
-//   }
-
-//   return (
-//     <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
-//       <DialogTitle id='form-dialog-title'>
-//         <Box display='flex' justifyContent='space-between' alignItems='flex-end'>
-//           <Typography variant='h3'>Change Password</Typography>
-//           <IconButton onClick={handleClose} disabled={loading}>
-//             <CloseIcon fontSize='small' color='secondary' />
-//           </IconButton>
-//         </Box>
-//       </DialogTitle>
-//       <DialogContent>
-//         <Box mb={3}>
-//           <Typography variant='h6'>Password description goes here</Typography>
-//         </Box>
-//         <form noValidate>
-//           <TextField
-//             id='currentPassword'
-//             variant='outlined'
-//             fullWidth
-//             margin='normal'
-//             value={currentPassword}
-//             onChange={handleChange('currentPassword')}
-//             placeholder='Current Password'
-//             label='Current Password'
-//             type='password'
-//             disabled={loading}
-//           />
-//           <TextField
-//             id='newPassword'
-//             variant='outlined'
-//             fullWidth
-//             margin='normal'
-//             value={newPassword}
-//             onChange={handleChange('newPassword')}
-//             placeholder='New Password'
-//             label='New Password'
-//             error={!!newPasswordError}
-//             helperText={newPasswordError}
-//             type='password'
-//             disabled={loading}
-//           />
-//           <TextField
-//             id='newPasswordConfirm'
-//             variant='outlined'
-//             fullWidth
-//             margin='normal'
-//             value={newPasswordConfirm}
-//             onChange={handleChange('newPasswordConfirm')}
-//             placeholder='Confirm New Password'
-//             label='Confirm New Password'
-//             error={!!newPasswordError}
-//             helperText={newPasswordError}
-//             type='password'
-//             disabled={loading}
-//           />
-//         </form>
-//       </DialogContent>
-//       <DialogActions>
-//         <Box mr={2}>
-//           <Button
-//             onClick={handleClose}
-//             variant='outlined'
-//             color='secondary'
-//             id='cancel'
-//             disabled={loading}
-//           >
-//             Cancel
-//           </Button>
-//         </Box>
-//         <Button
-//           variant='contained'
-//           onClick={() => {
-//             preSubmitCheck(currentPassword, newPassword, newPasswordConfirm)
-//           }}
-//           color='primary'
-//           id='add'
-//           disabled={loading || !newPasswordConfirm || !currentPassword || !newPassword}
-//         >
-//           Save
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   )
-// }
 
 const SettingTabs = props => {
   const { currentTab, handleChange } = props
@@ -159,7 +45,7 @@ const SettingTabs = props => {
     >
       <Tab label='Account Info' data-test-td='account_info' />
       <Tab label='Security' data-test-id='security' />
-      <Tab label='Backup' data-test-id='backup' />
+      <Tab label='Advanced' data-test-id='advanced' />
     </Tabs>
   )
 }
@@ -232,28 +118,6 @@ const securityStyle = makeStyles({
 })
 
 const Security = props => {
-  // const { changeChainsfrWalletPassword } = props
-  // const [openChangePasswordDialog, setOpenChangePasswordDialog] = useState(false)
-
-  // const toggleDialog = currentValue => {
-  //   setOpenChangePasswordDialog(!currentValue)
-  // }
-
-  // const { actionsPending, actionsFulfilled, errors } = useActionTracker(
-  //   ['changeChainsfrWalletPassword'],
-  //   [['CHANGE_CHAINSFR_WALLET_PASSWORD']]
-  // )
-
-  // const loading = actionsPending.changeChainsfrWalletPassword
-  // const error = errors.changeChainsfrWalletPassword
-
-  // useEffect(() => {
-  //   if (actionsFulfilled['changeChainsfrWalletPassword']) {
-  //     // close dialog
-  //     toggleDialog(openChangePasswordDialog)
-  //   }
-  // })
-
   const classes = securityStyle()
 
   const TextButton = withStyles({
@@ -265,27 +129,6 @@ const Security = props => {
   return (
     <>
       <Box maxWidth={640} display='flex' flexDirection='column'>
-        {/* <Box mb={1}>
-          <Typography variant='h3'>Chainsfr Wallet Password</Typography>
-        </Box>
-        <Box mb={2}>
-          <Typography variant='body1' color='textSecondary'>
-            The Security Password is set to encrypt the Wallet and transfer data in your Google
-            drive. It CANNOT be recovered once it is lost. Make sure to keep it safe
-          </Typography>
-        </Box>
-        <Box mb={3}>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={() => {
-              toggleDialog(openChangePasswordDialog)
-            }}
-          >
-            Change Password
-          </Button>
-        </Box>
-        <Divider /> */}
         <Box mb={1}>
           <Typography variant='h3'>Two-Factor Authentication</Typography>
         </Box>
@@ -331,8 +174,258 @@ const Security = props => {
     </>
   )
 }
+const exportStyle = makeStyles(theme => ({
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500]
+  },
+  dialogRoot: {
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '380px',
+      height: '640px'
+    }
+  },
+  contentRoot: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingTop: 0,
+    paddingBottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch'
+  },
+  titleRoot: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    borderBottom: '1px solid #E9E9E9'
+  },
+  closeIcon: {
+    width: '16px',
+    height: 'auto'
+  },
+  alertTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#602323'
+  },
+  alertMessage: {
+    fontSize: 12,
+    color: '#602323'
+  },
+  alert: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingTop: '5px',
+    paddingBottom: '5px',
+    marginTop: theme.spacing(2)
+  },
+  formControlLabel: {
+    marginBottom: theme.spacing(2),
+    marginRight: 0,
+    alignItems: 'flex-start'
+  },
+  checkBox: {
+    paddingTop: 0,
+    borderRadius: 0
+  },
+  fextField: { marginBottom: theme.spacing(2) },
+  dialogActions: {
+    paddingBottom: theme.spacing(6)
+  },
+  address: {
+    fontSize: '12px',
+    color: '#333333',
+    lineHeight: '20px'
+  }
+}))
 
-const backUpStyle = makeStyles({
+const ExportWalletDialog = props => {
+  const {
+    open,
+    handleClose,
+    exportedCloundWalletData,
+    exportCloudWallet,
+    large,
+    enqueueSnackbar
+  } = props
+  const [showPriavateKeys, setShowPrivateKeys] = useState(false)
+  const [checkBox, setCheckBox] = React.useState({
+    checkedA: false,
+    checkedB: false,
+    checkedC: false
+  })
+  const classes = exportStyle()
+
+  const showable = checkBox.checkedA && checkBox.checkedB && checkBox.checkedC
+  const handleChange = event => {
+    setCheckBox({ ...checkBox, [event.target.name]: event.target.checked })
+  }
+
+  const showAgreement = () => {
+    return (
+      <>
+        <Box mt={2} mb={1}>
+          <Typography>To export the drive data, you agree to:</Typography>
+        </Box>
+        <FormControlLabel
+          className={classes.formControlLabel}
+          control={
+            <Checkbox
+              className={classes.checkBox}
+              checked={checkBox.checkedA}
+              onChange={handleChange}
+              name='checkedA'
+            />
+          }
+          label='Understand the risk that anyone with the exported data can steal assets held in your Chainsfr built-in wallets.'
+        />
+        <FormControlLabel
+          className={classes.formControlLabel}
+          control={
+            <Checkbox
+              checked={checkBox.checkedB}
+              className={classes.checkBox}
+              onChange={handleChange}
+              name='checkedB'
+            />
+          }
+          label='Own the management and security of the exported wallet data instead of Chainsfr.'
+        />
+        <FormControlLabel
+          className={classes.formControlLabel}
+          control={
+            <Checkbox
+              checked={checkBox.checkedC}
+              className={classes.checkBox}
+              onChange={handleChange}
+              name='checkedC'
+            />
+          }
+          label={
+            <Typography>
+              {'You have read and agree to the Chainsfr’s '}
+              <MuiLink target='_blank' rel='noopener' href={env.REACT_APP_TERMS_URL}>
+                Terms of Service
+              </MuiLink>
+              .
+            </Typography>
+          }
+        />
+      </>
+    )
+  }
+
+  const renderPrivateKeys = () => {
+    if (!exportedCloundWalletData)
+      return (
+        <Box pt={3} display='flex' alignItems='center' justifyContent='center'>
+          <CircularProgress />
+        </Box>
+      )
+
+    const { ethereum, bitcoin } = exportedCloundWalletData
+
+    return (
+      <>
+        <Alert severity='error' className={classes.alert}>
+          <AlertTitle className={classes.alertTitle}>Caution</AlertTitle>
+          <Typography className={classes.alertMessage}>
+            Do not take screenshot for private keys.
+          </Typography>
+        </Alert>
+        <Box mt={2} display='flex' flexDirection='column'>
+          <Typography className={classes.address}>{`Address: ${bitcoin.address.slice(
+            0,
+            14
+          )}...${bitcoin.address.slice(-14)}`}</Typography>
+          <Box border='1px solid #393386' height='100px' padding={1} mb={1} borderRadius='4px'>
+            <Typography style={{ lineBreak: 'anywhere' }}>{bitcoin.privateKey}</Typography>
+          </Box>
+          <CopyToClipboard
+            text={bitcoin.privateKey}
+            onCopy={() => {
+              enqueueSnackbar({
+                message: 'Bitcoin private key copied!',
+                options: { variant: 'success', autoHideDuration: 3000 }
+              })
+            }}
+          >
+            <Button variant='contained' color='primary'>
+              Copy Private Key of Bitcoin
+            </Button>
+          </CopyToClipboard>
+        </Box>
+
+        <Box mt={3} display='flex' flexDirection='column'>
+          <Typography className={classes.address}>{`Address: ${ethereum.address.slice(
+            0,
+            16
+          )}...${ethereum.address.slice(-16)}`}</Typography>
+          <Box border='1px solid #393386' height='100px' padding={1} mb={1} borderRadius='4px'>
+            <Typography style={{ lineBreak: 'anywhere' }}>{ethereum.privateKey}</Typography>
+          </Box>
+          <CopyToClipboard
+            text={ethereum.privateKey}
+            onCopy={() => {
+              enqueueSnackbar({
+                message: 'Ethereum private key copied!',
+                options: { variant: 'success', autoHideDuration: 3000 }
+              })
+            }}
+          >
+            <Button variant='contained' color='primary'>
+              Copy Private Key of Ethereum
+            </Button>
+          </CopyToClipboard>
+        </Box>
+      </>
+    )
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onClose={() => {
+        handleClose()
+      }}
+      classes={{ paperScrollPaper: classes.dialogRoot }}
+      fullWidth
+      fullScreen={!large}
+    >
+      <DialogTitle disableTypography className={classes.titleRoot}>
+        <Typography variant='h3'>Export</Typography>
+        <IconButton onClick={handleClose} className={classes.closeButton}>
+          <CloseIcon className={classes.closeIcon} />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className={classes.contentRoot}>
+        {showPriavateKeys ? renderPrivateKeys() : showAgreement()}
+      </DialogContent>
+      {!showPriavateKeys && (
+        <DialogActions className={classes.dialogActions}>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => {
+              exportCloudWallet()
+              setShowPrivateKeys(true)
+            }}
+            style={{ width: '100%' }}
+            disabled={!showable}
+          >
+            Show Private Keys
+          </Button>
+        </DialogActions>
+      )}
+    </Dialog>
+  )
+}
+
+const advancedStyle = makeStyles({
   greenBox: {
     backgroundColor: 'rgba(67, 179, 132, 0.1)'
   },
@@ -343,30 +436,36 @@ const backUpStyle = makeStyles({
   }
 })
 
-const Backup = props => {
-  const { cloudWalletFolderMeta } = props
-  const classes = backUpStyle()
-  let fileId, lastModified
+const Advanced = props => {
+  const {
+    cloudWalletFolderMeta,
+    exportCloudWallet,
+    exportedCloundWalletData,
+    clearCloudWalletExport,
+    large,
+    enqueueSnackbar
+  } = props
+  const [openExport, setOpenExport] = useState(false)
+  const classes = advancedStyle()
+
+  let fileId, lastModified, lastExported
+
   if (cloudWalletFolderMeta) {
     fileId = cloudWalletFolderMeta.fileId
-    lastModified = moment.unix(cloudWalletFolderMeta.lastModified).format('MMM Do YYYY, HH:mm:ss')
+    lastModified = moment.unix(cloudWalletFolderMeta.lastModified).format('MMM Do YYYY, HH:mm')
+    if (cloudWalletFolderMeta.lastExported)
+      lastExported = moment.unix(cloudWalletFolderMeta.lastExported).format('MMM Do YYYY, HH:mm')
   }
+
   return (
     <Box maxWidth={640} display='flex' flexDirection='column'>
-      <Box mb={1}>
+      <Box mb={3}>
         <Typography variant='h3'>Google Drive Backup</Typography>
       </Box>
-      <Box mb={2} maxWidth={480}>
-        <Typography variant='body1' color='textSecondary'>
-          All wallet data is automatically encrypted and backuped in you personal Google drive
-          folder. To learn more, please check the related topics our help center
-        </Typography>
-      </Box>
-
       <Box mb={3} display='flex' alignItems='center' maxWidth={480}>
         {lastModified ? (
           <Alert icon={<CheckCircleIcon />} severity='success' data-test-id='backup_date'>
-            Your account was backed up on {lastModified}
+            Your account was encrypted and backed up on {lastModified}
           </Alert>
         ) : (
           <CircularProgress className={classes.greenIcon} />
@@ -384,17 +483,69 @@ const Backup = props => {
           <img src={GoogleDrive} style={{ width: 22, marginRight: 10 }} alt='driveIcon' />
           Go to Backup Folder
         </Button>
+        <Button id='export_learn_more' style={{ marginLeft: '30px' }} color='primary'>
+          Learn More
+        </Button>
       </Box>
+      <Box mt={3} mb={3}>
+        <Divider />
+      </Box>
+      <Box mb={3}>
+        <Typography variant='h3'>Export Data from Google Drive</Typography>
+      </Box>
+      <Box mb={3} display='flex' alignItems='center' maxWidth={540}>
+        <Alert icon={<InfoIcon />} severity='info' data-test-id='export_alert'>
+          {lastExported && (
+            <>
+              Exported on {lastExported} <br />
+            </>
+          )}
+          The exported data will contain the private keys of Chainsfr build-in wallets.
+        </Alert>
+      </Box>
+      <Box>
+        <Button
+          variant='contained'
+          color='default'
+          data-test-id='export_btn'
+          onClick={() => {
+            setOpenExport(true)
+          }}
+        >
+          Start to Export
+        </Button>
+        <Button id='export_learn_more' style={{ marginLeft: '30px' }} color='primary'>
+          Learn More
+        </Button>
+      </Box>
+      {openExport && (
+        <ExportWalletDialog
+          open={openExport}
+          handleClose={() => {
+            clearCloudWalletExport()
+            setOpenExport(false)
+          }}
+          exportCloudWallet={exportCloudWallet}
+          exportedCloundWalletData={exportedCloundWalletData}
+          clearCloudWalletExport={clearCloudWalletExport}
+          large={large}
+          enqueueSnackbar={enqueueSnackbar}
+        />
+      )}
     </Box>
   )
 }
 
 const UserSettingComponent = props => {
   const [currentTab, setCurrentTab] = useState(0)
-  const tabContents = [<AccountInfo {...props} />, <Security {...props} />, <Backup {...props} />]
 
   const theme = useTheme()
   const large = useMediaQuery(theme.breakpoints.up('sm'))
+  const tabContents = [
+    <AccountInfo {...props} />,
+    <Security {...props} />,
+    <Advanced {...props} large={large} />
+  ]
 
   useEffect(() => {
     props.getUserCloudWalletFolderMeta()

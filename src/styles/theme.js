@@ -151,7 +151,11 @@ export const themeChainsfr = createMuiTheme({
     },
     MuiAlert: {
       standardInfo: {
-        color: fontColors.primary
+        color: fontColors.primary,
+        backgroundColor: ' rgba(84, 142, 242, 0.13)',
+        '& $icon': {
+          color: '#548EF2'
+        }
       },
       message: {
         width: '100%'

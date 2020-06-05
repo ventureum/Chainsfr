@@ -9,7 +9,9 @@ import { enqueueSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
 import { createAccount } from '../accounts/AccountFactory.js'
+import { getUserCloudWalletFolderMeta } from './userActions'
 import { erc20TokensList } from '../erc20Tokens'
+import moment from 'moment'
 
 // cloud wallet actions
 async function _createCloudWallet (password: string, progress: ?Function) {
@@ -250,6 +252,45 @@ function newCryptoAccountsFromWallet (
   }
 }
 
+function exportCloudWallet () {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'EXPORT_CLOUD_WALLET',
+      payload: async () => {
+        const cloudWalletAccountData = await _getCloudWallet()
+        const cloudWalletAccountDataList = Object.values(cloudWalletAccountData)
+        const ethereumData: AccountData = cloudWalletAccountDataList.find(
+          (accountData: AccountData) => accountData.platformType === 'ethereum'
+        )
+        const bitcoinData: AccountData = cloudWalletAccountDataList.find(
+          (accountData: AccountData) => accountData.platformType === 'bitcoin'
+        )
+        const exportedData = {
+          ethereum: {
+            address: ethereumData.address,
+            privateKey: ethereumData.privateKey
+          },
+          bitcoin: {
+            address: bitcoinData.address,
+            privateKey: bitcoinData.privateKey
+          }
+        }
+        // update export date in backend
+        await API.updateUserCloudWalletFolderMeta({ lastExported: moment().unix() })
+        // update front end redux
+        dispatch(getUserCloudWalletFolderMeta())
+        return exportedData
+      }
+    })
+  }
+}
+
+function clearCloudWalletExport () {
+  return {
+    type: 'CLEAR_CLOUD_WALLET_EXPORT'
+  }
+}
+
 export {
   getCloudWallet,
   createCloudWallet,
@@ -257,5 +298,7 @@ export {
   checkWalletConnection,
   newCryptoAccountsFromWallet,
   changeChainsfrWalletPassword,
-  clearCloudWalletCryptoAccounts
+  clearCloudWalletCryptoAccounts,
+  exportCloudWallet,
+  clearCloudWalletExport
 }

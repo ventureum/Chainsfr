@@ -11,6 +11,7 @@ export type UserProfile = {
 export type EmailType = string
 
 export type CloudWalletFolderMetaType = {
-  fileId: string,
-  lastModified: number // timestamp
+  fileId?: string,
+  lastModified?: number, // timestamp，
+  lastExported?: number // timestamp
 }

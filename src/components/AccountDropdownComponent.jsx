@@ -14,7 +14,7 @@ import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import Skeleton from '@material-ui/lab/Skeleton'
 import { accountStatus } from '../types/account.flow'
-import { getCryptoSymbol, getCryptoLogo } from '../tokens.js'
+import { getCryptoSymbol, getCryptoLogo, cryptoOrder } from '../tokens.js'
 import type { AccountData, GroupedAccountType } from '../types/account.flow'
 import { getWalletLogo, getWalletTitle, getWalletConfig } from '../wallet'
 import { getPlatformTitle } from '../platforms'
@@ -247,7 +247,14 @@ class AccountDropdownComponent extends Component<Props, State> {
     }
 
     const { groupedAccount } = this.state
-
+    let sortedAccounts = []
+    if (groupedAccount && groupedAccount.accounts) {
+      // Must copy to avoid making changes to groupedAccount.accounts 
+      sortedAccounts = [...groupedAccount.accounts]
+      sortedAccounts.sort((a, b) => {
+        return cryptoOrder[b.cryptoType] - cryptoOrder[a.cryptoType]
+      })
+    }
     return (
       <Grid container direction='column'>
         <FormControl
@@ -320,10 +327,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                     <Typography variant='body2'>Want to use your other wallets?</Typography>
                   </Grid>
                   <Grid item xs={12} sm='auto'>
-                    <Button
-                      variant='contained'
-                      onClick={() => push(path.connections)}
-                    >
+                    <Button variant='contained' onClick={() => push(path.connections)}>
                       Add Connection
                     </Button>
                   </Grid>
@@ -360,8 +364,8 @@ class AccountDropdownComponent extends Component<Props, State> {
               error={!!error}
               id='accountCryptoTypeSelection'
             >
-              {groupedAccount &&
-                groupedAccount.accounts.map((accountData, index) => {
+              {sortedAccounts.length !== 0 &&
+                sortedAccounts.map((accountData, index) => {
                   return (
                     <MenuItem
                       key={index}

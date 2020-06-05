@@ -6,6 +6,15 @@ import UsdtLogo from './images/usdt.png'
 import TusdLogo from './images/tusd.png'
 import { erc20TokensAddress } from './erc20Tokens'
 
+export const cryptoOrder = {
+  bitcoin: 100,
+  ethereum: 99,
+  tether: 98,
+  'usd-coin': 97,
+  dai: 96,
+  'true-usd': 95
+}
+
 export const cryptoSelections = [
   {
     platformType: 'bitcoin',

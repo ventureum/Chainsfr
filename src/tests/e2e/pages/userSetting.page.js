@@ -11,8 +11,8 @@ class UserSettingPage {
         await page.click('[data-test-id="security"]')
         break
       }
-      case 'backup': {
-        await page.click('[data-test-id="backup"]')
+      case 'advanced': {
+        await page.click('[data-test-id="advanced"]')
         break
       }
       default: {
@@ -22,7 +22,7 @@ class UserSettingPage {
   }
 
   async openBackupFolder () {
-    // assume in backup tab
+    // assume in advanced tab
     await page.click('[data-test-id="backup_folder_btn"]')
   }
 
