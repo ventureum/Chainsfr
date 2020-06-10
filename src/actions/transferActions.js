@@ -1084,6 +1084,56 @@ async function _getTxHistoryByAccount ({
   return { account, accountTxHistory }
 }
 
+function getEmailTransferHisotry () {
+  return (dispatch: Function, getState: Function) => {
+    const { idToken } = getState().userReducer.profile
+    const {
+      senderLastEvaluatedKey,
+      destinationLastEvaluatedKey
+    } = getState().transferReducer.transferHistory
+    return dispatch({
+      type: 'GET_EMAIL_TRANSFER_HISTORY',
+      payload: async () => {
+        const ITEMS_PER_FETCH = 10
+        const rv = await API.getEmailTransfers({
+          idToken,
+          limit: ITEMS_PER_FETCH,
+          senderExclusiveStartKey: senderLastEvaluatedKey,
+          destinationExclusiveStartKey: destinationLastEvaluatedKey
+        })
+        console.log('rv', rv)
+        let transferData = rv.data
+        transferData = transferData.map(item => {
+          let state: ?string = null
+          let transferType: ?string = null
+          item.transferMethod = 'EMAIL_TRANSFER'
+          if (item.transferId) {
+            transferType = 'SENDER'
+          } else if (item.receivingId) {
+            transferType = 'RECEIVER'
+          }
+          state = getTransferState(item)
+          return {
+            ...item,
+            transferType,
+            state
+          }
+        })
+        return {
+          hasMore: !(
+            rv.senderLastEvaluatedKey &&
+            rv.destinationLastEvaluatedKey &&
+            transferData.length === 0
+          ),
+          transferData: transferData,
+          senderLastEvaluatedKey: rv.senderLastEvaluatedKey,
+          destinationLastEvaluatedKey: rv.destinationLastEvaluatedKey
+        }
+      }
+    })
+  }
+}
+
 async function _getTransferHistory (offset: number = 0, transferMethod: string = 'ALL') {
   const ITEM_PER_FETCH = 10
   // https://github.com/facebook/flow/issues/6064
@@ -1204,12 +1254,17 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
   return { hasMore, transferData, offset }
 }
 
-async function _getTransferPassword (transferId: string): Promise<string> {
+async function _getTransferPassword (
+  transferId: string
+): Promise<{ password: string, transferId: string }> {
   let transfersDict = await getAllTransfers()
   if (transfersDict && transfersDict[transferId] && transfersDict[transferId].password) {
-    return Base64.decode(transfersDict[transferId].password)
+    return {
+      transferId: transferId,
+      password: Base64.decode(transfersDict[transferId].password)
+    }
   } else {
-    throw new Error(`Transfer ${transferId} does not exist`)
+    throw new Error(`Load password failed, transfer does not exist.`)
   }
 }
 
@@ -1313,7 +1368,8 @@ function getTransferHistory (offset: number, transferMethod: string) {
 function getTransferPassword (transferId: string) {
   return {
     type: 'GET_TRANSFER_PASSWORD',
-    payload: _getTransferPassword(transferId)
+    payload: _getTransferPassword(transferId),
+    meta: { transferId: transferId }
   }
 }
 
@@ -1464,5 +1520,6 @@ export {
   clearVerifyEscrowAccountPasswordError,
   transferStates,
   submitDirectTransferTx,
-  setTokenAllowance
+  setTokenAllowance,
+  getEmailTransferHisotry
 }

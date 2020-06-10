@@ -14,6 +14,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import InfiniteScroll from 'react-infinite-scroller'
 import moment from 'moment'
+import Skeleton from '@material-ui/lab/Skeleton'
 import { getCryptoSymbol } from '../tokens'
 import path from '../Paths.js'
 import Divider from '@material-ui/core/Divider'
@@ -114,7 +115,23 @@ const toUserReadableState = {
     }
   },
   RECEIVER: {
+    /* sending */
+    SEND_PENDING: {
+      label: 'Sending',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'TRACK_TX'
+    },
+    SEND_FAILURE: {
+      label: 'Send Failed',
+      labelStyle: 'recentTransferItemTransferStatusError',
+      action: 'TRACK_TX'
+    },
     /* receiving */
+    SEND_CONFIRMED_RECEIVE_NOT_INITIATED: {
+      label: 'Pending',
+      labelStyle: 'recentTransferItemTransferStatusPending',
+      action: 'DEPOSIT'
+    },
     SEND_CONFIRMED_RECEIVE_PENDING: {
       label: 'Receiving',
       labelStyle: 'recentTransferItemTransferStatusPending',
@@ -136,6 +153,10 @@ const toUserReadableState = {
       labelStyle: 'recentTransferItemTransferStatusPending',
       action: 'TRACK_TX'
     },
+    SEND_CONFIRMED_EXPIRED_RECEIVE_NOT_INITIATED: {
+      label: 'Expired',
+      labelStyle: 'recentTransferItemTransferStatusError'
+    },
     SEND_CONFIRMED_EXPIRED_RECEIVE_FAILURE: {
       label: 'Receive Failed',
       labelStyle: 'recentTransferItemTransferStatusError',
@@ -143,6 +164,34 @@ const toUserReadableState = {
     },
     SEND_CONFIRMED_EXPIRED_RECEIVE_CONFIRMED: {
       label: 'Completed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* cancellation */
+    SEND_CONFIRMED_CANCEL_PENDING: {
+      label: 'Cancelling',
+      labelStyle: 'recentTransferItemTransferStatusPending'
+    },
+    SEND_CONFIRMED_CANCEL_FAILURE: {
+      label: 'Cancel Failed',
+      labelStyle: 'recentTransferItemTransferStatusError'
+    },
+    SEND_CONFIRMED_CANCEL_CONFIRMED: {
+      label: 'Cancelled',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+
+    /* cancellation after expiration */
+    SEND_CONFIRMED_EXPIRED_CANCEL_PENDING: {
+      label: 'Reclaiming',
+      labelStyle: 'recentTransferItemTransferStatusPending'
+    },
+    SEND_CONFIRMED_EXPIRED_CANCEL_FAILURE: {
+      label: 'Reclaim Failed',
+      labelStyle: 'recentTransferItemTransferStatusError'
+    },
+    SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED: {
+      label: 'Reclaimed',
       labelStyle: 'recentTransferItemTransferStatusTextBased'
     }
   },
@@ -204,10 +253,10 @@ const useStyles = makeStyles({
     fontSize: '12px'
   },
   recentTransferItemCancelBtn: {
-    padding: '0px',
+    padding: ' 5px',
     fontSize: '12px',
     fontWeight: '500',
-    marginTop: '10px'
+    marginTop: '5px'
   },
   trasnferDirection: {
     borderRadius: '100px',
@@ -227,30 +276,11 @@ const useStyles = makeStyles({
 
 export function UserRecentTransactions (props) {
   const classes = useStyles()
-  const { actionsPending, transferHistory, loadMoreTransferHistory } = props
+  const { actionsPending, transferHistory, loadMoreTransferHistory, getTransferPassword } = props
   const theme = useTheme()
   const wide = useMediaQuery(theme.breakpoints.up('sm'))
 
   function renderRecentTransferItem (transfer, i) {
-    if (transfer.error) {
-      return (
-        <ExpansionPanel
-          key={i + 1}
-          className={i % 2 === 0 ? undefined : classes.coloredBackgrond}
-          classes={{
-            root: classes.expansionPanelRoot,
-            expanded: classes.expansionPanelExpanded,
-            content: classes.expansionPanelSummaryContent
-          }}
-        >
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Grid container direction='row' alignItems='center' justify='center'>
-              <Typography>{transfer.error}</Typography>
-            </Grid>
-          </ExpansionPanelSummary>
-        </ExpansionPanel>
-      )
-    }
     let secondaryDesc = null
 
     // show timestamp of the first action by either sender or receiver
@@ -267,7 +297,6 @@ export function UserRecentTransactions (props) {
     if (transfer.expiresAt) {
       expirationTime = moment.unix(transfer.expiresAt).format('M/D/Y HH:mm')
     }
-
     return (
       <ExpansionPanel
         key={i + 1}
@@ -382,32 +411,60 @@ export function UserRecentTransactions (props) {
                   : `From: ${transfer.sender}`}
               </Typography>
             </Grid>
-            {transfer.password && (
-              <Grid item>
-                <Typography variant='caption'>Security Answer: {transfer.password}</Typography>
-              </Grid>
-            )}
             {transfer.sendMessage && (
               <Grid item>
-                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
+                <Typography
+                  variant='caption'
+                  className={classes.recentTransferItemTransferMessage}
+                >
                   Message: {transfer.sendMessage}
                 </Typography>
               </Grid>
             )}
             {transfer.cancelMessage && (
               <Grid item>
-                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
+                <Typography
+                  variant='caption'
+                  className={classes.recentTransferItemTransferMessage}
+                >
                   Cancellation Reason: {transfer.cancelMessage}
                 </Typography>
               </Grid>
             )}
             {expirationTime && (
               <Grid item>
-                <Typography variant='caption' className={classes.recentTransferItemTransferMessage}>
+                <Typography
+                  variant='caption'
+                  className={classes.recentTransferItemTransferMessage}
+                >
                   Expiration: {expirationTime}
                 </Typography>
               </Grid>
             )}
+            {transfer.transferType === 'SENDER' &&
+              (transfer.password ? (
+                <Grid item>
+                  <Typography variant='caption' style={{}}>
+                    Security Answer: {transfer.password}
+                  </Typography>
+                </Grid>
+              ) : (
+                <Grid item>
+                  {transfer.passwordLoading ? (
+                    <Skeleton width={90} height={30} />
+                  ) : (
+                    <Button
+                      color='primary'
+                      className={classes.recentTransferItemCancelBtn}
+                      onClick={() => {
+                        getTransferPassword(transfer.transferId)
+                      }}
+                    >
+                      Show Password
+                    </Button>
+                  )}
+                </Grid>
+              ))}
             {toUserReadableState[transfer.transferType][transfer.state].action === 'CANCEL' && (
               <Grid item>
                 <Button
@@ -438,6 +495,20 @@ export function UserRecentTransactions (props) {
                 View Receipt
               </Button>
             </Grid>
+            {toUserReadableState[transfer.transferType][transfer.state].action === 'DEPOSIT' && (
+              <Grid item>
+                <Button
+                  color='primary'
+                  component={Link}
+                  target='_blank'
+                  rel='noopener'
+                  to={`${path.receive}?id=${transfer.receivingId}`}
+                  className={classes.recentTransferItemCancelBtn}
+                >
+                  Deposit Payment
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
@@ -450,7 +521,7 @@ export function UserRecentTransactions (props) {
         <Grid>
           <InfiniteScroll
             loader={
-              actionsPending.getTransferHistory && (
+              actionsPending.getEmailTransferHistory && (
                 <Grid container direction='row' justify='center' key={0} alignItems='center'>
                   <CircularProgress
                     color='primary'
@@ -463,7 +534,7 @@ export function UserRecentTransactions (props) {
             threshold={300}
             pageStart={0}
             loadMore={() => {
-              if (!actionsPending.getTransferHistory) {
+              if (!actionsPending.getEmailTransferHistory) {
                 loadMoreTransferHistory(transferHistory.history.length)
               }
             }}
@@ -496,7 +567,7 @@ export function UserRecentTransactions (props) {
               </Grid>
             </Grid>
             <Divider />
-            {!actionsPending.getTransferHistory && transferHistory.history.length === 0 && (
+            {!actionsPending.getEmailTransferHistory && transferHistory.history.length === 0 && (
               <Box display='flex' flexDirection='column' alignItems='center' mt={6} mb={6}>
                 <Box mb={2}>
                   <img src={EmptyStateImage} alt='Empty State' data-test-id='empty_img' />
@@ -538,8 +609,7 @@ class LandingPageComponent extends Component {
                   My Payments
                 </Typography>
                 <Typography className={classes.descText} data-test-id='emt_subtitle'>
-                  Make Cryptocurrency payments to any Email address.
-                  Cancel payments when needed.
+                  Make Cryptocurrency payments to any Email address. Cancel payments when needed.
                 </Typography>
                 <Box display='flex' alignItems='center' mt={1} width='100%'>
                   <Grid container>
@@ -574,7 +644,12 @@ class LandingPageComponent extends Component {
   }
 
   render () {
-    const { actionsPending, transferHistory, loadMoreTransferHistory } = this.props
+    const {
+      actionsPending,
+      transferHistory,
+      loadMoreTransferHistory,
+      getTransferPassword
+    } = this.props
     return (
       <Box display='flex' flexDirection='column'>
         {this.renderUpperSection()}
@@ -582,6 +657,7 @@ class LandingPageComponent extends Component {
           actionsPending={actionsPending}
           transferHistory={transferHistory}
           loadMoreTransferHistory={loadMoreTransferHistory}
+          getTransferPassword={getTransferPassword}
         />
       </Box>
     )

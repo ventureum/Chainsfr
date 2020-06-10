@@ -2,20 +2,20 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 import LandingPageComponent from '../components/LandingPageComponent'
-import { getTransferHistory } from '../actions/transferActions'
+import { getEmailTransferHisotry, getTransferPassword } from '../actions/transferActions'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
-    const { getTransferHistory } = this.props
+    const { getEmailTransferHisotry } = this.props
     // load transfer history for logged-in users
-    getTransferHistory(0)
+    getEmailTransferHisotry()
   }
 
-  loadMoreTransferHistory = offset => {
-    this.props.getTransferHistory(offset)
+  loadMoreTransferHistory = () => {
+    this.props.getEmailTransferHisotry()
   }
 
   render () {
@@ -41,14 +41,14 @@ class LandingPageContainer extends Component {
   }
 }
 
-const getTransferHistorySelector = createLoadingSelector(['GET_TRANSFER_HISTORY'])
-const errorSelector = createErrorSelector(['GET_TRANSFER_HISTORY'])
+const getEmailTransferHistorySelector = createLoadingSelector(['GET_EMAIL_TRANSFER_HISTORY'])
+const errorSelector = createErrorSelector(['GET_EMAIL_TRANSFER_HISTORY'])
 
 const mapStateToProps = state => {
   return {
     transferHistory: state.transferReducer.transferHistory,
     actionsPending: {
-      getTransferHistory: getTransferHistorySelector(state)
+      getEmailTransferHistory: getEmailTransferHistorySelector(state)
     },
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
@@ -58,7 +58,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getTransferHistory: offset => dispatch(getTransferHistory(offset, 'EMAIL_TRANSFER')),
+    getEmailTransferHisotry: offset => dispatch(getEmailTransferHisotry()),
+    getTransferPassword: transferId => dispatch(getTransferPassword(transferId)),
     push: path => dispatch(push(path))
   }
 }
