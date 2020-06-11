@@ -5,6 +5,7 @@ import pWaitFor from 'p-wait-for'
 import ERC20_ABI from '../../../contracts/ERC20'
 import SimpleMultiSigContractArtifacts from '../../../contracts/SimpleMultiSig.json'
 import url from '../../../url'
+import { erc20TokensAddress } from '../../../erc20Tokens'
 import { CRYPTO_ACCOUNTS } from '../mocks/cryptoAccounts'
 log.setDefaultLevel('info')
 const NETWORK_ID = 4
@@ -33,7 +34,7 @@ class DisconnectPage {
     await pWaitFor(
       async () => {
         let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-        const targetContract = new web3.eth.Contract(ERC20_ABI, process.env.REACT_APP_DAI_ADDRESS)
+        const targetContract = new web3.eth.Contract(ERC20_ABI, erc20TokensAddress['dai'])
         newAllowance = (await targetContract.methods
           .allowance(ownderAddress, SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address)
           .call()).toString()
