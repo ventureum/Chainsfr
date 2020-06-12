@@ -3,11 +3,11 @@ import env from './typedEnv'
 const addressMap = {
   dai: {
   'rinkeby': '0x4aacB7f0bA0A5CfF9A8a5e8C0F24626Ee9FDA4a6',
-  'mainnet': '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359'
+  'mainnet': '0x6B175474E89094C44Da98b954EedeAC495271d0F'
   },
   tether: {
     'rinkeby': '0xF76eB2f15a960A5d96d046a00007EFd737e5ea14',
-    'mainnet': '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359'
+    'mainnet': '0xdAC17F958D2ee523a2206206994597C13D831ec7'
   },
   'usd-coin': {
     'rinkeby': '0xF76eB2f15a960A5d96d046a00007EFd737e5ea14',
