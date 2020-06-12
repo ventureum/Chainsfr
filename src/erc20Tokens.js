@@ -1,22 +1,41 @@
 import env from './typedEnv'
 
+const addressMap = {
+  dai: {
+  'rinkeby': '0x4aacB7f0bA0A5CfF9A8a5e8C0F24626Ee9FDA4a6',
+  'mainnet': '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359'
+  },
+  tether: {
+    'rinkeby': '0xF76eB2f15a960A5d96d046a00007EFd737e5ea14',
+    'mainnet': '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359'
+  },
+  'usd-coin': {
+    'rinkeby': '0xF76eB2f15a960A5d96d046a00007EFd737e5ea14',
+    'mainnet': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+  },
+  'true-usd': {
+    'rinkeby': '0x4aacB7f0bA0A5CfF9A8a5e8C0F24626Ee9FDA4a6',
+    'mainnet': '0x0000000000085d4780B73119b644AE5ecd22b376'
+  }
+}
+
 const erc20TokensAddress = {
   dai:
     env.REACT_APP_ENV === 'test' || env.REACT_APP_ENV === 'staging'
-      ? env.REACT_APP_DAI_ADDRESS
-      : '0x6b175474e89094c44da98b954eedeac495271d0f',
+      ? addressMap['dai']['rinkeby']
+      : addressMap['dai']['mainnet'],
   tether:
     env.REACT_APP_ENV === 'test' || env.REACT_APP_ENV === 'staging'
-      ? env.REACT_APP_DAI_ADDRESS
-      : '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      ? addressMap['tether']['rinkeby']
+      : addressMap['tether']['mainnet'],
   'usd-coin':
     env.REACT_APP_ENV === 'test' || env.REACT_APP_ENV === 'staging'
-      ? env.REACT_APP_DAI_ADDRESS
-      : '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      ? addressMap['usd-coin']['rinkeby']
+      : addressMap['usd-coin']['mainnet'],
   'true-usd':
     env.REACT_APP_ENV === 'test' || env.REACT_APP_ENV === 'staging'
-      ? env.REACT_APP_DAI_ADDRESS
-      : '0x0000000000085d4780B73119b644AE5ecd22b376'
+      ? addressMap['true-usd']['rinkeby']
+      : addressMap['true-usd']['mainnet'],
 }
 
 const erc20TokensList = Object.keys(erc20TokensAddress)

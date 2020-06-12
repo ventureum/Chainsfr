@@ -1,4 +1,5 @@
 import env from './typedEnv'
+import { erc20TokensAddress } from './erc20Tokens'
 
 const INFURA_API_URL = `https://${env.REACT_APP_ETHEREUM_NETWORK}.infura.io/v3/${
   env.REACT_APP_INFURA_API_KEY
@@ -78,7 +79,7 @@ function getExplorerAddress (cryptoType, address) {
     case 'tether':
     case 'usd-coin':
     case 'true-usd':
-      return getEthExplorerToken(env.REACT_APP_DAI_ADDRESS, address)
+      return getEthExplorerToken(erc20TokensAddress[cryptoType], address)
     case 'bitcoin':
       return getBtcExplorerAddress(address)
     default:
