@@ -717,6 +717,7 @@ describe('Receive Login test', () => {
   beforeAll(async () => {
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)
+    await resetUserDefault()
   })
 
   afterAll(async () => {

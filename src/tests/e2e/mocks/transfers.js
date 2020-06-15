@@ -67,6 +67,7 @@ const TRANSFER_DATA_BASE = {
 
   transferAmount: TRANSFER_AMOUNT,
   transferFiatAmountSpot: TRANSFER_FIAT_AMOUNT_SPOT,
+  exchangeRate: { cryptoExchangeRate: '10.1', txFeeCryptoExchangeRate: '200.22' },
   data:
     'IntcImhhc2hcIjpcIiQyYSQxMCRkQzA2cktLTlE2Z2dIN1Q5WEI1VlJ1NUpydW03OHJXemVzMkVMdDNBMEVXeTdKNVFtWWdxV1wiLFwiZW5jcnlwdGVkTWVzc2FnZVwiOlwiMWUxNGVkNjkwYWI1MTI5NGI4ZTU5MDViNTUzODEzMzg4YzJjMWY4NmFhOWU0N2ZkNGZiOTdjZTE4MjcwNzRkOGUzMTcxN2FmZGUxMGJhMTE5NmIwMjYxNTU3MzM3ZjhhMzQyODA0OWUxODJkMGY1ZDBhNDVkNjA1ZGEyZmI5NDIyY2QxMTI5OTk3ZDQzYzIzMmNjMDFkY2NiZTllODY2ODU0N2ZcIn0i',
   destination: 'timothy@ventureum.io',

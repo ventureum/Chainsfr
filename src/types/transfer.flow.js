@@ -100,12 +100,18 @@ export type TransferDataReceiverType = {
   destinationAddress: string
 }
 
+export type TransferExchangeRateType = { 
+  cryptoExchangeRate: string,
+  txFeeCryptoExchangeRate: string
+}
+
 export type TransferDataCryptoType = {
   cryptoType: string,
   cryptoSymbol: string,
   transferAmount: string,
   transferFiatAmountSpot: string,
-  fiatType: string
+  fiatType: string,
+  exchangeRate: TransferExchangeRateType
 }
 
 export type TransferDataPrivateKeyType = {
