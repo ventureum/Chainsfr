@@ -11,11 +11,11 @@ class LandingPageContainer extends Component {
   componentDidMount () {
     const { getEmailTransferHisotry } = this.props
     // load transfer history for logged-in users
-    getEmailTransferHisotry()
+    getEmailTransferHisotry(true)
   }
 
   loadMoreTransferHistory = () => {
-    this.props.getEmailTransferHisotry()
+    this.props.getEmailTransferHisotry(false)
   }
 
   render () {
@@ -58,10 +58,13 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getEmailTransferHisotry: offset => dispatch(getEmailTransferHisotry()),
+    getEmailTransferHisotry: fromStart => dispatch(getEmailTransferHisotry(fromStart)),
     getTransferPassword: transferId => dispatch(getTransferPassword(transferId)),
     push: path => dispatch(push(path))
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LandingPageContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LandingPageContainer)

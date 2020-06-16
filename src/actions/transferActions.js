@@ -1084,7 +1084,7 @@ async function _getTxHistoryByAccount ({
   return { account, accountTxHistory }
 }
 
-function getEmailTransferHisotry () {
+function getEmailTransferHisotry (fromStart: boolean) {
   return (dispatch: Function, getState: Function) => {
     const { idToken } = getState().userReducer.profile
     const {
@@ -1095,36 +1095,47 @@ function getEmailTransferHisotry () {
       type: 'GET_EMAIL_TRANSFER_HISTORY',
       payload: async () => {
         const ITEMS_PER_FETCH = 10
-        const rv = await API.getEmailTransfers({
+        let request = {
           idToken,
-          limit: ITEMS_PER_FETCH,
-          senderExclusiveStartKey: senderLastEvaluatedKey,
-          destinationExclusiveStartKey: destinationLastEvaluatedKey
-        })
-        console.log('rv', rv)
+          limit: ITEMS_PER_FETCH
+        }
+        if (!fromStart) {
+          request = {
+            ...request,
+            senderExclusiveStartKey: senderLastEvaluatedKey,
+            destinationExclusiveStartKey: destinationLastEvaluatedKey
+          }
+        }
+        const rv = await API.getEmailTransfers(request)
         let transferData = rv.data
-        transferData = transferData.map(item => {
-          let state: ?string = null
-          let transferType: ?string = null
-          item.transferMethod = 'EMAIL_TRANSFER'
-          if (item.transferId) {
-            transferType = 'SENDER'
-          } else if (item.receivingId) {
-            transferType = 'RECEIVER'
-          }
-          state = getTransferState(item)
-          return {
-            ...item,
-            transferType,
-            state
-          }
-        })
+        transferData = await Promise.all(
+          transferData.map(async item => {
+            let state: ?string = null
+            let transferType: ?string = null
+            item.transferMethod = 'EMAIL_TRANSFER'
+            if (item.transferId) {
+              transferType = 'SENDER'
+            } else if (item.receivingId) {
+              transferType = 'RECEIVER'
+            }
+            state = getTransferState(item)
+            item.txFee = await _getTxFeeForTransfer(item)
+            if (item.txFee) {
+              item.txFeeCurrencyAmount = utils.toCurrencyAmount(
+                item.txFee.costInStandardUnit,
+                parseFloat(item.transferFiatAmountSpot) / parseFloat(item.transferAmount),
+                item.fiatType
+              )
+            }
+            return {
+              ...item,
+              transferType,
+              state
+            }
+          })
+        )
         return {
-          hasMore: !(
-            rv.senderLastEvaluatedKey &&
-            rv.destinationLastEvaluatedKey &&
-            transferData.length === 0
-          ),
+          fromStart: fromStart,
           transferData: transferData,
           senderLastEvaluatedKey: rv.senderLastEvaluatedKey,
           destinationLastEvaluatedKey: rv.destinationLastEvaluatedKey

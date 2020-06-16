@@ -92,7 +92,7 @@ class LandingPage {
   }
 
   async cancelTx (txIndex) {
-    await page.click(`[data-test-id="cancel_btn_${txIndex}"]`)
+    await page.click(`[data-test-id="cancel_btn"]`)
   }
 
   async waitUntilTransferHistoryLoaded () {

@@ -16,7 +16,6 @@ const initialState = {
   receipt: null,
 
   transferHistory: {
-    hasMore: true,
     history: [],
     senderLastEvaluatedKey: null,
     destinationLastEvaluatedKey: null
@@ -104,9 +103,8 @@ export default function (state = initialState, action) {
       return {
         ...state,
         transferHistory: {
-          hasMore: action.payload.hasMore,
           history:
-            state.transferHistory.history.length === 0
+            action.payload.fromStart === true
               ? action.payload.transferData
               : [...state.transferHistory.history, ...action.payload.transferData],
           senderLastEvaluatedKey: action.payload.senderLastEvaluatedKey,
