@@ -1,6 +1,11 @@
 // @flow
 import { TRANSFER_ID_LIST, RECEIVING_ID_LIST } from './ids'
 
+if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
+  throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
+const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
+const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
+
 const ACCOUNTS = {
   METAMASK_ETH:
     '{"walletType":"metamask","platformType":"ethereum","cryptoType":"ethereum","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588"}',
@@ -77,8 +82,8 @@ const TRANSFER_DATA_BASE = {
     reminderToReceiverCount: 0,
     reminderToSenderCount: 0
   },
-  sender: 'chainsfre2etest@gmail.com',
-  senderName: 'e2e test',
+  sender: `${testMailNamespace}.sender${suffix}@inbox.testmail.app`,
+  senderName: 'e2e test sender',
   receiverName: 'timothy',
   senderAvatar:
     'https://lh4.googleusercontent.com/-23NNcYMLB9I/AAAAAAAAAAI/AAAAAAAAAAA/AKF05nAyjqK1EWJEGo5qD1lL8s0vZ77hEQ/s96-c/photo.jpg',

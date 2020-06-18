@@ -546,6 +546,24 @@ async function lookupTxHash (
   }
 }
 
+async function getEmailTransfers (request: {
+  idToken: string,
+  limit?: number,
+  senderExclusiveStartKey?: { sender: string, created: number, transferId: string },
+  destinationExclusiveStartKey?: { destination: string, created: number, receivingId: string }
+}) {
+  try {
+    let rv = await chainsferApi.post('/transfer', {
+      ...request,
+      action: 'FETCH_EMAIL_TRANSFERS'
+    })
+    rv.data.data = rv.data.data.map(transferData => normalizeTransferData(transferData))
+    return rv.data
+  } catch (err) {
+    throw new Error('Get email transfers failed.')
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -574,5 +592,6 @@ export default {
   getUserCloudWalletFolderMeta,
   updateUserCloudWalletFolderMeta,
   getUserRegisterTime,
-  lookupTxHash
+  lookupTxHash,
+  getEmailTransfers
 }
