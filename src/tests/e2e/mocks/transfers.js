@@ -3,9 +3,9 @@ import { TRANSFER_ID_LIST, RECEIVING_ID_LIST } from './ids'
 
 const ACCOUNTS = {
   METAMASK_ETH:
-    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"ethereum","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588"}',
+    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"ethereum","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588", "name": "Metamask ETH"}',
   METAMASK_DAI:
-    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"dai","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588"}'
+    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"dai","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588", "name": "Metamask DAI"}'
   // TODO: support more accounts
 }
 
