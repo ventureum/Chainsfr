@@ -11,7 +11,7 @@ import { Base64 } from 'js-base64'
 import { getCryptoDecimals, isERC20, getCryptoPlatformType, getCrypto } from '../tokens'
 import url from '../url'
 import SimpleMultiSig from '../SimpleMultiSig'
-import type { TxFee, TxHash, AccountTxHistoryType } from '../types/transfer.flow.js'
+import type { TxFee, TxHash, AccountTxHistoryType, TransferExchangeRateType } from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
@@ -50,6 +50,7 @@ function submitDirectTransferTx (txRequest: {
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: TransferExchangeRateType,
   sendMessage: ?string,
   txFee: TxFee
 }) {
@@ -70,6 +71,7 @@ async function _submitDirectTransferTx (txRequest: {
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: TransferExchangeRateType,
   sendMessage: ?string,
   txFee: TxFee
 }) {
@@ -79,6 +81,7 @@ async function _submitDirectTransferTx (txRequest: {
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
+    exchangeRate,
     sendMessage,
     txFee
   } = txRequest
@@ -116,6 +119,7 @@ async function _submitDirectTransferTx (txRequest: {
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
+    exchangeRate,
     sendMessage,
     sendTxHash: txHash
   })
@@ -135,6 +139,7 @@ async function _submitTx (txRequest: {
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: TransferExchangeRateType,
   destination: string,
   receiverName: string,
   receiverAvatar: ?string,
@@ -150,6 +155,7 @@ async function _submitTx (txRequest: {
     transferAmount,
     transferFiatAmountSpot,
     fiatType,
+    exchangeRate,
     password,
     sender,
     senderName,
@@ -196,6 +202,7 @@ async function _submitTx (txRequest: {
       transferAmount,
       transferFiatAmountSpot,
       fiatType,
+      exchangeRate,
       senderName,
       senderAvatar,
       sender,
@@ -259,6 +266,7 @@ async function _transactionHashRetrieved (txRequest: {|
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: TransferExchangeRateType,
   senderName: string,
   senderAvatar: string,
   sender: string,
@@ -599,7 +607,7 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   if (transferData.txFee) {
     transferData.txFeeCurrencyAmount = utils.toCurrencyAmount(
       transferData.txFee.costInStandardUnit,
-      parseFloat(transferData.transferFiatAmountSpot) / parseFloat(transferData.transferAmount),
+      transferData.exchangeRate.txFeeCryptoExchangeRate,
       transferData.fiatType
     )
   }
@@ -1210,6 +1218,7 @@ function submitTx (txRequest: {
   transferAmount: StandardTokenUnit,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: TransferExchangeRateType,
   destination: string,
   receiverName: string,
   receiverAvatar: ?string,

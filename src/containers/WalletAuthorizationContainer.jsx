@@ -11,7 +11,7 @@ import { clearError } from '../actions/userActions'
 import utils from '../utils'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
-import { getCryptoDecimals, isERC20 } from '../tokens'
+import { getCryptoDecimals, isERC20, getTxFeesCryptoType } from '../tokens'
 import BN from 'bn.js'
 import { setTokenAllowance } from '../actions/transferActions'
 import type { Recipient } from '../types/transfer.flow'
@@ -24,6 +24,7 @@ type Props = {
   submitTx: Function,
   submitDirectTransferTx: Function,
   currency: String,
+  cryptoPrice: Object,
   userProfile: Object,
   txFee: Object,
   setTokenAllowanceTxHash: string,
@@ -75,6 +76,7 @@ class WalletAuthorizationContainer extends Component<Props, State> {
       transferForm,
       submitTx,
       currency,
+      cryptoPrice,
       userProfile,
       txFee,
       actionsPending,
@@ -106,6 +108,12 @@ class WalletAuthorizationContainer extends Component<Props, State> {
           transferAmount: transferAmount,
           transferFiatAmountSpot: transferCurrencyAmount,
           fiatType: currency,
+          exchangeRate: {
+            cryptoExchangeRate: cryptoPrice[accountSelection.cryptoType].toString(),
+            txFeeCryptoExchangeRate: cryptoPrice[
+              getTxFeesCryptoType(accountSelection.cryptoType)
+            ].toString()
+          },
           sendMessage: sendMessage,
           txFee: txFee
         })
@@ -119,10 +127,16 @@ class WalletAuthorizationContainer extends Component<Props, State> {
           transferAmount: transferAmount,
           transferFiatAmountSpot: transferCurrencyAmount,
           fiatType: currency,
+          exchangeRate: {
+            cryptoExchangeRate: cryptoPrice[accountSelection.cryptoType].toString(),
+            txFeeCryptoExchangeRate: cryptoPrice[
+              getTxFeesCryptoType(accountSelection.cryptoType)
+            ].toString()
+          },
           // receiver
           destination: destination,
           receiverName: receiverName,
-          receiverAvatar: _recipient ? _recipient.imageUrl: null,
+          receiverAvatar: _recipient ? _recipient.imageUrl : null,
           // sender
           senderName: senderName,
           senderAvatar: userProfile.imageUrl,
@@ -237,6 +251,7 @@ const mapStateToProps = state => {
   return {
     userProfile: state.userReducer.profile.profileObj,
     recipients: state.userReducer.recipients,
+    cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     txFee: state.transferReducer.txFee,
     setTokenAllowanceTxHash: state.transferReducer.setTokenAllowanceTxHash,
@@ -259,9 +274,14 @@ const mapStateToProps = state => {
       verifyAccount: verifyAccountErrorSelector(state),
       checkWalletConnection: checkWalletConnectionErrorSelector(state),
       setTokenAllowance: setTokenAllowanceErrorSelector(state),
-      setTokenAllowanceWaitForConfirmation: setTokenAllowanceWaitForConfirmationErrorSelector(state)
+      setTokenAllowanceWaitForConfirmation: setTokenAllowanceWaitForConfirmationErrorSelector(
+        state
+      )
     }
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(WalletAuthorizationContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(WalletAuthorizationContainer)

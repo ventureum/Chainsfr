@@ -37,6 +37,7 @@ async function directTransfer (request: {|
   transferAmount: string,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: { cryptoExchangeRate: string, txFeeCryptoExchangeRate: string },
   cryptoType: string,
   sendMessage: ?string,
   sendTxHash: TxHash
@@ -61,6 +62,7 @@ async function transfer (request: {|
   transferAmount: string,
   transferFiatAmountSpot: string,
   fiatType: string,
+  exchangeRate: { cryptoExchangeRate: string, txFeeCryptoExchangeRate: string },
   sendMessage: ?string,
   cryptoType: string,
   data: string,
