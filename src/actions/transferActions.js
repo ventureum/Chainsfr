@@ -566,7 +566,7 @@ function getTransferState (transferData: Object): string {
   }
   if (!state) {
     console.warn('Unable to calculate transfer state', transferData)
-    state = ''
+    state = transferStates.UNKNOWN_STATE
   }
   return state
 }

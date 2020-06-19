@@ -118,6 +118,10 @@ const toUserReadableState = {
     SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED: {
       label: 'Reclaimed',
       labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+    UNKNOWN_STATE: {
+      label: 'Unknow State',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
     }
   },
   RECEIVER: {
@@ -198,6 +202,10 @@ const toUserReadableState = {
     },
     SEND_CONFIRMED_EXPIRED_CANCEL_CONFIRMED: {
       label: 'Reclaimed',
+      labelStyle: 'recentTransferItemTransferStatusTextBased'
+    },
+    UNKNOWN_STATE: {
+      label: 'Unknow State',
       labelStyle: 'recentTransferItemTransferStatusTextBased'
     }
   },
