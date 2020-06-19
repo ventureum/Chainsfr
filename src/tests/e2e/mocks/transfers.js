@@ -8,9 +8,9 @@ const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 const ACCOUNTS = {
   METAMASK_ETH:
-    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"ethereum","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588"}',
+    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"ethereum","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588", "name": "Metamask ETH"}',
   METAMASK_DAI:
-    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"dai","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588"}'
+    '{"walletType":"metamask","platformType":"ethereum","cryptoType":"dai","address":"0xd3ced3b16c8977ed0e345d162d982b899e978588", "name": "Metamask DAI"}'
   // TODO: support more accounts
 }
 
