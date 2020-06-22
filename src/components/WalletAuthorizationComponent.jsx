@@ -72,6 +72,17 @@ class WalletAuthorizationComponent extends Component<Props, State> {
     }
   }
 
+  actionsRunning = () => {
+    const { actionsPending } = this.props
+    return (
+      actionsPending.submitTx ||
+      actionsPending.verifyAccount ||
+      actionsPending.checkWalletConnection ||
+      actionsPending.setTokenAllowance ||
+      actionsPending.setTokenAllowanceWaitForConfirmation
+    )
+  }
+
   handleSetTokenAllowanceAmount = (amount: string) => {
     const { minTokenAllowanceAmount, tokenAllowanceError } = this.state
     this.setState({ tokenAllowanceAmount: amount })
@@ -93,11 +104,11 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderWalletConnectSteps = (walletType: string) => {
-    const { checkWalletConnection, actionsPending, online } = this.props
+    const { checkWalletConnection, online } = this.props
     return (
       <Tooltip title={'Connect via ' + getWalletTitle(walletType)} arrow>
         <Button
-          disabled={actionsPending.submitTx || !online}
+          disabled={this.actionsRunning() || !online}
           onClick={() => {
             checkWalletConnection()
           }}
@@ -112,10 +123,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderDriveConnectSteps = () => {
-    const { checkWalletConnection, actionsPending, online } = this.props
+    const { checkWalletConnection, online } = this.props
     return (
       <Button
-        disabled={actionsPending.submitTx || !online}
+        disabled={this.actionsRunning() || !online}
         onClick={() => {
           checkWalletConnection()
         }}
@@ -128,12 +139,12 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderLedgerConnectSteps = () => {
-    const { checkWalletConnection, accountSelection, actionsPending, online } = this.props
+    const { checkWalletConnection, accountSelection, online } = this.props
     return (
       !accountSelection.connected && (
         <Tooltip title='Connect via Ledger device' arrow>
           <Button
-            disabled={actionsPending.submitTx || !online}
+            disabled={this.actionsRunning() || !online}
             onClick={() => {
               checkWalletConnection()
             }}
@@ -149,12 +160,12 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderMetamaskConnectSteps = () => {
-    const { checkWalletConnection, actionsPending, online } = this.props
+    const { checkWalletConnection, online } = this.props
 
     return (
       <Tooltip title='Connect via browser extension' arrow>
         <Button
-          disabled={actionsPending.submitTx || !online}
+          disabled={this.actionsRunning() || !online}
           onClick={() => {
             checkWalletConnection()
           }}
@@ -169,11 +180,11 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderCoinbaseWalletLinkConnectSteps = () => {
-    const { checkWalletConnection, actionsPending, online } = this.props
+    const { checkWalletConnection, online } = this.props
     return (
       <Tooltip title='Connect via Coinbase WalletLink mobile app' arrow>
         <Button
-          disabled={actionsPending.submitTx || !online}
+          disabled={this.actionsRunning() || !online}
           onClick={() => {
             checkWalletConnection()
           }}
@@ -188,14 +199,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   renderSetTokenAllowanceSection = () => {
-    const { accountSelection, actionsPending } = this.props
+    const { accountSelection } = this.props
     const { tokenAllowanceAmount, tokenAllowanceError } = this.state
-
-    const disabled =
-      actionsPending.submitTx ||
-      actionsPending.verifyAccount ||
-      actionsPending.checkWalletConnection ||
-      actionsPending.setTokenAllowance
 
     return (
       <>
@@ -219,7 +224,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           type='number'
           onChange={event => this.handleSetTokenAllowanceAmount(event.target.value)}
           value={tokenAllowanceAmount}
-          disabled={disabled}
+          disabled={this.actionsRunning()}
           error={tokenAllowanceError}
           helperText={tokenAllowanceError}
           InputProps={{
@@ -227,7 +232,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
               <InputAdornment position='end'>
                 <Tooltip title='Reset to minimum' position='bottom' arrow>
                   <Button
-                    disabled={disabled}
+                    disabled={this.actionsRunning()}
                     onClick={() =>
                       this.handleSetTokenAllowanceAmount(this.state.minTokenAllowanceAmount)
                     }
@@ -446,7 +451,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
   }
 
   render () {
-    const { accountSelection, actionsPending, push, directTransfer } = this.props
+    const { accountSelection, push, directTransfer } = this.props
 
     return (
       <Grid container direction='column' spacing={3}>
@@ -485,13 +490,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
                     push(`${directTransfer ? path.directTransfer : path.transfer}?step=1`)
                   }
                   color='primary'
-                  disabled={
-                    actionsPending.submitDirectTransferTx ||
-                    actionsPending.submitTx ||
-                    actionsPending.verifyAccount ||
-                    actionsPending.checkWalletConnection ||
-                    actionsPending.setTokenAllowance
-                  }
+                  disabled={this.actionsRunning()}
                 >
                   Back
                 </Button>
