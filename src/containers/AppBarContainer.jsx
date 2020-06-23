@@ -34,7 +34,9 @@ class AppBarContainer extends Component<Props> {
 
   render () {
     let { location } = this.props
-    const urlParams = queryString.parse(location.search)
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const urlParams = queryString.parse(location.search.replace(/&amp;/g, '&'))
     let step = parseInt(urlParams.step) || 0
 
     return (

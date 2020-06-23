@@ -16,7 +16,9 @@ class LoginContainer extends Component {
   state = { renderReceiveLogin: false, renderReceiptLogin: false }
   componentDidMount () {
     const { history, getTransfer } = this.props
-    const value = queryString.parse(history.location.search)
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const value = queryString.parse(history.location.search.replace(/&amp;/g, '&'))
     if (value) {
       const redirect = value.redirect
       if (redirect && redirect.includes('/receive?id=')) {

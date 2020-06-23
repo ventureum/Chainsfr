@@ -10,7 +10,9 @@ import queryString from 'query-string'
 class ReceiveComponent extends React.Component {
   componentDidMount () {
     let { location } = this.props.history
-    const urlParams = queryString.parse(location.search)
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const urlParams = queryString.parse(location.search.replace(/&amp;/g, '&'))
     this.props.getTransfer(urlParams.id)
   }
 
