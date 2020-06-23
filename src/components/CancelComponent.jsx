@@ -10,7 +10,10 @@ import paths from '../Paths'
 class CancelComponent extends React.Component {
   render () {
     const { classes, step, history } = this.props
-    const value = queryString.parse(history.location.search)
+
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const value = queryString.parse(history.location.search.replace(/&amp;/g, '&'))
 
     return (
       <Grid container direction='column'>

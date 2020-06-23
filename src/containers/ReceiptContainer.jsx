@@ -34,7 +34,9 @@ type State = {
 class ReceiptContainer extends Component<Props, State> {
   componentDidMount () {
     let { receipt, history, location } = this.props
-    const value = queryString.parse(location.search)
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const value = queryString.parse(location.search.replace(/&amp;/g, '&'))
 
     if (location.search === '' && !receipt) return
 

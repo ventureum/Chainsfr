@@ -22,7 +22,9 @@ type Props = {
 class TransferComponent extends React.Component<Props> {
   render () {
     const { classes, history, transferForm, online } = this.props
-    const urlParams = queryString.parse(history.location.search)
+    // recover '&' from encoded '&amp;'
+    // used for intercom product tour
+    const urlParams = queryString.parse(history.location.search.replace(/&amp;/g, '&'))
     let step = urlParams.step
 
     let renderStep
