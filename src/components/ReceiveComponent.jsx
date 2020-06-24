@@ -12,7 +12,7 @@ class ReceiveComponent extends React.Component {
     let { location } = this.props.history
     // recover '&' from encoded '&amp;'
     // used for intercom product tour
-    const urlParams = queryString.parse(location.search.replace(/&amp;/g, '&'))
+    const urlParams = queryString.parse(location.search.replace(/amp%3B|amp;/g, ''))
     this.props.getTransfer(urlParams.id)
   }
 

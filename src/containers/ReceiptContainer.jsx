@@ -36,7 +36,7 @@ class ReceiptContainer extends Component<Props, State> {
     let { receipt, history, location } = this.props
     // recover '&' from encoded '&amp;'
     // used for intercom product tour
-    const value = queryString.parse(location.search.replace(/&amp;/g, '&'))
+    const value = queryString.parse(location.search.replace(/amp%3B|amp;/g, ''))
 
     if (location.search === '' && !receipt) return
 
