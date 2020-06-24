@@ -23,7 +23,7 @@ class DirectTransferComponent extends React.Component<Props> {
     const { classes, history, transferForm, online } = this.props
     // recover '&' from encoded '&amp;'
     // used for intercom product tour
-    const urlParams = queryString.parse(history.location.search.replace(/&amp;/g, '&'))
+    const urlParams = queryString.parse(history.location.search.replace(/amp%3B|amp;/g, ''))
     let step = urlParams.step
 
     let renderStep

@@ -13,7 +13,7 @@ class CancelComponent extends React.Component {
 
     // recover '&' from encoded '&amp;'
     // used for intercom product tour
-    const value = queryString.parse(history.location.search.replace(/&amp;/g, '&'))
+    const value = queryString.parse(history.location.search.replace(/amp%3B|amp;/g, ''))
 
     return (
       <Grid container direction='column'>
