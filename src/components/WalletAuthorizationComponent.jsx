@@ -283,6 +283,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           errorInstruction = 'MetaMask authorization denied'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectNetwork) {
           errorInstruction = 'Incorrect MetaMask network'
+        } else if (errors.submitTx.match(/User denied transaction signature/)) {
+          errorInstruction = 'MetaMask authorization denied'
+        } else if (errors.setTokenAllowance) {
+          errorInstruction = 'ERC20 token approval denied'
         }
         break
       case 'trustWalletConnect':
@@ -299,6 +303,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             0,
             10
           )}...${accountSelection.address.slice(-10)}`
+        } else if (errors.setTokenAllowance) {
+          errorInstruction = 'ERC20 token approval denied'
+        } else if (errors.submitTx.match(/User rejected the transaction/)) {
+          errorInstruction = 'Authorization denied'
         }
         break
       case 'ledger':
@@ -325,6 +333,10 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (errors.submitTx === WalletErrors.ledger.incorrectSigningKey) {
           errorInstruction = `Please make sure you have selected the correct 
           ${getCryptoTitle(cryptoType)} network`
+        } else if (errors.setTokenAllowance) {
+          errorInstruction = 'ERC20 token approval denied'
+        } else if (errors.submitTx.match(/denied by the user/)) {
+          errorInstruction = 'Authorization denied'
         }
         break
       case 'drive':
@@ -332,6 +344,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
           instruction = 'Loading Chainfr wallet...'
         } else if (actionsPending.verifyAccount) {
           instruction = 'Verifying Google account...'
+        } else if (errors.setTokenAllowance) {
+          errorInstruction = 'ERC20 token approval denied'
         }
         break
       case 'coinbaseWalletLink':
@@ -348,6 +362,8 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             0,
             10
           )}...${accountSelection.address.slice(-10)}`
+        } else if (errors.setTokenAllowance) {
+          errorInstruction = 'ERC20 token approval denied'
         }
         break
       default:
@@ -396,11 +412,7 @@ class WalletAuthorizationComponent extends Component<Props, State> {
             <Alert severity='success'>Wallet connected</Alert>
           </Grid>
         )}
-        {(errors.checkWalletConnection ||
-          errors.verifyAccount ||
-          errors.setTokenAllowance ||
-          errors.setTokenAllowanceWaitForConfirmation ||
-          errors.submitTx) && (
+        {errorInstruction && (
           <Grid item>
             <Alert severity='error'>{errorInstruction}</Alert>
           </Grid>
