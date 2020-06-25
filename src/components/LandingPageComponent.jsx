@@ -537,7 +537,7 @@ function TransferDetailsComponent (props) {
                 component={Link}
                 target='_blank'
                 rel='noopener'
-                classes={{ contained: classes.cancelBtn }}
+                className='warning'
                 to={`cancel?id=${transfer.transferId}`}
                 data-test-id='cancel_btn'
                 onClick={() => {
