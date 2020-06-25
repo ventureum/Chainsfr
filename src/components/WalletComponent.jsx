@@ -385,6 +385,7 @@ function WalletComponent (props: {
                             }`
                         )
                       }}
+                      disabled={account.cryptoType === 'tether'}
                       data-test-id='send_from_btn'
                     >
                       <SendIcon className={classes.buttonIcon} />
