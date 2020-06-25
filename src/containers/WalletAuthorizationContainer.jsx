@@ -69,6 +69,9 @@ class WalletAuthorizationContainer extends Component<Props, State> {
 
     return new BN(transferAmountBasicTokenUnit).gt(new BN(accountSelection.multiSigAllowance))
   }
+  componentWillUnmount () {
+    this.props.clearError()
+  }
 
   componentDidUpdate (prevProps) {
     const {
