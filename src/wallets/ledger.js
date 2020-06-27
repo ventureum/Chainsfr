@@ -399,23 +399,18 @@ export default class LedgerWallet implements IWallet<AccountData> {
     const ethApp = await this._getEtherLedger()
     const accountIndex = 0 // default first account
     const accountPath = baseEtherPath + `/${accountIndex}`
-
     txObj.nonce = txObj.nonce || (await web3.eth.getTransactionCount(txObj.from))
     txObj.gas = web3.utils.numberToHex(txObj.gas)
     txObj.gasPrice = web3.utils.numberToHex(txObj.gasPrice)
     txObj.value = web3.utils.numberToHex(txObj.value)
-    txObj.v = web3.utils.numberToHex(4)
-    txObj.r = web3.utils.numberToHex(0)
-    txObj.s = web3.utils.numberToHex(0)
-
-    let tx = new EthTx(txObj, { chain: env.REACT_APP_ETHEREUM_NETWORK })
-
+    let tx = new EthTx(txObj, { chain: networkId })
+    tx.raw[6] = Buffer.from([networkId]) // v
+    tx.raw[7] = Buffer.from([]) // r
+    tx.raw[8] = Buffer.from([]) // s
     const rv = await ethApp.signTransaction(accountPath, tx.serialize().toString('hex'))
-
     tx.v = WalletUtils.getBufferFromHex(rv.v)
     tx.r = WalletUtils.getBufferFromHex(rv.r)
     tx.s = WalletUtils.getBufferFromHex(rv.s)
-
     const signedChainId = WalletUtils.calculateChainIdFromV(tx.v)
     if (signedChainId !== networkId) {
       console.error(
@@ -423,7 +418,6 @@ export default class LedgerWallet implements IWallet<AccountData> {
         'InvalidNetworkId'
       )
     }
-
     const signedTransactionObject = WalletUtils.getSignTransactionObject(tx)
     return signedTransactionObject
   }
