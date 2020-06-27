@@ -564,6 +564,17 @@ async function getEmailTransfers (request: {
   }
 }
 
+async function clearTransfer (request: { transferId: string }) {
+  try {
+    await chainsferApi.post('/transfer', {
+      ...request,
+      action: 'CLEAR_TRANSFER'
+    })
+  } catch (err) {
+    throw new Error('Clear transfer failed.')
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -593,5 +604,6 @@ export default {
   updateUserCloudWalletFolderMeta,
   getUserRegisterTime,
   lookupTxHash,
-  getEmailTransfers
+  getEmailTransfers,
+  clearTransfer
 }

@@ -11,7 +11,12 @@ import { Base64 } from 'js-base64'
 import { getCryptoDecimals, isERC20, getCryptoPlatformType, getCrypto } from '../tokens'
 import url from '../url'
 import SimpleMultiSig from '../SimpleMultiSig'
-import type { TxFee, TxHash, AccountTxHistoryType, TransferExchangeRateType } from '../types/transfer.flow.js'
+import type {
+  TxFee,
+  TxHash,
+  AccountTxHistoryType,
+  TransferExchangeRateType
+} from '../types/transfer.flow.js'
 import type { StandardTokenUnit, BasicTokenUnit, Address } from '../types/token.flow'
 import type { AccountData } from '../types/account.flow.js'
 import { createWallet } from '../wallets/WalletFactory'
@@ -239,13 +244,30 @@ async function _submitTx (txRequest: {
       tempTimestamp: timestamp
     })
 
-    const rv = await _wallet.sendTransaction({
-      to: escrowAccount.getAccountData().address,
-      value: value,
-      txFee: txFee,
-      options: { multisig }
-    })
-    var { txHash } = rv
+    try {
+      const rv = await _wallet.sendTransaction({
+        to: escrowAccount.getAccountData().address,
+        value: value,
+        txFee: txFee,
+        options: { multisig }
+      })
+      var { txHash } = rv
+    } catch (e) {
+      const { message } = e
+      if (
+        // walletConnect
+        message.includes('User rejected') ||
+        // metamask extension
+        // coinbase wallet
+        message.includes('User denied') ||
+        // ledger
+        message.includes('denied by the user')
+      ) {
+        await API.clearTransfer({transferId})
+      } else {
+        throw e
+      }
+    }
     if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
 
     // update sendTxHash
