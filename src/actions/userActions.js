@@ -329,6 +329,7 @@ function postLoginPreparation (loginData: any, progress?: Function) {
             )
           )
         }
+        return { userMetaInfo }
       }
     })
   }
