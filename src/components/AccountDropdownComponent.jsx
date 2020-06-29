@@ -8,6 +8,7 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
+import MuiLink from '@material-ui/core/Link'
 import FormControl from '@material-ui/core/FormControl'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import Divider from '@material-ui/core/Divider'
@@ -22,6 +23,7 @@ import path from '../Paths'
 
 // Material Icons
 import AddIcon from '@material-ui/icons/AddRounded'
+import LockIcon from '@material-ui/icons/Lock'
 
 type Props = {
   account: ?AccountData,
@@ -249,7 +251,7 @@ class AccountDropdownComponent extends Component<Props, State> {
     const { groupedAccount } = this.state
     let sortedAccounts = []
     if (groupedAccount && groupedAccount.accounts) {
-      // Must copy to avoid making changes to groupedAccount.accounts 
+      // Must copy to avoid making changes to groupedAccount.accounts
       sortedAccounts = [...groupedAccount.accounts]
       sortedAccounts.sort((a, b) => {
         return cryptoOrder[b.cryptoType] - cryptoOrder[a.cryptoType]
@@ -366,6 +368,40 @@ class AccountDropdownComponent extends Component<Props, State> {
             >
               {sortedAccounts.length !== 0 &&
                 sortedAccounts.map((accountData, index) => {
+                  if (accountData.cryptoType === 'tether')
+                    return (
+                      <MenuItem
+                        component={MuiLink}
+                        data-test-id={`crypto_list_item_${accountData.cryptoType}`}
+                        id={`crypto_list_item_${accountData.cryptoType}`}
+                        key={index}
+                      >
+                        <Box
+                          flexDirection='row'
+                          display='flex'
+                          justifyContent='space-between'
+                          alignItems='center'
+                          width='100%'
+                        >
+                          <Box display='flex' flexDirection='row' alignItems='center' flex={1}>
+                            <Box mr={1} display='inline'>
+                              {/* wallet icon */}
+                              <Avatar
+                                style={{ borderRadius: '2px' }}
+                                src={getCryptoLogo(accountData.cryptoType)}
+                              />
+                            </Box>
+                            <Box>
+                              {/* name and wallet title*/}
+                              <Typography variant='body2' data-test-id='coin_symbol'>
+                                {getCryptoSymbol(accountData.cryptoType)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <LockIcon />
+                        </Box>
+                      </MenuItem>
+                    )
                   return (
                     <MenuItem
                       key={index}

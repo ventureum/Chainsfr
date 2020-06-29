@@ -348,7 +348,7 @@ function WalletComponent (props: {
                         justifyContent='flex-end'
                       >
                         <Typography variant='body2'>
-                          {numeral(balanceStandardTokenUnit).format('0.00a')}
+                          {numeral(balanceStandardTokenUnit).format('0.000[000]a')}
                         </Typography>
                         <Typography variant='body2'>
                           {`$${toCurrencyAmount(balanceStandardTokenUnit, account.cryptoType)}`}
@@ -385,6 +385,7 @@ function WalletComponent (props: {
                             }`
                         )
                       }}
+                      disabled={account.cryptoType === 'tether'}
                       data-test-id='send_from_btn'
                     >
                       <SendIcon className={classes.buttonIcon} />
@@ -480,7 +481,7 @@ function WalletComponent (props: {
                 {!skeletonOnly ? (
                   <>
                     <Typography variant='body2'>
-                      {numeral(balanceStandardTokenUnit).format('0.00a')}
+                      {numeral(balanceStandardTokenUnit).format('0.000[000]a')}
                     </Typography>
                     <Typography variant='caption'>
                       {`$${toCurrencyAmount(balanceStandardTokenUnit, cryptoType)}`}

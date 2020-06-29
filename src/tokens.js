@@ -9,7 +9,7 @@ import { erc20TokensAddress } from './erc20Tokens'
 export const cryptoOrder = {
   bitcoin: 100,
   ethereum: 99,
-  tether: 98,
+  tether: 0,
   'usd-coin': 97,
   dai: 96,
   'true-usd': 95

@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { Component, useState, useEffect } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
@@ -23,7 +23,7 @@ import AppBar from './containers/AppBarContainer'
 import Button from '@material-ui/core/Button'
 import MuiLink from '@material-ui/core/Link'
 import NavDrawer from './containers/NavDrawerContainer'
-import paths from './Paths'
+import paths, { pathTitle } from './Paths'
 import { ThemeProvider } from '@material-ui/styles'
 import { store, history, persistor } from './configureStore'
 import LandingPage from './containers/LandingPageContainer'
@@ -91,7 +91,11 @@ const StyledCookieConsent = () => {
   )
 }
 
-const LoginLayout = ({ component: Component, ...rest }) => {
+const LoginLayout = ({ component: Component, title, ...rest }) => {
+  useEffect(() => {
+    document.title = title || pathTitle.default
+  }, [title])
+
   return (
     <Route
       {...rest}
@@ -161,13 +165,17 @@ const DemoTopBanner = props => {
   )
 }
 
-const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
+const DefaultLayout = ({ component: Component, isolate, title, ...rest }) => {
   // isolate flag is used to toggle leftside navigation drawer
   // while isolate is true, users are not allow to navigate between paths
   const [openDrawer, setOpenDrawer] = useState(false)
   const handleDrawerToggle = () => {
     setOpenDrawer(previous => !previous)
   }
+
+  useEffect(() => {
+    document.title = title || pathTitle.default
+  }, [title])
 
   // usePageVisibility causing tests to fail for unknown reasons
   // must disable it conditionally during e2e tests
@@ -213,7 +221,7 @@ const DefaultLayout = ({ component: Component, isolate, ...rest }) => {
                   </Box>
                   <StyledCookieConsent />
                   <NotifierComponent />
-                  <Prompt/>
+                  <Prompt />
                 </Box>
               )
             }
@@ -323,6 +331,7 @@ class App extends Component {
                 <Switch>
                   <LoginLayout
                     path={paths.login}
+                    title={pathTitle.login}
                     isolate
                     component={userIsNotAuthenticated(LoginContainer)}
                   />
@@ -334,6 +343,7 @@ class App extends Component {
                   <DefaultLayout
                     exact
                     path={paths.wallet}
+                    title={pathTitle.wallet}
                     component={userIsAuthenticated(WalletContainer)}
                   />
                   <DefaultLayout
@@ -344,51 +354,56 @@ class App extends Component {
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.transfer}`}
+                    path={paths.transfer}
+                    title={pathTitle.transfer}
                     isolate
                     component={userIsAuthenticated(TransferContainer)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.receive}`}
+                    path={paths.receive}
                     isolate
                     component={userIsAuthenticated(ReceiveContainer)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.cancel}`}
+                    path={paths.cancel}
                     isolate
                     component={userIsAuthenticated(CancelContainer)}
                   />
                   <DefaultLayout
-                    path={`${paths.contacts}`}
+                    path={paths.contacts}
+                    title={pathTitle.contacts}
                     component={userIsAuthenticated(RecipientsContainer)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.connections}`}
+                    path={paths.connections}
+                    title={pathTitle.connections}
                     component={userIsAuthenticated(AccountsManagementContainer)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.receipt}`}
+                    path={paths.receipt}
+                    title={pathTitle.receipt}
                     isolate
                     component={userIsAuthenticated(ReceiptContainer)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.OAuthRedirect}`}
+                    path={paths.OAuthRedirect}
                     component={userIsAuthenticated(OAuthRedirectComponent)}
                   />
                   <DefaultLayout
                     exact
-                    path={`${paths.userSetting}`}
+                    path={paths.userSetting}
+                    title={pathTitle.userSetting}
                     component={userIsAuthenticated(UserSettingContainer)}
                   />
                   {process.env.REACT_APP_ENV === 'test' && (
                     <DefaultLayout
                       exact
-                      path={`${paths.disconnect}`}
+                      path={paths.disconnect}
                       component={userIsAuthenticated(Disconnect)}
                     />
                   )}

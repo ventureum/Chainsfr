@@ -19,4 +19,16 @@ const testPaths = {
   disconnect: '/disconnect'
 }
 
-export default process.env.REACT_APP_ENV === 'test' ? testPaths : paths
+const pathTitle = {
+  transfer: 'Chainsfr | Payments',
+  connections: 'Chainsfr | Connections',
+  wallet: 'Chainsfr | Wallet',
+  contacts: 'Chainsfr | Contacts',
+  userSetting: 'Chainsfr | Profile',
+  login: 'Chainsfr | Sign in',
+  receipt: 'Chainsfr | Receipt',
+  default: 'Chainsfr'
+}
+
+export default (process.env.REACT_APP_ENV === 'test' ? testPaths : paths)
+export { pathTitle }
