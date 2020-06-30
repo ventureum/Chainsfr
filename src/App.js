@@ -125,18 +125,12 @@ const DemoTopBanner = props => {
       alignItems='center'
       color='white'
     >
-      <Typography color='inherit' variant='subtitle2' style={{ padding: '10px' }} align='center'>
-        <Typography
-          color='inherit'
-          variant='subtitle1'
-          component='span'
-          style={{ marginRight: 10 }}
-          role='img'
-          aria-label='waving_hand'
-        >
-          {'👋'}
-        </Typography>
-        {'You are in Demo now.'}
+      <Typography
+        color='inherit'
+        style={{ padding: '10px', fontSize: 16 }}
+        align='center'
+      >
+        {'👋 You are in Demo now.'}
         <MuiLink
           style={{
             marginLeft: 10,
@@ -159,6 +153,50 @@ const DemoTopBanner = props => {
           rel='noopener noreferrer'
         >
           Switch to Live
+        </Button>
+      </Typography>
+    </Box>
+  )
+}
+
+const ProductTourTopBanner = () => {
+  const { profile } = store.getState().userReducer
+  let userName, userEmail
+  if (profile && profile.profileObj) {
+    userName = profile.profileObj.name
+    userEmail = profile.profileObj.email
+  }
+  return (
+    <Box
+      bgcolor='#1E0E62'
+      display='flex'
+      justifyContent='center'
+      alignItems='center'
+      color='white'
+    >
+      <Typography color='inherit' style={{ padding: '10px', fontSize: 16 }} align='center'>
+        {'👋 Try demo with free Ethereum'}
+        <Button
+          style={{
+            backgroundColor: 'white',
+            marginLeft: 15,
+            padding: '5px 17px 5px 17px',
+            textDecoration: 'none'
+          }}
+          component={MuiLink}
+          href={
+            'https://testnet.chainsfr.com/send?' +
+            'walletSelection=drive&' +
+            'cryptoType=ethereum&' +
+            'platformType=ethereum&' +
+            `destination=${userEmail || 'Invalid Email'}&` +
+            `receiverName=${userName || 'Invalid Name'}&` +
+            'transferCurrencyAmount=1&' +
+            'product_tour_id=123741'
+          }
+          rel='noopener noreferrer'
+        >
+          Try now
         </Button>
       </Typography>
     </Box>
@@ -243,7 +281,7 @@ const DefaultLayout = ({ component: Component, isolate, title, ...rest }) => {
                       isMainNet={isMainNet}
                     />
                   </Hidden>
-                  {!isMainNet && <DemoTopBanner />}
+                  {!isMainNet ? <ProductTourTopBanner /> : <DemoTopBanner />}
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>

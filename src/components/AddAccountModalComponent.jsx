@@ -733,7 +733,7 @@ const ConnectWallet = (props: ConnectWalletProps) => {
               <Alert severity='info'>
                 <Typography display='inline' style={{ whiteSpace: 'pre-line' }}>
                   {LEDGER_CONNECT_USB_DRIVER_INSTRUCTION}
-                  <MuiLink>{`\n How to install?`}</MuiLink>
+                  <MuiLink id="how_to_install_ledger">{`\n How to install?`}</MuiLink>
                 </Typography>
               </Alert>
             </Box>

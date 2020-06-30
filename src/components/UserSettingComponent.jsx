@@ -483,7 +483,7 @@ const Advanced = props => {
           <img src={GoogleDrive} style={{ width: 22, marginRight: 10 }} alt='driveIcon' />
           Go to Backup Folder
         </Button>
-        <Button id='export_learn_more' style={{ marginLeft: '30px' }} color='primary'>
+        <Button id='backup_learn_more' style={{ marginLeft: '30px' }} color='primary'>
           Learn More
         </Button>
       </Box>
