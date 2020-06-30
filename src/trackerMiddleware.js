@@ -187,6 +187,7 @@ export const intercomBoot = () => {
 }
 
 export const intercomLogin = (userId, profile) => {
+  console.log(profile)
   _intercomBoot({
     user_id: userId,
     email: profile.email,
@@ -209,17 +210,6 @@ export const trackerMiddleware = store => next => action => {
     case 'persist/REHYDRATE':
       initTracker()
       intercomBoot()
-      if (currentUserId === null) {
-        const profile =
-          action.payload && action.payload.userReducer && action.payload.userReducer.profile
-        const registerTime =
-          action.payload && action.payload.userReducer && action.payload.userReducer.registerTime
-        if (profile && profile.googleId) {
-          currentUserId = profile.googleId
-          trackUser(currentUserId)
-          intercomLogin(currentUserId, { ...profile.profileObj, registerTime })
-        }
-      }
       break
     case '@@router/LOCATION_CHANGE':
       const nextPage = `${action.payload.location.pathname}${action.payload.location.search}`
@@ -232,13 +222,14 @@ export const trackerMiddleware = store => next => action => {
         window.Intercom('update', { last_request_at: parseInt(new Date().getTime() / 1000) })
       }
       break
-    case 'ON_GOOGLE_LOGIN_RETURN':
-      currentUserId = action.payload.googleId
-      const profile = action.payload.profileObj
-      const registerTime =
-        action.payload && action.payload.userReducer && action.payload.userReducer.registerTime
+    case 'POST_LOGIN_PREPARATION_FULFILLED':
+      currentUserId = action.payload.userMetaInfo.googleId
+      const profile = action.payload.userMetaInfo.profile
+      const email = action.payload.userMetaInfo.email
+      const registerTime = action.payload.userMetaInfo.registerTime
+
       trackUser(currentUserId)
-      intercomLogin(currentUserId, { ...profile.profileObj, registerTime })
+      intercomLogin(currentUserId, { ...profile, email, registerTime })
       break
     case 'LOGOUT_FULFILLED':
       trackGAEvent({
