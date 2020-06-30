@@ -281,7 +281,7 @@ const DefaultLayout = ({ component: Component, isolate, title, ...rest }) => {
                       isMainNet={isMainNet}
                     />
                   </Hidden>
-                  {!isMainNet ? <ProductTourTopBanner /> : <DemoTopBanner />}
+                  {isMainNet ? <ProductTourTopBanner /> : <DemoTopBanner />}
                   <Box>
                     <Component {...matchProps} online={online} />
                   </Box>
