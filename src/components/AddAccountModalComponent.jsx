@@ -45,6 +45,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 import walletErrors from '../wallets/walletErrors'
 import { useActionTracker } from '../hooksUtils'
 import MuiLink from '@material-ui/core/Link'
+import { isMobile } from 'react-device-detect'
 
 // Icons
 import BitPayIcon from '../images/bitpay.png'
@@ -503,6 +504,7 @@ const WalletList = (props: WalletListProps) => {
       key={`wallet-bitpay`}
       divider
       className={classes.listItem}
+      disabled={isMobile}
     >
       <Box display='flex' flexDirection='row' alignItems='center' height='30px' flex={1}>
         <Box mr={1}>

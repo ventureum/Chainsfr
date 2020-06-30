@@ -44,6 +44,7 @@ export default function (state = initState, action) {
     case 'POST_LOGIN_PREPARATION_FULFILLED':
       return {
         ...state,
+        registerTime: action.payload.userMetaInfo.registerTime,
         cloudWalletConnected: true
       }
     case 'SET_NEW_USER_TAG':

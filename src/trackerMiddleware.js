@@ -108,7 +108,8 @@ const ACTION_WHITELIST = [
   /SUBMIT_TX_FULFILLED/,
   /ACCEPT_TRANSFER_FULFILLED/,
   /CANCEL_TRANSFER_FULFILLED/,
-  /SET_TOKEN_ALLOWANCE_FULFILLED/
+  /SET_TOKEN_ALLOWANCE_FULFILLED/,
+  /EXPORT_CLOUD_WALLET_FULFILLED/
 ]
 
 const actionToEvent = action => {
@@ -196,7 +197,7 @@ export const intercomLogin = (userId, profile) => {
       type: 'avatar',
       image_url: profile.imageUrl
     },
-    created_at: moment().unix()
+    created_at: profile.registerTime || moment().unix()
   })
 }
 
@@ -211,10 +212,12 @@ export const trackerMiddleware = store => next => action => {
       if (currentUserId === null) {
         const profile =
           action.payload && action.payload.userReducer && action.payload.userReducer.profile
+        const registerTime =
+          action.payload && action.payload.userReducer && action.payload.userReducer.registerTime
         if (profile && profile.googleId) {
           currentUserId = profile.googleId
           trackUser(currentUserId)
-          intercomLogin(currentUserId, profile.profileObj)
+          intercomLogin(currentUserId, { ...profile.profileObj, registerTime })
         }
       }
       break
@@ -232,8 +235,10 @@ export const trackerMiddleware = store => next => action => {
     case 'ON_GOOGLE_LOGIN_RETURN':
       currentUserId = action.payload.googleId
       const profile = action.payload.profileObj
+      const registerTime =
+        action.payload && action.payload.userReducer && action.payload.userReducer.registerTime
       trackUser(currentUserId)
-      intercomLogin(currentUserId, profile)
+      intercomLogin(currentUserId, { ...profile.profileObj, registerTime })
       break
     case 'LOGOUT_FULFILLED':
       trackGAEvent({
