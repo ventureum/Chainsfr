@@ -41,6 +41,10 @@ export default function (state = initState, action) {
       return initState
     case 'GET_CLOUD_WALLET_FULFILLED':
     case 'CREATE_CLOUD_WALLET_FULFILLED':
+      return {
+        ...state,
+        cloudWalletConnected: true
+      }
     case 'POST_LOGIN_PREPARATION_FULFILLED':
       return {
         ...state,

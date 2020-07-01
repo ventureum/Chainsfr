@@ -32,9 +32,11 @@ export default function errorMiddleware (store) {
         Sentry.withScope(scope => {
           if (profile) {
             const { profileObj } = profile
-            scope.setTag('id', profileObj.googleId)
-            scope.setTag('username', profileObj.name)
-            scope.setTag('email', profileObj.email)
+            if (profileObj) {
+              scope.setTag('id', profileObj.googleId)
+              scope.setTag('username', profileObj.name)
+              scope.setTag('email', profileObj.email)
+            }
             scope.setTag('action', action.type)
           }
           scope.setLevel('error')
