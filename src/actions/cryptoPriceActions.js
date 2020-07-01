@@ -5,18 +5,20 @@ const CoinGeckoClient = new CoinGecko()
 async function _getCryptoPrice (cryptoTypes: Array<string>, currency: string) {
   // api only accepts lowercase currency symbol
   currency = currency.toLowerCase()
-  let resp = await CoinGeckoClient.simple.price({
-    ids: cryptoTypes,
-    vs_currencies: [currency]
-  })
-  if (resp.code === 200) {
-    let rv = {}
-    for (let cryptoType of cryptoTypes) {
-      rv[cryptoType] = resp.data[cryptoType][currency]
+  try {
+    var resp = await CoinGeckoClient.simple.price({
+      ids: cryptoTypes,
+      vs_currencies: [currency]
+    })
+    if (resp && resp.code === 200) {
+      let rv = {}
+      for (let cryptoType of cryptoTypes) {
+        rv[cryptoType] = resp.data[cryptoType][currency]
+      }
+      return rv
     }
-    return rv
-  } else {
-    throw new Error('Get crypto price failed.')
+  } catch (e) {
+    console.warn(e)
   }
 }
 
