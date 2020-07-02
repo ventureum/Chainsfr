@@ -6,6 +6,7 @@ import { getEmailTransferHisotry, getTransferPassword } from '../actions/transfe
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import utils from '../utils'
 import { push } from 'connected-react-router'
+import { enqueueSnackbar } from '../actions/notificationActions.js'
 
 class LandingPageContainer extends Component {
   componentDidMount () {
@@ -60,6 +61,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getEmailTransferHisotry: fromStart => dispatch(getEmailTransferHisotry(fromStart)),
     getTransferPassword: transferId => dispatch(getTransferPassword(transferId)),
+    enqueueSnackbar: payload => dispatch(enqueueSnackbar(payload)),
     push: path => dispatch(push(path))
   }
 }
