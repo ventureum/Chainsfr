@@ -19,15 +19,22 @@ const testPaths = {
   disconnect: '/disconnect'
 }
 
+const suffix = process.env.REACT_APP_ENV === 'test' ? 'Demo ' :''
+
 const pathTitle = {
-  transfer: 'Chainsfr | Payments',
-  connections: 'Chainsfr | Connections',
-  wallet: 'Chainsfr | Wallet',
-  contacts: 'Chainsfr | Contacts',
-  userSetting: 'Chainsfr | Profile',
-  login: 'Chainsfr | Sign in',
-  receipt: 'Chainsfr | Receipt',
-  default: 'Chainsfr'
+  transfer: `Chainsfr ${suffix}| Send`,
+  connections: `Chainsfr ${suffix}| Connections`,
+  wallet: `Chainsfr ${suffix}| Wallet`,
+  contacts: `Chainsfr ${suffix}| Contacts`,
+  userSetting: `Chainsfr ${suffix}| Profile`,
+  login: `Chainsfr ${suffix}| Sign in`,
+  receipt: `Chainsfr ${suffix}| Receipt`,
+  cancel: `Chainsfr ${suffix}| Cancel`,
+  referral:  `Chainsfr ${suffix}| Referral`,
+  OAuthRedirect: `Chainsfr ${suffix}| Redirect`,
+  receive: `Chainsfr ${suffix}| Deposit`,
+  directTransfer: `Chainsfr ${suffix}| Transfer`,
+  default: `Chainsfr ${suffix}`
 }
 
 export default (process.env.REACT_APP_ENV === 'test' ? testPaths : paths)
