@@ -10,15 +10,23 @@ import UnsupportedBrowserModal from './UnsupportedBrowserModal'
 import { GOOGLE_LOGIN_AUTH_OBJ } from '../tests/e2e/mocks/user'
 import UAParser from 'ua-parser-js'
 
+const THIRD_PARTY_COOKIE_BLOCKED = `Google can't sign you into Chainsfr when you are in Incognito Mode. 
+Please open this view in a regular tab of Chrome or Safari to sign in with Google.`
+
+const EMBEDDED_BROWSER_NOT_SUPPROTED = `Google can't sign you in safely inside this app. 
+Please open this view in a browser like Chrome or Safari to sign in with Google.`
+
 class GoogleLoginButton extends Component {
   state = {
-    openUnsupportedBrowserModal: false
+    openUnsupportedBrowserModal: false,
+    unsupportedBrowserModalContent: null
   }
 
-  toggleUnsupportedBrowserModal = () => {
+  toggleUnsupportedBrowserModal = (content) => {
     this.setState(prevState => {
       return {
-        openUnsupportedBrowserModal: !prevState.openUnsupportedBrowserModal
+        openUnsupportedBrowserModal: !prevState.openUnsupportedBrowserModal,
+        unsupportedBrowserModalContent: content
       }
     })
   }
@@ -46,7 +54,7 @@ class GoogleLoginButton extends Component {
     const clientParser = new UAParser()
     const result = clientParser.getResult()
     if (!['chrome', 'safari', 'mobile safari'].includes(result.browser.name.toLowerCase())) {
-      this.toggleUnsupportedBrowserModal()
+      this.toggleUnsupportedBrowserModal(EMBEDDED_BROWSER_NOT_SUPPROTED)
     } else {
       try {
         await this.gapiLoad()
@@ -90,6 +98,12 @@ class GoogleLoginButton extends Component {
         }
         this.props.onSuccess(userInstance)
       } catch (e) {
+        if (e.details && e.details === 'Cookies are not enabled in current environment.') {
+          // this happens in chrome incognito mode
+          // see https://developers.google.com/identity/sign-in/web/troubleshooting#third-party_cookies_and_data_blocked
+          // notify user to create a cookie exception for https://accounts.google.com
+          this.toggleUnsupportedBrowserModal(THIRD_PARTY_COOKIE_BLOCKED)
+        }
         this.props.onFailure(e)
       }
     }
@@ -97,7 +111,7 @@ class GoogleLoginButton extends Component {
 
   render () {
     const { disabled, classes } = this.props
-    const { openUnsupportedBrowserModal } = this.state
+    const { openUnsupportedBrowserModal, unsupportedBrowserModalContent } = this.state
     return (
       <>
         <Button
@@ -127,7 +141,8 @@ class GoogleLoginButton extends Component {
         </Button>
         <UnsupportedBrowserModal
           open={openUnsupportedBrowserModal}
-          handleClose={this.toggleUnsupportedBrowserModal}
+          handleClose={() => this.toggleUnsupportedBrowserModal()}
+          content={unsupportedBrowserModalContent}
         />
       </>
     )

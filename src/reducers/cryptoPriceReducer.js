@@ -7,7 +7,7 @@ const initState = {
 export default function (state = initState, action) {
   switch (action.type) {
     case 'GET_CRYPTO_PRICE_FULFILLED':
-      return update(state, { cryptoPrice: { $merge: action.payload } })
+      return action.payload ? update(state, { cryptoPrice: { $merge: action.payload } }) : state
     case 'SET_CURRENCY':
       return {
         ...state,

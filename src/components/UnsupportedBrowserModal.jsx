@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const UnsupportedBrowserModal = (props: UnsupportedBrowserModalProps) => {
-  const { handleClose, open } = props
+  const { handleClose, open, content } = props
   const classes = useStyles()
 
   return (
@@ -71,8 +71,7 @@ const UnsupportedBrowserModal = (props: UnsupportedBrowserModalProps) => {
       </DialogTitle>
       <DialogContent className={classes.contentRoot}>
         <Typography variant='body1'>
-          Google can't sign you in safely inside this app. Please open this view in a browser like
-          Chrome or Safari to sign in with Google.
+          {content}
         </Typography>
       </DialogContent>
       <DialogActions className={classes.actionRoot}>
