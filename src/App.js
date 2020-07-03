@@ -387,7 +387,8 @@ class App extends Component {
                   <DefaultLayout
                     exact
                     isolate
-                    path={`${paths.directTransfer}`}
+                    path={paths.directTransfer}
+                    title={pathTitle.directTransfer}
                     component={userIsAuthenticated(DirectTransferContainer)}
                   />
                   <DefaultLayout
@@ -400,12 +401,14 @@ class App extends Component {
                   <DefaultLayout
                     exact
                     path={paths.receive}
+                    title={pathTitle.receive}
                     isolate
                     component={userIsAuthenticated(ReceiveContainer)}
                   />
                   <DefaultLayout
                     exact
                     path={paths.cancel}
+                    title={pathTitle.cancel}
                     isolate
                     component={userIsAuthenticated(CancelContainer)}
                   />
@@ -430,6 +433,7 @@ class App extends Component {
                   <DefaultLayout
                     exact
                     path={paths.OAuthRedirect}
+                    title={pathTitle.OAuthRedirect}
                     component={userIsAuthenticated(OAuthRedirectComponent)}
                   />
                   <DefaultLayout

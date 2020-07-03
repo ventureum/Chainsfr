@@ -316,7 +316,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 function TransferDetailsComponent (props) {
-  const { transfer, open, onClose, getTransferPassword } = props
+  const { transfer, open, onClose, getTransferPassword, enqueueSnackbar } = props
   const [showPassword, setShowPassword] = useState(false)
   const classes = useStyles()
   let name, avatar, email, password, timestamp, timestampTitle, account, transferId, timestamp2
@@ -421,7 +421,15 @@ function TransferDetailsComponent (props) {
                     transfer.passwordLoading ? (
                       <Skeleton width={90} height={20} />
                     ) : (
-                      <CopyToClipboard text={password}>
+                      <CopyToClipboard
+                        text={password}
+                        onCopy={() => {
+                          enqueueSnackbar({
+                            message: 'Security answer copied!',
+                            options: { variant: 'success', autoHideDuration: 3000 }
+                          })
+                        }}
+                      >
                         <Button className={classes.passwordBtn}>
                           <Typography variant='h4'>{password}</Typography>
                         </Button>
@@ -574,7 +582,13 @@ function TransferDetailsComponent (props) {
 
 export function UserRecentTransactions (props) {
   const classes = useStyles()
-  const { actionsPending, transferHistory, loadMoreTransferHistory, getTransferPassword } = props
+  const {
+    actionsPending,
+    transferHistory,
+    loadMoreTransferHistory,
+    getTransferPassword,
+    enqueueSnackbar
+  } = props
   const theme = useTheme()
   const wide = useMediaQuery(theme.breakpoints.up('md'))
   const [selectedTransferIndex, setSelectedTransferIndex] = useState(-1) // store the index
@@ -754,6 +768,7 @@ export function UserRecentTransactions (props) {
           onClose={() => {
             setSelectedTransferIndex(null)
           }}
+          enqueueSnackbar={enqueueSnackbar}
           getTransferPassword={getTransferPassword}
         />
       </InfiniteScroll>
@@ -824,7 +839,8 @@ class LandingPageComponent extends Component {
       actionsPending,
       transferHistory,
       loadMoreTransferHistory,
-      getTransferPassword
+      getTransferPassword,
+      enqueueSnackbar
     } = this.props
     return (
       <Box display='flex' flexDirection='column'>
@@ -834,6 +850,7 @@ class LandingPageComponent extends Component {
           transferHistory={transferHistory}
           loadMoreTransferHistory={loadMoreTransferHistory}
           getTransferPassword={getTransferPassword}
+          enqueueSnackbar={enqueueSnackbar}
         />
       </Box>
     )
