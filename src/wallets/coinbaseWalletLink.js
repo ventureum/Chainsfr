@@ -220,6 +220,6 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
     const accountData = this.getAccount().getAccountData()
     const txObj = ERC20.getSetAllowanceTxObj(accountData.address, amount, accountData.cryptoType)
     // boardcast tx
-    return WalletUtils.web3SendTransactions(window._web3.eth.sendTransaction, txObj)
+    return WalletUtils.web3SendTransactions(window._walletLinkWeb3.eth.sendTransaction, txObj)
   }
 }
