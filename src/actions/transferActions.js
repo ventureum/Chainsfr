@@ -263,7 +263,7 @@ async function _submitTx (txRequest: {
         // ledger
         message.includes('denied by the user')
       ) {
-        await API.clearTransfer({transferId})
+        await API.clearTransfer({ transferId })
       } else {
         throw e
       }
@@ -1145,7 +1145,7 @@ function getEmailTransferHisotry (fromStart: boolean) {
             if (item.txFee) {
               item.txFeeCurrencyAmount = utils.toCurrencyAmount(
                 item.txFee.costInStandardUnit,
-                parseFloat(item.transferFiatAmountSpot) / parseFloat(item.transferAmount),
+                item.exchangeRate.txFeeCryptoExchangeRate,
                 item.fiatType
               )
             }
