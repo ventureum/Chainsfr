@@ -1,3 +1,5 @@
+import WalletUtils from '../../../wallets/utils.js'
+import env from '../../../typedEnv'
 import TransactionStateManager from './tx-state-manager'
 import TxGasUtil from './tx-gas-utils'
 import PendingTransactionTracker from './pending-tx-tracker'
@@ -113,8 +115,7 @@ export default class TransactionController extends EventEmitter {
 
   /** @returns {number} the chainId*/
   getChainId () {
-    // TODO: add mainnet id
-    return 4
+    return WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
   }
 
   /**
