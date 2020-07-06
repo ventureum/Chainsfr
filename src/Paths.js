@@ -19,7 +19,7 @@ const testPaths = {
   disconnect: '/disconnect'
 }
 
-const suffix = process.env.REACT_APP_ENV === 'test' ? 'Demo ' :''
+const suffix = process.env.REACT_APP_ENV === 'prod' ? '' : 'Demo '
 
 const pathTitle = {
   transfer: `Chainsfr ${suffix}| Send`,
@@ -30,7 +30,7 @@ const pathTitle = {
   login: `Chainsfr ${suffix}| Sign in`,
   receipt: `Chainsfr ${suffix}| Receipt`,
   cancel: `Chainsfr ${suffix}| Cancel`,
-  referral:  `Chainsfr ${suffix}| Referral`,
+  referral: `Chainsfr ${suffix}| Referral`,
   OAuthRedirect: `Chainsfr ${suffix}| Redirect`,
   receive: `Chainsfr ${suffix}| Deposit`,
   directTransfer: `Chainsfr ${suffix}| Transfer`,
