@@ -125,11 +125,7 @@ const DemoTopBanner = props => {
       alignItems='center'
       color='white'
     >
-      <Typography
-        color='inherit'
-        style={{ padding: '10px', fontSize: 16 }}
-        align='center'
-      >
+      <Typography color='inherit' style={{ padding: '10px', fontSize: 16 }} align='center'>
         {'👋 You are in Demo now.'}
         <MuiLink
           style={{
@@ -370,6 +366,12 @@ class App extends Component {
                   <LoginLayout
                     path={paths.login}
                     title={pathTitle.login}
+                    isolate
+                    component={userIsNotAuthenticated(LoginContainer)}
+                  />
+                  <LoginLayout
+                    path={paths.signUp}
+                    title={pathTitle.signUp}
                     isolate
                     component={userIsNotAuthenticated(LoginContainer)}
                   />

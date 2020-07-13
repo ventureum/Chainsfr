@@ -22,7 +22,7 @@ class GoogleLoginButton extends Component {
     unsupportedBrowserModalContent: null
   }
 
-  toggleUnsupportedBrowserModal = (content) => {
+  toggleUnsupportedBrowserModal = content => {
     this.setState(prevState => {
       return {
         openUnsupportedBrowserModal: !prevState.openUnsupportedBrowserModal,
@@ -110,8 +110,9 @@ class GoogleLoginButton extends Component {
   }
 
   render () {
-    const { disabled, classes } = this.props
+    const { disabled, classes, path } = this.props
     const { openUnsupportedBrowserModal, unsupportedBrowserModalContent } = this.state
+    const word = path && path.includes('login') ? 'in' : 'up'
     return (
       <>
         <Button
@@ -136,7 +137,7 @@ class GoogleLoginButton extends Component {
             style={{ flex: 1 }}
             align='center'
           >
-            Sign in with Google
+            Sign {word} with Google
           </Typography>
         </Button>
         <UnsupportedBrowserModal
