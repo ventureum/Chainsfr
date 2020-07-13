@@ -1,5 +1,6 @@
 const paths = {
   login: '/login',
+  signUp: '/signUp',
   home: '/',
   wallet: '/wallet',
   directTransfer: '/directTransfer',
@@ -28,6 +29,7 @@ const pathTitle = {
   contacts: `Chainsfr ${suffix}| Contacts`,
   userSetting: `Chainsfr ${suffix}| Profile`,
   login: `Chainsfr ${suffix}| Sign in`,
+  signUp: `Chainsfr ${suffix}| Sign up`,
   receipt: `Chainsfr ${suffix}| Receipt`,
   cancel: `Chainsfr ${suffix}| Cancel`,
   referral: `Chainsfr ${suffix}| Referral`,

@@ -41,7 +41,7 @@ class LoginContainer extends Component {
   }
 
   render () {
-    let { transfer, actionsPending, cryptoPrice, currency, push } = this.props
+    let { transfer, actionsPending, cryptoPrice, currency, push, history } = this.props
 
     if (actionsPending.postLoginPreparation) {
       return <PreloadingComponent actionsPending={actionsPending} />
@@ -74,6 +74,7 @@ class LoginContainer extends Component {
         cancelTime={cancelTime}
         currencyAmount={currencyAmount}
         push={push}
+        path={history.location.pathname || '/login'}
       />
     )
   }

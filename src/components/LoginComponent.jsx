@@ -52,10 +52,10 @@ class LoginComponent extends Component {
   }
 
   renderLoginBtn = () => {
-    const { classes } = this.props
+    const { classes, path } = this.props
     return (
       <Grid className={classes.btnContainer}>
-        <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
+        <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} path={path}/>
       </Grid>
     )
   }
@@ -249,7 +249,7 @@ class LoginComponent extends Component {
   }
 
   render () {
-    let { classes, renderReceiveLogin, renderReceiptLogin, isMainNet } = this.props
+    let { classes, renderReceiveLogin, renderReceiptLogin, isMainNet, path } = this.props
 
     if (renderReceiveLogin) {
       return this.renderReceiveLogin()
@@ -281,40 +281,46 @@ class LoginComponent extends Component {
                   </Button>
                 </Box>
                 <Box mt={4} width={300}>
-                  <GoogleLoginButton onSuccess={this.loginSuccess} onFailure={this.loginFailure} />
+                  <GoogleLoginButton
+                    onSuccess={this.loginSuccess}
+                    onFailure={this.loginFailure}
+                    path={path}
+                  />
                 </Box>
-                <Box mt={3} maxWidth={350}>
-                  <Typography
-                    variant='caption'
-                    component='p' // otherwise component does not align center
-                    className={classes.loginText}
-                    align='center'
-                  >
-                    By signing in, you agree to our{' '}
-                    <Link
-                      className={classes.linkText}
+                {path.includes('signup') && (
+                  <Box mt={3} maxWidth={350}>
+                    <Typography
                       variant='caption'
+                      component='p' // otherwise component does not align center
+                      className={classes.loginText}
                       align='center'
-                      color='textSecondary'
-                      href={data.termURL}
-                      target='_blank'
                     >
-                      Term of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link
-                      className={classes.linkText}
-                      variant='caption'
-                      align='center'
-                      color='textSecondary'
-                      href={data.privacyURL}
-                      target='_blank'
-                    >
-                      Privacy Policy
-                    </Link>{' '}
-                    and to receive Chainsfr emails, newsletters & updates.
-                  </Typography>
-                </Box>
+                      By signing up, you agree to our{' '}
+                      <Link
+                        className={classes.linkText}
+                        variant='caption'
+                        align='center'
+                        color='textSecondary'
+                        href={data.termURL}
+                        target='_blank'
+                      >
+                        Term of Service
+                      </Link>{' '}
+                      and{' '}
+                      <Link
+                        className={classes.linkText}
+                        variant='caption'
+                        align='center'
+                        color='textSecondary'
+                        href={data.privacyURL}
+                        target='_blank'
+                      >
+                        Privacy Policy
+                      </Link>{' '}
+                      and to receive Chainsfr emails, newsletters & updates.
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Box>
           </Box>
