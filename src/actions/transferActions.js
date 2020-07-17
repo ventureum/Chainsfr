@@ -91,6 +91,9 @@ async function _submitDirectTransferTx (txRequest: {
     txFee
   } = txRequest
 
+  // format fiat amount
+  transferFiatAmountSpot = utils.formatNumber(transferFiatAmountSpot)
+
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromAccount.cryptoType))
@@ -171,6 +174,9 @@ async function _submitTx (txRequest: {
     receiverAvatar,
     txFee
   } = txRequest
+
+  // format fiat amount
+  transferFiatAmountSpot = utils.formatNumber(transferFiatAmountSpot)
 
   let { cryptoType } = fromAccount
 
