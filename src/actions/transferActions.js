@@ -91,6 +91,9 @@ async function _submitDirectTransferTx (txRequest: {
     txFee
   } = txRequest
 
+  // format fiat amount
+  transferFiatAmountSpot = utils.formatNumber(transferFiatAmountSpot)
+
   // convert transferAmount to basic token unit
   let value: BasicTokenUnit = utils
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(fromAccount.cryptoType))
@@ -171,6 +174,9 @@ async function _submitTx (txRequest: {
     receiverAvatar,
     txFee
   } = txRequest
+
+  // format fiat amount
+  transferFiatAmountSpot = utils.formatNumber(transferFiatAmountSpot)
 
   let { cryptoType } = fromAccount
 
@@ -629,7 +635,8 @@ async function _getTransfer (transferId: ?string, receivingId: ?string) {
   if (transferData.txFee) {
     transferData.txFeeCurrencyAmount = utils.toCurrencyAmount(
       transferData.txFee.costInStandardUnit,
-      transferData.exchangeRate.txFeeCryptoExchangeRate,
+      // backward compatible with transfers not having exchangeRate obj
+      transferData.exchangeRate ? transferData.exchangeRate.txFeeCryptoExchangeRate : 0,
       transferData.fiatType
     )
   }
@@ -1145,7 +1152,8 @@ function getEmailTransferHisotry (fromStart: boolean) {
             if (item.txFee) {
               item.txFeeCurrencyAmount = utils.toCurrencyAmount(
                 item.txFee.costInStandardUnit,
-                item.exchangeRate.txFeeCryptoExchangeRate,
+                // backward compatible with transfers not having exchangeRate obj
+                item.exchangeRate ? item.exchangeRate.txFeeCryptoExchangeRate : 0,
                 item.fiatType
               )
             }
