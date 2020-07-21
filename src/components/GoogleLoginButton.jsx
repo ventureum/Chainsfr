@@ -53,7 +53,9 @@ class GoogleLoginButton extends Component {
   login = async () => {
     const clientParser = new UAParser()
     const result = clientParser.getResult()
-    if (!['chrome', 'safari', 'mobile safari'].includes(result.browser.name.toLowerCase())) {
+    if (
+      !['chrome', 'safari', 'mobile safari', 'firefox'].includes(result.browser.name.toLowerCase())
+    ) {
       this.toggleUnsupportedBrowserModal(EMBEDDED_BROWSER_NOT_SUPPROTED)
     } else {
       try {

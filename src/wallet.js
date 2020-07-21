@@ -36,11 +36,13 @@ export const walletCryptoSupports = {
     { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
     { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
   ],
-  coinbaseWalletLink: [{ cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
-  { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
-  { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
-  { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
-  { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }],
+  coinbaseWalletLink: [
+    { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'tether', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'usd-coin', disabled: false, platformType: 'ethereum' },
+    { cryptoType: 'true-usd', disabled: false, platformType: 'ethereum' }
+  ],
   metamaskWalletConnect: [
     { cryptoType: 'ethereum', disabled: false, platformType: 'ethereum' },
     { cryptoType: 'dai', disabled: false, platformType: 'ethereum' },
@@ -81,13 +83,19 @@ function isBrowserCompatible ({ status, walletType }: { status: Object, walletTy
       status.addDisabledReason = 'Require Chrome 73 or above'
       status.receiveDisabledReason = 'Require Chrome 73 or above'
     }
-  } else if (browser && !['chrome', 'ios', 'crios'].includes(browser.name)) {
+  } else if (browser && !['chrome', 'ios', 'crios', 'firefox'].includes(browser.name)) {
     status.sendable = false
     status.receivable = false
     status.addable = false
     status.sendDisabledReason = 'Browser not supported'
     status.addDisabledReason = 'Browser not supported'
     status.receiveDisabledReason = 'Browser not supported'
+  } else if (browser && browser.name === 'firefox' && walletType === 'ledger') {
+    status.sendable = false
+    status.receivable = true
+    status.addable = false
+    status.sendDisabledReason = 'Use Metamask to connect'
+    status.addDisabledReason = 'Use Metamask to connect'
   }
 
   return { status, walletType }
