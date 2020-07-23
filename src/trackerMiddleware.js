@@ -187,7 +187,6 @@ export const intercomBoot = () => {
 }
 
 export const intercomLogin = (userId, profile) => {
-  console.log(profile)
   _intercomBoot({
     user_id: userId,
     email: profile.email,
