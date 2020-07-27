@@ -50,7 +50,9 @@ async function goToReview (formInfo) {
         }
       ]
     ),
-    formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+    currencyAmount
+      ? formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+      : formPage.updateForm('cryptoAmount', { cryptoAmount: cryptoAmount })
   ])
   await formPage.updateForm('securityAnswer', { securityAnswer: securityAnswer })
   if (sendMessage) {
@@ -224,7 +226,7 @@ describe('Email transfer review tests', () => {
       const walletType = 'drive'
       const platformType = 'bitcoin'
       const cryptoType = 'bitcoin'
-      const currencyAmount = '10'
+      const cryptoAmount = '0.001'
 
       await goToReview({
         formPage: emtPage,
@@ -232,7 +234,7 @@ describe('Email transfer review tests', () => {
         walletType: walletType,
         platformType: platformType,
         cryptoType: cryptoType,
-        currencyAmount: currencyAmount,
+        cryptoAmount: cryptoAmount,
         securityAnswer: securityAnswer,
         sendMessage: sendMessage
       })
@@ -254,9 +256,9 @@ describe('Email transfer review tests', () => {
       expect(senderAccount.address).toBeDefined()
 
       const displayedAmount = await reviewPage.getReviewFormInfo('transferAmount')
-      expect(parseFloat(displayedAmount.transferAmount)).toBeGreaterThan(0)
-      expect(parseFloat(displayedAmount.currencyAmount)).toBeGreaterThanOrEqual(
-        parseFloat(currencyAmount)
+      expect(parseFloat(displayedAmount.currencyAmount)).toBeGreaterThan(0)
+      expect(parseFloat(displayedAmount.transferAmount)).toBeGreaterThanOrEqual(
+        parseFloat(cryptoAmount)
       )
       expect(displayedAmount.symbol).toEqual(getCryptoSymbol(cryptoType))
 
