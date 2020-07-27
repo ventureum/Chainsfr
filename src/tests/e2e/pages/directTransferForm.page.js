@@ -167,12 +167,13 @@ export default class DirectTransferFormPage {
           displayedAccount.cryptoSymbol = node.querySelector(
             '[data-test-id="coin_symbol"]'
           ).textContent
-          displayedAccount.balance = node.querySelector(
-            '[data-test-id="coin_balance"]'
-          ).textContent
-          displayedAccount.currencyBalance = node.querySelector(
-            '[data-test-id="coin_currency_balance"]'
-          ).textContent
+          let _balanceNode = node.querySelector('[data-test-id="coin_balance"]')
+          let _currencyBalanceNode = node.querySelector('[data-test-id="coin_currency_balance"]')
+
+          displayedAccount.balance = _balanceNode ? _balanceNode.textContent : null
+          displayedAccount.currencyBalance = _currencyBalanceNode
+            ? _currencyBalanceNode.textContent
+            : null
           return displayedAccount
         })
         if (displayed) {

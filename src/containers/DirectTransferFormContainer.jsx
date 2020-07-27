@@ -200,6 +200,7 @@ export default function DirectTransferFormContainer (props: Props) {
                   }
             )
           }
+          hideBalance={isSendingFromDriveWallet}
         />
       </Grid>
       {!isSendingFromDriveWallet && (

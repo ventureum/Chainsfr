@@ -24,6 +24,10 @@ type Props = {
   // ad-hoc hide crypto dropdown
   // may be used in receive page
   hideCryptoDropdown: boolean,
+  // hide balance
+  // used for directTransfer display
+  // see issue #1776
+  hideBalance: boolean,
   // redux function & states
   cryptoAccounts: Array<Object>,
   actionsPending: Object,
@@ -118,6 +122,7 @@ class AccountDropdownContainer extends Component<Props, State> {
       purpose,
       online,
       hideCryptoDropdown,
+      hideBalance,
       disableAccountSelect,
       push
     } = this.props
@@ -201,6 +206,7 @@ class AccountDropdownContainer extends Component<Props, State> {
           inputLabel={inputLabel ? inputLabel : 'Select Wallet'}
           hideCryptoDropdown={hideCryptoDropdown}
           disableAccountSelect={disableAccountSelect}
+          hideBalance={hideBalance}
           push={push}
         />
         {openAddAccountModal && (

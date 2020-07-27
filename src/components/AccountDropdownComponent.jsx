@@ -32,6 +32,7 @@ type Props = {
   purpose: string,
   pending: boolean,
   hideCryptoDropdown: boolean,
+  hideBalance: boolean,
   error: Object,
   onChange: Function,
   addAccount: Function,
@@ -189,7 +190,7 @@ class AccountDropdownComponent extends Component<Props, State> {
     )
   }
 
-  renderGroupedAccountCryptoTypeItem = (account: AccountData) => {
+  renderGroupedAccountCryptoTypeItem = (account: AccountData, hideBalance: boolean) => {
     return (
       <Box display='flex' justifyContent='space-between' flexGrow={1}>
         <Box display='flex' flexDirection='row' alignItems='center'>
@@ -205,21 +206,23 @@ class AccountDropdownComponent extends Component<Props, State> {
           </Box>
         </Box>
         {/* balance */}
-        <Box display='flex' flexDirection='column' alignItems='flex-end'>
-          {account.status === accountStatus.syncing ? (
-            <Skeleton
-              style={{ margin: '0px', width: '100%', minWidth: '100px' }}
-              data-test-id='account_sync_skeleton'
-            />
-          ) : (
-            <Typography variant='body2' data-test-id='coin_balance'>
-              {account.balanceInStandardUnit} {getCryptoSymbol(account.cryptoType)}
+        {!hideBalance && (
+          <Box display='flex' flexDirection='column' alignItems='flex-end'>
+            {account.status === accountStatus.syncing ? (
+              <Skeleton
+                style={{ margin: '0px', width: '100%', minWidth: '100px' }}
+                data-test-id='account_sync_skeleton'
+              />
+            ) : (
+              <Typography variant='body2' data-test-id='coin_balance'>
+                {account.balanceInStandardUnit} {getCryptoSymbol(account.cryptoType)}
+              </Typography>
+            )}
+            <Typography variant='caption' data-test-id='coin_currency_balance'>
+              {this.props.toCurrencyAmount(account.balanceInStandardUnit, account.cryptoType)}
             </Typography>
-          )}
-          <Typography variant='caption' data-test-id='coin_currency_balance'>
-            {this.props.toCurrencyAmount(account.balanceInStandardUnit, account.cryptoType)}
-          </Typography>
-        </Box>
+          </Box>
+        )}
       </Box>
     )
   }
@@ -235,6 +238,7 @@ class AccountDropdownComponent extends Component<Props, State> {
       error,
       inputLabel,
       hideCryptoDropdown,
+      hideBalance,
       disableAccountSelect,
       push
     } = this.props
@@ -353,7 +357,7 @@ class AccountDropdownComponent extends Component<Props, State> {
             </InputLabel>
             <Select
               labelId='accountCryptoTypeSelectionLabel'
-              renderValue={this.renderGroupedAccountCryptoTypeItem}
+              renderValue={item => this.renderGroupedAccountCryptoTypeItem(item, hideBalance)}
               value={account || ''}
               onChange={onChange} // output final account selected
               input={
@@ -411,7 +415,7 @@ class AccountDropdownComponent extends Component<Props, State> {
                       }
                       data-test-id={`crypto_list_item_${accountData.cryptoType}`}
                     >
-                      {this.renderGroupedAccountCryptoTypeItem(accountData)}
+                      {this.renderGroupedAccountCryptoTypeItem(accountData, hideBalance)}
                     </MenuItem>
                   )
                 })}

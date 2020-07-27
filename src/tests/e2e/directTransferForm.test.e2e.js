@@ -213,8 +213,6 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
@@ -256,8 +254,6 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
@@ -299,8 +295,6 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
