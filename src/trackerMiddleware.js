@@ -71,6 +71,13 @@ export const trackIntercomEvent = ({ eventName, meta }) => {
   }
 }
 
+// conversion trigger for google ad optimization
+export const triggerGTM = ({ category, action, label, value }) => {
+  if ( action === 'ACCEPT_TRANSFER' || action === 'SUBMIT_TX' ) {
+    window.dataLayer.push({'event': 'TRANSFER_COMPLETE'})
+  }
+}
+
 export const trackUser = userId => {
   if (!GA_ENABLED) return
   ReactGA.set({ userId })
@@ -167,6 +174,7 @@ export const trackAction = action => {
       eventName: `${event.category}_${event.action}`,
       meta: event.label
     })
+    triggerGTM(event)
   }
 }
 
