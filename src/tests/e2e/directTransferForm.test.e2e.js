@@ -148,14 +148,14 @@ describe('Direct transfer form tests', () => {
       const walletType = 'ledger'
       const platformType = 'bitcoin'
       const cryptoType = 'bitcoin'
-      const currencyAmount = '10'
+      const cryptoAmount = '0.001'
       const sendMessage = 'bilibilibalaboom'
 
       const dtfPage = new DirectTransferFormPage()
 
       await dtfPage.dispatchFormActions('transferIn')
       await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        { walletType, platformType, cryptoType, cryptoAmount, sendMessage },
         true
       )
 
@@ -174,11 +174,11 @@ describe('Direct transfer form tests', () => {
       expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
-      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
-      expect(parseFloat(cryptoAmountTextField.text)).toBeGreaterThan(0)
-
       const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
-      expect(currencyAmountTextField.text).toEqual(currencyAmount)
+      expect(parseFloat(currencyAmountTextField.text)).toBeGreaterThan(0)
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(cryptoAmountTextField.text).toEqual(cryptoAmount)
 
       await dtfPage.dispatchFormActions('continue')
       expect(page.url()).toMatch('step=1')
@@ -192,13 +192,13 @@ describe('Direct transfer form tests', () => {
       const walletType = 'ledger'
       const platformType = 'bitcoin'
       const cryptoType = 'bitcoin'
-      const currencyAmount = '10'
+      const cryptoAmount = '0.001'
       const sendMessage = 'bilibilibalaboom'
 
       const dtfPage = new DirectTransferFormPage()
 
       await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        { walletType, platformType, cryptoType, cryptoAmount, sendMessage },
         true
       )
 
@@ -213,15 +213,13 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
-      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
-      expect(parseFloat(cryptoAmountTextField.text)).toBeGreaterThan(0)
-
       const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
-      expect(currencyAmountTextField.text).toEqual(currencyAmount)
+      expect(parseFloat(currencyAmountTextField.text)).toBeGreaterThan(0)
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(cryptoAmountTextField.text).toEqual(cryptoAmount)
 
       await dtfPage.dispatchFormActions('continue')
       expect(page.url()).toMatch('step=1')
@@ -256,8 +254,6 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
@@ -299,8 +295,6 @@ describe('Direct transfer form tests', () => {
 
       const coinSelect = await dtfPage.getSelectStatus('coin')
       expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
       expect(coinSelect.address).toBeDefined()
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
@@ -389,10 +383,10 @@ describe('Direct transfer form tests', () => {
       walletType = 'ledger'
       platformType = 'bitcoin'
       cryptoType = 'bitcoin'
-      currencyAmount = '10'
+      let cryptoAmount = '0.001'
 
       await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        { walletType, platformType, cryptoType, cryptoAmount, sendMessage },
         true
       )
       await dtfPage.dispatchFormActions('continue')

@@ -147,7 +147,7 @@ describe('Direct transfer review tests', () => {
       const walletType = 'ledger'
       const platformType = 'bitcoin'
       const cryptoType = 'bitcoin'
-      const currencyAmount = '10'
+      const cryptoAmount = '0.001'
       const sendMessage = 'bilibilibalaboom'
 
       const formPage = new DireactTransferFormPage()
@@ -157,7 +157,7 @@ describe('Direct transfer review tests', () => {
         walletType,
         platformType,
         cryptoType,
-        currencyAmount,
+        cryptoAmount,
         sendMessage
       })
       await formPage.dispatchFormActions('continue')
@@ -178,9 +178,9 @@ describe('Direct transfer review tests', () => {
       expect(receiverAccount.address).toBeDefined()
 
       const displayedAmount = await reviewPage.getReviewFormInfo('transferAmount')
-      expect(parseFloat(displayedAmount.transferAmount)).toBeGreaterThan(0)
+      expect(parseFloat(displayedAmount.currencyAmount)).toBeGreaterThan(0)
       expect(
-        aboutEqual(parseFloat(displayedAmount.currencyAmount), parseFloat(currencyAmount))
+        aboutEqual(parseFloat(displayedAmount.transferAmount), parseFloat(cryptoAmount))
       ).toEqual(true)
       expect(displayedAmount.symbol).toEqual(getCryptoSymbol(cryptoType))
 
@@ -201,7 +201,7 @@ describe('Direct transfer review tests', () => {
       const walletType = 'ledger'
       const platformType = 'bitcoin'
       const cryptoType = 'bitcoin'
-      const currencyAmount = '10'
+      const cryptoAmount = '0.001'
       const sendMessage = 'bilibilibalaboom'
 
       const formPage = new DireactTransferFormPage()
@@ -210,7 +210,7 @@ describe('Direct transfer review tests', () => {
         walletType,
         platformType,
         cryptoType,
-        currencyAmount,
+        cryptoAmount,
         sendMessage
       })
       await formPage.dispatchFormActions('continue')
@@ -231,9 +231,9 @@ describe('Direct transfer review tests', () => {
       expect(receiverAccount.address).toBeDefined()
 
       const displayedAmount = await reviewPage.getReviewFormInfo('transferAmount')
-      expect(parseFloat(displayedAmount.transferAmount)).toBeGreaterThan(0)
+      expect(parseFloat(displayedAmount.currencyAmount)).toBeGreaterThan(0)
       expect(
-        aboutEqual(parseFloat(displayedAmount.currencyAmount), parseFloat(currencyAmount))
+        aboutEqual(parseFloat(displayedAmount.transferAmount), parseFloat(cryptoAmount))
       ).toEqual(true)
       expect(displayedAmount.symbol).toEqual(getCryptoSymbol(cryptoType))
 

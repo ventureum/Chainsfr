@@ -55,7 +55,9 @@ async function fillForm (formInfo) {
         }
       ]
     ),
-    formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+    currencyAmount
+      ? formPage.updateForm('currencyAmount', { currencyAmount: currencyAmount })
+      : formPage.updateForm('cryptoAmount', { cryptoAmount: cryptoAmount })
   ])
   expect(await formPage.formProceedable()).toBe(false)
 
@@ -191,7 +193,7 @@ describe('Email transfer form tests', () => {
         walletType: walletType,
         platformType: platformType,
         cryptoType: cryptoType,
-        currencyAmount: '10',
+        cryptoAmount: '0.001',
         securityAnswer: '123456',
         sendMessage: 'nothing'
       })

@@ -156,7 +156,7 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
     return dispatch({
       type: 'ADD_CRYPTO_ACCOUNTS',
       payload: _addCryptoAccounts(accountData),
-      meta: { track: utils.getTrackInfoFromAccount(accountData) }
+      meta: { track: utils.getTrackInfoFromAccount(accountData[0]) }
     })
       .then(data => {
         let dict = {}
