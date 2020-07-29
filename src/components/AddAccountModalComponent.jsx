@@ -11,6 +11,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Divider from '@material-ui/core/Divider'
+import env from '../typedEnv'
 import IconButton from '@material-ui/core/IconButton'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import List from '@material-ui/core/List'
@@ -148,6 +149,11 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(2)
   }
 }))
+
+const network = {
+  mainnet: 'Mainnet',
+  rinkeby: 'Rinkeby testnet'
+}
 
 type FeatureListItemProps = {
   leftIcon: any, // Material-UI Icon Component
@@ -400,7 +406,9 @@ const ErrorMessage = (props: ErrorMessageProps) => {
       if (error === walletErrors.metamask.extendsionNotFound) {
         errorInstruction = 'MetaMask extension is not available'
       } else if (error === walletErrors.metamask.incorrectNetwork) {
-        errorInstruction = 'Incorrect MetaMask network'
+        errorInstruction = `Incorrect MetaMask network, please switch to ${
+          network[env.REACT_APP_ETHEREUM_NETWORK]
+        }`
       } else if (error === walletErrors.metamask.authorizationDenied) {
         errorInstruction = 'MetaMask authorization denied'
       } else {
@@ -733,7 +741,7 @@ const ConnectWallet = (props: ConnectWalletProps) => {
               <Alert severity='info'>
                 <Typography display='inline' style={{ whiteSpace: 'pre-line' }}>
                   {LEDGER_CONNECT_USB_DRIVER_INSTRUCTION}
-                  <MuiLink id="how_to_install_ledger">{`\n How to install?`}</MuiLink>
+                  <MuiLink id='how_to_install_ledger'>{`\n How to install?`}</MuiLink>
                 </Typography>
               </Alert>
             </Box>
