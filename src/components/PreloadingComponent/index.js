@@ -137,7 +137,7 @@ const PreloadingComponent = props => {
       flexDirection='column'
     >
       <Wave />
-      {actionsPending.createCloudWallet && (
+      {actionsPending && actionsPending.createCloudWallet && (
         <Box mt={2} display='flex' alignItems='center' flexDirection='column'>
           <Typography variant='body2' color='primary' className={classes.text}>
             Setting up your account...

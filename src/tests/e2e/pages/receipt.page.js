@@ -3,7 +3,7 @@ import transferStates from '../../../transferStates'
 import log from 'loglevel'
 import { Base64 } from 'js-base64'
 import moment from 'moment'
-import { getCryptoPlatformType, getCryptoSymbol } from '../../../tokens'
+import { getCryptoPlatformType, getCryptoSymbol } from '../testUtils'
 log.setDefaultLevel('info')
 
 class ReceiptPage {
@@ -393,7 +393,9 @@ class ReceiptPage {
     expect(sendTime).toEqual(`Sent on ${expectSendTime}`)
 
     const sendLink = (await this.getReceiptFormInfo('sendOn')).sendOnExplorerLink
-    expect(sendLink).toEqual(`https://rinkeby.etherscan.io/tx/${transfer.senderToChainsfer.txHash}`)
+    expect(sendLink).toEqual(
+      `https://rinkeby.etherscan.io/tx/${transfer.senderToChainsfer.txHash}`
+    )
 
     if (received) {
       const receiveMessage = (await this.getReceiptFormInfo('receiveMessage')).message

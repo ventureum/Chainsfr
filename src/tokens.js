@@ -1,10 +1,6 @@
 import EthereumLogo from './images/eth.png'
 import BitcoinLogo from './images/btc.png'
-import DaiLogo from './images/dai.png'
-import UsdcLogo from './images/usdc.png'
-import UsdtLogo from './images/usdt.png'
-import TusdLogo from './images/tusd.png'
-import { erc20TokensAddress } from './erc20Tokens'
+import { store } from './configureStore'
 
 export const cryptoOrder = {
   bitcoin: 100,
@@ -15,8 +11,10 @@ export const cryptoOrder = {
   'true-usd': 95
 }
 
-export const cryptoSelections = [
-  {
+const getEthContracts = () => store.getState().accountReducer.ethContracts
+
+const cryptoSelections = {
+  bitcoin: {
     platformType: 'bitcoin',
     cryptoType: 'bitcoin',
     title: 'Bitcoin',
@@ -25,7 +23,7 @@ export const cryptoSelections = [
     decimals: 8,
     txFeesCryptoType: 'bitcoin'
   },
-  {
+  ethereum: {
     platformType: 'ethereum',
     cryptoType: 'ethereum',
     title: 'Ethereum',
@@ -33,103 +31,55 @@ export const cryptoSelections = [
     logo: EthereumLogo,
     decimals: 18,
     txFeesCryptoType: 'ethereum'
-  },
-  {
-    platformType: 'ethereum',
-    cryptoType: 'dai',
-    title: 'Dai',
-    symbol: 'DAI',
-    logo: DaiLogo,
-    address: erc20TokensAddress.dai,
-    decimals: 18,
-    txFeesCryptoType: 'ethereum'
-  },
-  {
-    platformType: 'ethereum',
-    cryptoType: 'usd-coin',
-    title: 'USD Coin',
-    symbol: 'USDC',
-    logo: UsdcLogo,
-    address: erc20TokensAddress['usd-coin'],
-    decimals: 6,
-    txFeesCryptoType: 'ethereum'
-  },
-  {
-    platformType: 'ethereum',
-    cryptoType: 'tether',
-    title: 'Tether',
-    symbol: 'USDT',
-    logo: UsdtLogo,
-    address: erc20TokensAddress['tether'],
-    decimals: 6,
-    txFeesCryptoType: 'ethereum'
-  },
-  {
-    platformType: 'ethereum',
-    cryptoType: 'true-usd',
-    title: 'TrueUSD',
-    symbol: 'TUSD',
-    logo: TusdLogo,
-    address: erc20TokensAddress['true-usd'],
-    decimals: 18,
-    txFeesCryptoType: 'ethereum'
   }
-]
+}
+
+export const defaultEthereumCryptos = ['ethereum', 'dai', 'usd-coin', 'tether', 'true-usd']
 
 export function getCryptoTitle (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return c.title
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType]
+    ? ethContracts[cryptoType].name
+    : cryptoSelections[cryptoType].title
 }
 
 export function getCryptoSymbol (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  if (c) return c.symbol
-  return ''
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType]
+    ? ethContracts[cryptoType].symbol
+    : cryptoSelections[cryptoType].symbol
 }
 
 export function getCrypto (cryptoType) {
-  return cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType] || cryptoSelections[cryptoType]
 }
 
 export function getCryptoDecimals (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return c.decimals
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType]
+    ? ethContracts[cryptoType].decimals
+    : cryptoSelections[cryptoType].decimals
 }
 
 export function getTxFeesCryptoType (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return c.txFeesCryptoType
+  return cryptoType === 'bitcoin' ? 'bitcoin' : 'ethereum'
 }
 
 export function getCryptoLogo (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return c.logo
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType]
+    ? ethContracts[cryptoType].logo
+    : cryptoSelections[cryptoType].logo
 }
 
 export function isERC20 (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return !!c.address
+  const ethContracts = getEthContracts()
+  return ethContracts[cryptoType] ? ethContracts[cryptoType].erc20 : false
 }
 
 export function getCryptoPlatformType (cryptoType) {
-  const c = cryptoSelections.find(crypto => {
-    return cryptoType === crypto.cryptoType
-  })
-  return c.platformType
+  return cryptoType === 'bitcoin' ? 'bitcoin' : 'ethereum'
 }
 
 export function getPlatformCryptos (platformType) {

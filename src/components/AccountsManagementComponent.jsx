@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Button, Grid, List, ListSubheader, ListItem } from '@material-ui/core'
+import AddAccountModal from '../containers/AddAccountModalContainer'
+import AddressQRCodeDialog from './AddressQRCodeDialog'
 import Avatar from '@material-ui/core/Avatar'
 import { btnTexts } from '../styles/typography'
 import { uiColors } from '../styles/color'
@@ -17,6 +19,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
+import EmptyStateImage from '../images/empty_state_01.png'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import EditIcon from '@material-ui/icons/Edit'
@@ -33,10 +36,8 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import { getCryptoSymbol, getCryptoTitle } from '../tokens.js'
 import { accountStatus } from '../types/account.flow'
 import { getWalletTitle, getWalletLogo } from '../wallet'
-import AddAccountModal from '../containers/AddAccountModalContainer'
-import EmptyStateImage from '../images/empty_state_01.png'
-import AddressQRCodeDialog from './AddressQRCodeDialog'
 import numeral from 'numeral'
+
 class AccountsManagementComponent extends Component {
   state = {
     addAccountModal: false,
@@ -120,7 +121,9 @@ class AccountsManagementComponent extends Component {
           </IconButton>
         </DialogTitle>
         <DialogContent className={classes.dialogContent}>
-          <DialogContentText>Are you sure you want to delete this connected wallet?</DialogContentText>
+          <DialogContentText>
+            Are you sure you want to delete this connected wallet?
+          </DialogContentText>
         </DialogContent>
         <DialogActions className={classes.dialogAction}>
           <Button onClick={() => this.toggleDeleteConfirmModal()}>Cancel</Button>
@@ -341,7 +344,8 @@ class AccountsManagementComponent extends Component {
                         {account.name}
                       </Typography>
                       <Typography variant='caption' data-test-id='wallet_platform'>
-                        {getWalletTitle(account.walletType)}, {getCryptoTitle(account.platformType)}
+                        {getWalletTitle(account.walletType)},{' '}
+                        {getCryptoTitle(account.platformType)}
                       </Typography>
                     </Box>
                   </TableCell>
@@ -538,7 +542,7 @@ class AccountsManagementComponent extends Component {
   }
 
   renderUpperSection = () => {
-    const { classes } = this.props
+    const { classes, onAddToken } = this.props
     return (
       <Box
         className={classes.coloredBackgrond}
@@ -548,7 +552,7 @@ class AccountsManagementComponent extends Component {
       >
         <Container className={classes.container}>
           <Grid container>
-            <Grid item md={6} xs={12} className={classes.upperBigGridItem}>
+            <Grid item lg={6} xs={12} className={classes.upperBigGridItem}>
               <Box
                 display='flex'
                 alignItems='flex-start'
@@ -560,18 +564,30 @@ class AccountsManagementComponent extends Component {
                 <Typography className={classes.decText}>
                   Native supports for popular exchanges, mobile and hardware wallets
                 </Typography>
-                <Box display='flex' mt={2}>
-                  <Button
-                    onClick={() => {
-                      this.toggleAddAccountModal()
-                    }}
-                    variant='contained'
-                    color='primary'
-                    data-test-id='connect_account_btn'
-                  >
-                    Add Connection to Your Wallet
-                  </Button>
-                </Box>
+                <Grid container>
+                  <Grid item className={classes.uppperSmallGridItem}>
+                    <Button
+                      onClick={() => {
+                        this.toggleAddAccountModal()
+                      }}
+                      variant='contained'
+                      color='primary'
+                      data-test-id='connect_account_btn'
+                    >
+                      Add Connection to Your Wallet
+                    </Button>
+                  </Grid>
+                  <Grid item className={classes.uppperSmallGridItem}>
+                    <Button
+                      onClick={onAddToken}
+                      className={classes.lightbtn}
+                      color='primary'
+                      data-test-id='add_new_token_btn'
+                    >
+                      Add New Token
+                    </Button>
+                  </Grid>
+                </Grid>
               </Box>
             </Grid>
           </Grid>
@@ -733,6 +749,13 @@ const styles = theme => ({
       fontWeight: '600',
       color: '#777777'
     }
+  },
+  lightbtn: {
+    backgroundColor: 'rgba(57, 51, 134, 0.05)'
+  },
+  uppperSmallGridItem: {
+    marginTop: '20px',
+    marginRight: '40px'
   }
 })
 export default withStyles(styles)(AccountsManagementComponent)

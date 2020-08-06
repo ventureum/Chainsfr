@@ -9,10 +9,9 @@ import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault, resetUser } from './utils/reset'
 import { CRYPTO_ACCOUNTS } from './mocks/cryptoAccounts.js'
 import { EMAIL, PROFILE } from './mocks/user.js'
-import { getTransfer, getTransferState } from './testUtils'
+import { getTransfer, getTransferState, getCryptoSymbol } from './testUtils'
 import BN from 'bn.js'
 import moment from 'moment'
-import { getCryptoSymbol } from '../../tokens'
 import { DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG } from './mocks/transfers'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
@@ -190,7 +189,7 @@ describe('Receive transfer tests', () => {
     const status = await receiveFormPage.getSecurityAnswerTextFieldStatus()
     expect(status.error).toBeTruthy()
     expect(status.helperText).toEqual('Incorrect security answer')
-    
+
     if (walletType === 'drive' && cryptoType === 'ethereum') {
       // edge case, receiver has exactly one matched account
       // this corresponds to the issue #1656
@@ -200,7 +199,8 @@ describe('Receive transfer tests', () => {
         profile: PROFILE,
         cryptoAccounts: [
           CRYPTO_ACCOUNTS.find(e => e.walletType === walletType && e.cryptoType === e.cryptoType)
-      ]})
+        ]
+      })
       await page.waitFor(500)
       await page.goto(`${process.env.E2E_TEST_URL}/receive?id=${receivingId}`, {
         waitUntil: 'networkidle0'
@@ -255,7 +255,6 @@ describe('Receive transfer tests', () => {
       })
       await receiveFormPage.waitUntilTransferLoaded()
     }
-
 
     await receiveFormPage.enterSecurityAnswer(FORM_BASE.securityAnswer)
     await Promise.all([

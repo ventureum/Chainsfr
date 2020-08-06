@@ -8,10 +8,10 @@ import ReceiptPage from './pages/receipt.page'
 import CancelReviewPage from './pages/cancelReview.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import { getNewPopupPage, getTransfer, getTransferState } from './testUtils'
+import { getNewPopupPage, getTransfer, getTransferState,getCryptoSymbol } from './testUtils'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
-import { getCryptoSymbol } from '../../tokens'
+
 import BN from 'bn.js'
 
 // 15 min

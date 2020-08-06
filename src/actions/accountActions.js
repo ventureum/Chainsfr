@@ -1,5 +1,6 @@
 import type { AccountData } from '../types/account.flow.js'
 import { createAccount } from '../accounts/AccountFactory'
+import { getCryptoPrice } from './cryptoPriceActions'
 import { getWallet } from '../drive.js'
 import { Base64 } from 'js-base64'
 import { getTransferData } from '../drive.js'
@@ -14,6 +15,13 @@ async function _syncWithNetwork (accountData: AccountData) {
   let account = createAccount(accountData)
   await account.syncWithNetwork()
   return account.getAccountData()
+}
+
+async function syncCryptoPrice (dispatch, cryptoAccounts) {
+  let cryptoTypes = new Set()
+  cryptoAccounts.forEach(cryptoAccount => cryptoTypes.add(cryptoAccount.cryptoType))
+  const cryptoTypesList = Array.from(cryptoTypes)
+  dispatch(getCryptoPrice(cryptoTypesList))
 }
 
 function syncWithNetwork (accountData: AccountData) {
@@ -148,36 +156,67 @@ async function _addCryptoAccounts (accountData: Array<AccountData>): Promise<Arr
   return cryptoAccounts
 }
 
-function addCryptoAccounts (accountData: AccountData | Array<AccountData>) {
+// The 'addToken' flag is used to indicate when this function is
+// used to add an ERC20 token account
+function addCryptoAccounts (accountData: AccountData | Array<AccountData>, addToken?: boolean) {
   return (dispatch: Function, getState: Function) => {
+    let accountDataList
     if (!Array.isArray(accountData)) {
-      accountData = [accountData]
+      accountDataList = [accountData]
+    } else {
+      accountDataList = accountData
+    }
+    if (addToken) {
+      const newAccount = accountDataList[0]
+      if (newAccount.walletType !== 'drive') {
+        // Need to add the same token to drive wallet as well
+        const currentDriveEthAccounts = getState().accountReducer.cryptoAccounts.filter(
+          accountData =>
+            accountData.walletType === 'drive' && accountData.platformType === 'ethereum'
+        )
+        const exist = currentDriveEthAccounts.find(accountData => {
+          return accountData.cryptoType === newAccount.cryptoType
+        })
+        if (!exist) {
+          accountDataList.push(
+            createAccount({
+              walletType: 'drive',
+              name: currentDriveEthAccounts[0].name,
+              cryptoType: newAccount.cryptoType,
+              platformType: newAccount.platformType,
+              address: currentDriveEthAccounts[0].address
+            }).getAccountData()
+          )
+        }
+      }
     }
     return dispatch({
       type: 'ADD_CRYPTO_ACCOUNTS',
-      payload: _addCryptoAccounts(accountData),
-      meta: { track: utils.getTrackInfoFromAccount(accountData[0]) }
+      payload: _addCryptoAccounts(accountDataList),
+      meta: { track: utils.getTrackInfoFromAccount(accountDataList[0]), localErrorHandling: true }
     })
       .then(data => {
-        let dict = {}
-        accountData.forEach((account: AccountData) => {
-          dict[account.id] = account
-        })
-        syncHelper(dispatch, data.value.filter(account => dict[account.id] !== undefined))
-      })
-      .then(() => {
-        dispatch(
-          enqueueSnackbar({
-            message: 'Wallet connected successfully.',
-            key: new Date().getTime() + Math.random(),
-            options: { variant: 'success', autoHideDuration: 3000 }
+        if (data && data.value) {
+          let dict = {}
+          accountDataList.forEach((account: AccountData) => {
+            dict[account.id] = account
           })
-        )
+          syncCryptoPrice(dispatch, data.value)
+          dispatch(
+            enqueueSnackbar({
+              message: addToken ? 'Token added successfully' : 'Wallet connected successfully.',
+              key: new Date().getTime() + Math.random(),
+              options: { variant: 'success', autoHideDuration: 3000 }
+            })
+          )
+          syncHelper(dispatch, data.value.filter(account => dict[account.id] !== undefined))
+        }
       })
       .catch(error => {
+        const msg = error.message.includes('exists') ? 'Already added' : error.message
         dispatch(
           enqueueSnackbar({
-            message: error.message,
+            message: msg,
             key: new Date().getTime() + Math.random(),
             options: { variant: 'info', autoHideDuration: 3000 }
           })
@@ -193,6 +232,7 @@ function getCryptoAccounts () {
       payload: _getCryptoAccounts()
     })
       .then(data => {
+        syncCryptoPrice(dispatch, data.value)
         return syncHelper(dispatch, data.value)
       })
       .catch(error => {
@@ -328,6 +368,24 @@ function postTxAccountCleanUp (accountData: AccountData) {
   }
 }
 
+function getAllEthContracts () {
+  return {
+    type: 'GET_ALL_ETH_CONTRACTS',
+    payload: async () => {
+      return API.getAllEthContracts()
+    }
+  }
+}
+
+function getEthContract (address: string) {
+  return {
+    type: 'GET_ETH_CONTRACT',
+    payload: async () => {
+      return API.getEthContract(address)
+    }
+  }
+}
+
 export {
   syncWithNetwork,
   getTxFee,
@@ -340,5 +398,7 @@ export {
   modifyCryptoAccountsName,
   removeCryptoAccounts,
   clearAccountPrivateKey,
-  postTxAccountCleanUp
+  postTxAccountCleanUp,
+  getAllEthContracts,
+  getEthContract
 }

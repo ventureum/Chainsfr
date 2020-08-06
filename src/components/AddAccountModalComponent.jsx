@@ -36,7 +36,7 @@ import {
 } from '../wallet'
 import {
   getCryptoTitle,
-  getPlatformCryptos,
+  defaultEthereumCryptos,
   getCryptoLogo,
   getCryptoSymbol,
   getCryptoPlatformType
@@ -606,7 +606,9 @@ const WalletConnectAction = (props: WalletConnectActionProps) => {
     default:
       statusMessage = 'Please wait...'
   }
-  let cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
+
+  let cryptoTypes = platformType === 'ethereum' ? defaultEthereumCryptos : ['bitcoin']
+  
   if (walletType === 'coinbaseOAuthWallet') {
     // coinbase OAuth wallet can only add one crypto at a time
     cryptoTypes = cryptoTypes.filter(cryptoType => {

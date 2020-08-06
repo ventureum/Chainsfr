@@ -102,7 +102,7 @@ export type EthereumAccountData = {
   status: string,
 
   // erc20 token allowance for the
-  // multisig escrow wallet
+  // multiSig escrow wallet
   multiSigWalletAllowance: string,
 
   privateKey?: string,
@@ -146,4 +146,14 @@ export type GroupedAccountType = {
   email?: string,
   platformType?: string,
   accounts: Array<AccountData>
+}
+
+export type EthContractType = {
+  address: string,
+  cryptoType: string,
+  decimals: number,
+  symbol: string,
+  name: string,
+  erc20?: boolean,
+  erc721?: boolean
 }

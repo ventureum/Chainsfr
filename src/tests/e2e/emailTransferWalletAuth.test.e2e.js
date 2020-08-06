@@ -6,14 +6,13 @@ import ReceiptPage from './pages/receipt.page'
 import DisconnectPage from './pages/disconnect.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import { getTransfer } from './testUtils'
-import url from '../../url'
+import { getTransfer, getCryptoSymbol } from './testUtils'
+import { INFURA_API_URL } from './config'
 import { DATA, WALLET_FOLDER_NAME, WALLET_FILE_NAME } from './mocks/drive.js'
 import log from 'loglevel'
 import BN from 'bn.js'
 import pWaitFor from 'p-wait-for'
 import Web3 from 'web3'
-import { getCryptoSymbol } from '../../tokens'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 
@@ -30,7 +29,7 @@ describe('Transfer Auth Tests', () => {
   const emtAuthPage = new EmailTransferAuthPage()
   const receiptPage = new ReceiptPage()
   const disconnectPage = new DisconnectPage()
-  const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+  const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_API_URL))
 
   const FORM_BASE = {
     formPage: emtPage,
@@ -633,7 +632,7 @@ describe('Transfer Auth Tests', () => {
       await expect(page).toMatch(`Your remaining DAI transaction limit is ${CRYPTO_AMOUNT}.`, {
         timeout: 5000
       })
-      
+
       // click connect
       await Promise.all([
         reduxTracker.waitFor(

@@ -4,7 +4,7 @@ import API from '../apis.js'
 import type { Recipient } from '../types/transfer.flow.js'
 import type { UserProfile } from '../types/user.flow.js'
 import { enqueueSnackbar } from './notificationActions.js'
-import { getCryptoAccounts } from './accountActions'
+import { getCryptoAccounts, getAllEthContracts } from './accountActions'
 import { updateTransferForm } from '../actions/formActions'
 import update from 'immutability-helper'
 import env from '../typedEnv'
@@ -299,14 +299,13 @@ function postLoginPreparation (loginData: any, progress?: Function) {
       type: 'POST_LOGIN_PREPARATION',
       payload: async () => {
         // Must try register before getWallet, getCryptoAccounts, and getRecipients
-        const userMetaInfo = (await dispatch(register(idToken, profileObj))).value
-        const currentTimestamp = moment().unix()
-        const rv = await Promise.all([
-          getWallet(),
-          dispatch(getCryptoAccounts()),
-          dispatch(getRecipients())
+        const [registerRv] = await Promise.all([
+          dispatch(register(idToken, profileObj)),
+          dispatch(getAllEthContracts())
         ])
-        if (!rv[0]) {
+        const userMetaInfo = registerRv.value
+        const rv = await getWallet()
+        if (!rv) {
           // chainfrWalletFile
           const { masterKey } = userMetaInfo
           // delete old cloud wallet accounts from backend
@@ -314,7 +313,7 @@ function postLoginPreparation (loginData: any, progress?: Function) {
           // if chainfr wallet file does not exist
           // create
           await dispatch(createCloudWallet(masterKey))
-          await dispatch(getCryptoAccounts())
+          const currentTimestamp = moment().unix()
           await dispatch(
             addRecipient(
               {
@@ -329,6 +328,8 @@ function postLoginPreparation (loginData: any, progress?: Function) {
             )
           )
         }
+        dispatch(getCryptoAccounts())
+        dispatch(getRecipients())
         return { userMetaInfo }
       }
     })
