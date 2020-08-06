@@ -1,14 +1,14 @@
 import MetamaskPage from './metamask.page'
 import log from 'loglevel'
+import { DAI_ADDRESS, INFURA_API_URL } from '../config'
 import Web3 from 'web3'
 import pWaitFor from 'p-wait-for'
 import ERC20_ABI from '../../../contracts/ERC20'
 import SimpleMultiSigContractArtifacts from '../../../contracts/SimpleMultiSig.json'
-import url from '../../../url'
-import { erc20TokensAddress } from '../../../erc20Tokens'
 import { CRYPTO_ACCOUNTS } from '../mocks/cryptoAccounts'
 log.setDefaultLevel('info')
 const NETWORK_ID = 4
+
 class DisconnectPage {
   async disconnect () {
     await expect(page).toClick('button', { text: 'Disconnect' })
@@ -33,8 +33,8 @@ class DisconnectPage {
     log.info('Sending out tx to reset allowance, wait for confirmation...')
     await pWaitFor(
       async () => {
-        let web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
-        const targetContract = new web3.eth.Contract(ERC20_ABI, erc20TokensAddress['dai'])
+        let web3 = new Web3(new Web3.providers.HttpProvider(INFURA_API_URL))
+        const targetContract = new web3.eth.Contract(ERC20_ABI, DAI_ADDRESS)
         newAllowance = (await targetContract.methods
           .allowance(ownderAddress, SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address)
           .call()).toString()

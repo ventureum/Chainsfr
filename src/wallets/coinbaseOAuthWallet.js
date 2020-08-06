@@ -8,7 +8,7 @@ import EthereumAccount from '../accounts/EthereumAccount.js'
 import BitcoinAccount from '../accounts/BitcoinAccount.js'
 import env from '../typedEnv'
 import * as CoinbaseClient from './CoinbaseClient'
-import { erc20TokensList } from '../erc20Tokens'
+
 const DEFAULT_ACCOUNT = 0
 
 export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
@@ -18,19 +18,10 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
 
   constructor (accountData?: AccountData) {
     if (accountData && accountData.cryptoType) {
-      switch (accountData.cryptoType) {
-        case 'dai':
-        case 'tether':
-        case 'usd-coin':
-        case 'true-usd':
-        case 'ethereum':
-          this.account = new EthereumAccount(accountData)
-          break
-        case 'bitcoin':
-          this.account = new BitcoinAccount(accountData)
-          break
-        default:
-          throw new Error('Invalid crypto type')
+      if (accountData.cryptoType === 'bitcoin') {
+        this.account = new BitcoinAccount(accountData)
+      } else {
+        this.account = new EthereumAccount(accountData)
       }
     }
   }
@@ -116,12 +107,10 @@ export default class CoinbaseOAuthWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-      return this._newEthereumAccount(name, cryptoType, options)
-    } else if (cryptoType === 'bitcoin') {
+    if (cryptoType === 'bitcoin') {
       return this._newBitcoinAccount(name)
     } else {
-      throw new Error('Invalid crypto type')
+      return this._newEthereumAccount(name, cryptoType, options)
     }
   }
 

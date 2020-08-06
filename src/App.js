@@ -10,6 +10,7 @@ import LoginContainer from './containers/LoginContainer'
 import DirectTransferContainer from './containers/DirectTransferContainer'
 import Disconnect from './components/MicroComponents/Disconnect'
 import PageNotFoundComponent from './components/MicroComponents/PageNotFound'
+import PreloadingComponent from './components/PreloadingComponent'
 import TransferContainer from './containers/TransferContainer'
 import ReceiveContainer from './containers/ReceiveContainer'
 import CancelContainer from './containers/CancelContainer'
@@ -33,14 +34,12 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
-import { getCryptoPrice } from './actions/cryptoPriceActions'
 import { onLogout, refreshAccessToken, postLoginPreparation } from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden, Typography } from '@material-ui/core'
 import { PersistGate } from 'redux-persist/integration/react'
 import moment from 'moment'
-import { erc20TokensList } from './erc20Tokens'
 import { usePageVisibility } from 'react-page-visibility'
 import env from './typedEnv'
 import { hotjar } from 'react-hotjar'
@@ -315,7 +314,7 @@ class App extends Component {
         // if access token expires, logout
         await store.dispatch(onLogout())
       } else {
-        store.dispatch(postLoginPreparation(profile))
+        await store.dispatch(postLoginPreparation(profile))
         // if access token is still valid
         // refresh access token to make sure it is valid in the next one hour
         await store.dispatch(refreshAccessToken())
@@ -335,19 +334,11 @@ class App extends Component {
 
   componentDidMount () {
     this.preload()
-
-    // refresh price immediately
-    store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', ...erc20TokensList]))
-    // refresh price every 60 seconds
-    setInterval(
-      () => store.dispatch(getCryptoPrice(['bitcoin', 'ethereum', ...erc20TokensList])),
-      60000
-    )
   }
 
   render () {
     if (!this.state.preloadFinished) {
-      return null
+      return <PreloadingComponent />
     }
 
     return (

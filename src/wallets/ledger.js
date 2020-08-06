@@ -20,7 +20,6 @@ import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import { getAccountXPub } from './addressFinderUtils'
 import WalletErrors from './walletErrors'
-import { erc20TokensList } from '../erc20Tokens'
 
 const ledgerErrors = WalletErrors.ledger
 const baseEtherPath = "44'/60'/0'/0"
@@ -42,19 +41,10 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
   constructor (accountData?: AccountData) {
     if (accountData && accountData.cryptoType) {
-      switch (accountData.cryptoType) {
-        case 'dai':
-        case 'tether':
-        case 'usd-coin':
-        case 'true-usd':
-        case 'ethereum':
-          this.account = new EthereumAccount(accountData)
-          break
-        case 'bitcoin':
-          this.account = new BitcoinAccount(accountData)
-          break
-        default:
-          throw new Error('Invalid crypto type')
+      if (accountData.cryptoType === 'bitcoin') {
+        this.account = new BitcoinAccount(accountData)
+      } else {
+        this.account = new EthereumAccount(accountData)
       }
     }
   }
@@ -222,14 +212,10 @@ export default class LedgerWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['bitcoin', 'ethereum', ...erc20TokensList].includes(cryptoType)) {
-      if (cryptoType !== 'bitcoin') {
-        return this._newEthereumAccount(name, cryptoType, options)
-      } else {
-        return this._newBitcoinAccount(name)
-      }
+    if (cryptoType !== 'bitcoin') {
+      return this._newEthereumAccount(name, cryptoType, options)
     } else {
-      throw new Error('Invalid crypto type')
+      return this._newBitcoinAccount(name)
     }
   }
 
@@ -246,7 +232,7 @@ export default class LedgerWallet implements IWallet<AccountData> {
         accountData.connected = false
         throw new Error(ledgerErrors.incorrectAccount)
       }
-    } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
+    } else {
       let address = await this._getEthAddress(DEFAULT_ACCOUNT)
       if (address !== accountData.address) {
         accountData.connected = false
@@ -278,44 +264,8 @@ export default class LedgerWallet implements IWallet<AccountData> {
 
     const { cryptoType } = accountData
     if (!txFee) throw new Error('Missing txFee')
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-      // init web3
-      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
-      if (!options) throw new Error('Options must not be null')
-      let txObj
-      if (options.directTransfer) {
-        // direct transfer to another address
-        txObj = await WalletUtils.getDirectTransferTxObj(
-          accountData.address,
-          to,
-          value,
-          accountData.cryptoType
-        )
-      } else {
-        // transfer to escrow wallet
-        let { multisig } = options
-        txObj = multisig.getSendToEscrowTxObj(
-          accountData.address,
-          to,
-          value,
-          accountData.cryptoType
-        )
-      }
-
-      // add txFee to txObj
-      txObj = {
-        ...txObj,
-        gas: txFee.gas,
-        gasPrice: txFee.price
-      }
-      return {
-        txHash: await WalletUtils.web3SendTransactions(
-          _web3.eth.sendSignedTransaction,
-          (await this._signSendTransaction(txObj)).rawTransaction
-        )
-      }
-    } else if (cryptoType === 'bitcoin') {
+    if (cryptoType === 'bitcoin') {
       const addressPool = accountData.hdWalletVariables.addresses
       const { fee, utxosCollected } = account._collectUtxos(
         addressPool,
@@ -340,7 +290,42 @@ export default class LedgerWallet implements IWallet<AccountData> {
       }
       return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
     } else {
-      throw new Error('Invalid crypto type')
+      // init web3
+      const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+
+      if (!options) throw new Error('Options must not be null')
+      let txObj
+      if (options.directTransfer) {
+        // direct transfer to another address
+        txObj = await WalletUtils.getDirectTransferTxObj(
+          accountData.address,
+          to,
+          value,
+          accountData.cryptoType
+        )
+      } else {
+        // transfer to escrow wallet
+        let { multiSig } = options
+        txObj = multiSig.getSendToEscrowTxObj(
+          accountData.address,
+          to,
+          value,
+          accountData.cryptoType
+        )
+      }
+
+      // add txFee to txObj
+      txObj = {
+        ...txObj,
+        gas: txFee.gas,
+        gasPrice: txFee.price
+      }
+      return {
+        txHash: await WalletUtils.web3SendTransactions(
+          _web3.eth.sendSignedTransaction,
+          (await this._signSendTransaction(txObj)).rawTransaction
+        )
+      }
     }
   }
 

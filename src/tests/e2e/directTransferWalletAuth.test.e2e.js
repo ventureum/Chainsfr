@@ -5,7 +5,7 @@ import DirectTransferAuthPage from './pages/directTransferAuth.page'
 import ReceiptPage from './pages/receipt.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import url from '../../url'
+import { INFURA_API_URL } from './config'
 import Web3 from 'web3'
 import pWaitFor from 'p-wait-for'
 import log from 'loglevel'
@@ -23,7 +23,7 @@ describe('Direct Transfer Auth Tests', () => {
   const dtReviewPage = new DirectTransferReviewPage()
   const dtAuthPage = new DirectTransferAuthPage()
   const receiptPage = new ReceiptPage()
-  const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+  const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_API_URL))
   let pendingTxTransferId = []
   var pendingTxHashList = []
 
@@ -71,7 +71,9 @@ describe('Direct Transfer Auth Tests', () => {
     } else {
       requestInterceptor.byPass(null)
     }
-    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
+    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`, {
+      waitUntil: 'networkidle0'
+    })
   })
 
   afterAll(async () => {

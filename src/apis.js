@@ -4,7 +4,11 @@ import { Base64 } from 'js-base64'
 import env from './typedEnv'
 import type { TxHash, Recipient } from './types/transfer.flow.js'
 import type { UserProfile, CloudWalletFolderMetaType } from './types/user.flow.js'
-import type { AccountData, BackEndCryptoAccountType } from './types/account.flow.js'
+import type {
+  AccountData,
+  BackEndCryptoAccountType,
+  EthContractType
+} from './types/account.flow.js'
 import type { CoinBaseAccessObject } from './wallets/CoinbaseClient'
 import { store } from './configureStore.js'
 import paths from './Paths'
@@ -575,6 +579,29 @@ async function clearTransfer (request: { transferId: string }) {
   }
 }
 
+async function getAllEthContracts (): Promise<Array<EthContractType>> {
+  try {
+    const rv = await chainsferApi.post('/ethContracts', {
+      action: 'GET_ALL_CONTRACTS'
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error('Get eth contracts failed.')
+  }
+}
+
+async function getEthContract (address: string): Promise<EthContractType> {
+  try {
+    const rv = await chainsferApi.post('/ethContracts', {
+      action: 'GET_CONTRACT',
+      address: address
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error('Get eth contracts failed.')
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -605,5 +632,7 @@ export default {
   getUserRegisterTime,
   lookupTxHash,
   getEmailTransfers,
-  clearTransfer
+  clearTransfer,
+  getAllEthContracts,
+  getEthContract
 }

@@ -1,5 +1,7 @@
 import env from './typedEnv'
-import { erc20TokensAddress } from './erc20Tokens'
+import { isERC20 } from './tokens'
+import { store } from './configureStore'
+const getEthContracts = () => store.getState().accountReducer.ethContracts
 
 const INFURA_API_URL = `https://${env.REACT_APP_ETHEREUM_NETWORK}.infura.io/v3/${
   env.REACT_APP_INFURA_API_KEY
@@ -57,33 +59,24 @@ function getBtcExplorerTx (txHash) {
 }
 
 function getExplorerTx (cryptoType, txHash) {
-  switch (cryptoType) {
-    case 'ethereum':
-    case 'dai':
-    case 'tether':
-    case 'usd-coin':
-    case 'true-usd':
-      return getEthExplorerTx(txHash)
-    case 'bitcoin':
-      return getBtcExplorerTx(txHash)
-    default:
-      throw new Error(`Invalid cryptoType: ${cryptoType}`)
+  if (cryptoType === 'bitcoin') {
+    return getBtcExplorerTx(txHash)
+  } else if (cryptoType === 'ethereum' || isERC20(cryptoType)) {
+    return getEthExplorerTx(txHash)
+  } else {
+    throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 }
 
 function getExplorerAddress (cryptoType, address) {
-  switch (cryptoType) {
-    case 'ethereum':
-      return getEthExplorerAddress(address)
-    case 'dai':
-    case 'tether':
-    case 'usd-coin':
-    case 'true-usd':
-      return getEthExplorerToken(erc20TokensAddress[cryptoType], address)
-    case 'bitcoin':
-      return getBtcExplorerAddress(address)
-    default:
-      throw new Error(`Invalid cryptoType: ${cryptoType}`)
+  if (cryptoType === 'bitcoin') {
+    return getBtcExplorerAddress(address)
+  } else if (cryptoType === 'ethereum') {
+    return getEthExplorerAddress(address)
+  } else if (isERC20(cryptoType)) {
+    return getEthExplorerToken(getEthContracts()[cryptoType].address, address)
+  } else {
+    throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 }
 

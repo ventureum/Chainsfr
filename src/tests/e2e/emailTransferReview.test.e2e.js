@@ -3,7 +3,7 @@ import EmailTransferFormPage from './pages/emailTransferForm.page'
 import SendReviewPage from './pages/sendReview.page'
 import { resetUserDefault } from './utils/reset.js'
 import { getWalletTitle } from '../../wallet'
-import { getCryptoTitle, getCryptoSymbol } from '../../tokens'
+import { getCryptoTitle, getCryptoSymbol } from './testUtils'
 import { GOOGLE_LOGIN_AUTH_OBJ } from './mocks/user'
 import ReduxTracker from './utils/reduxTracker'
 

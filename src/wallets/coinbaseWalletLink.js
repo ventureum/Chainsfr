@@ -11,7 +11,6 @@ import WalletLink from 'walletlink'
 import WalletUtils from './utils.js'
 import env from '../typedEnv'
 import WalletErrors from './walletErrors'
-import { erc20TokensList } from '../erc20Tokens'
 
 const coinbaseWalletLinkError = WalletErrors.coinbaseWalletLink
 const DEFAULT_ACCOUNT = 0
@@ -33,17 +32,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
     }
 
     if (accountData && accountData.cryptoType) {
-      switch (accountData.cryptoType) {
-        case 'dai':
-        case 'tether':
-        case 'usd-coin':
-        case 'true-usd':
-        case 'ethereum':
-          this.account = new EthereumAccount(accountData)
-          break
-        default:
-          throw new Error('Invalid crypto type')
-      }
+      this.account = new EthereumAccount(accountData)
     }
   }
 
@@ -96,11 +85,7 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-      return this._newEthereumAccount(name, cryptoType, options)
-    } else {
-      throw new Error('Invalid crypto type')
-    }
+    return this._newEthereumAccount(name, cryptoType, options)
   }
 
   checkWalletConnection = async (additionalInfo: ?Object): Promise<boolean> => {
@@ -165,8 +150,8 @@ export default class CoinbaseWalletLink implements IWallet<AccountData> {
         accountData.cryptoType
       )
     } else {
-      const { multisig } = options
-      txObj = multisig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
+      const { multiSig } = options
+      txObj = multiSig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
     }
 
     return {

@@ -6,7 +6,8 @@ import update from 'immutability-helper'
 const initState = {
   escrowAccount: null,
   cryptoAccounts: [],
-  newCryptoAccountsFromWallet: []
+  newCryptoAccountsFromWallet: [],
+  ethContracts: []
 }
 
 /*
@@ -103,6 +104,16 @@ export default function (state = initState, action) {
       return update(state, { newCryptoAccountsFromWallet: { $set: action.payload } })
     case 'VERIFY_ESCROW_ACCOUNT_PASSWORD_FULFILLED':
       return updateCryptoAccount(state, action.payload)
+    case 'GET_ALL_ETH_CONTRACTS_FULFILLED': {
+      let ethContracts = {}
+      action.payload.forEach(contract => {
+        ethContracts[contract.cryptoType] = contract
+      })
+      return {
+        ...state,
+        ethContracts: ethContracts
+      }
+    }
     default:
       // need this for default case
       return state

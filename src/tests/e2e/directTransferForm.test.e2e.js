@@ -1,7 +1,7 @@
 import LoginPage from './pages/login.page'
 import DirectTransferFormPage from './pages/directTransferForm.page'
 import { resetUserDefault } from './utils/reset.js'
-import { getCryptoSymbol } from '../../tokens'
+import { getCryptoSymbol } from './testUtils'
 
 const timeout = 180000
 
@@ -28,7 +28,9 @@ describe('Direct transfer form tests', () => {
   })
 
   beforeEach(async () => {
-    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
+    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`, {
+      waitUntil: 'networkidle0'
+    })
   })
 
   it(
@@ -55,7 +57,18 @@ describe('Direct transfer form tests', () => {
   )
 
   it(
-    'Transfer ETH into Drive',
+    'Back Btn',
+    async () => {
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.dispatchFormActions('back')
+      expect(page.url()).toMatch(/\/wallet/)
+    },
+    timeout
+  )
+
+  it(
+    'Fill then switch (Metamask_ETH -> Metamask_ETH)',
     async () => {
       const walletType = 'metamask'
       const platformType = 'ethereum'
@@ -65,33 +78,52 @@ describe('Direct transfer form tests', () => {
 
       const dtfPage = new DirectTransferFormPage()
 
+      await dtfPage.fillForm({ walletType, platformType, cryptoType, currencyAmount, sendMessage })
+
       await dtfPage.dispatchFormActions('transferIn')
-      await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
-        true
-      )
-
-      const driveSelect = await dtfPage.getSelectStatus('drive')
-      expect(driveSelect.label).toEqual('To')
-      expect(driveSelect.name).toEqual('Wallet')
-      expect(driveSelect.title).toEqual('Chainsfr')
-
-      const accountSelect = await dtfPage.getSelectStatus('account')
-      expect(accountSelect.walletType.toLowerCase()).toEqual(walletType)
-      expect(accountSelect.platformType.toLowerCase()).toEqual(platformType)
-
-      const coinSelect = await dtfPage.getSelectStatus('coin')
-      expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
-      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
-      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
-      expect(coinSelect.address).toBeDefined()
+      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
-      expect(parseFloat(cryptoAmountTextField.text)).toBeGreaterThan(0)
+      expect(cryptoAmountTextField.text).toEqual('')
 
       const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
-      expect(currencyAmountTextField.text).toEqual(currencyAmount)
+      expect(currencyAmountTextField.text).toEqual('')
 
+      await dtfPage.fillForm({ walletType, platformType, cryptoType, currencyAmount, sendMessage })
+      await dtfPage.dispatchFormActions('continue')
+      expect(page.url()).toMatch('step=1')
+    },
+    timeout
+  )
+
+  it(
+    'Fill then switch (Metamask_ETH -> Ledger_BTC)',
+    async () => {
+      let walletType = 'metamask'
+      let platformType = 'ethereum'
+      let cryptoType = 'ethereum'
+      let currencyAmount = '1'
+      const sendMessage = 'bilibilibalaboom'
+
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.fillForm({ walletType, platformType, cryptoType, currencyAmount, sendMessage })
+
+      await dtfPage.dispatchFormActions('transferIn')
+      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(cryptoAmountTextField.text).toEqual('')
+
+      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+      expect(currencyAmountTextField.text).toEqual('')
+
+      walletType = 'ledger'
+      platformType = 'bitcoin'
+      cryptoType = 'bitcoin'
+      let cryptoAmount = '0.001'
+
+      await dtfPage.fillForm({ walletType, platformType, cryptoType, cryptoAmount, sendMessage })
       await dtfPage.dispatchFormActions('continue')
       expect(page.url()).toMatch('step=1')
     },
@@ -179,6 +211,50 @@ describe('Direct transfer form tests', () => {
 
       const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
       expect(cryptoAmountTextField.text).toEqual(cryptoAmount)
+
+      await dtfPage.dispatchFormActions('continue')
+      expect(page.url()).toMatch('step=1')
+    },
+    timeout
+  )
+
+  it(
+    'Transfer ETH into Drive',
+    async () => {
+      const walletType = 'metamask'
+      const platformType = 'ethereum'
+      const cryptoType = 'ethereum'
+      const currencyAmount = '1'
+      const sendMessage = 'bilibilibalaboom'
+
+      const dtfPage = new DirectTransferFormPage()
+
+      await dtfPage.dispatchFormActions('transferIn')
+      await dtfPage.fillForm(
+        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
+        true
+      )
+
+      const driveSelect = await dtfPage.getSelectStatus('drive')
+      expect(driveSelect.label).toEqual('To')
+      expect(driveSelect.name).toEqual('Wallet')
+      expect(driveSelect.title).toEqual('Chainsfr')
+
+      const accountSelect = await dtfPage.getSelectStatus('account')
+      expect(accountSelect.walletType.toLowerCase()).toEqual(walletType)
+      expect(accountSelect.platformType.toLowerCase()).toEqual(platformType)
+
+      const coinSelect = await dtfPage.getSelectStatus('coin')
+      expect(coinSelect.cryptoSymbol).toEqual(getCryptoSymbol(cryptoType))
+      expect(parseFloat(coinSelect.balance)).toBeGreaterThan(0)
+      expect(parseFloat(coinSelect.currencyBalance)).toBeGreaterThan(0)
+      expect(coinSelect.address).toBeDefined()
+
+      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
+      expect(parseFloat(cryptoAmountTextField.text)).toBeGreaterThan(0)
+
+      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
+      expect(currencyAmountTextField.text).toEqual(currencyAmount)
 
       await dtfPage.dispatchFormActions('continue')
       expect(page.url()).toMatch('step=1')
@@ -305,92 +381,6 @@ describe('Direct transfer form tests', () => {
 
       await dtfPage.dispatchFormActions('continue')
       expect(page.url()).toMatch(/step=1/)
-    },
-    timeout
-  )
-
-  it(
-    'Back Btn',
-    async () => {
-      const dtfPage = new DirectTransferFormPage()
-
-      await dtfPage.dispatchFormActions('back')
-      expect(page.url()).toMatch(/\/wallet/)
-    },
-    timeout
-  )
-
-  it(
-    'Fill then switch (Metamask_ETH -> Metamask_ETH)',
-    async () => {
-      const walletType = 'metamask'
-      const platformType = 'ethereum'
-      const cryptoType = 'ethereum'
-      const currencyAmount = '1'
-      const sendMessage = 'bilibilibalaboom'
-
-      const dtfPage = new DirectTransferFormPage()
-
-      await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
-        true
-      )
-
-      await dtfPage.dispatchFormActions('transferIn')
-      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
-
-      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
-      expect(cryptoAmountTextField.text).toEqual('')
-
-      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
-      expect(currencyAmountTextField.text).toEqual('')
-
-      await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
-        true
-      )
-      await dtfPage.dispatchFormActions('continue')
-      expect(page.url()).toMatch('step=1')
-    },
-    timeout
-  )
-
-  it(
-    'Fill then switch (Metamask_ETH -> Ledger_BTC)',
-    async () => {
-      let walletType = 'metamask'
-      let platformType = 'ethereum'
-      let cryptoType = 'ethereum'
-      let currencyAmount = '1'
-      const sendMessage = 'bilibilibalaboom'
-
-      const dtfPage = new DirectTransferFormPage()
-
-      await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, currencyAmount, sendMessage },
-        true
-      )
-
-      await dtfPage.dispatchFormActions('transferIn')
-      expect(await dtfPage.getAccountSwitchStatus()).toEqual('transferIn')
-
-      const cryptoAmountTextField = await dtfPage.getTextFieldStatus('cryptoAmount')
-      expect(cryptoAmountTextField.text).toEqual('')
-
-      const currencyAmountTextField = await dtfPage.getTextFieldStatus('currencyAmount')
-      expect(currencyAmountTextField.text).toEqual('')
-
-      walletType = 'ledger'
-      platformType = 'bitcoin'
-      cryptoType = 'bitcoin'
-      let cryptoAmount = '0.001'
-
-      await dtfPage.fillForm(
-        { walletType, platformType, cryptoType, cryptoAmount, sendMessage },
-        true
-      )
-      await dtfPage.dispatchFormActions('continue')
-      expect(page.url()).toMatch('step=1')
     },
     timeout
   )

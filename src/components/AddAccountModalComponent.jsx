@@ -35,7 +35,7 @@ import {
 } from '../wallet'
 import {
   getCryptoTitle,
-  getPlatformCryptos,
+  defaultEthereumCryptos,
   getCryptoLogo,
   getCryptoSymbol,
   getCryptoPlatformType
@@ -598,7 +598,9 @@ const WalletConnectAction = (props: WalletConnectActionProps) => {
     default:
       statusMessage = 'Please wait...'
   }
-  let cryptoTypes = getPlatformCryptos(platformType).map(crypto => crypto.cryptoType)
+
+  let cryptoTypes = platformType === 'ethereum' ? defaultEthereumCryptos : ['bitcoin']
+  
   if (walletType === 'coinbaseOAuthWallet') {
     // coinbase OAuth wallet can only add one crypto at a time
     cryptoTypes = cryptoTypes.filter(cryptoType => {
@@ -733,7 +735,7 @@ const ConnectWallet = (props: ConnectWalletProps) => {
               <Alert severity='info'>
                 <Typography display='inline' style={{ whiteSpace: 'pre-line' }}>
                   {LEDGER_CONNECT_USB_DRIVER_INSTRUCTION}
-                  <MuiLink id="how_to_install_ledger">{`\n How to install?`}</MuiLink>
+                  <MuiLink id='how_to_install_ledger'>{`\n How to install?`}</MuiLink>
                 </Typography>
               </Alert>
             </Box>

@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import TestMailClient from './testMailClient'
-import { getCryptoSymbol } from '../../../tokens'
+import { getCryptoSymbol } from '../testUtils'
 
 const SELECTORS = {
   SENDER: {

@@ -3,7 +3,7 @@ import DireactTransferFormPage from './pages/directTransferForm.page'
 import ReviewPage from './pages/sendReview.page'
 import { resetUserDefault } from './utils/reset.js'
 import { getWalletTitle } from '../../wallet'
-import { getCryptoTitle, getCryptoSymbol } from '../../tokens'
+import { getCryptoTitle, getCryptoSymbol } from './testUtils'
 
 const timeout = 180000
 
@@ -34,7 +34,9 @@ describe('Direct transfer review tests', () => {
   })
 
   beforeEach(async () => {
-    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`)
+    await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`, {
+      waitUntil: 'networkidle0'
+    })
   })
 
   it(
