@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Alert from '@material-ui/lab/Alert'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import env from '../typedEnv'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
@@ -26,6 +27,11 @@ import CropFreeIcon from '@material-ui/icons/CropFreeRounded'
 import OpenInBrowser from '@material-ui/icons/OpenInBrowserRounded'
 import ResetIcon from '@material-ui/icons/ReplayRounded'
 import UsbIcon from '@material-ui/icons/UsbRounded'
+
+const network = {
+  mainnet: 'Mainnet',
+  rinkeby: 'Rinkeby testnet'
+}
 
 type Props = {
   classes: Object,
@@ -282,7 +288,9 @@ class WalletAuthorizationComponent extends Component<Props, State> {
         } else if (errors.verifyAccount === WalletErrors.metamask.authorizationDenied) {
           errorInstruction = 'MetaMask authorization denied'
         } else if (errors.verifyAccount === WalletErrors.metamask.incorrectNetwork) {
-          errorInstruction = 'Incorrect MetaMask network'
+          errorInstruction = `Incorrect MetaMask network, please switch to ${
+            network[env.REACT_APP_ETHEREUM_NETWORK]
+          }`
         } else if (errors.submitTx.match(/User denied transaction signature/)) {
           errorInstruction = 'MetaMask authorization denied'
         } else if (errors.setTokenAllowance) {
