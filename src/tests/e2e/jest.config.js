@@ -10,19 +10,6 @@ module.exports = {
   },
   // TODO: more tests will be added
   testMatch: [
-    '**/emailTransferForm.test.e2e.js',
-    '**/emailTransferFormEntryPoint.test.e2e.js',
-    '**/emailTransferReview.test.e2e.js',
-    '**/directTransferForm.test.e2e.js',
-    '**/directTransferReview.test.e2e.js',
-    '**/directTransferWalletAuth.test.e2e.js',
-    '**/accountManagement.test.e2e.js',
-    '**/emailTransferWalletAuth.test.e2e.js',
-    '**/cancelTransfer.test.e2e.js',
-    '**/receiveTransfer.test.e2e.js',
-    '**/landing.test.e2e.js',
-    '**/receipt.test.e2e.js',
-    '**/recipients.test.e2e.js',
-    '**/userSetting.test.e2e.js'
+    '**/directTransferWalletAuth.test.e2e.js'
   ]
 }
