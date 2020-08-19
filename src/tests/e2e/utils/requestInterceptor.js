@@ -1,12 +1,12 @@
 // @flow
+import { DAI_ADDRESS } from '../config'
 declare var Base64: any
 declare var log: any
 
-import { erc20TokensAddress } from '../../../erc20Tokens.js'
 const _ = require('lodash')
 const chalk = require('chalk')
 
-const CONTRACT_ADDR = erc20TokensAddress['dai'].toLowerCase()
+const CONTRACT_ADDR = DAI_ADDRESS
 
 const BALANCE_OF_SIG = '0x70a08231'
 const ALLOWANCE_OF_SIG = '0xdd62ed3e'

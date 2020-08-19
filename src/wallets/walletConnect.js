@@ -9,7 +9,6 @@ import _WalletConnect from '@walletconnect/browser'
 import WalletConnectQRCodeModal from '@walletconnect/qrcode-modal'
 import WalletUtils from './utils.js'
 import ERC20 from '../ERC20'
-import { erc20TokensList } from '../erc20Tokens'
 
 const DEFAULT_ACCOUNT = 0
 
@@ -27,17 +26,7 @@ export default class WalletConnect implements IWallet<AccountData> {
     this._subscribeToWalletConnectEvents()
 
     if (accountData && accountData.cryptoType) {
-      switch (accountData.cryptoType) {
-        case 'dai':
-        case 'tether':
-        case 'usd-coin':
-        case 'true-usd':
-        case 'ethereum':
-          this.account = new EthereumAccount(accountData)
-          break
-        default:
-          throw new Error('Invalid crypto type')
-      }
+      this.account = new EthereumAccount(accountData)
     }
   }
 
@@ -90,11 +79,7 @@ export default class WalletConnect implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-      return this._newEthereumAccount(name, cryptoType, options)
-    } else {
-      throw new Error('Invalid crypto type')
-    }
+    return this._newEthereumAccount(name, cryptoType, options)
   }
 
   checkWalletConnection = async (additionalInfo: ?Object): Promise<boolean> => {
@@ -177,8 +162,8 @@ export default class WalletConnect implements IWallet<AccountData> {
         accountData.cryptoType
       )
     } else {
-      const { multisig } = options
-      txObj = multisig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
+      const { multiSig } = options
+      txObj = multiSig.getSendToEscrowTxObj(accountData.address, to, value, accountData.cryptoType)
     }
 
     return { txHash: await window.walletConnector.sendTransaction(txObj) }

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import env from '../../typedEnv'
 import { Base64 } from 'js-base64'
+import { cryptoSelections } from './config'
 import transferStates from '../../transferStates'
 
 const chainsferApi = axios.create({
@@ -201,6 +202,69 @@ function getTransferState (transferData: Object): string {
   return state
 }
 
+function getCryptoTitle (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.title
+}
+
+function getCryptoSymbol (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  if (c) return c.symbol
+  return ''
+}
+
+function getCrypto (cryptoType) {
+  return cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+}
+
+function getCryptoDecimals (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.decimals
+}
+
+function getTxFeesCryptoType (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.txFeesCryptoType
+}
+
+function getCryptoLogo (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.logo
+}
+
+function isERC20 (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return !!c.address
+}
+
+function getCryptoPlatformType (cryptoType) {
+  const c = cryptoSelections.find(crypto => {
+    return cryptoType === crypto.cryptoType
+  })
+  return c.platformType
+}
+
+function getPlatformCryptos (platformType) {
+  const listOfCryptos = cryptoSelections.filter(c => {
+    return c.platformType === platformType
+  })
+  return listOfCryptos
+}
+
 export {
   sleep,
   runUntilEvaluateEquals,
@@ -208,5 +272,14 @@ export {
   getElementTextContent,
   normalizeTransferData,
   getTransfer,
-  getTransferState
+  getTransferState,
+  getCryptoTitle,
+  getCryptoSymbol,
+  getCrypto,
+  getCryptoDecimals,
+  getTxFeesCryptoType,
+  getCryptoLogo,
+  isERC20,
+  getCryptoPlatformType,
+  getPlatformCryptos
 }

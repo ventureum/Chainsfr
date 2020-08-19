@@ -6,14 +6,13 @@ import ReceiptPage from './pages/receipt.page'
 import DisconnectPage from './pages/disconnect.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import { getTransfer } from './testUtils'
-import url from '../../url'
+import { getTransfer, getCryptoSymbol } from './testUtils'
+import { INFURA_API_URL } from './config'
 import { DATA, WALLET_FOLDER_NAME, WALLET_FILE_NAME } from './mocks/drive.js'
 import log from 'loglevel'
 import BN from 'bn.js'
 import pWaitFor from 'p-wait-for'
 import Web3 from 'web3'
-import { getCryptoSymbol } from '../../tokens'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 
@@ -21,19 +20,18 @@ log.setDefaultLevel('info')
 
 // 3 min
 const timeout = 180000
+const reduxTracker = new ReduxTracker()
 
 describe('Transfer Auth Tests', () => {
   let loginPage
-  const reduxTracker = new ReduxTracker()
-  const emtPage = new EmailTransferFormPage()
-  const emtReviewPage = new EmailTransferReviewPage()
-  const emtAuthPage = new EmailTransferAuthPage()
-  const receiptPage = new ReceiptPage()
-  const disconnectPage = new DisconnectPage()
-  const web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
+  let emtPage
+  let emtReviewPage
+  let emtAuthPage
+  let receiptPage
+  let disconnectPage
+  const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_API_URL))
 
   const FORM_BASE = {
-    formPage: emtPage,
     recipient: 'chainsfre2etest@gmail.com',
     currencyAmount: '1',
     securityAnswer: '123456',
@@ -59,11 +57,18 @@ describe('Transfer Auth Tests', () => {
     expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
     expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
     expect(emailMessage).toMatch(new RegExp(transferData.destination))
-    expect(btnLink).toEqual(`https://testnet.chainsfr.com/cancel?id=${transferData.transferId}`)
+    expect(btnLink).toMatch(`testnet.chainsfr.com%2Fcancel%3Fid=${transferData.transferId}`)
   }
 
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
+
+    emtPage = new EmailTransferFormPage()
+    emtReviewPage = new EmailTransferReviewPage()
+    emtAuthPage = new EmailTransferAuthPage()
+    receiptPage = new ReceiptPage()
+    disconnectPage = new DisconnectPage()
 
     await requestInterceptor.setRequestInterception(true)
 
@@ -122,6 +127,7 @@ describe('Transfer Auth Tests', () => {
 
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'drive',
         platformType: 'ethereum',
         cryptoType: 'ethereum'
@@ -201,6 +207,7 @@ describe('Transfer Auth Tests', () => {
       const CRYPTO_AMOUNT = '1'
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         cryptoAmount: CRYPTO_AMOUNT,
         currencyAmount: null,
         walletType: 'drive',
@@ -305,6 +312,7 @@ describe('Transfer Auth Tests', () => {
 
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         cryptoAmount: CRYPTO_AMOUNT,
         currencyAmount: null,
         walletType: 'drive',
@@ -378,6 +386,7 @@ describe('Transfer Auth Tests', () => {
       const CRYPTO_AMOUNT = '0.001'
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         cryptoAmount: CRYPTO_AMOUNT,
         walletType: 'drive',
         platformType: 'bitcoin',
@@ -439,6 +448,7 @@ describe('Transfer Auth Tests', () => {
 
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'metamask',
         platformType: 'ethereum',
         cryptoType: 'ethereum'
@@ -516,6 +526,7 @@ describe('Transfer Auth Tests', () => {
       const CRYPTO_AMOUNT = '1'
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         cryptoAmount: CRYPTO_AMOUNT,
         currencyAmount: null,
         walletType: 'metamask',
@@ -621,6 +632,7 @@ describe('Transfer Auth Tests', () => {
 
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         cryptoAmount: CRYPTO_AMOUNT,
         currencyAmount: null,
         walletType: 'metamask',
@@ -633,7 +645,7 @@ describe('Transfer Auth Tests', () => {
       await expect(page).toMatch(`Your remaining DAI transaction limit is ${CRYPTO_AMOUNT}.`, {
         timeout: 5000
       })
-      
+
       // click connect
       await Promise.all([
         reduxTracker.waitFor(
@@ -689,6 +701,7 @@ describe('Transfer Auth Tests', () => {
 
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         currencyAmount: '0.5',
         walletType: 'metamask',
         platformType: 'ethereum',

@@ -1,7 +1,7 @@
 import log from 'loglevel'
 import { getWalletTitle } from '../../../wallet.js'
 import { getPlatformTitle } from '../../../platforms'
-import { getCryptoSymbol } from '../../../tokens.js'
+import { getCryptoSymbol } from '../testUtils'
 import ReduxTracker from '../utils/reduxTracker'
 import pWaitFor from 'p-wait-for'
 

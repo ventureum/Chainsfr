@@ -1,19 +1,26 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import AddTokenDrawer from '../components/AddNewTokenComponent'
 import AccountsManagementComponent from '../components/AccountsManagementComponent'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
 import {
   addCryptoAccounts,
   removeCryptoAccounts,
-  modifyCryptoAccountsName
+  modifyCryptoAccountsName,
+  getAllEthContracts
 } from '../actions/accountActions'
 import { accountStatus, CategorizedAccount } from '../types/account.flow.js'
+import { createAccount } from '../accounts/AccountFactory'
 import { push } from 'connected-react-router'
 import path from '../Paths.js'
 import utils from '../utils'
 import { getCryptoPlatformType } from '../tokens'
 
 class AccountsManagementContainer extends Component {
+  state = {
+    addTokenDrawer: false
+  }
+
   handleTransferFrom = (account: CategorizedAccount) => {
     const { push } = this.props
 
@@ -47,7 +54,8 @@ class AccountsManagementContainer extends Component {
         // Add account to categorizedAccounts by categorizedAccount id
         existIndex = categorizedAccounts.findIndex(
           account =>
-            account.address === accountData.address && account.walletType === accountData.walletType
+            account.address === accountData.address &&
+            account.walletType === accountData.walletType
         )
       }
       if (existIndex >= 0) {
@@ -77,6 +85,28 @@ class AccountsManagementContainer extends Component {
     return categorizedAccounts
   }
 
+  // Get the list of wallet user currently has
+  // To be used by 'add new token'.
+  getWallets = cryptoAccounts => {
+    let wallets = []
+    cryptoAccounts.forEach(accountData => {
+      const index = wallets.findIndex(wallet => {
+        return (
+          wallet.walletType === accountData.walletType && wallet.address === accountData.address
+        )
+      })
+      if (index < 0) {
+        wallets.push({
+          walletType: accountData.walletType,
+          address: accountData.address,
+          platformType: accountData.platformType,
+          name: accountData.name
+        })
+      }
+    })
+    return wallets
+  }
+
   modifyCryptoAccountsName = (account, newName) => {
     this.props.modifyCryptoAccountsName(account.assets, newName)
   }
@@ -85,20 +115,67 @@ class AccountsManagementContainer extends Component {
     this.props.removeCryptoAccounts(account.assets)
   }
 
+  toggleAddTokenDrawer = () => {
+    this.setState(state => {
+      return {
+        addTokenDrawer: !state.addTokenDrawer
+      }
+    })
+  }
+
+  addToken = (wallet, token) => {
+    const newAccount = createAccount({
+      walletType: wallet.walletType,
+      name: wallet.name,
+      cryptoType: token.cryptoType,
+      platformType: 'ethereum',
+      address: wallet.address
+    })
+
+    this.props.addCryptoAccounts([newAccount.getAccountData()], true)
+  }
+
   render () {
-    const { addCryptoAccounts, actionsPending, cryptoAccounts, currency, online } = this.props
-    const categorizedAccounts = this.getCategorizedAccounts(cryptoAccounts)
+    const { addTokenDrawer } = this.state
+    const {
+      addCryptoAccounts,
+      actionsPending,
+      cryptoAccounts,
+      currency,
+      online,
+      ethContracts
+    } = this.props
+    const categorizedAccounts = this.getCategorizedAccounts(
+      cryptoAccounts.filter(accountData => accountData.walletType !== 'drive')
+    )
+
+    const wallets = this.getWallets(
+      cryptoAccounts.filter(accountData => accountData.cryptoType !== 'bitcoin')
+    )
+
     return (
-      <AccountsManagementComponent
-        categorizedAccounts={categorizedAccounts}
-        addCryptoAccounts={addCryptoAccounts}
-        actionsPending={actionsPending}
-        modifyCryptoAccountsName={this.modifyCryptoAccountsName}
-        removeCryptoAccounts={this.removeCryptoAccounts}
-        handleTransferFrom={this.handleTransferFrom}
-        online={online}
-        currency={currency}
-      />
+      <>
+        <AccountsManagementComponent
+          categorizedAccounts={categorizedAccounts}
+          addCryptoAccounts={addCryptoAccounts}
+          actionsPending={actionsPending}
+          modifyCryptoAccountsName={this.modifyCryptoAccountsName}
+          removeCryptoAccounts={this.removeCryptoAccounts}
+          handleTransferFrom={this.handleTransferFrom}
+          onAddToken={this.toggleAddTokenDrawer}
+          online={online}
+          currency={currency}
+        />
+        {addTokenDrawer && (
+          <AddTokenDrawer
+            wallets={wallets}
+            onClose={this.toggleAddTokenDrawer}
+            ethContracts={ethContracts}
+            addToken={this.addToken}
+            adding={actionsPending.addCryptoAccounts}
+          />
+        )}
+      </>
     )
   }
 }
@@ -111,14 +188,13 @@ const errorSelector = createErrorSelector(['ADD_CRYPTO_ACCOUNTS', 'REMOVE_CRYPTO
 
 const mapStateToProps = state => {
   return {
-    cryptoAccounts: state.accountReducer.cryptoAccounts.filter(item => {
-      return item.walletType !== 'drive'
-    }),
+    cryptoAccounts: state.accountReducer.cryptoAccounts,
     actionsPending: {
       addCryptoAccounts: addCryptoAccountsSelector(state),
       removeCryptoAccounts: removeCryptoAccountsSelector(state),
       getCryptoAccounts: getCryptoAccountsSelector(state)
     },
+    ethContracts: state.accountReducer.ethContracts,
     cryptoPrice: state.cryptoPriceReducer.cryptoPrice,
     currency: state.cryptoPriceReducer.currency,
     error: errorSelector(state)
@@ -127,7 +203,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    addCryptoAccounts: accountData => dispatch(addCryptoAccounts(accountData)),
+    getAllEthContracts: () => dispatch(getAllEthContracts()),
+    addCryptoAccounts: (accountData, addToken) =>
+      dispatch(addCryptoAccounts(accountData, addToken)),
     removeCryptoAccounts: accountData => dispatch(removeCryptoAccounts(accountData)),
     modifyCryptoAccountsName: (accountData, newName) =>
       dispatch(modifyCryptoAccountsName(accountData, newName)),
@@ -135,4 +213,7 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountsManagementContainer)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AccountsManagementContainer)

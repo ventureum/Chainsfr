@@ -8,9 +8,9 @@ import API from '../apis'
 import { enqueueSnackbar } from './notificationActions.js'
 import WalletErrors from '../wallets/walletErrors'
 import utils from '../utils'
+import { isERC20 } from '../tokens'
 import { createAccount } from '../accounts/AccountFactory.js'
 import { getUserCloudWalletFolderMeta } from './userActions'
-import { erc20TokensList } from '../erc20Tokens'
 import moment from 'moment'
 
 // cloud wallet actions
@@ -38,10 +38,7 @@ async function _createCloudWallet (password: string, progress: ?Function) {
           let accountData
           let _wallet = createWallet({ walletType: 'drive' })
           let privateKey
-          if (
-            (ethereumBasedAccountData && [...erc20TokensList].includes(cryptoType)) ||
-            cryptoType === 'ethereum'
-          ) {
+          if ((ethereumBasedAccountData && isERC20(cryptoType)) || cryptoType === 'ethereum') {
             // share the same privateKey for ethereum based coins
             privateKey = ethereumBasedAccountData.privateKey
           }

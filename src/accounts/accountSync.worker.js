@@ -8,14 +8,16 @@ import BN from 'bn.js'
 import * as bip32 from 'bip32'
 import axios from 'axios'
 import env from '../typedEnv'
-import url from '../url'
 import type { IAccount, AccountData, BitcoinAddress, Address } from '../types/account.flow.js'
 
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
 const DEFAULT_ACCOUNT = 0
 const NETWORK =
   env.REACT_APP_BTC_NETWORK === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-
+const LEDGER_API_URL =
+  env.REACT_APP_BTC_NETWORK === 'mainnet'
+    ? `https://api.ledgerwallet.com/blockchain/v2/btc`
+    : `https://api.ledgerwallet.com/blockchain/v2/btc_testnet`
 const PLATFORM_TYPE = 'bitcoin'
 
 const _getDerivedAddress = (xpub: string, change: number, addressIdx: number) => {
@@ -86,7 +88,7 @@ const _discoverAddress = async (
       addrBatch.push({ address, addressPath })
       txListPromise.push(
         axios.get(
-          `${url.LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
+          `${LEDGER_API_URL}/addresses/${address}/transactions?noToken=true&truncated=true`
         )
       )
     }

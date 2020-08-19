@@ -2,32 +2,34 @@
 import CoinGecko from 'coingecko-api'
 const CoinGeckoClient = new CoinGecko()
 
-async function _getCryptoPrice (cryptoTypes: Array<string>, currency: string) {
-  // api only accepts lowercase currency symbol
-  currency = currency.toLowerCase()
-  try {
-    var resp = await CoinGeckoClient.simple.price({
-      ids: cryptoTypes,
-      vs_currencies: [currency]
-    })
-    if (resp && resp.code === 200) {
-      let rv = {}
-      for (let cryptoType of cryptoTypes) {
-        rv[cryptoType] = resp.data[cryptoType][currency]
-      }
-      return rv
-    }
-  } catch (e) {
-    console.warn(e)
-  }
-}
-
 function getCryptoPrice (cryptoTypes: Array<string>) {
   return (dispatch: Function, getState: Function) => {
-    const { currency } = getState().cryptoPriceReducer
+    // api only accepts lowercase currency symbol
+    const currency = getState().cryptoPriceReducer.currency.toLowerCase()
     return dispatch({
       type: 'GET_CRYPTO_PRICE',
-      payload: _getCryptoPrice(cryptoTypes, currency)
+      payload: async (): Promise<{ [cryptoType: string]: number }> => {
+        let rv = {}
+        try {
+          // get price for crypto in cryptoTypes
+          const idResp = await CoinGeckoClient.simple.price({
+            ids: cryptoTypes,
+            vs_currencies: [currency]
+          })
+          if (idResp && idResp.code === 200) {
+            for (let cryptoType of cryptoTypes) {
+              if (idResp.data[cryptoType]) {
+                rv[cryptoType] = idResp.data[cryptoType][currency]
+              } else {
+                rv[cryptoType] = 0
+              }
+            }
+          }
+        } catch (e) {
+          console.warn(e)
+        }
+        return rv
+      }
     })
   }
 }

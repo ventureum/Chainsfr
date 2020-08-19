@@ -12,6 +12,7 @@ const timeout = 180000
 describe('Email transfer form entry point tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
 
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)

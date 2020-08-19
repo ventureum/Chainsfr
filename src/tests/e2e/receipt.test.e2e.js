@@ -4,8 +4,7 @@ import { resetUserDefault } from './utils/reset.js'
 import ReduxTracker from './utils/reduxTracker'
 import { TRANSFER_ID_LIST, RECEIVING_ID_LIST } from './mocks/ids'
 import { DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG } from './mocks/transfers'
-import { getElementTextContent, getNewPopupPage } from './testUtils'
-import { getCryptoSymbol } from '../../tokens'
+import { getElementTextContent, getNewPopupPage, getCryptoSymbol } from './testUtils'
 import { Base64 } from 'js-base64'
 import moment from 'moment'
 
@@ -31,7 +30,7 @@ let receiverTestParam = testedTransferList.map((transfer, i) => {
 describe('Receipt login test', () => {
   beforeAll(async () => {
     await resetUserDefault()
-    
+
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)
   }, timeout)

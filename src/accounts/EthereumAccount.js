@@ -9,15 +9,16 @@ import { getWalletTitle, getWalletConfig } from '../wallet'
 import SimpleMultiSigContractArtifacts from '../contracts/SimpleMultiSig.json'
 import WalletUtils from '../wallets/utils'
 import env from '../typedEnv'
-import { erc20TokensList } from '../erc20Tokens'
+import { isERC20 } from '../tokens'
 const PLATFORM_TYPE = 'ethereum'
 
 export default class EthereumAccount implements IAccount<AccountData> {
   accountData: AccountData
 
   constructor (accountData: AccountData) {
-    if (!['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
-      throw new Error('Invalid crypto type')
+    const { cryptoType } = accountData
+    if (cryptoType !== 'ethereum' && !isERC20(cryptoType)) {
+      throw new Error(`Invalid crypto type: ${cryptoType}`)
     }
     let _accountData = {
       id: accountData.id,
@@ -99,13 +100,12 @@ export default class EthereumAccount implements IAccount<AccountData> {
     // set eth balance
     this.accountData.ethBalance = await _web3.eth.getBalance(this.accountData.address)
 
-    // set token balance and multisig wallet allowance
-    if (erc20TokensList.includes(cryptoType)) {
+    // set token balance and multiSig wallet allowance
+    if (cryptoType !== 'ethereum') {
       this.accountData.balance = (await ERC20.getBalance(
         this.accountData.address,
         cryptoType
       )).toString()
-
       // set allowance
       const NETWORK_ID = WalletUtils.networkIdMap[env.REACT_APP_ETHEREUM_NETWORK]
       const contractAddr = SimpleMultiSigContractArtifacts.networks[NETWORK_ID].address

@@ -26,7 +26,6 @@ import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
 import env from '../typedEnv'
-import { erc20TokensList } from '../erc20Tokens'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -47,6 +46,12 @@ async function _getTxFee (txRequest: {
       .toString()
   })
   return txFee
+}
+
+function cryptoTypeCheck (cryptoType) {
+  if (cryptoType !== 'bitcoin' && cryptoType !== 'ethereum' && !isERC20(cryptoType)) {
+    throw new Error(`Invalid crypto type: ${cryptoType}`)
+  }
 }
 
 function submitDirectTransferTx (txRequest: {
@@ -100,6 +105,7 @@ async function _submitDirectTransferTx (txRequest: {
     .toString()
   const _wallet = createWallet(fromAccount)
 
+  // $FlowFixMe
   const rv = await _wallet.sendTransaction({
     to: destinationAccount.address,
     value: value,
@@ -107,8 +113,11 @@ async function _submitDirectTransferTx (txRequest: {
     options: { directTransfer: true }
   })
 
-  var { txHash } = rv
-  if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
+  const { txHash } = rv
+  if (!txHash) {
+    console.error(`Send Tx Rv: ${rv}`)
+    throw new Error('Failed to fetch txHash from sendTransaction()')
+  }
 
   const response = await API.directTransfer({
     senderAccount: JSON.stringify({
@@ -180,6 +189,8 @@ async function _submitTx (txRequest: {
 
   let { cryptoType } = fromAccount
 
+  cryptoTypeCheck(cryptoType)
+
   // generate an escrow wallet
   let walletId
   let escrowWallet = createWallet({ walletType: 'escrow' })
@@ -197,96 +208,97 @@ async function _submitTx (txRequest: {
     .toBasicTokenUnit(transferAmount, getCryptoDecimals(cryptoType))
     .toString()
 
-  if (['ethereum', 'bitcoin', ...erc20TokensList].includes(cryptoType)) {
-    let multisig
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
-      walletId = new SimpleMultiSig().createWalletId()
-      multisig = new SimpleMultiSig({ walletId })
-    }
-    if (cryptoType === 'bitcoin') {
-      walletId = escrowAccount.getAccountData().address
-    }
-    const _wallet = createWallet(fromAccount)
-
-    var transferObj = {
-      transferId: null,
-      transferAmount,
-      transferFiatAmountSpot,
-      fiatType,
-      exchangeRate,
-      senderName,
-      senderAvatar,
-      sender,
-      senderAccount: JSON.stringify({
-        cryptoType: fromAccount.cryptoType,
-        walletType: fromAccount.walletType,
-        address: fromAccount.address,
-        name: fromAccount.name
-      }),
-      sendMessage,
-      destination,
-      receiverName,
-      receiverAvatar,
-      data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
-      cryptoType: cryptoType,
-      // we do not have txHash yet
-      sendTxHash: null,
-      walletId: walletId
-    }
-
-    // back transfer data in db before broadcasting
-    const dryRunResponse = await API.transfer(transferObj)
-    const { transferId, timestamp } = dryRunResponse
-
-    // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
-    await saveTempSendFile({
-      transferId,
-      sender: sender,
-      destination: destination,
-      transferAmount: transferAmount,
-      cryptoType: cryptoType,
-      data: Base64.encode(encryptedPrivateKey),
-      password: Base64.encode(password),
-      tempTimestamp: timestamp
-    })
-
-    try {
-      const rv = await _wallet.sendTransaction({
-        to: escrowAccount.getAccountData().address,
-        value: value,
-        txFee: txFee,
-        options: { multisig }
-      })
-      var { txHash } = rv
-    } catch (e) {
-      const { message } = e
-      if (
-        // walletConnect
-        message.includes('User rejected') ||
-        // metamask extension
-        // coinbase wallet
-        message.includes('User denied') ||
-        // ledger
-        message.includes('denied by the user')
-      ) {
-        await API.clearTransfer({ transferId })
-      } else {
-        throw e
-      }
-    }
-    if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
-
-    // update sendTxHash
-    return _transactionHashRetrieved({
-      ...transferObj,
-      transferId,
-      senderAccountId: fromAccount.id,
-      sendTxHash: txHash,
-      password: Base64.encode(password)
-    })
+  let multiSig
+  if (cryptoType === 'bitcoin') {
+    walletId = escrowAccount.getAccountData().address
   } else {
-    throw new Error(`Invalid cryptoType: ${cryptoType}`)
+    walletId = new SimpleMultiSig().createWalletId()
+    multiSig = new SimpleMultiSig({ walletId })
   }
+
+  const _wallet = createWallet(fromAccount)
+
+  var transferObj = {
+    transferId: null,
+    transferAmount,
+    transferFiatAmountSpot,
+    fiatType,
+    exchangeRate,
+    senderName,
+    senderAvatar,
+    sender,
+    senderAccount: JSON.stringify({
+      cryptoType: fromAccount.cryptoType,
+      walletType: fromAccount.walletType,
+      address: fromAccount.address,
+      name: fromAccount.name
+    }),
+    sendMessage,
+    destination,
+    receiverName,
+    receiverAvatar,
+    data: Base64.encode(JSON.stringify(encryptedPrivateKey)),
+    cryptoType: cryptoType,
+    // we do not have txHash yet
+    sendTxHash: null,
+    walletId: walletId
+  }
+
+  // back transfer data in db before broadcasting
+  const dryRunResponse = await API.transfer(transferObj)
+  const { transferId, timestamp } = dryRunResponse
+
+  // before sending out a TX, store a backup of encrypted escrow wallet in user's drive
+  await saveTempSendFile({
+    transferId,
+    sender: sender,
+    destination: destination,
+    transferAmount: transferAmount,
+    cryptoType: cryptoType,
+    data: Base64.encode(encryptedPrivateKey),
+    password: Base64.encode(password),
+    tempTimestamp: timestamp
+  })
+  let txHash, rv
+  try {
+    // $FlowFixMe
+    rv = await _wallet.sendTransaction({
+      to: escrowAccount.getAccountData().address,
+      value: value,
+      txFee: txFee,
+      options: { multiSig }
+    })
+
+    txHash = rv.txHash
+  } catch (e) {
+    const { message } = e
+    if (
+      // walletConnect
+      message.includes('User rejected') ||
+      // metamask extension
+      // coinbase wallet
+      message.includes('User denied') ||
+      // ledger
+      message.includes('denied by the user')
+    ) {
+      await API.clearTransfer({ transferId })
+    } else {
+      throw e
+    }
+  }
+
+  if (!txHash) {
+    console.error('Send Tx Rv: ', rv)
+    throw new Error('Failed to fetch txHash from sendTransaction()')
+  }
+  // update sendTxHash
+  return _transactionHashRetrieved({
+    ...transferObj,
+    transferId,
+    senderAccountId: fromAccount.id,
+    sendTxHash: txHash,
+    password: Base64.encode(password)
+  })
 }
 
 async function _transactionHashRetrieved (txRequest: {|
@@ -353,6 +365,8 @@ async function _acceptTransfer (txRequest: {
 
   let { cryptoType } = escrowAccount
 
+  cryptoTypeCheck(cryptoType)
+
   // assuming wallet has been decrypted
   let wallet = createWallet(escrowAccount)
 
@@ -366,7 +380,7 @@ async function _acceptTransfer (txRequest: {
 
   let multiSig
 
-  if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
+  if (cryptoType !== 'bitcoin') {
     // ethereum based coins
     multiSig = new SimpleMultiSig({
       walletId,
@@ -442,6 +456,8 @@ async function _cancelTransfer (txRequest: {
 
   let { cryptoType } = escrowAccount
 
+  cryptoTypeCheck(cryptoType)
+
   // assuming wallet has been decrypted
   let wallet = createWallet(escrowAccount)
 
@@ -458,14 +474,12 @@ async function _cancelTransfer (txRequest: {
 
   if (cryptoType === 'bitcoin') {
     senderAddress = await getFirstFromAddress(sendTxHash)
-  } else if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
+  } else {
     // ethereum based coins
     const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let txReceipt = await _web3.eth.getTransactionReceipt(sendTxHash)
     senderAddress = txReceipt.from
     multiSig = new SimpleMultiSig({ walletId, transferId })
-  } else {
-    throw new Error(`Invalid cryptoType: ${cryptoType}`)
   }
 
   await wallet.verifyAccount()
@@ -717,17 +731,13 @@ async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
       // eth tx
       // 1. gather normal tx
       let response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${
-          account.address
-        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsNormal = response.data.result
 
       // 2. gather internal tx (sent from a contract)
       response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${
-          account.address
-        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsInternal = response.data.result
 
@@ -1216,10 +1226,12 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = (await API.getBatchTransfers({
-    transferIds: transferIds,
-    receivingIds: receivingIds
-  }))
+  let transferData = (
+    await API.getBatchTransfers({
+      transferIds: transferIds,
+      receivingIds: receivingIds
+    })
+  )
     .map(item => {
       // classify transferMethod
       return {
@@ -1450,6 +1462,7 @@ async function _getTxFeeForTransfer (transferData) {
       throw new Error(`Invalid transferMethod ${transferMethod}`)
     }
 
+    cryptoTypeCheck(cryptoType)
     if (cryptoType === 'bitcoin') {
       const rv = await WalletUtils.getUtxoDetails(txHash)
       if (!rv) return null
@@ -1461,7 +1474,7 @@ async function _getTxFeeForTransfer (transferData) {
           .toHumanReadableUnit(rv.fees.toString(), getCryptoDecimals('bitcoin'), 8)
           .toString()
       }
-    } else if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
+    } else {
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
       const rv = await axios.post(url.INFURA_API_URL, {
         method: 'eth_getTransactionByHash',

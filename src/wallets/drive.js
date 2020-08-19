@@ -19,7 +19,6 @@ import url from '../url'
 import env from '../typedEnv'
 import WalletUtils from './utils.js'
 import WalletErrors from './walletErrors'
-import { erc20TokensList } from '../erc20Tokens'
 
 const driveErrors = WalletErrors.drive
 const BASE_BTC_PATH = env.REACT_APP_BTC_PATH
@@ -34,19 +33,10 @@ export default class DriveWallet implements IWallet<AccountData> {
 
   constructor (accountData?: AccountData) {
     if (accountData && accountData.cryptoType) {
-      switch (accountData.cryptoType) {
-        case 'dai':
-        case 'tether':
-        case 'usd-coin':
-        case 'true-usd':
-        case 'ethereum':
-          this.account = new EthereumAccount(accountData)
-          break
-        case 'bitcoin':
-          this.account = new BitcoinAccount(accountData)
-          break
-        default:
-          throw new Error('Invalid crypto type')
+      if (accountData.cryptoType === 'bitcoin') {
+        this.account = new BitcoinAccount(accountData)
+      } else {
+        this.account = new EthereumAccount(accountData)
       }
     }
   }
@@ -66,11 +56,7 @@ export default class DriveWallet implements IWallet<AccountData> {
     let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
     let web3Account, privateKey
 
-    if (
-      env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT &&
-      options &&
-      options.getPrefilled
-    ) {
+    if (env.REACT_APP_PREFILLED_ACCOUNT_ENDPOINT && options && options.getPrefilled) {
       // use prefilled account
       privateKey = await API.getPrefilledAccount()
       web3Account = privateKey
@@ -168,14 +154,10 @@ export default class DriveWallet implements IWallet<AccountData> {
   }
 
   async newAccount (name: string, cryptoType: string, options?: Object): Promise<IAccount> {
-    if (['bitcoin', 'ethereum', ...erc20TokensList].includes(cryptoType)) {
-      if (cryptoType !== 'bitcoin') {
-        return this._newEthereumAccount(name, cryptoType, options)
-      } else {
-        return this._newBitcoinAccount(name)
-      }
+    if (cryptoType !== 'bitcoin') {
+      return this._newEthereumAccount(name, cryptoType, options)
     } else {
-      throw new Error('Invalid crypto type')
+      return this._newBitcoinAccount(name)
     }
   }
 
@@ -221,7 +203,7 @@ export default class DriveWallet implements IWallet<AccountData> {
           accountData.connected = false
           throw new Error(driveErrors.keyPairDoesNotMatch)
         }
-      } else if (['ethereum', ...erc20TokensList].includes(accountData.cryptoType)) {
+      } else {
         let _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
         const web3Account = _web3.eth.accounts.privateKeyToAccount(accountData.privateKey)
         if (web3Account.address !== accountData.address) {
@@ -257,7 +239,22 @@ export default class DriveWallet implements IWallet<AccountData> {
 
     const { cryptoType } = accountData
     if (!txFee) throw new Error('Missing txFee')
-    if (['ethereum', ...erc20TokensList].includes(cryptoType)) {
+    if (cryptoType === 'bitcoin') {
+      const addressPool = accountData.hdWalletVariables.addresses
+      const { fee, utxosCollected } = account._collectUtxos(
+        addressPool,
+        value,
+        Number(txFee.price)
+      )
+      const signedTxRaw = await this._xPrivSigner(
+        utxosCollected,
+        to,
+        Number(value), // actual value to be sent
+        Number(fee),
+        accountData.hdWalletVariables.nextChangeIndex
+      )
+      return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
+    } else {
       // init web3
       const _web3 = new Web3(new Web3.providers.HttpProvider(url.INFURA_API_URL))
 
@@ -276,8 +273,8 @@ export default class DriveWallet implements IWallet<AccountData> {
         )
       } else {
         // transfer to escrow wallet
-        let { multisig } = options
-        txObj = multisig.getSendToEscrowTxObj(
+        let { multiSig } = options
+        txObj = multiSig.getSendToEscrowTxObj(
           accountData.address,
           to,
           value,
@@ -295,23 +292,6 @@ export default class DriveWallet implements IWallet<AccountData> {
       return {
         txHash: await WalletUtils.web3SendTransactionsWithMetamaskController(accountData, txObj)
       }
-    } else if (cryptoType === 'bitcoin') {
-      const addressPool = accountData.hdWalletVariables.addresses
-      const { fee, utxosCollected } = account._collectUtxos(
-        addressPool,
-        value,
-        Number(txFee.price)
-      )
-      const signedTxRaw = await this._xPrivSigner(
-        utxosCollected,
-        to,
-        Number(value), // actual value to be sent
-        Number(fee),
-        accountData.hdWalletVariables.nextChangeIndex
-      )
-      return { txHash: await WalletUtils.broadcastBtcRawTx(signedTxRaw) }
-    } else {
-      throw new Error('Invalid crypto type')
     }
   }
 
