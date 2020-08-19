@@ -64,6 +64,7 @@ async function goToReview (formInfo) {
 describe('Email transfer review tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
 
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)

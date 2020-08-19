@@ -8,6 +8,7 @@ const timeout = 180000
 describe('Direct transfer form tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
 
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)

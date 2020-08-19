@@ -8,30 +8,29 @@ import ReceiptPage from './pages/receipt.page'
 import CancelReviewPage from './pages/cancelReview.page'
 import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
-import { getNewPopupPage, getTransfer, getTransferState,getCryptoSymbol } from './testUtils'
+import { getNewPopupPage, getTransfer, getTransferState, getCryptoSymbol } from './testUtils'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
-
 import BN from 'bn.js'
 
 // 15 min
 const timeout = 1000 * 60 * 15
+const reduxTracker = new ReduxTracker()
+
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
 const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 describe('Cancel transfer tests', () => {
-  const reduxTracker = new ReduxTracker()
-  const emtPage = new EmailTransferFormPage()
-  const emtReviewPage = new SendReviewPage()
-  const emtAuthPage = new EmailTransferAuthPage()
-  const receiptPage = new ReceiptPage()
-  const landingPage = new LandingPage()
-  const disconnectPage = new DisconnectPage()
+  let emtPage
+  let emtReviewPage
+  let emtAuthPage
+  let receiptPage
+  let landingPage
+  let disconnectPage
 
   const FORM_BASE = {
-    formPage: emtPage,
     recipient: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
     currencyAmount: '1',
     securityAnswer: '123456',
@@ -49,6 +48,14 @@ describe('Cancel transfer tests', () => {
 
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
+
+    emtPage = new EmailTransferFormPage()
+    emtReviewPage = new SendReviewPage()
+    emtAuthPage = new EmailTransferAuthPage()
+    receiptPage = new ReceiptPage()
+    landingPage = new LandingPage()
+    disconnectPage = new DisconnectPage()
 
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)
@@ -142,7 +149,7 @@ describe('Cancel transfer tests', () => {
       platform: 'chainsfrApi',
       method: 'GET_TRANSFER'
     })
-    
+
     while (true) {
       await page.waitFor(15000) // 15 seconds
       var transferData = await getTransfer({ transferId: transferId })
@@ -172,7 +179,7 @@ describe('Cancel transfer tests', () => {
       platform: 'chainsfrApi',
       method: 'GET_TRANSFER'
     })
-    
+
     const cancelPageTab = await getNewPopupPage(browser, async () => {
       await landingPage.cancelTx(itemIdx)
     })
@@ -229,8 +236,8 @@ describe('Cancel transfer tests', () => {
     expect(emailMessage).toMatch(new RegExp(transferData.receiverName))
     expect(emailMessage).toMatch(new RegExp(transferData.destination))
     expect(emailMessage).toMatch(new RegExp(transferData.cancelMessage))
-    expect(receiptLink).toEqual(
-      `https://testnet.chainsfr.com/receipt?transferId=${transferData.transferId}`
+    expect(receiptLink).toMatch(
+      `testnet.chainsfr.com%2Freceipt%3FtransferId=${transferData.transferId}`
     )
   }
 
@@ -251,8 +258,8 @@ describe('Cancel transfer tests', () => {
     expect(emailMessage).toMatch(new RegExp(transferData.transferFiatAmountSpot))
     expect(emailMessage).toMatch(new RegExp(transferData.fiatType))
     expect(emailMessage).toMatch(new RegExp(transferData.cancelMessage))
-    expect(receiptLink).toEqual(
-      `https://testnet.chainsfr.com/receipt?receivingId=${transferData.receivingId}`
+    expect(receiptLink).toMatch(
+      `testnet.chainsfr.com%2Freceipt%3FreceivingId=${transferData.receivingId}`
     )
   }
 
@@ -295,6 +302,7 @@ describe('Cancel transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'metamask',
         platformType: platformType,
         cryptoType: 'dai',
@@ -314,6 +322,7 @@ describe('Cancel transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'metamask',
         platformType: platformType,
         cryptoType: 'ethereum',
@@ -332,6 +341,7 @@ describe('Cancel transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'drive',
         platformType: platformType,
         cryptoType: 'ethereum',
@@ -368,6 +378,7 @@ describe('Cancel transfer tests', () => {
       await page.goto(`${process.env.E2E_TEST_URL}/send`, { waitUntil: 'networkidle0' })
       await emtPage.fillForm({
         ...FORM_BASE,
+        formPage: emtPage,
         walletType: 'drive',
         platformType: platformType,
         cryptoType: 'dai',

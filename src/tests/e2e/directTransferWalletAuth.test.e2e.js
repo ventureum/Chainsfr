@@ -15,14 +15,14 @@ log.setDefaultLevel('info')
 
 // 3 min
 const timeout = 180000
+const reduxTracker = new ReduxTracker()
 
 describe('Direct Transfer Auth Tests', () => {
   let loginPage
-  const reduxTracker = new ReduxTracker()
-  const dtPage = new DirectTransferFormPage()
-  const dtReviewPage = new DirectTransferReviewPage()
-  const dtAuthPage = new DirectTransferAuthPage()
-  const receiptPage = new ReceiptPage()
+
+  let dtPage
+  let dtReviewPage
+  let dtAuthPage
   const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_API_URL))
   let pendingTxTransferId = []
   var pendingTxHashList = []
@@ -35,6 +35,7 @@ describe('Direct Transfer Auth Tests', () => {
   const NETWORK_ID = 4
 
   const appendTxHash = async () => {
+    const receiptPage = new ReceiptPage()
     const { sendOnExplorerLink } = await receiptPage.getReceiptFormInfo('sendOn')
     const { transferId } = await receiptPage.getReceiptFormInfo('transferId')
     const txHash = sendOnExplorerLink
@@ -49,6 +50,10 @@ describe('Direct Transfer Auth Tests', () => {
     await resetUserDefault()
 
     await requestInterceptor.setRequestInterception(true)
+
+    dtPage = new DirectTransferFormPage()
+    dtReviewPage = new DirectTransferReviewPage()
+    dtAuthPage = new DirectTransferAuthPage()
 
     await page.goto(`${process.env.E2E_TEST_URL}`)
     // login to app
@@ -71,6 +76,8 @@ describe('Direct Transfer Auth Tests', () => {
     } else {
       requestInterceptor.byPass(null)
     }
+
+    await jestPuppeteer.resetPage()
     await page.goto(`${process.env.E2E_TEST_URL}/directTransfer`, {
       waitUntil: 'networkidle0'
     })
@@ -129,6 +136,81 @@ describe('Direct Transfer Auth Tests', () => {
       }
     )
   }
+
+  test(
+    'Send DAI from metamask wallet to drive wallet',
+    async () => {
+      requestInterceptor.byPass({
+        platform: 'ethereum',
+        method: 'eth_call',
+        funcSig: 'allowance',
+        addresses: [
+          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
+          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
+        ]
+      })
+
+      const CRYPTO_AMOUNT = '1'
+
+      await dtPage.dispatchFormActions('transferIn')
+
+      await dtPage.fillForm({
+        ...FORM_BASE,
+        cryptoAmount: CRYPTO_AMOUNT,
+        currencyAmount: null,
+        walletType: 'metamask',
+        platformType: 'ethereum',
+        cryptoType: 'dai'
+      })
+
+      await gotoAuthPage()
+
+      // click connect
+      await Promise.all([
+        reduxTracker.waitFor(
+          [
+            {
+              action: {
+                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'VERIFY_ACCOUNT_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'DIRECT_TRANSFER_FULFILLED'
+              }
+            },
+            {
+              action: {
+                type: 'GET_TRANSFER_FULFILLED'
+              }
+            }
+          ],
+          [
+            // should not have any errors
+            {
+              action: {
+                type: 'ENQUEUE_SNACKBAR',
+                notification: {
+                  options: {
+                    variant: 'error'
+                  }
+                }
+              }
+            }
+          ]
+        ),
+        dtAuthPage.connect('metamask', 'dai')
+      ])
+
+      await appendTxHash()
+    },
+    timeout
+  )
 
   test(
     'Send ETH from drive wallet to metamask wallet',
@@ -374,81 +456,6 @@ describe('Direct Transfer Auth Tests', () => {
           ]
         ),
         dtAuthPage.connect('metamask', 'ethereum')
-      ])
-
-      await appendTxHash()
-    },
-    timeout
-  )
-
-  test(
-    'Send DAI from metamask wallet to drive wallet',
-    async () => {
-      requestInterceptor.byPass({
-        platform: 'ethereum',
-        method: 'eth_call',
-        funcSig: 'allowance',
-        addresses: [
-          '0xd3ced3b16c8977ed0e345d162d982b899e978588',
-          '0xdccf3b5910e936b7bfda447f10530713c2420c5d'
-        ]
-      })
-
-      const CRYPTO_AMOUNT = '1'
-
-      await dtPage.dispatchFormActions('transferIn')
-
-      await dtPage.fillForm({
-        ...FORM_BASE,
-        cryptoAmount: CRYPTO_AMOUNT,
-        currencyAmount: null,
-        walletType: 'metamask',
-        platformType: 'ethereum',
-        cryptoType: 'dai'
-      })
-
-      await gotoAuthPage()
-
-      // click connect
-      await Promise.all([
-        reduxTracker.waitFor(
-          [
-            {
-              action: {
-                type: 'CHECK_WALLET_CONNECTION_FULFILLED'
-              }
-            },
-            {
-              action: {
-                type: 'VERIFY_ACCOUNT_FULFILLED'
-              }
-            },
-            {
-              action: {
-                type: 'DIRECT_TRANSFER_FULFILLED'
-              }
-            },
-            {
-              action: {
-                type: 'GET_TRANSFER_FULFILLED'
-              }
-            }
-          ],
-          [
-            // should not have any errors
-            {
-              action: {
-                type: 'ENQUEUE_SNACKBAR',
-                notification: {
-                  options: {
-                    variant: 'error'
-                  }
-                }
-              }
-            }
-          ]
-        ),
-        dtAuthPage.connect('metamask', 'dai')
       ])
 
       await appendTxHash()

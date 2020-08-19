@@ -71,6 +71,7 @@ async function fillForm (formInfo) {
 describe('Email transfer form tests', () => {
   beforeAll(async () => {
     await resetUserDefault()
+    await jestPuppeteer.resetBrowser()
 
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)

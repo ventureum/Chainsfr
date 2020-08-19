@@ -105,6 +105,7 @@ async function _submitDirectTransferTx (txRequest: {
     .toString()
   const _wallet = createWallet(fromAccount)
 
+  // $FlowFixMe
   const rv = await _wallet.sendTransaction({
     to: destinationAccount.address,
     value: value,
@@ -112,8 +113,11 @@ async function _submitDirectTransferTx (txRequest: {
     options: { directTransfer: true }
   })
 
-  var { txHash } = rv
-  if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
+  const { txHash } = rv
+  if (!txHash) {
+    console.error(`Send Tx Rv: ${rv}`)
+    throw new Error('Failed to fetch txHash from sendTransaction()')
+  }
 
   const response = await API.directTransfer({
     senderAccount: JSON.stringify({
@@ -255,15 +259,17 @@ async function _submitTx (txRequest: {
     password: Base64.encode(password),
     tempTimestamp: timestamp
   })
-
+  let txHash, rv
   try {
-    const rv = await _wallet.sendTransaction({
+    // $FlowFixMe
+    rv = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
       txFee: txFee,
       options: { multiSig }
     })
-    var { txHash } = rv
+
+    txHash = rv.txHash
   } catch (e) {
     const { message } = e
     if (
@@ -280,8 +286,11 @@ async function _submitTx (txRequest: {
       throw e
     }
   }
-  if (!txHash) throw new Error('Failed to fetch txHash from sendTransaction()')
 
+  if (!txHash) {
+    console.error('Send Tx Rv: ', rv)
+    throw new Error('Failed to fetch txHash from sendTransaction()')
+  }
   // update sendTxHash
   return _transactionHashRetrieved({
     ...transferObj,
@@ -722,17 +731,13 @@ async function getRecentTxs (account: AccountData): Promise<Array<Object>> {
       // eth tx
       // 1. gather normal tx
       let response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${
-          account.address
-        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlist&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsNormal = response.data.result
 
       // 2. gather internal tx (sent from a contract)
       response = await axios.get(
-        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${
-          account.address
-        }&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
+        `${url.ETHERSCAN_API_URL}/api?module=account&action=txlistinternal&address=${account.address}&page=1&offset=${MAX_TXS}&sort=desc&apikey=${env.REACT_APP_ETHERSCAN_API_KEY}`
       )
       const txsInternal = response.data.result
 
@@ -1221,10 +1226,12 @@ async function _getTransferHistory (offset: number = 0, transferMethod: string =
   const transferIdsSet = new Set(transferIds)
   const receivingIdsSet = new Set(receivingIds)
 
-  let transferData = (await API.getBatchTransfers({
-    transferIds: transferIds,
-    receivingIds: receivingIds
-  }))
+  let transferData = (
+    await API.getBatchTransfers({
+      transferIds: transferIds,
+      receivingIds: receivingIds
+    })
+  )
     .map(item => {
       // classify transferMethod
       return {
@@ -1454,7 +1461,7 @@ async function _getTxFeeForTransfer (transferData) {
     } else {
       throw new Error(`Invalid transferMethod ${transferMethod}`)
     }
-    
+
     cryptoTypeCheck(cryptoType)
     if (cryptoType === 'bitcoin') {
       const rv = await WalletUtils.getUtxoDetails(txHash)
