@@ -38,6 +38,7 @@
     "eth-json-rpc-errors": "^2.0.2",
     "ethereumjs-tx": "^2.0.0",
     "ethereumjs-util": "^6.2.0",
+    "ethers": "^5.0.8",
     "ethjs-provider-http": "^0.1.6",
     "fast-json-patch": "^3.0.0-1",
     "fuse.js": "^6.4.1",

@@ -261,7 +261,6 @@ async function _submitTx (txRequest: {
   })
   let txHash, rv
   try {
-    // $FlowFixMe
     rv = await _wallet.sendTransaction({
       to: escrowAccount.getAccountData().address,
       value: value,
@@ -292,6 +291,7 @@ async function _submitTx (txRequest: {
     throw new Error('Failed to fetch txHash from sendTransaction()')
   }
   // update sendTxHash
+  // $FlowFixMe
   return _transactionHashRetrieved({
     ...transferObj,
     transferId,
