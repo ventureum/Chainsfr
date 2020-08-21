@@ -26,6 +26,7 @@ import transferStates from '../transferStates'
 import WalletUtils from '../wallets/utils'
 import pWaitFor from 'p-wait-for'
 import env from '../typedEnv'
+import { enqueueSnackbar } from './notificationActions.js'
 
 const MESSAGE_NOT_PROVIDED = '(Not provided)'
 
@@ -1342,8 +1343,20 @@ function submitTx (txRequest: {
       type: 'SUBMIT_TX',
       payload: _submitTx(txRequest),
       meta: { track: utils.getTrackInfoFromSendTransfer(txRequest) }
-    }).then(() => {
+    }).then(data => {
       dispatch(postTxAccountCleanUp(txRequest.fromAccount))
+      if (data.action.payload.reward) {
+        const { reward } = data.action.payload
+        if (!reward.error) {
+          dispatch(
+            enqueueSnackbar({
+              message: `+ ${reward.rewardValue} reward points!`,
+              key: new Date().getTime() + Math.random(),
+              options: { variant: 'info', autoHideDuration: 3000 }
+            })
+          )
+        }
+      }
     })
   }
 }
@@ -1357,10 +1370,25 @@ function acceptTransfer (txRequest: {
   receiveMessage: ?string,
   walletId: string
 }) {
-  return {
-    type: 'ACCEPT_TRANSFER',
-    payload: _acceptTransfer(txRequest),
-    meta: { track: utils.getTrackInfoFromReceiveTransfer(txRequest) }
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'ACCEPT_TRANSFER',
+      payload: _acceptTransfer(txRequest),
+      meta: { track: utils.getTrackInfoFromReceiveTransfer(txRequest) }
+    }).then(data => {
+      if (data.action.payload.reward) {
+        const { reward } = data.action.payload
+        if (!reward.error) {
+          dispatch(
+            enqueueSnackbar({
+              message: `+ ${reward.rewardValue} reward points!`,
+              key: new Date().getTime() + Math.random(),
+              options: { variant: 'info', autoHideDuration: 3000 }
+            })
+          )
+        }
+      }
+    })
   }
 }
 
@@ -1562,6 +1590,37 @@ function setTokenAllowance (fromAccount: AccountData, tokenAllowanceAmount: Stan
   }
 }
 
+function twitterShareReceipt (transfer: { receivingId: string }) {
+  return (dispatch: Function, getState: Function) => {
+    const profile = getState().userReducer.profile
+    return dispatch({
+      type: 'TWITTER_SHARE_RECEIPT',
+      payload: API.twitterShareReceipt({
+        idToken: profile.idToken,
+        receivingId: transfer.receivingId
+      }),
+      meta: {
+        localErrorHandling: true
+      }
+    })
+      .then(data => {
+        if (data.action.payload.reward) {
+          const { reward } = data.action.payload
+          if (!reward.error) {
+            dispatch(
+              enqueueSnackbar({
+                message: `+ ${reward.rewardValue} reward points!`,
+                key: new Date().getTime() + Math.random(),
+                options: { variant: 'info' }
+              })
+            )
+          }
+        }
+      })
+      .catch(e => console.warn(e))
+  }
+}
+
 export {
   submitTx,
   acceptTransfer,
@@ -1575,5 +1634,6 @@ export {
   transferStates,
   submitDirectTransferTx,
   setTokenAllowance,
-  getEmailTransferHisotry
+  getEmailTransferHisotry,
+  twitterShareReceipt
 }

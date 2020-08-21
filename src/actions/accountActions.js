@@ -148,12 +148,14 @@ async function syncHelper (dispatch, accounts) {
 }
 
 async function _addCryptoAccounts (accountData: Array<AccountData>): Promise<Array<AccountData>> {
-  let cryptoAccounts = (await API.addCryptoAccounts(accountData)).cryptoAccounts
+  const resp = await API.addCryptoAccounts(accountData)
+  let { cryptoAccounts } = resp
+  
   // transform to front-end accountData type
-  cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
+  resp.cryptoAccounts = cryptoAccounts.map(cryptoAccount =>
     createAccount(cryptoAccount).getAccountData()
   )
-  return cryptoAccounts
+  return resp
 }
 
 // The 'addToken' flag is used to indicate when this function is
@@ -192,8 +194,8 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>, addTo
     }
     return dispatch({
       type: 'ADD_CRYPTO_ACCOUNTS',
-      payload: _addCryptoAccounts(accountDataList),
-      meta: { track: utils.getTrackInfoFromAccount(accountDataList[0]), localErrorHandling: true }
+      payload: _addCryptoAccounts(accountData),
+      meta: { track: utils.getTrackInfoFromAccount(accountData[0]), localErrorHandling: true }
     })
       .then(data => {
         if (data && data.value) {
@@ -201,7 +203,7 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>, addTo
           accountDataList.forEach((account: AccountData) => {
             dict[account.id] = account
           })
-          syncCryptoPrice(dispatch, data.value)
+          syncCryptoPrice(dispatch, data.value.cryptoAccounts)
           dispatch(
             enqueueSnackbar({
               message: addToken ? 'Token added successfully' : 'Wallet connected successfully.',
@@ -211,8 +213,20 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>, addTo
           )
           syncHelper(
             dispatch,
-            data.value.filter(account => dict[account.id] !== undefined)
+            data.value.cryptoAccounts.filter(account => dict[account.id] !== undefined)
           )
+        }
+        if (data.value.reward) {
+          const { reward } = data.value
+          if (!reward.error) {
+            dispatch(
+              enqueueSnackbar({
+                message: `+ ${reward.rewardValue} reward points!`,
+                key: new Date().getTime() + Math.random(),
+                options: { variant: 'info', autoHideDuration: 3000 }
+              })
+            )
+          }
         }
       })
       .catch(error => {

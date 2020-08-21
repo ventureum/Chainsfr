@@ -54,13 +54,22 @@ export default function (state = initState, action) {
     case 'SET_NEW_USER_TAG':
       return update(state, { profile: { newUser: { $set: action.payload } } })
     case 'GET_RECIPIENTS_FULFILLED':
-    case 'ADD_RECIPIENT_FULFILLED':
     case 'REMOVE_RECIPIENT_FULFILLED':
-    case 'EDIT_RECIPIENT_FULFILLED':
       return update(state, {
         recipients: {
           $set: Array.isArray(action.payload)
             ? action.payload.sort((itemA, itemB) => (itemA.name <= itemB.name ? -1 : 1))
+            : []
+        }
+      })
+    case 'EDIT_RECIPIENT_FULFILLED':
+    case 'ADD_RECIPIENT_FULFILLED':
+      // edit or add recipient invokes addRecipient in the backend
+      // which returns { recipients, reward }
+      return update(state, {
+        recipients: {
+          $set: Array.isArray(action.payload.recipients)
+            ? action.payload.recipients.sort((itemA, itemB) => (itemA.name <= itemB.name ? -1 : 1))
             : []
         }
       })

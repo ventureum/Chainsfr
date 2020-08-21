@@ -13,6 +13,7 @@ import { getTransfer, getTransferState, getCryptoSymbol } from './testUtils'
 import BN from 'bn.js'
 import moment from 'moment'
 import { DEFAULT_TRANSFER_DATA, DEFAULT_TRANSFER_DATA_CONFIG } from './mocks/transfers'
+import { RECEIVER } from './mocks/recipients'
 import TestMailsClient from './email/testMailClient'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 const { transferDataList, driveTransferHistory } = DEFAULT_TRANSFER_DATA
@@ -24,7 +25,6 @@ const reduxTracker = new ReduxTracker()
 const receivingTransfer = { ...transferDataList[1], state: DEFAULT_TRANSFER_DATA_CONFIG[1].state }
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
-const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
 const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 let expiryDays = 0
 if (process.env.REACT_APP_CHAINSFER_API_ENDPOINT.match(new RegExp('prod'))) expiryDays = 28
@@ -39,7 +39,7 @@ describe('Receive transfer tests', () => {
   let disconnectPage
 
   const FORM_BASE = {
-    recipient: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
+    recipient: RECEIVER.email,
     currencyAmount: '1',
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'

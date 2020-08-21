@@ -9,6 +9,7 @@ import { resetUserDefault } from './utils/reset'
 import { getTransfer, getCryptoSymbol } from './testUtils'
 import { INFURA_API_URL } from './config'
 import { DATA, WALLET_FOLDER_NAME, WALLET_FILE_NAME } from './mocks/drive.js'
+import { INVALID_RECIPIENT } from './mocks/recipients'
 import log from 'loglevel'
 import BN from 'bn.js'
 import pWaitFor from 'p-wait-for'
@@ -708,7 +709,7 @@ describe('Transfer Auth Tests', () => {
         walletType: 'metamask',
         platformType: 'ethereum',
         cryptoType: 'ethereum',
-        recipient: 'recipientEmailNotExist.forSure@gmail.com'
+        recipient: INVALID_RECIPIENT.email
       })
 
       await gotoAuthPage()

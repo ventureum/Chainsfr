@@ -2,13 +2,15 @@ if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
 const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
-const googleId = 116840519665671803638
-const email = `${testMailNamespace}.sender${suffix}@inbox.testmail.app`
+const googleId = process.env.REACT_APP_E2E_TEST_MOCK_USER_GOOGLE_ID
+  ? process.env.REACT_APP_E2E_TEST_MOCK_USER_GOOGLE_ID.toString()
+  : '116840519665671803638'
+const email = `${testMailNamespace}.sender${suffix}@inbox.testmail.app`.toLowerCase()
 const name = 'e2e test sender'
 const idToken = `mock-${googleId}-${email}-${name}`
 
 const GOOGLE_LOGIN_AUTH_OBJ = {
-  googleId: '116840519665671803638',
+  googleId,
   tokenObj: {
     token_type: 'Bearer',
     access_token:

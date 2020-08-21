@@ -158,7 +158,7 @@ function addRecipient (
       // error snackbar
       meta: { localErrorHandling: true }
     })
-      .then(() => {
+      .then((resp) => {
         if (notify) {
           dispatch(
             enqueueSnackbar({
@@ -178,6 +178,18 @@ function addRecipient (
               })
             )
           )
+        }
+        if (resp.action.payload.reward) {
+          const { reward } = resp.action.payload
+          if (!reward.error) {
+            dispatch(
+              enqueueSnackbar({
+                message: `+ ${reward.rewardValue} reward points!`,
+                key: new Date().getTime() + Math.random(),
+                options: { variant: 'info', autoHideDuration: 3000 }
+              })
+            )
+          }
         }
       })
       .catch(error => {
