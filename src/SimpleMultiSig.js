@@ -71,9 +71,9 @@ class SimpleMultiSig {
     }
     // sign data with escrow's privateKey
     // return clientSig
-    const wallet = new ethers.Wallet(privateKey)
+    const signingKey = new ethers.utils.SigningKey(privateKey)
     return ethers.utils.joinSignature(
-      await wallet.signingKey.signDigest(ethers.utils.arrayify(signingData.data))
+      await signingKey.signDigest(ethers.utils.arrayify(signingData.data))
     )
   }
 
