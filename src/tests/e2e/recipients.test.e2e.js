@@ -26,7 +26,9 @@ describe('Recipients Page', () => {
       method: 'GET_RECIPIENTS'
     })
 
-    await page.goto(process.env.E2E_TEST_URL)
+    await page.goto(process.env.E2E_TEST_URL, {
+      waitUntil: 'networkidle0'
+    })
     loginPage = new LoginPage()
     recipientsPage = new RecipientsPage()
     await loginPage.login(

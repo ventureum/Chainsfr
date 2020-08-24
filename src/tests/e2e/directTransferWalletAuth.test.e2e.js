@@ -55,7 +55,9 @@ describe('Direct Transfer Auth Tests', () => {
     dtReviewPage = new DirectTransferReviewPage()
     dtAuthPage = new DirectTransferAuthPage()
 
-    await page.goto(`${process.env.E2E_TEST_URL}`)
+    await page.goto(process.env.E2E_TEST_URL, {
+      waitUntil: 'networkidle0'
+    })
     // login to app
     const loginPage = new LoginPage()
     await loginPage.login(

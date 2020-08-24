@@ -76,7 +76,9 @@ describe('Email transfer form tests', () => {
     // setup interceptor
     await requestInterceptor.setRequestInterception(true)
 
-    await page.goto(`${process.env.E2E_TEST_URL}`)
+    await page.goto(process.env.E2E_TEST_URL, {
+      waitUntil: 'networkidle0'
+    })
     // login to app
     const loginPage = new LoginPage()
     await loginPage.login(

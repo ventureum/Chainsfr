@@ -90,12 +90,25 @@ const serializeTransform = createTransform(
   { whitelist: ['txControllerReducer'] }
 )
 
+const EthContractsTransform = createTransform(
+  // transform state on its way to being serialized and persisted.
+  (inboundState, key) => {
+    return { ethContracts: inboundState.ethContracts }
+  },
+  // transform state being rehydrated
+  (outboundState, key) => {
+    return { ethContracts: outboundState.ethContracts }
+  },
+  // define which reducers this transform gets called for.
+  { whitelist: ['accountReducer'] }
+)
+
 const persistConfig = {
   key: 'root',
   storage,
   stateReconciler: autoMergeLevel2,
-  transforms: [serializeTransform],
-  whitelist: ['userReducer', 'txControllerReducer']
+  transforms: [serializeTransform, EthContractsTransform],
+  whitelist: ['userReducer', 'txControllerReducer', 'accountReducer']
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers(history))

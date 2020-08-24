@@ -82,7 +82,9 @@ describe('Receipt page tests', () => {
     await requestInterceptor.setRequestInterception(true)
 
     const loginPage = new LoginPage()
-    await page.goto(`${process.env.E2E_TEST_URL}`)
+    await page.goto(process.env.E2E_TEST_URL, {
+      waitUntil: 'networkidle0'
+    })
     await loginPage.login(
       process.env.E2E_TEST_GOOGLE_LOGIN_USERNAME,
       process.env.E2E_TEST_GOOGLE_LOGIN_PASSWORD,
