@@ -34,7 +34,12 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import { themeChainsfr } from './styles/theme'
 import CookieConsent from 'react-cookie-consent'
-import { onLogout, refreshAccessToken, postLoginPreparation } from './actions/userActions'
+import {
+  onLogout,
+  refreshAccessToken,
+  postLoginPreparation,
+  preLoginActions
+} from './actions/userActions'
 import { enqueueSnackbar, closeSnackbar } from './actions/notificationActions'
 import { Detector } from 'react-detect-offline'
 import { Hidden, Typography } from '@material-ui/core'
@@ -327,6 +332,8 @@ class App extends Component {
           store.dispatch(refreshAccessToken())
         }, 1000 * 60 * 50)
       }
+    } else {
+      await store.dispatch(preLoginActions())
     }
 
     this.setState({ preloadFinished: true })

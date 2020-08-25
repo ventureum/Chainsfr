@@ -209,7 +209,10 @@ function addCryptoAccounts (accountData: AccountData | Array<AccountData>, addTo
               options: { variant: 'success', autoHideDuration: 3000 }
             })
           )
-          syncHelper(dispatch, data.value.filter(account => dict[account.id] !== undefined))
+          syncHelper(
+            dispatch,
+            data.value.filter(account => dict[account.id] !== undefined)
+          )
         }
       })
       .catch(error => {
@@ -369,10 +372,16 @@ function postTxAccountCleanUp (accountData: AccountData) {
 }
 
 function getAllEthContracts () {
-  return {
-    type: 'GET_ALL_ETH_CONTRACTS',
-    payload: async () => {
-      return API.getAllEthContracts()
+  return (dispatch: Function, getState: Function) => {
+    const { ethContracts, ethContractsExpiry } = getState().accountReducer
+    // fetch when !ethContract or contracts info has expired
+    if (!ethContracts || ethContractsExpiry < Math.round(new Date().getTime() / 1000)) {
+      return dispatch({
+        type: 'GET_ALL_ETH_CONTRACTS',
+        payload: async () => {
+          return API.getAllEthContracts()
+        }
+      })
     }
   }
 }

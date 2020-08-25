@@ -7,7 +7,8 @@ const initState = {
   escrowAccount: null,
   cryptoAccounts: [],
   newCryptoAccountsFromWallet: [],
-  ethContracts: []
+  ethContracts: null,
+  ethContractsExpiry: 0
 }
 
 /*
@@ -109,9 +110,11 @@ export default function (state = initState, action) {
       action.payload.forEach(contract => {
         ethContracts[contract.cryptoType] = contract
       })
+      const ethContractsExpiry = Math.round(new Date().getTime() / 1000) + 24 * 60 * 60 // 24hrs
       return {
         ...state,
-        ethContracts: ethContracts
+        ethContracts: ethContracts,
+        ethContractsExpiry: ethContractsExpiry
       }
     }
     default:

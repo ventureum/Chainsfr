@@ -23,7 +23,9 @@ describe('Login and onboarding', () => {
   it(
     'Login normally as a returning user',
     async () => {
-      await page.goto(process.env.E2E_TEST_URL)
+      await page.goto(process.env.E2E_TEST_URL, {
+        waitUntil: 'networkidle0'
+      })
       const loginPage = new LoginPage()
       const reduxTracker = new ReduxTracker()
       await Promise.all([
@@ -83,7 +85,9 @@ describe('Login and onboarding', () => {
       // reset browser
       await jestPuppeteer.resetBrowser()
 
-      await page.goto(`${process.env.E2E_TEST_URL}`)
+      await page.goto(process.env.E2E_TEST_URL, {
+        waitUntil: 'networkidle0'
+      })
       // now test account is a new user
       const reduxTracker = new ReduxTracker()
 

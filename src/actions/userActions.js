@@ -336,6 +336,17 @@ function postLoginPreparation (loginData: any, progress?: Function) {
   }
 }
 
+function preLoginActions () {
+  return (dispatch: Function, getState: Function) => {
+    return dispatch({
+      type: 'PRE_LOGIN_ACTIONS',
+      payload: async () => {
+        await dispatch(getAllEthContracts())
+      }
+    })
+  }
+}
+
 export {
   clearError,
   register,
@@ -350,5 +361,6 @@ export {
   setCoinbaseAccessObject,
   getUserCloudWalletFolderMeta,
   getUserRegisterTime,
-  postLoginPreparation
+  postLoginPreparation,
+  preLoginActions
 }
