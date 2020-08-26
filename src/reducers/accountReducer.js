@@ -84,9 +84,11 @@ export default function (state = initState, action) {
     // following three actions return a complete list of accounts after actions
     case 'GET_CRYPTO_ACCOUNTS_FULFILLED':
     case 'REMOVE_CRYPTO_ACCOUNTS_FULFILLED':
-    case 'ADD_CRYPTO_ACCOUNTS_FULFILLED':
     case 'MODIFY_CRYPTO_ACCOUNTS_NAME_FULFILLED':
       return updateCryptoAccount(state, action.payload, true, false)
+    case 'ADD_CRYPTO_ACCOUNTS_FULFILLED':
+      // this action returns { cryptoAccounts, reward }
+      return updateCryptoAccount(state, action.payload.cryptoAccounts, true, false)
     case 'MARK_ACCOUNT_DIRTY':
     case 'SYNC_WITH_NETWORK_FULFILLED':
     case 'VERIFY_ACCOUNT_FULFILLED':

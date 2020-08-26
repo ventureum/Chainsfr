@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import Receipt from '../components/ReceiptComponent'
 import moment from 'moment'
 import { createLoadingSelector, createErrorSelector } from '../selectors'
-import { getTransfer, getTransferPassword } from '../actions/transferActions'
+import { getTransfer, getTransferPassword, twitterShareReceipt } from '../actions/transferActions'
 import { backToHome } from '../actions/navigationActions'
 import queryString from 'query-string'
 import paths from '../Paths'
@@ -23,7 +23,8 @@ type Props = {
   error: string,
   getTransfer: Function,
   getTransferPassword: Function,
-  backToHome: Function
+  backToHome: Function,
+  twitterShareReceipt: Function
 }
 
 type State = {
@@ -76,7 +77,7 @@ class ReceiptContainer extends Component<Props, State> {
   }
 
   render () {
-    const { transfer, recipients, error, backToHome } = this.props
+    const { transfer, recipients, error, backToHome, twitterShareReceipt } = this.props
 
     if (transfer) {
       const { sendTimestamp, receiveTimestamp, cancelTimestamp } = transfer
@@ -96,6 +97,7 @@ class ReceiptContainer extends Component<Props, State> {
         recipients={recipients}
         error={error}
         backToHome={backToHome}
+        twitterShareReceipt={twitterShareReceipt}
       />
     )
   }
@@ -124,6 +126,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getTransfer: (transferId, receivingId) => dispatch(getTransfer(transferId, receivingId)),
     getTransferPassword: transferId => dispatch(getTransferPassword(transferId)),
+    twitterShareReceipt: (transfer) => dispatch(twitterShareReceipt(transfer)),
     backToHome: () => dispatch(backToHome())
   }
 }

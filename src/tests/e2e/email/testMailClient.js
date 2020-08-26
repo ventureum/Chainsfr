@@ -15,13 +15,12 @@ type EmailType = {
   html: string
 }
 
-if (!process.env.E2E_TEST_TEST_MAIL_API_KEY)
-  throw new Error('E2E_TEST_TEST_MAIL_API_KEY missing')
+if (!process.env.E2E_TEST_TEST_MAIL_API_KEY) throw new Error('E2E_TEST_TEST_MAIL_API_KEY missing')
 const testMailApiKey = process.env.E2E_TEST_TEST_MAIL_API_KEY
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
 const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
-const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
+const suffix = (process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || '').toLowerCase()
 
 export default class TestMailsClient {
   tag: string

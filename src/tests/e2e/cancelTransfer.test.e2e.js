@@ -10,6 +10,7 @@ import ReduxTracker from './utils/reduxTracker'
 import { resetUserDefault } from './utils/reset'
 import { getNewPopupPage, getTransfer, getTransferState, getCryptoSymbol } from './testUtils'
 import TestMailsClient from './email/testMailClient'
+import { RECEIVER } from './mocks/recipients'
 import { SELECTORS, EmailParser, getEmailSubject } from './email/emailParser'
 import BN from 'bn.js'
 
@@ -19,8 +20,6 @@ const reduxTracker = new ReduxTracker()
 
 if (!process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE)
   throw new Error('REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE missing')
-const testMailNamespace = process.env.REACT_APP_E2E_TEST_TEST_MAIL_NAMESPACE
-const suffix = process.env.REACT_APP_E2E_TEST_MAIL_TAG_SUFFIX || ''
 
 describe('Cancel transfer tests', () => {
   let emtPage
@@ -31,7 +30,7 @@ describe('Cancel transfer tests', () => {
   let disconnectPage
 
   const FORM_BASE = {
-    recipient: `${testMailNamespace}.receiver${suffix}@inbox.testmail.app`,
+    recipient: RECEIVER.email,
     currencyAmount: '1',
     securityAnswer: '123456',
     sendMessage: 'donchdachdonchdach'

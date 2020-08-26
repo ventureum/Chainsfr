@@ -15,3 +15,11 @@ export type CloudWalletFolderMetaType = {
   lastModified?: number, // timestamp，
   lastExported?: number // timestamp
 }
+
+export type RewardDataType = {
+  rewardType: string,
+  rewardValue: string,
+  timestamp: string,
+  // store any other meta info for a specified rewardType, e.g. transferId
+  meta: Object
+}

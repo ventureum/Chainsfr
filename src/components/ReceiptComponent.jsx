@@ -23,6 +23,7 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import * as TransferInfoCommon from './TransferInfoCommon'
 import url from '../url'
 import transferStates from '../transferStates'
+import TwitterIcon from '@material-ui/icons/Twitter'
 
 type Props = {
   transfer: Object,
@@ -31,7 +32,8 @@ type Props = {
   cancelTime: string,
   classes: Object,
   error: Object,
-  backToHome: Function
+  backToHome: Function,
+  twitterShareReceipt: Function
 }
 
 type State = {
@@ -52,6 +54,11 @@ class ReceiptComponent extends Component<Props, State> {
         showAddress: !prevState.showAddress
       }
     })
+  }
+
+  twitterShare = () => {
+    const { twitterShareReceipt, transfer } = this.props
+    twitterShareReceipt(transfer)
   }
 
   renderReceipt () {
@@ -462,7 +469,12 @@ class ReceiptComponent extends Component<Props, State> {
                     <Grid container direction='column' alignItems='flex-start'>
                       <Typography variant='caption'>Security Answer</Typography>
                       <Grid item style={{ width: '100%' }}>
-                        <Grid container justify='space-between' direction='row' alignItems='center'>
+                        <Grid
+                          container
+                          justify='space-between'
+                          direction='row'
+                          alignItems='center'
+                        >
                           {password ? (
                             <>
                               <Typography variant='body2' data-test-id='security_answer'>
@@ -619,6 +631,43 @@ class ReceiptComponent extends Component<Props, State> {
                 </Grid>
               </Grid>
             </Grid>
+          </Box>
+          <Box mt={2}>
+            <Alert
+              severity='info'
+              icon={false}
+              action={
+                <Button
+                  variant='outlined'
+                  color='primary'
+                  size='small'
+                  startIcon={<TwitterIcon />}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  href={`https://twitter.com/intent/tweet?text=I just sent ${transferAmount} (${transferFiatAmountSpot} ${fiatType}) with Chainsfr&url=https://chainsfr.com&via=chainsfr_com`}
+                  onClick={this.twitterShare}
+                >
+                  Share
+                </Button>
+              }
+            >
+              <Box>
+                <p>
+                  {'Get 100 '}
+                  <a
+                    aria-label='reward points'
+                    rel='noopener noreferrer'
+                    size='small'
+                    target='_blank'
+                    href='https://help.chainsfr.com/en/articles/4323912-rewards-plan'
+                    style={{ textDecoration: 'none', color: '#333', fontWeight: '700' }}
+                  >
+                    reward points
+                  </a>
+                  {' when you share on twitter!'}
+                </p>
+              </Box>
+            </Alert>
           </Box>
 
           <Box mt={7}>

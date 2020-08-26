@@ -231,7 +231,7 @@ async function addRecipient (request: { idToken: string, recipient: Recipient })
       idToken: request.idToken,
       recipient: request.recipient
     })
-    return rv.data.recipients
+    return rv.data
   } catch (err) {
     throw new Error(`Add contact failed: ${err.response.data}`)
   }
@@ -602,6 +602,22 @@ async function getEthContract (address: string): Promise<EthContractType> {
   }
 }
 
+async function twitterShareReceipt (request: {
+  idToken: string,
+  transferId?: string,
+  receivingId?: string
+}) {
+  try {
+    const rv = await chainsferApi.post('/user', {
+      ...request,
+      action: 'TWITTER_SHARE_RECEIPT'
+    })
+    return rv.data
+  } catch (err) {
+    throw new Error('Add reward failed.')
+  }
+}
+
 export default {
   directTransfer,
   transfer,
@@ -634,5 +650,6 @@ export default {
   getEmailTransfers,
   clearTransfer,
   getAllEthContracts,
-  getEthContract
+  getEthContract,
+  twitterShareReceipt
 }
