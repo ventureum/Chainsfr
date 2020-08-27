@@ -43,11 +43,16 @@ const SettingTabs = props => {
       textColor='primary'
       variant={large ? 'standard' : 'fullWidth'}
     >
-      <Tab label='Account Info' data-test-td='account_info' />
+      <Tab label='Account Info' data-test-id='account_info' />
+      <Tab label='Rewards' data-test-id='rewards' />
       <Tab label='Security' data-test-id='security' />
       <Tab label='Advanced' data-test-id='advanced' />
     </Tabs>
   )
+}
+
+const Rewards = props => {
+  return <Box></Box>
 }
 
 const accountInfoStyle = makeStyles({
@@ -543,6 +548,7 @@ const UserSettingComponent = props => {
   const large = useMediaQuery(theme.breakpoints.up('sm'))
   const tabContents = [
     <AccountInfo {...props} />,
+    <Rewards {...props} />,
     <Security {...props} />,
     <Advanced {...props} large={large} />
   ]
