@@ -125,7 +125,7 @@ const TokenSearchComponent = props => {
                 className={classes.listItem}
               >
                 <ListItemIcon className={classes.listItemIcon}>
-                  <img width='30px' height='30px' src={item.logo} alt={`${item.symbol}_logo`} />
+                  <Avatar src={item.logo} alt={`${item.symbol}_logo`} className={{width: '60px', height: '65px'}} />
                 </ListItemIcon>
                 <ListItemText>
                   {item.name} ({item.symbol})
