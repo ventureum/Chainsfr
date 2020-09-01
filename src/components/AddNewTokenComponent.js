@@ -125,7 +125,7 @@ const TokenSearchComponent = props => {
                 className={classes.listItem}
               >
                 <ListItemIcon className={classes.listItemIcon}>
-                  <img width='30px' height='30px' src={item.logo} alt={`${item.symbol}_logo`} />
+                  <Avatar src={item.logo} alt={`${item.symbol}_logo`} className={{width: '60px', height: '65px'}} />
                 </ListItemIcon>
                 <ListItemText>
                   {item.name} ({item.symbol})
@@ -143,7 +143,7 @@ const AddTokenDrawer = props => {
   const [selectedWallet, setSelectedWallet] = useState('')
   const [selectedToken, setSelectedToken] = useState(null)
 
-  const { ethContracts, addToken, adding } = props
+  const { open, ethContracts, addToken, adding } = props
 
   const classes = useStyle()
   const { wallets, onClose } = props
@@ -174,7 +174,7 @@ const AddTokenDrawer = props => {
   }
 
   return (
-    <Drawer anchor='right' open onClose={onClose} classes={{ paper: classes.drawerPapper }}>
+    <Drawer anchor='right' open={open} onClose={onClose} classes={{ paper: classes.drawerPapper }}>
       <Box display='relative' padding='20px 30px'>
         <Typography variant='h3'>Add Tokens</Typography>
         <IconButton onClick={onClose} className={classes.closeButton}>
