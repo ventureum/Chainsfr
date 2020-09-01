@@ -166,15 +166,14 @@ class AccountsManagementContainer extends Component {
           online={online}
           currency={currency}
         />
-        {addTokenDrawer && (
-          <AddTokenDrawer
-            wallets={wallets}
-            onClose={this.toggleAddTokenDrawer}
-            ethContracts={ethContracts}
-            addToken={this.addToken}
-            adding={actionsPending.addCryptoAccounts}
-          />
-        )}
+        <AddTokenDrawer
+          open={addTokenDrawer}
+          wallets={wallets}
+          onClose={this.toggleAddTokenDrawer}
+          ethContracts={ethContracts}
+          addToken={this.addToken}
+          adding={actionsPending.addCryptoAccounts}
+        />
       </>
     )
   }

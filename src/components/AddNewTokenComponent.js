@@ -143,7 +143,7 @@ const AddTokenDrawer = props => {
   const [selectedWallet, setSelectedWallet] = useState('')
   const [selectedToken, setSelectedToken] = useState(null)
 
-  const { ethContracts, addToken, adding } = props
+  const { open, ethContracts, addToken, adding } = props
 
   const classes = useStyle()
   const { wallets, onClose } = props
@@ -174,7 +174,7 @@ const AddTokenDrawer = props => {
   }
 
   return (
-    <Drawer anchor='right' open onClose={onClose} classes={{ paper: classes.drawerPapper }}>
+    <Drawer anchor='right' open={open} onClose={onClose} classes={{ paper: classes.drawerPapper }}>
       <Box display='relative' padding='20px 30px'>
         <Typography variant='h3'>Add Tokens</Typography>
         <IconButton onClick={onClose} className={classes.closeButton}>
