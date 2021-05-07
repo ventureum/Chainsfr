@@ -81,7 +81,7 @@
     "styled-components": "^3.4.10",
     "typeface-lato": "0.0.54",
     "typeface-roboto": "0.0.54",
-    "ua-parser-js": "^0.7.21",
+    "ua-parser-js": "^0.7.24",
     "uuid": "^3.3.2",
     "validator": "^10.11.0",
     "walletlink": "^2.0.2",
